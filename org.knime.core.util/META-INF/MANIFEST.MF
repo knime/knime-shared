@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME Core Utility Plugin
+Bundle-SymbolicName: org.knime.core.util;singleton:=true
+Bundle-Version: 2.4.0.qualifier
+Bundle-ClassPath: knime-core-util.jar
+Bundle-Vendor: KNIME GmbH, Konstanz, Germany
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-BuddyPolicy: registered
+Bundle-ActivationPolicy: lazy
