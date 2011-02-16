@@ -8,8 +8,10 @@ Bundle-Vendor: KNIME GmbH, Konstanz, Germany
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
-Export-Package: org.knime.core.node;x-friends:="org.knime.core",
- org.knime.core.node.config.base;x-friends:="org.knime.core",
- org.knime.core.node.workflow;x-friends:="org.knime.core",
+Export-Package: org.knime.core.node,
+ org.knime.core.node.config.base,
+ org.knime.core.node.workflow,
  org.knime.core.util.node.config,
- org.knime.core.util.node.config.display
+ org.knime.core.util.node.config.display,
+ org.knime.core.util.node.quickform.in,
+ org.knime.core.util.node.quickform.out
