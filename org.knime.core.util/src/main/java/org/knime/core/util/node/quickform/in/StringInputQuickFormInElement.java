@@ -50,6 +50,7 @@ package org.knime.core.util.node.quickform.in;
 
 
 /**
+ * A form element to enter a simple string.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
@@ -58,6 +59,22 @@ public class StringInputQuickFormInElement extends AbstractQuickFormInElement {
     private static final long serialVersionUID = -4983974747903893978L;
 
     private String m_value;
+
+
+    /** Create string input with a given description.
+     * @param label The label, not null!
+     * @param description The description, possibly null.
+     */
+    public StringInputQuickFormInElement(
+            final String label, final String description) {
+        super(label, description);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.StringInput;
+    }
 
     /** @param value the value to set */
     public void setValue(final String value) {

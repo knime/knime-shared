@@ -59,36 +59,42 @@ public abstract class AbstractQuickFormInElement implements Serializable {
 
     private static final long serialVersionUID = -6790238955178501177L;
 
-    /** Empty constructor, no op. */
-    protected AbstractQuickFormInElement() {
-        // no content
+    private final String m_label;
+    private final String m_description;
+
+    /** Constructor with a given label and description.
+     * @param label A label shown in the controller.
+     * @param description A description shown in the controller,
+     *        possibly null. */
+    protected AbstractQuickFormInElement(
+            final String label, final String description) {
+        if (label == null) {
+            throw new NullPointerException("Argument must not be null.");
+        }
+        m_label = label;
+        m_description = description;
     }
+
+    /** @return the label, never null. */
+    public String getLabel() {
+        return m_label;
+    }
+
+    /** @return the description, possibly null.  */
+    public String getDescription() {
+        return m_description;
+    }
+
+    /** @return associated type. */
+    public abstract Type getType();
 
     /** Enum of all known types. */
     public enum Type {
-
         /** File upload element. */
-        FileUpload {
-            /** {@inheritDoc} */
-            @Override
-            public FileUploadQuickFormInElement create() {
-                return new FileUploadQuickFormInElement();
-            }
-        },
-
+        FileUpload,
         /** String input element. */
-        StringInput {
-            /** {@inheritDoc} */
-            @Override
-            public StringInputQuickFormInElement create() {
-                return new StringInputQuickFormInElement();
-            }
-        };
+        StringInput;
 
-        /** Creates a new form element for the given type.
-         * @return A new form element for the current enum type.
-         */
-        public abstract AbstractQuickFormInElement create();
     }
 
 }
