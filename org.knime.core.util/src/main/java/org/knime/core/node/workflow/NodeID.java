@@ -50,6 +50,8 @@
  */
 package org.knime.core.node.workflow;
 
+import java.io.Serializable;
+
 /**
  * Holds hierarchical ID of a node. The hierarchy models nested meta nodes.
  * All IDs will have one static instance of ROOTID as their top ID in this
@@ -57,7 +59,7 @@ package org.knime.core.node.workflow;
  *
  * @author M. Berthold/B. Wiswedel, University of Konstanz
  */
-public class NodeID implements Comparable<NodeID> {
+public class NodeID implements Serializable, Comparable<NodeID> {
     private final NodeID m_prefix;
     private final int m_index;
 
