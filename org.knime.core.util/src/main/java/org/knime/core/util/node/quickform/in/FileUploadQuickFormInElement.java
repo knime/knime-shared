@@ -48,26 +48,54 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Form element to choose and upload a file.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
+public final class FileUploadQuickFormInElement
+    extends AbstractQuickFormInElement {
 
     private static final long serialVersionUID = -2475223296255933339L;
+    private final List<String> m_extensions;
+    private File m_file;
 
-    private List<String> m_extensions;
+
+    /** Create a file upload element with a given label and a valid set of
+     * extensions.
+     * @param label The label, not null!
+     * @param description The description, possibly null.
+     * @param extensions Valid file extensions or null (all files accepted).
+     */
+    public FileUploadQuickFormInElement(final String label,
+            final String description, final String[] extensions) {
+        super(label, description);
+        m_extensions = extensions == null ? null : Arrays.asList(extensions);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.FileUpload;
+    }
 
     /** @return the extensions */
     public List<String> getExtensions() {
         return m_extensions;
     }
 
-    /** @param extensions the extensions to set */
-    public void setExtensions(final List<String> extensions) {
-        m_extensions = extensions;
+    /** @param file the file to set */
+    public void setFile(final File file) {
+        m_file = file;
+    }
+
+    /** @return the file */
+    public File getFile() {
+        return m_file;
     }
 
 }
