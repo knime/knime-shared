@@ -63,7 +63,8 @@ public class NodeID implements Serializable, Comparable<NodeID> {
     private final NodeID m_prefix;
     private final int m_index;
 
-    static final NodeID ROOTID = new NodeID();
+    /** Root node ID, all nodeID will derive from this instance. */
+    public static final NodeID ROOTID = new NodeID();
 
     /** Creates now NodeID object based on a predefined prefix (usually the
      * ID of the encapsulating project or metanode) and the node's ID itself.
