@@ -54,11 +54,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
+import javax.swing.tree.TreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -1329,5 +1332,69 @@ public abstract class ConfigBase extends AbstractConfigEntry
             }
         }
     }
+
+    // tree node methods
+
+    /**
+     * The TreeNode for the given index.
+     * @param childIndex The index to retrieve the TreeNode for.
+     * @return The associated TreeNode.
+     */
+    @Override
+    public TreeNode getChildAt(final int childIndex) {
+        Iterator<String> it = m_map.keySet().iterator();
+        for (int i = 0; i < childIndex; i++) {
+            it.next();
+        }
+        TreeNode node = m_map.get(it.next());
+        return node;
+    }
+
+    /**
+     * @return The number of entries in this Config.
+     * @see javax.swing.tree.TreeNode#getChildCount()
+     */
+    @Override
+    public int getChildCount() {
+        return m_map.size();
+    }
+
+    /**
+     * Returns the index for a given TreeNode.
+     * @param node The TreeNode to get the index for.
+     * @return The index of the given node.
+     * @see javax.swing.tree.TreeNode#getIndex(javax.swing.tree.TreeNode)
+     */
+    @Override
+    public int getIndex(final TreeNode node) {
+        int i = 0;
+        for (Map.Entry<String, AbstractConfigEntry> e : m_map.entrySet()) {
+            if (e.getValue().equals(node)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    /**
+     * @return true, only if the map is empty.
+     * @see javax.swing.tree.TreeNode#isLeaf()
+     */
+    @Override
+    public final boolean isLeaf() {
+        return m_map.isEmpty();
+    }
+
+    /**
+     * An enumeration of a values.
+     * @return All elements of this Config.
+     * @see javax.swing.tree.TreeNode#children()
+     */
+    @Override
+    public final Enumeration<TreeNode> children() {
+        return new Vector<TreeNode>(m_map.values()).elements();
+    }
+
 
 }
