@@ -143,7 +143,7 @@ public abstract class AbstractConfigEntry implements Serializable, TreeNode {
      * to re-load this Config entry.
      * @return A String representing this Config entry which can be null.
      */
-    abstract String toStringValue();
+    public abstract String toStringValue();
 
     /**
      * Config entries are equal if they are identical.
