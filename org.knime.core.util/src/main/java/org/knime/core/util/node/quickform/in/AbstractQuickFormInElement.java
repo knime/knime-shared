@@ -48,19 +48,18 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import java.io.Serializable;
+import org.knime.core.util.node.quickform.AbstractQuickFormElement;
 
 /**
  * Super class of all input elements.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public abstract class AbstractQuickFormInElement implements Serializable {
+public abstract class AbstractQuickFormInElement
+    extends AbstractQuickFormElement {
 
     private static final long serialVersionUID = -6790238955178501177L;
 
-    private final String m_label;
-    private final String m_description;
 
     /** Constructor with a given label and description.
      * @param label A label shown in the controller.
@@ -68,21 +67,7 @@ public abstract class AbstractQuickFormInElement implements Serializable {
      *        possibly null. */
     protected AbstractQuickFormInElement(
             final String label, final String description) {
-        if (label == null) {
-            throw new NullPointerException("Argument must not be null.");
-        }
-        m_label = label;
-        m_description = description;
-    }
-
-    /** @return the label, never null. */
-    public String getLabel() {
-        return m_label;
-    }
-
-    /** @return the description, possibly null.  */
-    public String getDescription() {
-        return m_description;
+        super(label, description);
     }
 
     /** @return associated type. */

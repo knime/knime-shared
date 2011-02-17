@@ -46,34 +46,43 @@
  * ------------------------------------------------------------------------
  *
  */
-package org.knime.core.util.node.quickform.out;
+package org.knime.core.util.node.quickform;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
+import java.io.Serializable;
 
 /**
- * Super class of all output elements. These elements are usually returned by
- * nodes representing results.
+ * Super class of all form elements.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public abstract class AbstractQuickFormOutElement
-    extends AbstractQuickFormElement {
+public abstract class AbstractQuickFormElement implements Serializable {
 
-    private static final long serialVersionUID = -3089009213498546882L;
+    private static final long serialVersionUID = 9185133246163139446L;
 
-    /** Delegate to super.
-     * @param label Forwarded
-     * @param description Forwarded */
-    protected AbstractQuickFormOutElement(
+    private final String m_label;
+    private final String m_description;
+
+    /** Constructor with a given label and description.
+     * @param label A label shown in the controller.
+     * @param description A description shown in the controller,
+     *        possibly null. */
+    protected AbstractQuickFormElement(
             final String label, final String description) {
-        super(label, description);
+        if (label == null) {
+            throw new NullPointerException("Argument must not be null.");
+        }
+        m_label = label;
+        m_description = description;
     }
 
-    /** Type enum of all registered types. */
-    public enum Type {
-        /** Plain string result, e.g. value of a variable. */
-        StringOutput;
+    /** @return the label, never null. */
+    public String getLabel() {
+        return m_label;
+    }
 
+    /** @return the description, possibly null.  */
+    public String getDescription() {
+        return m_description;
     }
 
 }

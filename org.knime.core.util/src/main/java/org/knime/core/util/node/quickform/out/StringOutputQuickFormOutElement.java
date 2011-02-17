@@ -61,6 +61,15 @@ public class StringOutputQuickFormOutElement extends
 
     private String m_value;
 
+    /** Creates string output element with the given label and description.
+     * @param label The label as shown in the GUI/Web, not null.
+     * @param description The description, maybe null.
+     */
+    public StringOutputQuickFormOutElement(
+            final String label, final String description) {
+        super(label, description);
+    }
+
     /** @param value the value to set */
     public void setValue(final String value) {
         m_value = value;
