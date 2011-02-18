@@ -59,7 +59,7 @@ import org.knime.core.util.node.quickform.AbstractQuickFormElement;
 public abstract class AbstractQuickFormOutElement
     extends AbstractQuickFormElement {
 
-    private static final long serialVersionUID = -3089009213498546882L;
+    private static final long serialVersionUID = 6133197190665247793L;
 
     /** Delegate to super.
      * @param label Forwarded
@@ -69,10 +69,18 @@ public abstract class AbstractQuickFormOutElement
         super(label, description);
     }
 
+    /**
+     * Get enum type this object represents.
+     * @return The type, not null.
+     */
+    public abstract Type getType();
+
     /** Type enum of all registered types. */
     public enum Type {
-        /** Plain string result, e.g. value of a variable. */
-        StringOutput;
+        /** Represents downloadable file. */
+        FileDownload,
+        /** The value of a workflow variable. */
+        VariableOutput;
 
     }
 
