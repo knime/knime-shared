@@ -48,18 +48,20 @@
  */
 package org.knime.core.util.node.quickform.out;
 
+import java.io.File;
+
 /**
  * Variable output element, for instance provided by nodes that expose values of
  * flow variables.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public class VariableOutputQuickFormOutElement extends
+public class FileDownloadQuickFormOutElement extends
         AbstractQuickFormOutElement {
 
-    private static final long serialVersionUID = -8416820924149927242L;
+    private static final long serialVersionUID = 2571138831525135940L;
 
-    private final Object m_value;
+    private final File m_file;
 
     /** Creates output element with the given label and description.
      * @param label The label as shown in the GUI/Web, not null.
@@ -67,34 +69,21 @@ public class VariableOutputQuickFormOutElement extends
      * @param value The value, must be a valid type, i.e. instance of
      * String, Integer or Double.
      */
-    public VariableOutputQuickFormOutElement(
-            final String label, final String description, final Object value) {
+    public FileDownloadQuickFormOutElement(
+            final String label, final String description, final File value) {
         super(label, description);
-        if (value == null) {
-            // ok
-        } else if (value instanceof String) {
-            // ok
-        } else if (value instanceof Integer) {
-            // ok
-        } else if (value instanceof Double) {
-            // ok
-        } else {
-            throw new IllegalArgumentException(
-                    "Not a valid object type: " + value.getClass());
-        }
-        m_value = value;
+        m_file = value;
     }
 
     /** {@inheritDoc} */
     @Override
     public Type getType() {
-        return Type.VariableOutput;
+        return Type.FileDownload;
     }
 
-    /** @return the value, returned instance is either null, or an instance of
-     * String, Int or Double. */
-    public Object getValue() {
-        return m_value;
+    /** @return The file represented by this download element. */
+    public File getFile() {
+        return m_file;
     }
 
 }
