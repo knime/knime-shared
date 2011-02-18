@@ -49,34 +49,33 @@
 package org.knime.core.util.node.quickform.out;
 
 /**
- * String output element, for instance provided by nodes that expose values of
+ * Variable output element, for instance provided by nodes that expose values of
  * flow variables.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public class StringOutputQuickFormOutElement extends
+public class VariableOutputQuickFormOutElement extends
         AbstractQuickFormOutElement {
 
     private static final long serialVersionUID = -8416820924149927242L;
 
-    private String m_value;
+    private final Object m_value;
 
-    /** Creates string output element with the given label and description.
+    /** Creates output element with the given label and description.
      * @param label The label as shown in the GUI/Web, not null.
      * @param description The description, maybe null.
+     * @param value The value, must be a valid type, i.e. instance of
+     * String, Integer or Double.
      */
-    public StringOutputQuickFormOutElement(
-            final String label, final String description) {
+    public VariableOutputQuickFormOutElement(
+            final String label, final String description, final Object value) {
         super(label, description);
-    }
-
-    /** @param value the value to set */
-    public void setValue(final String value) {
         m_value = value;
     }
 
-    /** @return the value */
-    public String getValue() {
+    /** @return the value, returned instance is either null, or an instance of
+     * String, Int or Double. */
+    public Object getValue() {
         return m_value;
     }
 
