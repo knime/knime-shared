@@ -50,6 +50,7 @@
  */
 package org.knime.core.node.workflow;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 /**
@@ -191,6 +192,19 @@ public class NodeID implements Serializable, Comparable<NodeID> {
             return prefixComp;
         }
         return m_index - o.m_index;
+    }
+
+    /** Read singleton ROOT (iff this is ROOT).
+     * As suggested by java.io.Serializable.
+     * @return this if this is not ROOT, otherwise ROOT.
+     * @throws ObjectStreamException Not actually thrown but required
+     * by Serializable interface.
+     */
+    private Object readResolve() throws ObjectStreamException {
+        if (m_prefix == null) {
+            return ROOTID;
+        }
+        return this;
     }
 
 }
