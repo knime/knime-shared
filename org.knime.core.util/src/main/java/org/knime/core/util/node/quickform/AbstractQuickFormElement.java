@@ -50,6 +50,8 @@ package org.knime.core.util.node.quickform;
 
 import java.io.Serializable;
 
+import org.knime.core.node.InvalidSettingsException;
+
 /**
  * Super class of all form elements.
  *
@@ -84,5 +86,26 @@ public abstract class AbstractQuickFormElement implements Serializable {
     public String getDescription() {
         return m_description;
     }
+
+    /** Casts the argument to the expected class, throws exception if not
+     * an instance.
+     * @param <T> The expected type.
+     * @param cl The class to the type.
+     * @param el The element to cast.
+     * @return <code>el</code> casted to the argument class.
+     * @throws InvalidSettingsException If not of correct class or null.
+     */
+    public static <T extends AbstractQuickFormElement> T cast(
+            final Class<T> cl, final AbstractQuickFormElement el)
+        throws InvalidSettingsException {
+        if (cl.isInstance(el)) {
+            return cl.cast(el);
+        } else {
+            throw new InvalidSettingsException("Expected quick form element "
+                    + "of type " + cl.getSimpleName() + "; got "
+                    + el == null ? "<null>" : el.getClass().getSimpleName());
+        }
+    }
+
 
 }

@@ -81,7 +81,6 @@ public abstract class AbstractQuickFormOutElement
         FileDownload,
         /** The value of a workflow variable. */
         VariableOutput;
-
     }
 
 }

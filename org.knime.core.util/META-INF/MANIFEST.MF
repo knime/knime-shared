@@ -13,5 +13,6 @@ Export-Package: org.knime.core.node,
  org.knime.core.node.workflow,
  org.knime.core.util.node.config,
  org.knime.core.util.node.config.display,
+ org.knime.core.util.node.quickform,
  org.knime.core.util.node.quickform.in,
  org.knime.core.util.node.quickform.out
