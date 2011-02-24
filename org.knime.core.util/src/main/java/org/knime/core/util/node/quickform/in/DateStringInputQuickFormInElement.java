@@ -20,6 +20,9 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 /**
  * Creates a date input control and delivers the input as string.
  *
@@ -27,6 +30,10 @@ package org.knime.core.util.node.quickform.in;
  */
 public class DateStringInputQuickFormInElement extends
         AbstractQuickFormInElement {
+
+    /** Format being used. */
+    public static final DateFormat FORMAT =
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     private static final long serialVersionUID = -4981974737903893978L;
 
