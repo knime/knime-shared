@@ -45,48 +45,47 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  *
+ * History:
+ * 23-Febr-2011: created
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
 
 /**
- * Super class of all input elements.
+ * A form element to enter a simple double-precision floating point number.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Peter Ohl, KNIME.com, Zurich, Switzerland
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class DoubleInputQuickFormInElement extends AbstractQuickFormInElement {
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    private static final long serialVersionUID = -1883971747903903971L;
+
+    private double m_value;
 
 
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null. */
-    protected AbstractQuickFormInElement(
+    /** Create an integer input with a given description.
+     * @param label The label, not null!
+     * @param description The description, possibly null.
+     */
+    public DoubleInputQuickFormInElement(
             final String label, final String description) {
         super(label, description);
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.DoubleInput;
+    }
 
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input element. */
-        StringSelectionInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput;
+    /** @param value the value to set */
+    public void setValue(final double value) {
+        m_value = value;
+    }
+
+    /** @return the value */
+    public double getValue() {
+        return m_value;
     }
 
 }
