@@ -45,48 +45,73 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  *
+ * History:
+ * 23-Febr-2011: created
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
-
 /**
- * Super class of all input elements.
+ * A form element to enter a string (which is a selection of possible choices).
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Peter Ohl, KNIME.com, Zurich, Switzerland
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class StringSelectionInputQuickFormInElement extends
+        AbstractQuickFormInElement {
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    private static final long serialVersionUID = -1883971111903903971L;
 
+    private String m_value;
 
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null. */
-    protected AbstractQuickFormInElement(
-            final String label, final String description) {
+    private String[] m_choices;
+
+    /**
+     * Create an integer input with a given description.
+     *
+     * @param label The label, not null!
+     * @param description The description, possibly null.
+     */
+    public StringSelectionInputQuickFormInElement(final String label,
+            final String description) {
         super(label, description);
+        m_choices = new String[0];
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
-
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input element. */
-        StringSelectionInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput;
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.StringSelectionInput;
     }
 
+    /**
+     * @param value the value to set (does not ensure that the set value is one
+     *            of the choices)
+     */
+    public void setValue(final String value) {
+        m_value = value;
+    }
+
+    /** @return the value (not necessarily a string from the choices) */
+    public String getValue() {
+        return m_value;
+    }
+
+    /**
+     * @param choices new set of possible values to show if the user is to enter
+     *            a new value.
+     */
+    public void setChoices(final String[] choices) {
+        if (choices == null) {
+            m_choices = new String[0];
+        } else {
+            m_choices = choices.clone();
+        }
+    }
+
+    /**
+     * @return a clone of the currently set possible values (might be empty,
+     *         never null)
+     */
+    public String[] getChoices() {
+        return m_choices.clone();
+    }
 }
