@@ -66,10 +66,12 @@ public class DoubleInputQuickFormInElement extends AbstractQuickFormInElement {
     /** Create an integer input with a given description.
      * @param label The label, not null!
      * @param description The description, possibly null.
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment
      */
     public DoubleInputQuickFormInElement(
-            final String label, final String description) {
-        super(label, description);
+            final String label, final String description, final int weight) {
+        super(label, description, weight);
     }
 
     /** {@inheritDoc} */

@@ -66,12 +66,15 @@ public class FileDownloadQuickFormOutElement extends
     /** Creates output element with the given label and description.
      * @param label The label as shown in the GUI/Web, not null.
      * @param description The description, maybe null.
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment
      * @param value The value, must be a valid type, i.e. instance of
      * String, Integer or Double.
      */
     public FileDownloadQuickFormOutElement(
-            final String label, final String description, final File value) {
-        super(label, description);
+            final String label, final String description, final int weight,
+            final File value) {
+        super(label, description, weight);
         m_file = value;
     }
 

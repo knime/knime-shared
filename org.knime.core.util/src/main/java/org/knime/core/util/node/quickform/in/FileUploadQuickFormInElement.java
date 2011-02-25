@@ -69,11 +69,14 @@ public final class FileUploadQuickFormInElement
      * extensions.
      * @param label The label, not null!
      * @param description The description, possibly null.
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment
      * @param extensions Valid file extensions or null (all files accepted).
      */
     public FileUploadQuickFormInElement(final String label,
-            final String description, final String[] extensions) {
-        super(label, description);
+            final String description, final int weight,
+            final String[] extensions) {
+        super(label, description, weight);
         m_extensions = extensions == null ? null : Arrays.asList(extensions);
     }
 

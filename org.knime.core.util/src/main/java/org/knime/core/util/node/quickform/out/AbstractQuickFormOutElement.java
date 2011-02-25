@@ -63,10 +63,12 @@ public abstract class AbstractQuickFormOutElement
 
     /** Delegate to super.
      * @param label Forwarded
-     * @param description Forwarded */
+     * @param description Forwarded
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment */
     protected AbstractQuickFormOutElement(
-            final String label, final String description) {
-        super(label, description);
+            final String label, final String description, final int weight) {
+        super(label, description, weight);
     }
 
     /**

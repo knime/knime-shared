@@ -63,13 +63,18 @@ public abstract class AbstractQuickFormElement implements Serializable {
 
     private final String m_label;
     private final String m_description;
+    private final int m_weight;
 
     /** Constructor with a given label and description.
      * @param label A label shown in the controller.
      * @param description A description shown in the controller,
-     *        possibly null. */
+     *        possibly null.
+     * @param weight A weight value to define order of elements in form,
+     *        lighter elements come first. */
     protected AbstractQuickFormElement(
-            final String label, final String description) {
+            final String label, final String description,
+            final int weight) {
+        m_weight = weight;
         if (label == null) {
             throw new NullPointerException("Argument must not be null.");
         }
@@ -85,6 +90,11 @@ public abstract class AbstractQuickFormElement implements Serializable {
     /** @return the description, possibly null.  */
     public String getDescription() {
         return m_description;
+    }
+
+    /** @return the weight */
+    public int getWeight() {
+        return m_weight;
     }
 
     /** Casts the argument to the expected class, throws exception if not
