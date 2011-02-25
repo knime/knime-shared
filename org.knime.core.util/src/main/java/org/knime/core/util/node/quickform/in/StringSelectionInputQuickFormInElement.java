@@ -69,10 +69,12 @@ public class StringSelectionInputQuickFormInElement extends
      *
      * @param label The label, not null!
      * @param description The description, possibly null.
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment
      */
     public StringSelectionInputQuickFormInElement(final String label,
-            final String description) {
-        super(label, description);
+            final String description, final int weight) {
+        super(label, description, weight);
         m_choices = new String[0];
     }
 

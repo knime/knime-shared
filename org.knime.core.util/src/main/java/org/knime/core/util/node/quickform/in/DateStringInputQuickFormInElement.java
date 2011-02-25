@@ -44,10 +44,12 @@ public class DateStringInputQuickFormInElement extends
      *
      * @param label label in front of the date field
      * @param description the tooltip
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment
      */
     public DateStringInputQuickFormInElement(final String label,
-            final String description) {
-        super(label, description);
+            final String description, final int weight) {
+        super(label, description, weight);
         m_value = null;
     }
 

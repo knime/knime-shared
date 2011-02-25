@@ -64,10 +64,12 @@ public abstract class AbstractQuickFormInElement
     /** Constructor with a given label and description.
      * @param label A label shown in the controller.
      * @param description A description shown in the controller,
-     *        possibly null. */
+     *        possibly null.
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment */
     protected AbstractQuickFormInElement(
-            final String label, final String description) {
-        super(label, description);
+            final String label, final String description, final int weight) {
+        super(label, description, weight);
     }
 
     /** @return associated type. */
