@@ -22,6 +22,7 @@ package org.knime.core.util.node.quickform.in;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Creates a date input control and delivers the input as string.
@@ -37,7 +38,7 @@ public class DateStringInputQuickFormInElement extends
 
     private static final long serialVersionUID = -4981974737903893978L;
 
-    private String m_value;
+    private Date m_value;
 
     /**
      * Create date input control with the given description.
@@ -60,12 +61,12 @@ public class DateStringInputQuickFormInElement extends
     }
 
     /** @param value the value to set */
-    public void setValue(final String value) {
+    public void setValue(final Date value) {
         m_value = value;
     }
 
     /** @return the date as string. If no value is set, null is returned. */
-    public String getValue() {
+    public Date getValue() {
         return m_value;
     }
 }
