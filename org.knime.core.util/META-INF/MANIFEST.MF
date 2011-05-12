@@ -3,12 +3,18 @@ Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Core Utility Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
 Bundle-Version: 2.4.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/commons-io-1.4.jar
 Bundle-Vendor: KNIME GmbH, Konstanz, Germany
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
-Export-Package: org.knime.core.node,
+Export-Package: org.apache.commons.io,
+ org.apache.commons.io.comparator,
+ org.apache.commons.io.filefilter,
+ org.apache.commons.io.input,
+ org.apache.commons.io.output,
+ org.knime.core.node,
  org.knime.core.node.config.base,
  org.knime.core.node.workflow,
  org.knime.core.util.node.config,
