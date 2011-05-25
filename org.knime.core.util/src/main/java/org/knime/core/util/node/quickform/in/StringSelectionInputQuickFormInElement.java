@@ -45,8 +45,6 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  *
- * History:
- * 23-Febr-2011: created
  */
 package org.knime.core.util.node.quickform.in;
 

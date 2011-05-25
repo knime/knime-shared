@@ -48,7 +48,6 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-
 /**
  * A form element to enter a simple string.
  *
