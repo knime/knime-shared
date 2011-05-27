@@ -57,8 +57,7 @@ import java.util.List;
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public final class FileUploadQuickFormInElement
-    extends AbstractQuickFormInElement {
+public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
 
     private static final long serialVersionUID = -2475223296255933339L;
     private final List<String> m_extensions;
