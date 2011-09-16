@@ -71,18 +71,21 @@ public final class User {
      */
     public static String getUsername() throws Exception {
         String os = System.getProperty("os.name");
-        String className;
+        String className, methodName;
         if ("Linux".equals(os) || "Mac OS X".equals(os)) {
             className = "com.sun.security.auth.module.UnixSystem";
+            methodName = "getUsername";
         } else if (os.startsWith("Windows")) {
             className = "com.sun.security.auth.module.NTSystem";
+            methodName = "getName";
         } else if ("Solaris".equals(os)) {
             className = "com.sun.security.auth.module.SolarisSystem";
+            methodName = "getUsername";
         } else {
             return null;
         }
         Class<?> clazz = Class.forName(className);
-        Method getUsername = clazz.getMethod("getUsername");
+        Method getUsername = clazz.getMethod(methodName);
         Object osSystem = clazz.newInstance();
         return (String)getUsername.invoke(osSystem);
     }
