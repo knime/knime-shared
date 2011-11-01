@@ -6,7 +6,7 @@
 	<version>${knime.es.version}${knime.es.qualifier}</version>
 	<name>KNIME utility plugin</name>
 	<description>Utility plugin that should have no dependencies to other plugins.</description>
-	    <parent>
+    <parent>
         <groupId>com.knime.enterprise</groupId>
         <artifactId>mavenconfig</artifactId>
         <version>2.4</version>
