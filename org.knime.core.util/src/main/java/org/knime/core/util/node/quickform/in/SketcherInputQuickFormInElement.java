@@ -48,49 +48,57 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
-
 /**
- * Super class of all input elements.
+ * A form element to enter a molecule string.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Dominik Morent, KNIME.com, Zurich, Switzerland
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class SketcherInputQuickFormInElement extends AbstractQuickFormInElement {
+    private static final long serialVersionUID = -6057502106314697279L;
+    private String m_value;
+    private boolean m_inline;
 
-    private static final long serialVersionUID = -6790238955178501177L;
 
-
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    /** Create string input with a given description.
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
+     *        lighter value for more top-level alignment
+     */
+    public SketcherInputQuickFormInElement(
             final String label, final String description, final int weight) {
         super(label, description, weight);
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.SketcherInput;
+    }
 
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input element. */
-        StringSelectionInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /** Molecule sketcher input element.*/
-        SketcherInput;
+    /** @param value the value to set */
+    public void setValue(final String value) {
+        m_value = value;
+    }
+
+    /** @return the value */
+    public String getValue() {
+        return m_value;
+    }
+
+    /**
+     * @return true, if sketing should happen inline (without an additional
+     *      window), false otherwise
+     */
+    public boolean isInline() {
+        return m_inline;
+    }
+
+    /**
+     * @param inline set to true to trigger inline sketching
+     */
+    public void setInline(final boolean inline) {
+        m_inline = inline;
     }
 
 }
