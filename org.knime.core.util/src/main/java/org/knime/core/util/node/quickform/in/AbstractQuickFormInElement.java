@@ -89,7 +89,10 @@ public abstract class AbstractQuickFormInElement
         DoubleInput,
         /** Date-string input element. */
         DateStringInput,
-        /** Molecule sketcher input element.*/
+        /**
+         * Molecule sketcher input element.
+         * @since 2.6
+         */
         SketcherInput;
     }
 
