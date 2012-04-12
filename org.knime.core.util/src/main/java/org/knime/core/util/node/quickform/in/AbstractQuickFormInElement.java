@@ -91,7 +91,7 @@ public abstract class AbstractQuickFormInElement
         DateStringInput,
         /**
          * Molecule sketcher input element.
-         * @since 2.6
+         * @since 4.0
          */
         SketcherInput;
     }
