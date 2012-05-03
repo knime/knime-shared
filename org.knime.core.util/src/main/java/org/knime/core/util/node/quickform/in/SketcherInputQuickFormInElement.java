@@ -57,6 +57,7 @@ package org.knime.core.util.node.quickform.in;
 public class SketcherInputQuickFormInElement extends AbstractQuickFormInElement {
     private static final long serialVersionUID = -6057502106314697279L;
     private String m_value;
+    private String m_format;
     private boolean m_inline;
 
 
@@ -100,6 +101,20 @@ public class SketcherInputQuickFormInElement extends AbstractQuickFormInElement 
      */
     public void setInline(final boolean inline) {
         m_inline = inline;
+    }
+
+    /**
+     * @return the format
+     */
+    public String getFormat() {
+        return m_format;
+    }
+
+    /**
+     * @param format the format to set
+     */
+    public void setFormat(final String format) {
+        m_format = format;
     }
 
 }
