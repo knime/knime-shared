@@ -52,7 +52,7 @@ package org.knime.core.util.node.quickform.in;
  * A form element to enter a molecule string.
  *
  * @author Dominik Morent, KNIME.com, Zurich, Switzerland
- * @since 4.0
+ * @since 4.1
  */
 public class SketcherInputQuickFormInElement extends AbstractQuickFormInElement {
     private static final long serialVersionUID = -6057502106314697279L;
