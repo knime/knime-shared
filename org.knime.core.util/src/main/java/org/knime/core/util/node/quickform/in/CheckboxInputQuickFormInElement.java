@@ -48,65 +48,43 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
 
 /**
- * Super class of all input elements.
+ * A form element to enter a simple boolean value.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Dominik Morent, KNIME.com, Zurich, Switzerland
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class CheckboxInputQuickFormInElement
+        extends AbstractQuickFormInElement {
+    private static final long serialVersionUID = 5784341864836175479L;
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    private boolean m_value;
 
-
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    /** Create an checkbox input with a given description.
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
+     *        lighter value for more top-level alignment
+     */
+    public CheckboxInputQuickFormInElement(
             final String label, final String description, final int weight) {
         super(label, description, weight);
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.CheckboxInput;
+    }
 
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input elements. */
-        StringSelectionInput,
-        /** One or multiple options of a list of string input elements.
-         * @since 4.1
-         */
-        StringOptionInput,
-        /** One or multiple strings of a list of string input elements.
-         * @since 4.1
-         */
-        StringListInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /**
-         * Molecule sketcher input element.
-         * @since 4.0
-         */
-        SketcherInput,
-        /**
-         * Checkbox input element.
-         * @since 4.1
-         */
-        CheckboxInput;
+    /** @param value the value to set */
+    public void setValue(final boolean value) {
+        m_value = value;
+    }
+
+    /** @return the value */
+    public boolean getValue() {
+        return m_value;
     }
 
 }

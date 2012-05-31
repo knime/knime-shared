@@ -48,65 +48,94 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
-
 /**
- * Super class of all input elements.
+ * A form element to enter a string or list of strings (which is a selection
+ * of possible choices).
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Dominik Morent, KNIME.com, Zurich, Switzerland
+ * @since 4.1
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class StringOptionInputQuickFormInElement extends
+        AbstractQuickFormInElement {
+    private static final long serialVersionUID = -6117453817741563224L;
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    private String[] m_values;
 
+    private String[] m_choices;
 
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    private boolean m_multiple;
+
+    /**
+     * Create an string option input with a given description.
+     *
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
-            final String label, final String description, final int weight) {
+     *        lighter value for more top-level alignment
+     */
+    public StringOptionInputQuickFormInElement(final String label,
+            final String description, final int weight) {
         super(label, description, weight);
+        m_choices = new String[0];
+        m_values = new String[0];
+        m_multiple = false;
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
-
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input elements. */
-        StringSelectionInput,
-        /** One or multiple options of a list of string input elements.
-         * @since 4.1
-         */
-        StringOptionInput,
-        /** One or multiple strings of a list of string input elements.
-         * @since 4.1
-         */
-        StringListInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /**
-         * Molecule sketcher input element.
-         * @since 4.0
-         */
-        SketcherInput,
-        /**
-         * Checkbox input element.
-         * @since 4.1
-         */
-        CheckboxInput;
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.StringOptionInput;
     }
 
+    /**
+     * @param values the value to set (does not ensure that the set value is one
+     *            of the choices)
+     */
+    public void setValues(final String[] values) {
+        if (values == null) {
+            m_values = new String[0];
+        } else {
+            m_values = values.clone();
+        }
+    }
+
+    /** @return the value (not necessarily a string from the choices) */
+    public String[] getValues() {
+        return m_values.clone();
+    }
+
+    /**
+     * @param choices new set of possible values to show if the user is to enter
+     *            a new value.
+     */
+    public void setChoices(final String[] choices) {
+        if (choices == null) {
+            m_choices = new String[0];
+        } else {
+            m_choices = choices.clone();
+        }
+    }
+
+    /**
+     * @return a clone of the currently set possible values (might be empty,
+     *         never null)
+     */
+    public String[] getChoices() {
+        return m_choices.clone();
+    }
+
+    /**
+     * @return true if multiple selection is allowed, false otherwise
+     */
+    public boolean isMultiple() {
+        return m_multiple;
+    }
+
+    /**
+     * @param multiple set to true to allow multiple selection, false for
+     *      single selection
+     */
+    public void setMultiple(final boolean multiple) {
+        m_multiple = multiple;
+    }
 }
