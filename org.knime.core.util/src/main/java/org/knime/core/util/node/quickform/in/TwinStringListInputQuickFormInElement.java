@@ -48,69 +48,37 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
 
 /**
- * Super class of all input elements.
- *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * A form element to enter a string or list of strings (which is a selection
+ * of possible choices).
+ * @author Dominik Morent, KNIME.com, Zurich, Switzerland
+ * @since 4.1
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class TwinStringListInputQuickFormInElement extends
+        StringOptionInputQuickFormInElement {
+    private static final long serialVersionUID = 5768026515480530298L;
 
-    private static final long serialVersionUID = -6790238955178501177L;
 
-
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    /**
+     * Create an string list input with a given description.
+     *
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
-            final String label, final String description, final int weight) {
+     *        lighter value for more top-level alignment
+     */
+    public TwinStringListInputQuickFormInElement(final String label,
+            final String description, final int weight) {
         super(label, description, weight);
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
-
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input elements. */
-        StringSelectionInput,
-        /** One or multiple options of a list of string input elements.
-         * @since 4.1
-         */
-        StringOptionInput,
-        /** One or multiple strings of a list of string input elements.
-         * @since 4.1
-         */
-        StringListInput,
-        /** One or multiple strings in two lists of string input elements.
-         * @since 4.1
-         */
-        TwinStringListInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /**
-         * Molecule sketcher input element.
-         * @since 4.0
-         */
-        SketcherInput,
-        /**
-         * Checkbox input element.
-         * @since 4.1
-         */
-        CheckboxInput;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type getType() {
+        return Type.TwinStringListInput;
     }
 
 }
