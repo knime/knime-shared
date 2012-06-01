@@ -87,7 +87,7 @@ public class StringListPasteboxInputQuickFormInElement extends
     /**
      * @param value the value to set
      */
-    public void setValues(final String value) {
+    public void setValue(final String value) {
         if (value == null) {
             m_value = "";
         } else {
