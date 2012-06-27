@@ -57,8 +57,10 @@ package org.knime.core.util.node.quickform.in;
  */
 public class StringListInputQuickFormInElement extends
         StringOptionInputQuickFormInElement {
+    
     private static final long serialVersionUID = 5768026515480530298L;
 
+    private boolean m_multiple = true;
 
     /**
      * Create an string list input with a given description.
@@ -79,6 +81,21 @@ public class StringListInputQuickFormInElement extends
     @Override
     public Type getType() {
         return Type.StringListInput;
+    }
+    
+    /**
+     * @return true, if multiple selection possible
+     */
+    public boolean isMultiple() {
+        return m_multiple;
+    }
+    
+    /**
+     * Set true if multiple selection possible; otherwise false.
+     * @param multiple true, if multiple selection possible
+     */
+    public void setMultiple(final boolean multiple) {
+        m_multiple = multiple;
     }
 
 }
