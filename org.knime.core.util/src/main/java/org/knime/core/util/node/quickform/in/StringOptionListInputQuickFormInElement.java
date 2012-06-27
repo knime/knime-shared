@@ -49,18 +49,21 @@
 package org.knime.core.util.node.quickform.in;
 
 /**
- * A form element to select a single element form a list of strings.
+ * A form element to enter a string or list of strings (which is a selection
+ * of possible choices).
  *
  * @author Dominik Morent, KNIME.com, Zurich, Switzerland
  * @since 4.1
  */
-public class StringOptionInputQuickFormInElement extends
+public class StringOptionListInputQuickFormInElement extends
         AbstractQuickFormInElement {
     private static final long serialVersionUID = -6117453817741563224L;
 
-    private String m_value;
+    private String[] m_values;
 
     private String[] m_choices;
+
+    private boolean m_multiple;
 
     /**
      * Create an string option input with a given description.
@@ -70,34 +73,35 @@ public class StringOptionInputQuickFormInElement extends
      * @param weight Weight factory,
      *        lighter value for more top-level alignment
      */
-    public StringOptionInputQuickFormInElement(final String label,
+    public StringOptionListInputQuickFormInElement(final String label,
             final String description, final int weight) {
         super(label, description, weight);
         m_choices = new String[0];
-        m_value = null;
+        m_values = new String[0];
+        m_multiple = false;
     }
 
     /** {@inheritDoc} */
     @Override
     public Type getType() {
-        return Type.StringOptionInput;
+        return Type.StringOptionListInput;
     }
 
     /**
-     * @param value to set (does not ensure that the set value is one of the 
-     *        choices)
+     * @param values the value to set (does not ensure that the set value is one
+     *            of the choices)
      */
-    public void setValue(final String value) {
-        if (value == null) {
-            m_value = null;
+    public void setValues(final String[] values) {
+        if (values == null) {
+            m_values = new String[0];
         } else {
-            m_value = value;
+            m_values = values.clone();
         }
     }
 
     /** @return the value (not necessarily a string from the choices) */
-    public String getValue() {
-        return m_value;
+    public String[] getValues() {
+        return m_values.clone();
     }
 
     /**
@@ -120,4 +124,18 @@ public class StringOptionInputQuickFormInElement extends
         return m_choices.clone();
     }
 
+    /**
+     * @return true if multiple selection is allowed, false otherwise
+     */
+    public boolean isMultiple() {
+        return m_multiple;
+    }
+
+    /**
+     * @param multiple set to true to allow multiple selection, false for
+     *      single selection
+     */
+    public void setMultiple(final boolean multiple) {
+        m_multiple = multiple;
+    }
 }
