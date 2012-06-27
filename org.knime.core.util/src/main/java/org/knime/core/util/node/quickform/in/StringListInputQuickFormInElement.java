@@ -56,7 +56,7 @@ package org.knime.core.util.node.quickform.in;
  * @since 4.1
  */
 public class StringListInputQuickFormInElement extends
-        StringOptionInputQuickFormInElement {
+        TwinStringListInputQuickFormInElement {
     
     private static final long serialVersionUID = 5768026515480530298L;
 
