@@ -48,7 +48,6 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-
 /**
  * A form element to enter a string or list of strings (which is a selection
  * of possible choices).
@@ -56,12 +55,16 @@ package org.knime.core.util.node.quickform.in;
  * @since 4.1
  */
 public class TwinStringListInputQuickFormInElement extends
-        StringOptionInputQuickFormInElement {
-    private static final long serialVersionUID = 5768026515480530298L;
+        AbstractQuickFormInElement {
+    
+    private static final long serialVersionUID = -6117453817719063224L;
 
+    private String[] m_values;
+
+    private String[] m_choices;
 
     /**
-     * Create an string list input with a given description.
+     * Create an string option input with a given description.
      *
      * @param label The label, not null!
      * @param description The description, possibly null.
@@ -71,6 +74,45 @@ public class TwinStringListInputQuickFormInElement extends
     public TwinStringListInputQuickFormInElement(final String label,
             final String description, final int weight) {
         super(label, description, weight);
+        m_choices = new String[0];
+        m_values = new String[0];
+    }
+
+    /**
+     * @param values the value to set (does not ensure that the set value is one
+     *            of the choices)
+     */
+    public void setValues(final String[] values) {
+        if (values == null) {
+            m_values = new String[0];
+        } else {
+            m_values = values;
+        }
+    }
+
+    /** @return the value (not necessarily a string from the choices) */
+    public String[] getValues() {
+        return m_values.clone();
+    }
+
+    /**
+     * @param choices new set of possible values to show if the user is to enter
+     *            a new value.
+     */
+    public void setChoices(final String[] choices) {
+        if (choices == null) {
+            m_choices = new String[0];
+        } else {
+            m_choices = choices.clone();
+        }
+    }
+
+    /**
+     * @return a clone of the currently set possible values (might be empty,
+     *         never null)
+     */
+    public String[] getChoices() {
+        return m_choices.clone();
     }
 
     /**

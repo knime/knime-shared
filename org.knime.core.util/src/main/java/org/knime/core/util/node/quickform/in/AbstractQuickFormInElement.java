@@ -81,24 +81,29 @@ public abstract class AbstractQuickFormInElement
         FileUpload,
         /** String input element. */
         StringInput,
-        /** One string out of a list of string input elements. */
+        /** One string out of a list of string input elements (radio buttons). 
+         */
         StringSelectionInput,
+        /** One or multiple strings in two lists of string input elements.
+         * @since 4.1
+         */
+        TwinStringListInput, // column filter (multiple): twin list
+        /** One options of a list of string input elements.
+         * @since 4.1
+         */
+        StringOptionInput, // single: dropdown
         /** One or multiple options of a list of string input elements.
          * @since 4.1
          */
-        StringOptionInput,
+        StringOptionListInput, // single: radio buttons
         /** One or multiple strings of a list of string input elements.
          * @since 4.1
          */
-        StringListInput,
+        StringListInput, // value list (multiple): list
         /** A list of strings in a textarea input element.
          * @since 4.1
          */
         StringListPasteboxInput,
-        /** One or multiple strings in two lists of string input elements.
-         * @since 4.1
-         */
-        TwinStringListInput,
         /** Integer input element. */
         IntInput,
         /** Double input element. */
