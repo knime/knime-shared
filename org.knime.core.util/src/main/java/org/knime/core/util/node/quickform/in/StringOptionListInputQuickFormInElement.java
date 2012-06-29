@@ -48,6 +48,10 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * A form element to enter a string or list of strings (which is a selection
  * of possible choices).
@@ -59,9 +63,9 @@ public class StringOptionListInputQuickFormInElement extends
         AbstractQuickFormInElement {
     private static final long serialVersionUID = -6117453817741563224L;
 
-    private String[] m_values;
+    private Map<String, Set<String>> m_choiceValues;
 
-    private String[] m_choices;
+    private String[] m_values;
 
     private boolean m_multiple;
 
@@ -76,8 +80,8 @@ public class StringOptionListInputQuickFormInElement extends
     public StringOptionListInputQuickFormInElement(final String label,
             final String description, final int weight) {
         super(label, description, weight);
-        m_choices = new String[0];
         m_values = new String[0];
+        m_choiceValues = new LinkedHashMap<String, Set<String>>();
         m_multiple = false;
     }
 
@@ -91,6 +95,23 @@ public class StringOptionListInputQuickFormInElement extends
      * @param values the value to set (does not ensure that the set value is one
      *            of the choices)
      */
+    public void setChoiceValues(final Map<String, Set<String>> values) {
+        if (values == null) {
+            m_choiceValues = new LinkedHashMap<String, Set<String>>();
+        } else {
+            m_choiceValues = new LinkedHashMap<String, Set<String>>(values);
+        }
+    }
+
+    /** @return the value (not necessarily a string from the choices) */
+    public Map<String, Set<String>> getChoiceValues() {
+        return m_choiceValues;
+    }
+
+    /**
+     * @param values new set of possible values to show if the user is to enter
+     *            a new value.
+     */
     public void setValues(final String[] values) {
         if (values == null) {
             m_values = new String[0];
@@ -99,29 +120,12 @@ public class StringOptionListInputQuickFormInElement extends
         }
     }
 
-    /** @return the value (not necessarily a string from the choices) */
-    public String[] getValues() {
-        return m_values.clone();
-    }
-
-    /**
-     * @param choices new set of possible values to show if the user is to enter
-     *            a new value.
-     */
-    public void setChoices(final String[] choices) {
-        if (choices == null) {
-            m_choices = new String[0];
-        } else {
-            m_choices = choices.clone();
-        }
-    }
-
     /**
      * @return a clone of the currently set possible values (might be empty,
      *         never null)
      */
-    public String[] getChoices() {
-        return m_choices.clone();
+    public String[] getValues() {
+        return m_values.clone();
     }
 
     /**
