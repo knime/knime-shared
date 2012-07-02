@@ -65,9 +65,8 @@ public class StringOptionListInputQuickFormInElement extends
 
     private Map<String, Set<String>> m_choiceValues;
 
-    private String[] m_values;
-
-    private boolean m_multiple;
+    private String m_column;
+    private String m_value;
 
     /**
      * Create an string option input with a given description.
@@ -80,9 +79,9 @@ public class StringOptionListInputQuickFormInElement extends
     public StringOptionListInputQuickFormInElement(final String label,
             final String description, final int weight) {
         super(label, description, weight);
-        m_values = new String[0];
         m_choiceValues = new LinkedHashMap<String, Set<String>>();
-        m_multiple = false;
+        m_column = null;
+        m_value = null;
     }
 
     /** {@inheritDoc} */
@@ -109,37 +108,30 @@ public class StringOptionListInputQuickFormInElement extends
     }
 
     /**
-     * @param values new set of possible values to show if the user is to enter
-     *            a new value.
+     * @return the column
      */
-    public void setValues(final String[] values) {
-        if (values == null) {
-            m_values = new String[0];
-        } else {
-            m_values = values.clone();
-        }
+    public String getColumn() {
+        return m_column;
     }
 
     /**
-     * @return a clone of the currently set possible values (might be empty,
-     *         never null)
+     * @param column the column to set
      */
-    public String[] getValues() {
-        return m_values.clone();
+    public void setColumn(final String column) {
+        m_column = column;
     }
 
     /**
-     * @return true if multiple selection is allowed, false otherwise
+     * @return the value
      */
-    public boolean isMultiple() {
-        return m_multiple;
+    public String getValue() {
+        return m_value;
     }
 
     /**
-     * @param multiple set to true to allow multiple selection, false for
-     *      single selection
+     * @param value the values to set
      */
-    public void setMultiple(final boolean multiple) {
-        m_multiple = multiple;
+    public void setValue(final String value) {
+        m_value = value;
     }
 }
