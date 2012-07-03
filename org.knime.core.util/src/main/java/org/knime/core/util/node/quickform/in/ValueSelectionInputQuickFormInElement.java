@@ -53,13 +53,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A form element to enter a string or list of strings (which is a selection
- * of possible choices).
+ * A form element to select a value (e.g. column) and then another value based
+ * on the previous one.
  *
  * @author Dominik Morent, KNIME.com, Zurich, Switzerland
  * @since 4.1
  */
-public class StringOptionListInputQuickFormInElement extends
+public class ValueSelectionInputQuickFormInElement extends
         AbstractQuickFormInElement {
     private static final long serialVersionUID = -6117453817741563224L;
 
@@ -76,7 +76,7 @@ public class StringOptionListInputQuickFormInElement extends
      * @param weight Weight factory,
      *        lighter value for more top-level alignment
      */
-    public StringOptionListInputQuickFormInElement(final String label,
+    public ValueSelectionInputQuickFormInElement(final String label,
             final String description, final int weight) {
         super(label, description, weight);
         m_choiceValues = new LinkedHashMap<String, Set<String>>();
@@ -87,7 +87,7 @@ public class StringOptionListInputQuickFormInElement extends
     /** {@inheritDoc} */
     @Override
     public Type getType() {
-        return Type.StringOptionListInput;
+        return Type.ValueSelectionInput;
     }
 
     /**

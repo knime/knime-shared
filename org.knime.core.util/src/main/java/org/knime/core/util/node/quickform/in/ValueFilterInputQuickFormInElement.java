@@ -48,82 +48,94 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Super class of all input elements.
+ * A form element to select a value (e.g. column) and then a list of values
+ * based on the previous one.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Dominik Morent, KNIME.com, Zurich, Switzerland
+ * @since 4.1
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class ValueFilterInputQuickFormInElement extends
+        AbstractQuickFormInElement {
+    private static final long serialVersionUID = -6117453817741563224L;
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    private Map<String, Set<String>> m_choiceValues;
 
+    private String m_column;
+    private String[] m_values;
 
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    /**
+     * Create an string option input with a given description.
+     *
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
-            final String label, final String description, final int weight) {
+     *        lighter value for more top-level alignment
+     */
+    public ValueFilterInputQuickFormInElement(final String label,
+            final String description, final int weight) {
         super(label, description, weight);
+        m_choiceValues = new LinkedHashMap<String, Set<String>>();
+        m_column = null;
+        m_values = new String[0];
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
-
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input elements (radio buttons).
-         */
-        StringSelectionInput,
-        /** One or multiple strings in two lists of string input elements.
-         * @since 4.1
-         */
-        TwinStringListInput, // column filter (multiple): twin list
-        /** One options of a list of string input elements.
-         * @since 4.1
-         */
-        StringOptionInput, // single: dropdown
-        /** Selection of a single value based on another single value.
-         * @since 4.1
-         */
-        ValueSelectionInput,
-        /** Selection of one or multiple values based on a single value.
-         * @since 4.1
-         */
-        ValueFilterInput,
-        /** One or multiple strings of a list of string input elements.
-         * @since 4.1
-         */
-        StringListInput, // value list (multiple): list
-        /** A list of strings in a textarea input element.
-         * @since 4.1
-         */
-        StringListPasteboxInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /**
-         * Molecule sketcher input element.
-         * @since 4.0
-         */
-        SketcherInput,
-        /**
-         * Checkbox input element.
-         * @since 4.1
-         */
-        CheckboxInput;
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.ValueFilterInput;
     }
 
+    /**
+     * @param values the value to set (does not ensure that the set value is one
+     *            of the choices)
+     */
+    public void setChoiceValues(final Map<String, Set<String>> values) {
+        if (values == null) {
+            m_choiceValues = new LinkedHashMap<String, Set<String>>();
+        } else {
+            m_choiceValues = new LinkedHashMap<String, Set<String>>(values);
+        }
+    }
+
+    /** @return the value (not necessarily a string from the choices) */
+    public Map<String, Set<String>> getChoiceValues() {
+        return m_choiceValues;
+    }
+
+    /**
+     * @return the column
+     */
+    public String getColumn() {
+        return m_column;
+    }
+
+    /**
+     * @param column the column to set
+     */
+    public void setColumn(final String column) {
+        m_column = column;
+    }
+
+    /**
+     * @return the values
+     */
+    public String[] getValues() {
+        return m_values;
+    }
+
+    /**
+     * @param values the values to set
+     */
+    public void setValues(final String[] values) {
+        if (values != null) {
+            m_values = values;
+        } else {
+            m_values = new String[0];
+        }
+    }
 }
