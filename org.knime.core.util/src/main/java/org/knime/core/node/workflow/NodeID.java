@@ -153,10 +153,23 @@ public class NodeID implements Serializable, Comparable<NodeID> {
      */
     @Override
     public String toString() {
+        StringBuilder sb = new StringBuilder("");
+        assembleString(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Put together String representation of ID.
+     */
+    private void assembleString(final StringBuilder sb) {
         if (m_prefix != null) {
-            return m_prefix + ":" + m_index;
+            m_prefix.assembleString(sb);
+            if (sb.length() > 0) {
+                sb.append(":");
+            }
+            sb.append(m_index);
         }
-        return Integer.toString(m_index);
+        return;  // don't "print out" ROOT index (which is always "0:")
     }
 
     /**
