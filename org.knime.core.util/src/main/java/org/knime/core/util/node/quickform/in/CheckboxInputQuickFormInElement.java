@@ -53,6 +53,7 @@ package org.knime.core.util.node.quickform.in;
  * A form element to enter a simple boolean value.
  *
  * @author Dominik Morent, KNIME.com, Zurich, Switzerland
+ * @since 4.1
  */
 public class CheckboxInputQuickFormInElement
         extends AbstractQuickFormInElement {

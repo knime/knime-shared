@@ -111,6 +111,18 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         return m_index;
     }
 
+    /**
+     * @return string representation of ID without the leading "0:"
+     * @deprecated Do not use this method any more, it will be removed
+     * in future releases. Use {@link #toString()} instead
+     */
+    @Deprecated
+    public String getIDWithoutRoot() {
+        String id = toString();
+        String withoutRoot = id.substring(id.indexOf(":") + 1);
+        return withoutRoot;
+    }
+
     /** Checks for exact matching prefixes.
      *
      * @param prefix to check
@@ -135,7 +147,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         return m_prefix.hasPrefix(prefix);
     }
 
-    /** 
+    /**
      * @return string representation of ID.
      * @see java.lang.Object#toString()
      */
