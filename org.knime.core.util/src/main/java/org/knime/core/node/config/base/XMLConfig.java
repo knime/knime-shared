@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -122,30 +123,8 @@ public final class XMLConfig {
         reader.setEntityResolver(xmlContentHandler);
         reader.setErrorHandler(xmlContentHandler);
 
-        // ====================================================================
-        // This hack filter the DTD declaration out of the stream, so that
-        // bug #1201 does not occur any more. Some time in time in the future
-        // we may remove this part if no DTD-based XMLConfigs exist any more.
-        // If some one messed with the file by hand, this may fail!
         BufferedReader buf = new BufferedReader(
                 new InputStreamReader(in, "UTF-8"));
-        String line = buf.readLine(); // this must be the XML declaration
-        if (line != null) {
-            if (!"<?xml version=\"1.0\" encoding=\"UTF-8\"?>".equals(line.trim())) {
-                throw new IOException("No valid XML file");
-            }
-            buf.mark(2048);
-            line = buf.readLine();
-            if ((line != null) && line.trim().startsWith("<!")) {
-                while ((line != null) && !line.trim().endsWith(">")) {
-                    line = buf.readLine();
-                }
-            } else {
-                buf.reset();
-            }
-        }
-        // ====================================================================
-
         try {
             reader.parse(new InputSource(buf));
         } catch (IOException e) {
@@ -172,9 +151,14 @@ public final class XMLConfig {
         }
         Transformer t = tfh.getTransformer();
 
+        final String encoding = "UTF-8";
         t.setOutputProperty(OutputKeys.METHOD, "xml");
-        // t.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, DTD_NAME);
+        t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         t.setOutputProperty(OutputKeys.INDENT, "yes");
+        t.setOutputProperty(OutputKeys.ENCODING, encoding);
+
+        // we write the XML header by hand because we need a linebreak after it for KNIME <= 2.6
+        os.write(("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n").getBytes(Charset.forName(encoding)));
 
         tfh.setResult(new StreamResult(os));
 

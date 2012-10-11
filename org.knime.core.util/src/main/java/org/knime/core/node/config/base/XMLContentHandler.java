@@ -207,12 +207,21 @@ class XMLContentHandler extends DefaultHandler {
     public InputSource resolveEntity(
             final String publicId, final String systemId)
         throws IOException, SAXException {
-        assert systemId != null && systemId.endsWith(XMLConfig.DTD_NAME);
-        // gets URL for systemId which specifies the dtd file+path
-        ClassLoader classLoader = XMLConfig.class.getClassLoader();
-        URL dtdURL = classLoader.getResource(XMLConfig.DTD_NAME);
-        InputStream is = dtdURL.openStream();
-        return new InputSource(is);
+        // XMLConfig.dtd was moved some time ago but old workflows still reference it
+        if ((systemId != null)
+                && (systemId.endsWith(XMLConfig.DTD_NAME)
+                        || systemId.replaceAll("(org/knime/core/node/config)/(?!base/)", "$1/base/")
+                                .endsWith(XMLConfig.DTD_NAME)
+                        || systemId.replace("de/unikn/knime/core/node/config/", "org/knime/core/node/config/base/")
+                                .endsWith(XMLConfig.DTD_NAME))) {
+            // gets URL for systemId which specifies the dtd file+path
+            ClassLoader classLoader = XMLConfig.class.getClassLoader();
+            URL dtdURL = classLoader.getResource(XMLConfig.DTD_NAME);
+            InputStream is = dtdURL.openStream();
+            return new InputSource(is);
+        } else {
+            return super.resolveEntity(publicId, systemId);
+        }
     }
 
     /**
