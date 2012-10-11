@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Core Utility Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
-Bundle-Version: 4.1.1.qualifier
+Bundle-Version: 4.1.2.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME GmbH, Konstanz, Germany
 Export-Package: org.apache.commons.io,
@@ -20,7 +20,9 @@ Export-Package: org.apache.commons.io,
  org.knime.core.util.node.quickform,
  org.knime.core.util.node.quickform.in,
  org.knime.core.util.node.quickform.out
-Require-Bundle: org.apache.commons.io;bundle-version="[1.4.0,1.5.0)"
+Require-Bundle: org.apache.commons.io;bundle-version="[1.4.0,1.5.0)",
+ org.apache.xerces;bundle-version="[2.9.0,3.0.0)",
+ org.apache.xalan;bundle-version="[2.7.1,3.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
