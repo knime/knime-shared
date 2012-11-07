@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.knime.core</groupId>
 	<artifactId>util</artifactId>
-	<version>4.1</version>
+	<version>4.2</version>
 	<name>KNIME utility plugin</name>
 	<description>Utility plugin that should have no dependencies to other plugins.</description>
     <parent>
