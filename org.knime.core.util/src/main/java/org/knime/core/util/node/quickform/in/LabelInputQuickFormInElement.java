@@ -48,81 +48,72 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
-
 /**
- * Super class of all input elements.
+ * A form element to enter a simple label (no input).
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @since 4.2
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class LabelInputQuickFormInElement extends AbstractQuickFormInElement {
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    /** Format as shown in the web page. */
+    public enum LabelFormat {
+        /** Ordinary text. */
+        Text,
+        /** Preformatted text (respects line breaks). */
+        Preformatted,
+        /** Text w/ html tags. */
+        Html;
+    }
 
+    private static final long serialVersionUID = 8426403828945251835L;
 
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    private String m_labelText;
+    private LabelFormat m_labelFormat = LabelFormat.Text;
+
+    /** Create string input with a given description.
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
+     *        lighter value for more top-level alignment
+     */
+    public LabelInputQuickFormInElement(
             final String label, final String description, final int weight) {
         super(label, description, weight);
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
+    /**
+     * @return the labelText
+     */
+    public String getLabelText() {
+        return m_labelText;
+    }
 
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input elements (radio buttons).
-         */
-        StringSelectionInput,
-        /** One or multiple strings in two lists of string input elements.
-         * @since 4.1
-         */
-        TwinStringListInput, // column filter (multiple): twin list
-        /** One options of a list of string input elements.
-         * @since 4.1
-         */
-        StringOptionInput, // single: dropdown
-        /** Selection of a single value based on another single value.
-         * @since 4.1
-         */
-        ValueSelectionInput,
-        /** Selection of one or multiple values based on a single value.
-         * @since 4.1
-         */
-        ValueFilterInput,
-        /** One or multiple strings of a list of string input elements.
-         * @since 4.1
-         */
-        StringListInput, // value list (multiple): list
-        /** A list of strings in a textarea input element.
-         * @since 4.1
-         */
-        StringListPasteboxInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /** Molecule sketcher input element.
-         * @since 4.1 */
-        SketcherInput,
-        /** Checkbox input element.
-         * @since 4.1 */
-        CheckboxInput,
-        /** Static label "input".
-         * @since 4.2 */
-        LabelInput;
+    /**
+     * @param labelText the labelText to set
+     */
+    public void setLabelText(final String labelText) {
+        m_labelText = labelText;
+    }
+
+    /**
+     * @return the labelFormat
+     */
+    public LabelFormat getLabelFormat() {
+        return m_labelFormat;
+    }
+
+    /**
+     * @param labelFormat the labelFormat to set
+     */
+    public void setLabelFormat(final LabelFormat labelFormat) {
+        m_labelFormat = labelFormat == null ? LabelFormat.Text : labelFormat;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.LabelInput;
     }
 
 }
