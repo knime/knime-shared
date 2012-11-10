@@ -48,47 +48,53 @@
  */
 package org.knime.core.util.node.quickform.out;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
+import org.knime.core.util.node.quickform.in.LabelInputQuickFormInElement.LabelFormat;
 
 /**
- * Super class of all output elements. These elements are usually returned by
- * nodes representing results.
+ * Label output element.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @since 4.2
  */
-public abstract class AbstractQuickFormOutElement
-    extends AbstractQuickFormElement {
+public class LabelOutputQuickFormOutElement extends AbstractQuickFormOutElement {
 
-    private static final long serialVersionUID = 6133197190665247793L;
+    private static final long serialVersionUID = -5845017118981663694L;
 
-    /** Delegate to super.
-     * @param label Forwarded
-     * @param description Forwarded
+    private final String m_labelText;
+
+    private final LabelFormat m_labelFormat;
+
+    /** Creates output element with the given label and description.
+     * @param label The label as shown in the GUI/Web, not null.
+     * @param description The description, maybe null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormOutElement(
-            final String label, final String description, final int weight) {
+     *        lighter value for more top-level alignment
+     * @param labelText The label text.
+     * @param labelFormat the label format
+     */
+    public LabelOutputQuickFormOutElement(final String label,
+            final String description, final int weight, final String labelText, final LabelFormat labelFormat) {
         super(label, description, weight);
+        m_labelText = labelText;
+        m_labelFormat = labelFormat;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.LabelOutput;
+    }
+
+    /** @return the label text. */
+    public String getLabelText() {
+        return m_labelText;
     }
 
     /**
-     * Get enum type this object represents.
-     * @return The type, not null.
+     * @return the labelFormat
      */
-    public abstract Type getType();
-
-    /** Type enum of all registered types. */
-    public enum Type {
-        /** Represents downloadable file. */
-        FileDownload,
-        /** Represents an image.
-         * @since 4.2 */
-        Image,
-        /** The value of a workflow variable. */
-        VariableOutput,
-        /** A label.
-         * @since 4.2 */
-        LabelOutput;
+    public LabelFormat getLabelFormat() {
+        return m_labelFormat;
     }
 
 }
