@@ -55,13 +55,13 @@ package org.knime.core.util.node.quickform.in;
  * @author Dominik Morent, KNIME.com, Zurich, Switzerland
  * @since 4.1
  */
-public class StringListPasteboxInputQuickFormInElement extends
-        AbstractQuickFormInElement {
+public class StringListPasteboxInputQuickFormInElement extends AbstractQuickFormInElement {
+
     private static final long serialVersionUID = -6117453817741563224L;
 
     private String m_value;
 
-    private char m_separator;
+    private String m_separator;
 
     /**
      * Create an string option input with a given description.
@@ -75,7 +75,7 @@ public class StringListPasteboxInputQuickFormInElement extends
             final String description, final int weight) {
         super(label, description, weight);
         m_value = "";
-        m_separator = ',';
+        m_separator = ",";
     }
 
     /** {@inheritDoc} */
@@ -101,16 +101,19 @@ public class StringListPasteboxInputQuickFormInElement extends
     }
 
     /**
-     * @return the character used for separating the value list
+     * @return the string used for separating the value list
+     * @since 4.2
      */
-    public char getSeparator() {
+    public String getSeparator() {
         return m_separator;
     }
 
     /**
      * @param separator the separator to split the list of values
+     * @since 4.2
      */
-    public void setSeparator(final char separator) {
+    public void setSeparator(final String separator) {
         m_separator = separator;
     }
+
 }
