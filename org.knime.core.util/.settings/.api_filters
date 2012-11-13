@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.knime.core.util" version="2">
+    <resource path="src/main/java/org/knime/core/util/node/quickform/in/StringListPasteboxInputQuickFormInElement.java" type="org.knime.core.util.node.quickform.in.StringListPasteboxInputQuickFormInElement">
+        <filter comment="char change to string separator for List Box QF" id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.node.quickform.in.StringListPasteboxInputQuickFormInElement"/>
+                <message_argument value="getSeparator()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="char change to string separator for List Box QF" id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.node.quickform.in.StringListPasteboxInputQuickFormInElement"/>
+                <message_argument value="setSeparator(char)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
