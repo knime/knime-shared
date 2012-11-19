@@ -86,9 +86,9 @@ public abstract class AbstractQuickFormOutElement
         Image,
         /** The value of a workflow variable. */
         VariableOutput,
-        /** A label.
+        /** A text.
          * @since 4.2 */
-        LabelOutput;
+        TextAreaOutput;
     }
 
 }

@@ -49,71 +49,31 @@
 package org.knime.core.util.node.quickform.in;
 
 /**
- * A form element to enter a simple label (no input).
+ * A form element to represent a dummy input (no real input,
+ * only a breapoint marker).
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  * @since 4.2
  */
-public class LabelInputQuickFormInElement extends AbstractQuickFormInElement {
+public class DummyInputQuickFormInElement extends AbstractQuickFormInElement {
 
-    /** Format as shown in the web page. */
-    public enum LabelFormat {
-        /** Ordinary text. */
-        Text,
-        /** Preformatted text (respects line breaks). */
-        Preformatted,
-        /** Text w/ html tags. */
-        Html;
-    }
+    private static final long serialVersionUID = 5907694628251876587L;
 
-    private static final long serialVersionUID = 8426403828945251835L;
-
-    private String m_labelText;
-    private LabelFormat m_labelFormat = LabelFormat.Text;
-
-    /** Create string input with a given description.
+    /** Calls super constructor, all arguments are ignored.
      * @param label The label, not null!
      * @param description The description, possibly null.
      * @param weight Weight factory,
      *        lighter value for more top-level alignment
      */
-    public LabelInputQuickFormInElement(
+    public DummyInputQuickFormInElement(
             final String label, final String description, final int weight) {
         super(label, description, weight);
-    }
-
-    /**
-     * @return the labelText
-     */
-    public String getLabelText() {
-        return m_labelText;
-    }
-
-    /**
-     * @param labelText the labelText to set
-     */
-    public void setLabelText(final String labelText) {
-        m_labelText = labelText;
-    }
-
-    /**
-     * @return the labelFormat
-     */
-    public LabelFormat getLabelFormat() {
-        return m_labelFormat;
-    }
-
-    /**
-     * @param labelFormat the labelFormat to set
-     */
-    public void setLabelFormat(final LabelFormat labelFormat) {
-        m_labelFormat = labelFormat == null ? LabelFormat.Text : labelFormat;
     }
 
     /** {@inheritDoc} */
     @Override
     public Type getType() {
-        return Type.LabelInput;
+        return Type.DummyInput;
     }
 
 }

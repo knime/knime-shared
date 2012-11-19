@@ -120,9 +120,9 @@ public abstract class AbstractQuickFormInElement
         /** Checkbox input element.
          * @since 4.1 */
         CheckboxInput,
-        /** Static label "input".
+        /** A dummy input (no UI, only a breakpoint marker on a wizard page).
          * @since 4.2 */
-        LabelInput;
+        DummyInput;
     }
 
 }

@@ -48,53 +48,62 @@
  */
 package org.knime.core.util.node.quickform.out;
 
-import org.knime.core.util.node.quickform.in.LabelInputQuickFormInElement.LabelFormat;
 
 /**
- * Label output element.
+ * Text (read only) output element.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  * @since 4.2
  */
-public class LabelOutputQuickFormOutElement extends AbstractQuickFormOutElement {
+public class TextAreaOutputQuickFormOutElement extends AbstractQuickFormOutElement {
 
     private static final long serialVersionUID = -5845017118981663694L;
 
-    private final String m_labelText;
+    /** Format as shown in the web page. */
+    public enum TextFormat {
+        /** Ordinary text. */
+        Text,
+        /** Preformatted text (respects line breaks). */
+        Preformatted,
+        /** Text w/ html tags. */
+        Html;
+    }
 
-    private final LabelFormat m_labelFormat;
+    private final String m_text;
+
+    private final TextFormat m_textFormat;
 
     /** Creates output element with the given label and description.
      * @param label The label as shown in the GUI/Web, not null.
      * @param description The description, maybe null.
      * @param weight Weight factory,
      *        lighter value for more top-level alignment
-     * @param labelText The label text.
-     * @param labelFormat the label format
+     * @param text The text.
+     * @param format the text format
      */
-    public LabelOutputQuickFormOutElement(final String label,
-            final String description, final int weight, final String labelText, final LabelFormat labelFormat) {
+    public TextAreaOutputQuickFormOutElement(final String label,
+            final String description, final int weight, final String text, final TextFormat format) {
         super(label, description, weight);
-        m_labelText = labelText;
-        m_labelFormat = labelFormat;
+        m_text = text;
+        m_textFormat = format;
     }
 
     /** {@inheritDoc} */
     @Override
     public Type getType() {
-        return Type.LabelOutput;
+        return Type.TextAreaOutput;
     }
 
-    /** @return the label text. */
-    public String getLabelText() {
-        return m_labelText;
+    /** @return the text. */
+    public String getText() {
+        return m_text;
     }
 
     /**
-     * @return the labelFormat
+     * @return the format
      */
-    public LabelFormat getLabelFormat() {
-        return m_labelFormat;
+    public TextFormat getTextFormat() {
+        return m_textFormat;
     }
 
 }
