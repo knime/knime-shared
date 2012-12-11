@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.knime.enterprise</groupId>
+		<artifactId>mavenconfig</artifactId>
+		<version>4.0</version>
+	</parent>
 	<groupId>org.knime.core</groupId>
 	<artifactId>util</artifactId>
-	<version>4.2</version>
+	<version>${org.knime.core.util.version}</version>
 	<name>KNIME utility plugin</name>
 	<description>Utility plugin that should have no dependencies to other plugins.</description>
-    <parent>
-        <groupId>com.knime.enterprise</groupId>
-        <artifactId>mavenconfig</artifactId>
-        <version>4.0</version>
-    </parent>
 
 	<build>
 		<resources>
@@ -32,6 +32,10 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
 		</dependency>
 	</dependencies>
 	<properties>
