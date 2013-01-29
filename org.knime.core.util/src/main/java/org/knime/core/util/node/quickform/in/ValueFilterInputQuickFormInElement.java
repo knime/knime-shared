@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -91,14 +92,30 @@ public class ValueFilterInputQuickFormInElement extends
     }
 
     /**
-     * @param values the value to set (does not ensure that the set value is one
-     *            of the choices)
+     * @param choiceValues all possible choices
+     * @param selectedColumn the selected column
+     * @param selectedValues the selected values
      */
-    public void setChoiceValues(final Map<String, Set<String>> values) {
-        if (values == null) {
+    public void setChoiceValues(final Map<String, Set<String>> choiceValues,
+                                final String selectedColumn, final String[] selectedValues) {
+        if (choiceValues == null) {
             m_choiceValues = new LinkedHashMap<String, Set<String>>();
         } else {
-            m_choiceValues = new LinkedHashMap<String, Set<String>>(values);
+            m_choiceValues = new LinkedHashMap<String, Set<String>>(choiceValues);
+        }
+
+        if (m_choiceValues.keySet().contains(selectedColumn)) {
+            m_column = selectedColumn;
+        } else {
+            m_column = m_choiceValues.keySet().isEmpty() ? null : m_choiceValues.keySet().iterator().next();
+        }
+
+        if (selectedValues != null
+                && selectedValues.length > 0 && m_column != null
+                && m_choiceValues.get(m_column).containsAll(Arrays.asList(selectedValues))) {
+            m_values = selectedValues;
+        } else {
+            m_values = new String[0];
         }
     }
 
@@ -116,9 +133,26 @@ public class ValueFilterInputQuickFormInElement extends
 
     /**
      * @param column the column to set
+     * @param values the values to set
      */
-    public void setColumn(final String column) {
+    public void setSelection(final String column, final String[] values) {
+        if (m_choiceValues == null) {
+            throw new IllegalStateException("No choice values set.");
+        }
+        if (column != null && !m_choiceValues.containsKey(column)) {
+            throw new IllegalArgumentException(column);
+        }
         m_column = column;
+
+        if (values != null && m_column != null) {
+            if (m_choiceValues.get(m_column).containsAll(Arrays.asList(values))) {
+                m_values = values;
+            } else {
+                throw new IllegalArgumentException(Arrays.toString(values));
+            }
+        } else {
+            m_values = new String[0];
+        }
     }
 
     /**
@@ -128,14 +162,4 @@ public class ValueFilterInputQuickFormInElement extends
         return m_values;
     }
 
-    /**
-     * @param values the values to set
-     */
-    public void setValues(final String[] values) {
-        if (values != null) {
-            m_values = values;
-        } else {
-            m_values = new String[0];
-        }
-    }
 }
