@@ -95,6 +95,7 @@ public class ValueFilterInputQuickFormInElement extends
      * @param choiceValues all possible choices
      * @param selectedColumn the selected column
      * @param selectedValues the selected values
+     * @since 4.3
      */
     public void setChoiceValues(final Map<String, Set<String>> choiceValues,
                                 final String selectedColumn, final String[] selectedValues) {
@@ -134,6 +135,7 @@ public class ValueFilterInputQuickFormInElement extends
     /**
      * @param column the column to set
      * @param values the values to set
+     * @since 4.3
      */
     public void setSelection(final String column, final String[] values) {
         if (m_choiceValues == null) {
