@@ -14,4 +14,24 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/core/util/node/quickform/in/ValueFilterInputQuickFormInElement.java" type="org.knime.core.util.node.quickform.in.ValueFilterInputQuickFormInElement">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.node.quickform.in.ValueFilterInputQuickFormInElement"/>
+                <message_argument value="setChoiceValues(Map&lt;String,Set&lt;String&gt;&gt;)"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.node.quickform.in.ValueFilterInputQuickFormInElement"/>
+                <message_argument value="setColumn(String)"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.node.quickform.in.ValueFilterInputQuickFormInElement"/>
+                <message_argument value="setValues(String[])"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>
