@@ -48,89 +48,70 @@
  */
 package org.knime.core.util.node.quickform.in;
 
-import org.knime.core.util.node.quickform.AbstractQuickFormElement;
-
 /**
- * Super class of all input elements.
+ * A form element to select a single string (which is a selection of possible choices).
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Thomas Gabriel, KNIME.com, Zurich, Switzerland
+ * @since 4.3
  */
-public abstract class AbstractQuickFormInElement
-    extends AbstractQuickFormElement {
+public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInElement {
 
-    private static final long serialVersionUID = -6790238955178501177L;
+    private static final long serialVersionUID = 3994864734119269106L;
 
+    private String m_value;
 
-    /** Constructor with a given label and description.
-     * @param label A label shown in the controller.
-     * @param description A description shown in the controller,
-     *        possibly null.
+    private String m_choices;
+
+    /**
+     * Create an integer input with a given description.
+     *
+     * @param label The label, not null!
+     * @param description The description, possibly null.
      * @param weight Weight factory,
-     *        lighter value for more top-level alignment */
-    protected AbstractQuickFormInElement(
-            final String label, final String description, final int weight) {
+     *        lighter value for more top-level alignment
+     */
+    public SingleSelectionInputQuickFormInElement(final String label,
+            final String description, final int weight) {
         super(label, description, weight);
+        m_choices = "";
     }
 
-    /** @return associated type. */
-    public abstract Type getType();
-
-    /** Enum of all known types. */
-    public enum Type {
-        /** File upload element. */
-        FileUpload,
-        /** String input element. */
-        StringInput,
-        /** One string out of a list of string input elements (radio buttons).
-         */
-        StringSelectionInput,
-        /** One or multiple strings in two lists of string input elements.
-         * @since 4.1
-         */
-        TwinStringListInput, // column filter (multiple): twin list
-        /** One options of a list of string input elements.
-         * @since 4.1
-         */
-        StringOptionInput, // single: dropdown
-        /** Selection of a single value based on another single value.
-         * @since 4.1
-         */
-        ValueSelectionInput,
-        /** Selection of one or multiple values based on a single value.
-         * @since 4.1
-         */
-        ValueFilterInput,
-        /** One or multiple strings of a list of string input elements.
-         * @since 4.1
-         */
-        StringListInput, // value list (multiple): list
-        /** A list of strings in a textarea input element.
-         * @since 4.1
-         */
-        StringListPasteboxInput,
-        /** Integer input element. */
-        IntInput,
-        /** Double input element. */
-        DoubleInput,
-        /** Date-string input element. */
-        DateStringInput,
-        /** Molecule sketcher input element.
-         * @since 4.1 */
-        SketcherInput,
-        /** Checkbox input element.
-         * @since 4.1 */
-        CheckboxInput,
-        /** A dummy input (no UI, only a breakpoint marker on a wizard page).
-         * @since 4.2 */
-        DummyInput,
-        /** Single selection input element.
-         * @since 4.3
-         */
-        SingleSelectionInput,
-        /** Multiple selection input element.
-         * @since 4.3
-         */
-        MultipleSelectionInput;
+    /** {@inheritDoc} */
+    @Override
+    public Type getType() {
+        return Type.SingleSelectionInput;
     }
 
+    /**
+     * @param value the value to set (does not ensure that the set value is one
+     *            of the choices)
+     */
+    public void setValue(final String value) {
+        m_value = value;
+    }
+
+    /** @return the value (not necessarily a string from the choices) */
+    public String getValue() {
+        return m_value;
+    }
+
+    /**
+     * @param choices new set of possible values to show if the user is to enter
+     *            a new value.
+     */
+    public void setChoices(final String choices) {
+        if (choices == null) {
+            m_choices = "";
+        } else {
+            m_choices = choices;
+        }
+    }
+
+    /**
+     * @return a clone of the currently set possible values (might be empty,
+     *         never null)
+     */
+    public String getChoices() {
+        return m_choices;
+    }
 }
