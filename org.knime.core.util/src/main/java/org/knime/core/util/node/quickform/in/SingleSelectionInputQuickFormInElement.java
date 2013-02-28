@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+
+
 /**
  * A form element to select a single string (which is a selection of possible choices).
  *
@@ -56,11 +58,49 @@ package org.knime.core.util.node.quickform.in;
  */
 public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInElement {
 
-    private static final long serialVersionUID = 3994864734119269106L;
+    private static final long serialVersionUID = 2967719001359578346L;
 
     private String m_value;
 
     private String m_choices;
+
+    private String m_layout;
+
+    /** Possible layout elements. */
+    public enum Layout {
+        /** RadioButton's vertically. */
+        RADIO_VERTICAL {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "Radio Button (vertical)";
+            }
+        },
+        /** RadioButton's horizontally. */
+        RADIO_HORIZONTAL {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "Radio Button (horizontal)";
+            }
+        },
+        /** Single list selection. */
+        LIST {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "List Selection";
+            }
+        },
+        /** Single selection DropDown box. */
+        DROPDOWN {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "Drop Down Selection";
+            }
+        };
+    }
 
     /**
      * Create an integer input with a given description.
@@ -71,9 +111,22 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
      *        lighter value for more top-level alignment
      */
     public SingleSelectionInputQuickFormInElement(final String label,
-            final String description, final int weight) {
+                                                  final String description, final int weight) {
         super(label, description, weight);
         m_choices = "";
+        m_layout = Layout.RADIO_VERTICAL.name();
+    }
+
+    /** @return layout for a multiple selection element */
+    public String getLayout() {
+        return m_layout;
+    }
+
+    /** Set a new layout for a multiple selection.
+     * @param layout the new layout
+     */
+    public void setLayout(final String layout) {
+        m_layout = layout;
     }
 
     /** {@inheritDoc} */
