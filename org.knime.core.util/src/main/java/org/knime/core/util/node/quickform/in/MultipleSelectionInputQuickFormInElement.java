@@ -48,19 +48,58 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+
 /**
- * A form element to select a single string (which is a selection of possible choices).
+ * A form element to select multiple String items (which is a selection of possible choices).
  *
  * @author Thomas Gabriel, KNIME.com, Zurich, Switzerland
  * @since 4.4
  */
 public class MultipleSelectionInputQuickFormInElement extends AbstractQuickFormInElement {
 
-    private static final long serialVersionUID = 2737106475522773139L;
+    private static final long serialVersionUID = -5784850452527525503L;
 
     private String m_values;
 
     private String m_choices;
+
+    private String m_layout;
+
+    /** Possible Layout types. */
+    public enum Layout {
+        /** CheckBox'es arranged vertically. */
+        CHECKBOX_VERTICAL {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "Check Box (vertical)";
+            }
+        },
+        /** CheckBox'es arranged horizontally. */
+        CHECKBOX_HORIZONTAL {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "Check Box (horizontal)";
+            }
+        },
+        /** Single selection list. */
+        LIST {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "List Selection";
+            }
+        },
+        /** Twin selection list. */
+        TWINLIST {
+            /** {@inheritDoc} */
+            @Override
+            public String toString() {
+                return "Twin List Selection";
+            }
+        };
+    }
 
     /**
      * Create an integer input with a given description.
@@ -74,6 +113,19 @@ public class MultipleSelectionInputQuickFormInElement extends AbstractQuickFormI
             final String description, final int weight) {
         super(label, description, weight);
         m_choices = "";
+        m_layout = Layout.CHECKBOX_VERTICAL.name();
+    }
+
+    /** @return layout for a multiple selection element */
+    public String getLayout() {
+        return m_layout;
+    }
+
+    /** Set a new layout for a multiple selection.
+     * @param layout the new layout
+     */
+    public void setLayout(final String layout) {
+        m_layout = layout;
     }
 
     /** {@inheritDoc} */
