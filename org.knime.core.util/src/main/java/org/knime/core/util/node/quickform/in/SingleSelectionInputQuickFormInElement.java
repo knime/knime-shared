@@ -52,7 +52,7 @@ package org.knime.core.util.node.quickform.in;
  * A form element to select a single string (which is a selection of possible choices).
  *
  * @author Thomas Gabriel, KNIME.com, Zurich, Switzerland
- * @since 4.3
+ * @since 4.4
  */
 public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInElement {
 
