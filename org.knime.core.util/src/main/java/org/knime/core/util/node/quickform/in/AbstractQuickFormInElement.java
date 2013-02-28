@@ -124,11 +124,11 @@ public abstract class AbstractQuickFormInElement
          * @since 4.2 */
         DummyInput,
         /** Single selection input element.
-         * @since 4.3
+         * @since 4.4
          */
         SingleSelectionInput,
         /** Multiple selection input element.
-         * @since 4.3
+         * @since 4.4
          */
         MultipleSelectionInput;
     }
