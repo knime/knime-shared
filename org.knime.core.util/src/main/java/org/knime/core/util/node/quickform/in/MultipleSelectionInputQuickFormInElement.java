@@ -83,22 +83,22 @@ public class MultipleSelectionInputQuickFormInElement extends AbstractQuickFormI
                 return "Check Box (horizontal)";
             }
         },
-        /** Single selection list. */
-        LIST {
-            /** {@inheritDoc} */
-            @Override
-            public String toString() {
-                return "List Selection";
-            }
-        },
-        /** Twin selection list. */
-        TWINLIST {
-            /** {@inheritDoc} */
-            @Override
-            public String toString() {
-                return "Twin List Selection";
-            }
-        };
+//        /** Single selection list. */
+//        LIST {
+//            /** {@inheritDoc} */
+//            @Override
+//            public String toString() {
+//                return "List Selection";
+//            }
+//        },
+//        /** Twin selection list. */
+//        TWINLIST {
+//            /** {@inheritDoc} */
+//            @Override
+//            public String toString() {
+//                return "Twin List Selection";
+//            }
+//        };
     }
 
     /**
