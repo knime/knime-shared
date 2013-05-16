@@ -84,22 +84,22 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
                 return "Radio Button (horizontal)";
             }
         },
-        /** Single list selection. */
-        LIST {
-            /** {@inheritDoc} */
-            @Override
-            public String toString() {
-                return "List Selection";
-            }
-        },
-        /** Single selection DropDown box. */
-        DROPDOWN {
-            /** {@inheritDoc} */
-            @Override
-            public String toString() {
-                return "Drop Down Selection";
-            }
-        };
+//        /** Single list selection. */
+//        LIST {
+//            /** {@inheritDoc} */
+//            @Override
+//            public String toString() {
+//                return "List Selection";
+//            }
+//        },
+//        /** Single selection DropDown box. */
+//        DROPDOWN {
+//            /** {@inheritDoc} */
+//            @Override
+//            public String toString() {
+//                return "Drop Down Selection";
+//            }
+//        };
     }
 
     /**
