@@ -55,6 +55,8 @@ import java.io.File;
  * This class holds information about the context in which a workflows currently resides. It includes information such
  * as the current workflow directory or the ID of the user executing the workflow.
  *
+ * <b>This class is not intended to be used by clients.</B>
+ *
  * @author Thorsten Meinl, KNIME.com Zurich, Switzerland
  * @since 4.4
  */
