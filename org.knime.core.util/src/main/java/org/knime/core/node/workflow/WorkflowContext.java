@@ -51,16 +51,104 @@ package org.knime.core.node.workflow;
 
 import java.io.File;
 
+import org.knime.core.util.User;
+
 /**
  * This class holds information about the context in which a workflows currently resides. It includes information such
- * as the current workflow directory or the ID of the user executing the workflow.
+ * as the current workflow directory or the ID of the user executing the workflow. Instances must be created via the
+ * {@link Factory} since the workflow context is purely read-only.
  *
- * <b>This class is not intended to be used by clients.</B>
+ * <b>This class is not intended to be used by clients.</b>
  *
  * @author Thorsten Meinl, KNIME.com Zurich, Switzerland
  * @since 4.4
  */
-public class WorkflowContext {
+public final class WorkflowContext {
+    /**
+     * Factory for workflow contexts. This class is not thread-safe!
+     */
+    public static final class Factory {
+        private String m_userid;
+
+        private File m_currentLocation;
+
+        private File m_originalLocation;
+
+        private File m_tempLocation;
+
+        private File m_mountpointRoot;
+
+        /**
+         * Creates a new factory for workflow contexts.
+         *
+         * @param currentLocation the current workflow location in the filesystem
+         */
+        public Factory(final File currentLocation) {
+            m_currentLocation = currentLocation;
+            try {
+                m_userid = User.getUsername();
+            } catch (Exception ex) {
+                m_userid = System.getProperty("user.name");
+            }
+        }
+
+        /**
+         * Sets the user id of the context. The default the user id (if not set explicitly) is the id of the user
+         * executing this process.
+         *
+         * @param userId the user id
+         */
+        public void setUserId(final String userId) {
+            m_userid = userId;
+        }
+
+        /**
+         * Sets the current file system location of the workflow.
+         *
+         * @param currentLocation the current workflow location
+         */
+        public void setCurrentLocation(final File currentLocation) {
+            m_currentLocation = currentLocation;
+        }
+
+        /**
+         * Sets the original file system location of the workflow, e.g. if the current location is a copy.
+         *
+         * @param originalLocation the original workflow location
+         */
+        public void setOriginalLocation(final File originalLocation) {
+            m_originalLocation = originalLocation;
+        }
+
+        /**
+         * Sets the location for temporary files associated with the workflow.
+         *
+         * @param tempLocation the temp location
+         */
+        public void setTempLocation(final File tempLocation) {
+            m_tempLocation = tempLocation;
+        }
+
+        /**
+         * Sets the root of the mountpoint the workflow is contained in.
+         *
+         * @param mountpointRoot the path to the mountpoint's root
+         */
+        public void setMountpointRoot(final File mountpointRoot) {
+            m_mountpointRoot = mountpointRoot;
+        }
+
+        /**
+         * Creates a new workflow context with the information set in this factory.
+         *
+         * @return a new workflow context
+         */
+        public WorkflowContext createContext() {
+            return new WorkflowContext(m_userid, m_currentLocation, m_originalLocation, m_tempLocation,
+                m_mountpointRoot);
+        }
+    }
+
     private final String m_userid;
 
     private final File m_currentLocation;
@@ -69,26 +157,22 @@ public class WorkflowContext {
 
     private final File m_tempLocation;
 
-    /**
-     * Creates a new workflow context;
-     *
-     * @param userId the user's id
-     * @param currentLocation the current location of the workflow, can be copy of the original workflow
-     * @param originalLocation the original location of the workflow e.g. in the server repository
-     * @param tempLocation the temporary directory for the workflow
-     */
-    public WorkflowContext(final String userId, final File currentLocation, final File originalLocation,
-        final File tempLocation) {
+    private final File m_mountpointRoot;
+
+    private WorkflowContext(final String userId, final File currentLocation, final File originalLocation,
+        final File tempLocation, final File mountpointRoot) {
         m_userid = userId;
         m_currentLocation = currentLocation;
         m_originalLocation = originalLocation;
         m_tempLocation = tempLocation;
+        m_mountpointRoot = mountpointRoot;
     }
 
     /**
-     * Returns the ID of the user which executes this workflow.
+     * Returns the ID of the user which executes this workflow or <code>null</code> if this information is not
+     * available.
      *
-     * @return a user id
+     * @return a user id or <code>null</code>
      */
     public String getUserid() {
         return m_userid;
@@ -97,7 +181,7 @@ public class WorkflowContext {
     /**
      * Returns the current location of the workflow, which can be a temporary directory.
      *
-     * @return a local directory
+     * @return a local directory or <code>null</code>
      */
     public File getCurrentLocation() {
         return m_currentLocation;
@@ -105,20 +189,31 @@ public class WorkflowContext {
 
     /**
      * Returns the original location of the workflow, e.g. in the server repository. This has only meaning if the
-     * current directory is a copy.
+     * current directory is a copy and is <code>null</code> otherwise.
      *
-     * @return a local directory
+     * @return a local directory or <code>null</code>
      */
     public File getOriginalLocation() {
         return m_originalLocation;
     }
 
     /**
-     * Returns the location of the temporary directory for this workflow.
+     * Returns the location of the temporary directory for this workflow or <code>null</code> if no specific temporary
+     * directory for the workflow exists.
      *
-     * @return a temporary directory
+     * @return a temporary directory or <code>null</code>
      */
     public File getTempLocation() {
         return m_tempLocation;
+    }
+
+    /**
+     * Returns the root of the mountpoint the workflow is contained in or <code>null</code> if this information is not
+     * available.
+     *
+     * @return the mountpoint root or <code>null</code>
+     */
+    public File getMountpointRoot() {
+        return m_mountpointRoot;
     }
 }
