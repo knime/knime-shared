@@ -64,7 +64,7 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
 
     private String m_choices;
 
-    private String m_layout;
+    private Layout m_layout;
 
     /** Possible layout elements. */
     public enum Layout {
@@ -114,18 +114,18 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
                                                   final String description, final int weight) {
         super(label, description, weight);
         m_choices = "";
-        m_layout = Layout.RADIO_VERTICAL.name();
+        m_layout = Layout.RADIO_VERTICAL;
     }
 
     /** @return layout for a multiple selection element */
-    public String getLayout() {
+    public Layout getLayout() {
         return m_layout;
     }
 
     /** Set a new layout for a multiple selection.
      * @param layout the new layout
      */
-    public void setLayout(final String layout) {
+    public void setLayout(final Layout layout) {
         m_layout = layout;
     }
 
