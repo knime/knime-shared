@@ -63,7 +63,7 @@ public class MultipleSelectionInputQuickFormInElement extends AbstractQuickFormI
 
     private String m_choices;
 
-    private String m_layout;
+    private Layout m_layout;
 
     /** Possible Layout types. */
     public enum Layout {
@@ -113,18 +113,18 @@ public class MultipleSelectionInputQuickFormInElement extends AbstractQuickFormI
             final String description, final int weight) {
         super(label, description, weight);
         m_choices = "";
-        m_layout = Layout.CHECKBOX_VERTICAL.name();
+        m_layout = Layout.CHECKBOX_VERTICAL;
     }
 
     /** @return layout for a multiple selection element */
-    public String getLayout() {
+    public Layout getLayout() {
         return m_layout;
     }
 
     /** Set a new layout for a multiple selection.
      * @param layout the new layout
      */
-    public void setLayout(final String layout) {
+    public void setLayout(final Layout layout) {
         m_layout = layout;
     }
 
