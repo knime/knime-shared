@@ -216,4 +216,12 @@ public final class WorkflowContext {
     public File getMountpointRoot() {
         return m_mountpointRoot;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return m_currentLocation.getAbsolutePath() + ((m_mountpointRoot != null) ? (" @ " + m_mountpointRoot) : "");
+    }
 }
