@@ -49,7 +49,11 @@
  */
 package org.knime.core.node.workflow;
 
+import java.io.Externalizable;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.knime.core.util.User;
 
@@ -63,7 +67,10 @@ import org.knime.core.util.User;
  * @author Thorsten Meinl, KNIME.com Zurich, Switzerland
  * @since 4.4
  */
-public final class WorkflowContext {
+public final class WorkflowContext implements Externalizable {
+
+    private static final long serialVersionUID = 67323L;
+
     /**
      * Factory for workflow contexts. This class is not thread-safe!
      */
@@ -90,6 +97,12 @@ public final class WorkflowContext {
             } catch (Exception ex) {
                 m_userid = System.getProperty("user.name");
             }
+            if (m_userid == null) {
+                throw new IllegalArgumentException("User id must be set.");
+            }
+            if (m_currentLocation == null) {
+                throw new IllegalArgumentException("Current workflow location must be set.");
+            }
         }
 
         /**
@@ -99,6 +112,9 @@ public final class WorkflowContext {
          * @param userId the user id
          */
         public void setUserId(final String userId) {
+            if (userId == null) {
+                throw new IllegalArgumentException("User id must be set.");
+            }
             m_userid = userId;
         }
 
@@ -108,6 +124,9 @@ public final class WorkflowContext {
          * @param currentLocation the current workflow location
          */
         public void setCurrentLocation(final File currentLocation) {
+            if (currentLocation == null) {
+                throw new IllegalArgumentException("Current workflow location must be set.");
+            }
             m_currentLocation = currentLocation;
         }
 
@@ -149,18 +168,20 @@ public final class WorkflowContext {
         }
     }
 
-    private final String m_userid;
+    private String m_userid;
 
-    private final File m_currentLocation;
+    private File m_currentLocation;
 
-    private final File m_originalLocation;
+    private File m_originalLocation;
 
-    private final File m_tempLocation;
+    private File m_tempLocation;
 
-    private final File m_mountpointRoot;
+    private File m_mountpointRoot;
 
     private WorkflowContext(final String userId, final File currentLocation, final File originalLocation,
         final File tempLocation, final File mountpointRoot) {
+        assert userId != null;
+        assert currentLocation != null;
         m_userid = userId;
         m_currentLocation = currentLocation;
         m_originalLocation = originalLocation;
@@ -223,5 +244,59 @@ public final class WorkflowContext {
     @Override
     public String toString() {
         return m_currentLocation.getAbsolutePath() + ((m_mountpointRoot != null) ? (" @ " + m_mountpointRoot) : "");
+    }
+
+    /*----------------------------------------------------------------------------------*/
+    /* Externalizable stuff */
+    /* ---------------------------------------------------------------------------------*/
+    /**
+     * Serialisation constructor. Don't use!
+     */
+    public WorkflowContext() {
+        // Do not use.
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        out.writeInt(20130606);
+        out.writeUTF(m_currentLocation.getAbsolutePath()); /* not null */
+        writeFilePath(out, m_mountpointRoot);
+        writeFilePath(out, m_originalLocation);
+        writeFilePath(out, m_tempLocation);
+        out.writeUTF(m_userid); /* not null */
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        final int version = in.readInt();
+        if (version < 20130606) {
+            throw new IOException("Unknown version number: " + version);
+        }
+        m_currentLocation = new File(in.readUTF());
+        m_mountpointRoot = readFilePath(in);
+        m_originalLocation = readFilePath(in);
+        m_tempLocation = readFilePath(in);
+        m_userid = in.readUTF();
+    }
+
+    private void writeFilePath(final ObjectOutput out, final File f) throws IOException {
+        out.writeBoolean(f != null);
+        if (f != null) {
+            out.writeUTF(f.getAbsolutePath());
+        }
+    }
+
+    private File readFilePath(final ObjectInput in) throws IOException, ClassNotFoundException {
+        if (in.readBoolean()) {
+            return new File(in.readUTF());
+        } else {
+            return null;
+        }
     }
 }
