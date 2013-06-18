@@ -218,6 +218,17 @@ public final class WorkflowContext implements Externalizable {
         return m_originalLocation;
     }
 
+    /** Set the temp location if it is currently null (otherwise throws exception). This method is used by the WFM
+     * in case the temp is not assigned (default in desktop execution).
+     * @param tempLocation the tempLocation to set
+     */
+    public void setTempLocation(final File tempLocation) {
+        if (m_tempLocation != null) {
+            throw new IllegalStateException("Temp location already set to " + m_tempLocation.getAbsolutePath());
+        }
+        m_tempLocation = tempLocation;
+    }
+
     /**
      * Returns the location of the temporary directory for this workflow or <code>null</code> if no specific temporary
      * directory for the workflow exists.
