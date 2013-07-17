@@ -117,12 +117,24 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
         m_layout = Layout.RADIO_VERTICAL;
     }
 
-    /** @return layout for a multiple selection element */
+    /** @return layout string for a single selection element */
+    public String getLayoutString() {
+        return m_layout.name();
+    }
+
+    /** Set a new layout for a single selection.
+     * @param layout string the new layout
+     */
+    public void setLayoutString(final String layout) {
+        m_layout = Layout.valueOf(layout);
+    }
+
+    /** @return layout for a single selection element */
     public Layout getLayout() {
         return m_layout;
     }
 
-    /** Set a new layout for a multiple selection.
+    /** Set a new layout for a single selection.
      * @param layout the new layout
      */
     public void setLayout(final Layout layout) {

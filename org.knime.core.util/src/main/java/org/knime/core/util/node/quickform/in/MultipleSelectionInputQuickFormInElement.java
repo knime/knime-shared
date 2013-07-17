@@ -116,6 +116,18 @@ public class MultipleSelectionInputQuickFormInElement extends AbstractQuickFormI
         m_layout = Layout.CHECKBOX_VERTICAL;
     }
 
+    /** @return layout string for a multiple selection element */
+    public String getLayoutString() {
+        return m_layout.name();
+    }
+
+    /** Set a new layout for a multiple selection.
+     * @param layout string the new layout
+     */
+    public void setLayoutString(final String layout) {
+        m_layout = Layout.valueOf(layout);
+    }
+
     /** @return layout for a multiple selection element */
     public Layout getLayout() {
         return m_layout;
