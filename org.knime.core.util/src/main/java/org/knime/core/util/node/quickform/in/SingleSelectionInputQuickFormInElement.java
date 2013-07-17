@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.node.quickform.in;
 
+import java.io.IOException;
+
 
 
 /**
@@ -117,27 +119,18 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
         m_layout = Layout.RADIO_VERTICAL;
     }
 
-    /** @return layout string for a single selection element */
-    public String getLayoutString() {
-        return m_layout.name();
-    }
-
-    /** Set a new layout for a single selection.
-     * @param layout string the new layout
-     */
-    public void setLayoutString(final String layout) {
-        m_layout = Layout.valueOf(layout);
-    }
-
-    /** @return layout for a single selection element */
+    /** @return layout for a multiple selection element */
     public Layout getLayout() {
         return m_layout;
     }
 
-    /** Set a new layout for a single selection.
+    /** Set a new layout for a multiple selection.
      * @param layout the new layout
      */
     public void setLayout(final Layout layout) {
+        if (layout == null) {
+            throw new IllegalArgumentException("Layout must not be null");
+        }
         m_layout = layout;
     }
 
@@ -178,5 +171,35 @@ public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInE
      */
     public String getChoices() {
         return m_choices;
+    }
+
+    private void writeObject(final java.io.ObjectOutputStream out) throws IOException {
+        out.writeBoolean(m_value != null); // is null?
+        if (m_value != null) {
+            out.writeUTF(m_value);
+        }
+        out.writeBoolean(m_choices != null); // is null?
+        if (m_choices != null) {
+            out.writeUTF(m_choices);
+        }
+        // cannot serialize enums: https://forums.oracle.com/thread/1152088?tstart=306
+        // Caused by: java.io.InvalidObjectException: can't deserialize enum
+        //      at java.lang.Enum.readObject(Enum.java:205)
+        out.writeUTF(m_layout.name());
+    }
+
+    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        if (in.readBoolean()) {
+            m_value = in.readUTF();
+        }
+        if (in.readBoolean()) {
+            m_choices = in.readUTF();
+        }
+        String layout = in.readUTF();
+        try {
+            m_layout = Layout.valueOf(layout);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Cannot map enum constant: " + layout);
+        }
     }
 }
