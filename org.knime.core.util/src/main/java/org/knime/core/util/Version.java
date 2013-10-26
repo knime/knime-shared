@@ -185,4 +185,15 @@ public final class Version implements Comparable<Version> {
         }
         return true;
     }
+
+    /**
+     * Checks whether the version is the same or newer than the reference version.
+     *
+     * @param version the version to check against
+     * @return <code>true</code> if version is the same or newer than the reference version,
+     *      <code>false</code> otherwise
+     */
+    public boolean isSameOrNewer(final Version version) {
+        return compareTo(version) >= 0;
+    }
 }
