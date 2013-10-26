@@ -84,7 +84,7 @@ public final class Version implements Comparable<Version> {
      * @throws NumberFormatException if a version part is not numeric
      */
     public Version(final String version) {
-        String[] parts = version.split("\\.");
+        String[] parts = version.split("[\\.-]"); // "-" because of versions like 3.8.0-SNAPSHOT
         if (parts.length < 1) {
             throw new IllegalArgumentException("Wrong version format: " + version);
         }
