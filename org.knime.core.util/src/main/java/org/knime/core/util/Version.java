@@ -94,7 +94,7 @@ public final class Version implements Comparable<Version> {
         } else {
             m_minor = 0;
         }
-        if (parts.length >= 2) {
+        if (parts.length > 2) {
             m_revision = Integer.parseInt(parts[2]);
         } else {
             m_revision = 0;
