@@ -54,6 +54,7 @@ import java.io.Serializable;
  *
  * @author M. Berthold/B. Wiswedel, University of Konstanz
  */
+@SuppressWarnings("serial")
 public class NodeID implements Serializable, Comparable<NodeID> {
     private final NodeID m_prefix;
     private final int m_index;
