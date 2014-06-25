@@ -60,6 +60,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
 
     /** Root node ID, all nodeID will derive from this instance. */
     public static final NodeID ROOTID = new NodeID();
+    private static final String PREFIX_SEPERATOR = ":";
 
     /** Creates now NodeID object based on a predefined prefix (usually the
      * ID of the encapsulating project or metanode) and the node's ID itself.
@@ -113,7 +114,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
     @Deprecated
     public String getIDWithoutRoot() {
         String id = toString();
-        String withoutRoot = id.substring(id.indexOf(":") + 1);
+        String withoutRoot = id.substring(id.indexOf(PREFIX_SEPERATOR) + 1);
         return withoutRoot;
     }
 
@@ -142,6 +143,32 @@ public class NodeID implements Serializable, Comparable<NodeID> {
     }
 
     /**
+     * Constructs a NodeID from a given serialized input string. Reverse operation of {@link #toString()}.
+     *
+     * @param nodeIDString The serialized NodeID string to parse.
+     * @return NodeID deserialized from string argument.
+     * @throws IllegalArgumentException If string cannot be parsed.
+     * @throws NullPointerException If string argument is null.
+     */
+    public static NodeID fromString(final String nodeIDString) {
+        String[] idStrings = nodeIDString.split(PREFIX_SEPERATOR);
+        NodeID nodeID = null;
+        for (String idString : idStrings) {
+            try {
+                int id = Integer.parseInt(idString);
+                if (nodeID == null) {
+                    nodeID = new NodeID(id);
+                } else {
+                    nodeID = new NodeID(nodeID, id);
+                }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Cannot parse NodeID string (" + nodeIDString + ")", e);
+            }
+        }
+        return nodeID;
+    }
+
+    /**
      * @return string representation of ID.
      * @see java.lang.Object#toString()
      */
@@ -159,7 +186,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         if (m_prefix != null) {
             m_prefix.assembleString(sb);
             if (sb.length() > 0) {
-                sb.append(":");
+                sb.append(PREFIX_SEPERATOR);
             }
             sb.append(m_index);
         }
