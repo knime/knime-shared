@@ -205,6 +205,13 @@ public final class WorkflowContext implements Externalizable {
         return m_currentLocation;
     }
 
+    /** Updates the current location, used by save-as.
+     * @param currentLocation the currentLocation to set
+     * @noreference This method is not intended to be referenced by clients. */
+    public void setCurrentLocation(final File currentLocation) {
+        m_currentLocation = currentLocation;
+    }
+
     /**
      * Returns the original location of the workflow, e.g. in the server repository. This has only meaning if the
      * current directory is a copy and is <code>null</code> otherwise.
