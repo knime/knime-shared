@@ -216,6 +216,23 @@ public enum ConfigEntries {
             throw new UnsupportedOperationException("Do not call this method"
                     + " on sub config entries");
         }
+    },
+
+    /**
+     * Entry of type password.
+     */
+    xpassword {
+        /**
+         * Returns a new entry for passwords.
+         *
+         * @param key the key for this value
+         * @param value the (encrypted) password
+         * @return a new config entry
+         */
+        @Override
+        ConfigPasswordEntry createEntry(final String key, final String value) {
+            return new ConfigPasswordEntry(key, value);
+        }
     };
 
     /**

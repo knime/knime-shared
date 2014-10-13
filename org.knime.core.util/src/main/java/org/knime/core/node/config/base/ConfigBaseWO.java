@@ -216,4 +216,14 @@ public interface ConfigBaseWO {
      */
     public void addStringArray(final String key, final String... values);
 
+    /**
+     * Adds a password to the config object. The encryption routine is initialized with the given encryption key. Use
+     * the corresponding methods from {@link ConfigBaseRO} with the same encryption key in order to the get the
+     * decrypted password.
+     *
+     * @param key the key for storing the password, must not be <code>null</code>
+     * @param encryptionKey key used for encrypting the password
+     * @param value the password, may be <code>null</code>
+     */
+    public void addPassword(final String key, final String encryptionKey, final String value);
 }
