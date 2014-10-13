@@ -453,4 +453,24 @@ public interface ConfigBaseRO extends Iterable<String> {
     @Override
     public Iterator<String> iterator();
 
+    /**
+     * Returns a decrypted password. If no password is stored under the key an exception is thrown.
+     *
+     * @param key the key, must not be <code>null</code>
+     * @param encryptionKey key used for encrypting the password
+     * @return a decrypted password, may be <code>null</code>
+     * @throws InvalidSettingsException if no password for the given key exists
+     */
+    public String getPassword(final String key, final String encryptionKey) throws InvalidSettingsException;
+
+    /**
+     * Returns a decrypted password. If no password is stored under the key the given default is returned instead. The
+     * default value is not decrypted, it's returned as provided.
+     *
+     * @param key the key, must not be <code>null</code>
+     * @param encryptionKey key used for encrypting the password
+     * @param def the (decrypted) default value
+     * @return a decrypted password, may be <code>null</code>
+     */
+    public String getPassword(final String key, final String encryptionKey, final String def);
 }

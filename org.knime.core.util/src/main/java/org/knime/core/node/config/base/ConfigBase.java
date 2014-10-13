@@ -50,6 +50,10 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -58,10 +62,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.tree.TreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.util.crypto.Encrypter;
+import org.knime.core.util.crypto.IEncrypter;
 import org.xml.sax.SAXException;
 
 /**
@@ -80,6 +89,14 @@ import org.xml.sax.SAXException;
  */
 public abstract class ConfigBase extends AbstractConfigEntry
         implements ConfigBaseRO, ConfigBaseWO {
+    private static IEncrypter createEncrypter(final String key ) {
+        try {
+            return new Encrypter(key);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException ex) {
+            throw new RuntimeException("Could not create encrypter: " + ex.getMessage(), ex);
+        }
+    }
+
 
     private static final String CFG_ARRAY_SIZE = "array-size";
 
@@ -1393,5 +1410,50 @@ public abstract class ConfigBase extends AbstractConfigEntry
         return new Vector<TreeNode>(m_map.values()).elements();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addPassword(final String key, final String encryptionKey, final String value) {
+        try {
+            put(new ConfigPasswordEntry(key, createEncrypter(encryptionKey).encrypt(value)));
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
+                | InvalidAlgorithmParameterException ex) {
+            throw new RuntimeException("Error while encrypting password: " + ex.getMessage(), ex);
+        }
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPassword(final String key, final String encryptionKey) throws InvalidSettingsException {
+        Object o = m_map.get(key);
+        if (!(o instanceof ConfigPasswordEntry)) {
+            throw new InvalidSettingsException("Password for key \"" + key + "\" not found.");
+        }
+        try {
+            return createEncrypter(encryptionKey).decrypt(((ConfigPasswordEntry)o).getPassword());
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
+                | InvalidAlgorithmParameterException | IOException ex) {
+            throw new InvalidSettingsException("Error while decrypting password: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPassword(final String key, final String encryptionKey, final String def) {
+        Object o = m_map.get(key);
+        if (!(o instanceof ConfigPasswordEntry)) {
+            return def;
+        }
+        try {
+            return createEncrypter(encryptionKey).decrypt(((ConfigPasswordEntry)o).getPassword());
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
+                | InvalidAlgorithmParameterException | IOException ex) {
+            throw new RuntimeException("Error while decrypting password: " + ex.getMessage(), ex);
+        }
+    }
 }
