@@ -70,6 +70,8 @@ public interface ConfigBaseRO extends Iterable<String> {
 
     /**
      * Saves this <code>Config</code> into the given stream in XML format.
+     * <em>Note that the stream will be closed when finished.</em>
+     *
      * @param os The stream to write into.
      * @throws IOException If an io exception occurs during writing.
      */
