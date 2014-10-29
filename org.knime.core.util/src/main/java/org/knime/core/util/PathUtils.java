@@ -326,4 +326,24 @@ public final class PathUtils {
             return !dirContents.iterator().hasNext();
         }
     }
+
+    /**
+     * This method does the same as {@link Path#resolve(String)} except that it handles the case when the child path
+     * starts with a separator. Instead of starting from the root again it really appends the child path to the parent.
+     * I.e. <tt>resolvePath("/foo", "/bar")</tt> will result in <tt>/foo/bar</tt> instead of <tt>/bar</tt>.
+     *
+     * @param parent the parent path
+     * @param child the child path
+     * @return the resolved path
+     */
+    public static Path resolvePath(final Path parent, final String child) {
+        final String separator = parent.getFileSystem().getSeparator();
+        if (child.startsWith(separator)) {
+            return parent.resolve(child.substring(separator.length()));
+        } else if (child.startsWith("/")) {
+            return parent.resolve(child.substring(1));
+        } else {
+            return parent.resolve(child);
+        }
+    }
 }
