@@ -45,7 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -132,13 +134,13 @@ public final class XMLConfig {
     }
 
     /**
-     * Saves given Config into an XML stream. The stream is closed at the end.
+     * Saves given Config into an XML stream. <em>Note that the stream is closed at the end by this method!</em>
      *
      * @param config the Config the save
-     * @param os the stream to write Config as XML to
+     * @param output the stream to write Config as XML to. The stream does not need to be buffered.
      * @throws IOException if the Config could not be stored
      */
-    public static void save(final ConfigBase config, final OutputStream os)
+    public static void save(final ConfigBase config, final OutputStream output)
             throws IOException {
         TransformerHandler tfh = null;
         try {
@@ -155,24 +157,26 @@ public final class XMLConfig {
         t.setOutputProperty(OutputKeys.ENCODING, encoding);
 
         // we write the XML header by hand because we need a linebreak after it for KNIME <= 2.6
-        os.write(("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n").getBytes(Charset.forName(encoding)));
+        output.write(("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n").getBytes(Charset.forName(encoding)));
 
+        final boolean originalOutputIsBuffered =
+                ((output instanceof BufferedOutputStream) || (output instanceof ByteArrayOutputStream));
+        OutputStream os = originalOutputIsBuffered ? output : new BufferedOutputStream(output);
         tfh.setResult(new StreamResult(os));
 
         try {
             XMLContentHandler.asXML(config, tfh);
         } catch (SAXException se) {
-            IOException ioe =
-                    new IOException("Saving xml to " + os.toString()
-                            + " failed: " + se.getMessage());
-            ioe.initCause(se);
-            throw ioe;
+            throw new IOException("Saving xml to " + output.toString() + " failed: " + se.getMessage(), se);
         } finally {
             // Note: When using the GZIP stream, it is also required by the
             // ZLIB native library in order to support certain optimizations
             // to flush the stream.
-            os.flush();
-            os.close();
+            try {
+                os.flush();
+            } finally {
+                os.close();
+            }
         }
     }
 }

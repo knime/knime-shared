@@ -1276,8 +1276,7 @@ public abstract class ConfigBase extends AbstractConfigEntry
     }
 
     /**
-     * Writes this ConfigBase to the given stream as XML. The stream will be closed
-     * when finished.
+     * Writes this ConfigBase to the given stream as XML. <em>Note that the stream will be closed when finished.</em>
      *
      * @param os The stream to write into.
      * @throws IOException If this ConfigBase could be stored to the stream.
