@@ -1,45 +1,18 @@
-/*
- * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
- *  Website: http://www.knime.org; Email: contact@knime.org
+/* ------------------------------------------------------------------
+ * This source code, its documentation and all appendant files
+ * are protected by copyright law. All rights reserved.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, Version 3, as
- *  published by the Free Software Foundation.
+ * Copyright by KNIME.com, Zurich, Switzerland
  *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
+ * You may not modify, publish, transmit, transfer or sell, reproduce,
+ * create derivative works from, distribute, perform, display, or in
+ * any way exploit any of the content, in whole or in part, except as
+ * otherwise expressly permitted in writing by the copyright owner or
+ * as specified in the license file distributed with this product.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, see <http://www.gnu.org/licenses>.
- *
- *  Additional permission under GNU GPL version 3 section 7:
- *
- *  KNIME interoperates with ECLIPSE solely via ECLIPSE's plug-in APIs.
- *  Hence, KNIME and ECLIPSE are both independent programs and are not
- *  derived from each other. Should, however, the interpretation of the
- *  GNU GPL Version 3 ("License") under any applicable laws result in
- *  KNIME and ECLIPSE being a combined program, KNIME GMBH herewith grants
- *  you the additional permission to use and propagate KNIME together with
- *  ECLIPSE with only the license terms in place for ECLIPSE applying to
- *  ECLIPSE and the GNU GPL Version 3 applying for KNIME, provided the
- *  license terms of ECLIPSE themselves allow for the respective use and
- *  propagation of ECLIPSE together with KNIME.
- *
- *  Additional permission relating to nodes for KNIME that extend the Node
- *  Extension (and in particular that are based on subclasses of NodeModel,
- *  NodeDialog, and NodeView) and that only interoperate with KNIME through
- *  standard APIs ("Nodes"):
- *  Nodes are deemed to be separate and independent programs and to not be
- *  covered works.  Notwithstanding anything to the contrary in the
- *  License, the License does not apply to Nodes, you are not required to
- *  license Nodes under the License, and you are granted a license to
- *  prepare and propagate Nodes, in each case even if such Nodes are
- *  propagated with or for interoperation with KNIME.  The owner of a Node
- *  may freely choose the license terms applicable to such Node, including
- *  when such Node is propagated with or for interoperation with KNIME.
+ * If you have any questions please contact the copyright holder:
+ * website: www.knime.com
+ * email: contact@knime.com
  * ---------------------------------------------------------------------
  *
  * Created on 30.10.2013 by thor
@@ -49,23 +22,59 @@ package org.knime.core.util;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility function based around the new Path API in Java 7.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
- * @since 5.0
+ * @since 4.0
  */
 public final class PathUtils {
+    /**
+     * Filter that accepts all paths.
+     */
+    private  static final PathFilter acceptAll = new PathFilter() {
+        @Override
+        public boolean accept(final Path path) {
+            return true;
+        }
+    };
+
+    /**
+     * Permission set in which everybody has all permissions.
+     */
+    public static final Set<PosixFilePermission> RWX_ALL_PERMISSIONS;
+
+    static {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        //add owners permission
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        //add group permissions
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_WRITE);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+        //add others permissions
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_WRITE);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        RWX_ALL_PERMISSIONS = Collections.unmodifiableSet(perms);
+    }
+
     private PathUtils() {
     }
 
@@ -101,7 +110,7 @@ public final class PathUtils {
      * @throws IOException if an I/O error occurs file deleting the directory
      */
     public static void deleteDirectoryIfExists(final Path startDir) throws IOException {
-        deleteDirectoryIfExists(startDir, PathFilters.acceptAll);
+        deleteDirectoryIfExists(startDir, acceptAll);
     }
 
     /**
@@ -142,7 +151,7 @@ public final class PathUtils {
             @Override
             public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
                 if (exc == null) {
-                    if ((filter == PathFilters.acceptAll) || isEmpty(dir)) {
+                    if ((filter == acceptAll) || isEmpty(dir)) {
                         Files.delete(dir);
                     }
                     return FileVisitResult.CONTINUE;
@@ -207,7 +216,7 @@ public final class PathUtils {
      * @throws IOException if an I/O error occurs while copying
      */
     public static void copyDirectory(final Path source, final Path destination) throws IOException {
-        copyDirectory(source, destination, PathFilters.acceptAll);
+        copyDirectory(source, destination, acceptAll);
     }
 
     /**
@@ -259,7 +268,7 @@ public final class PathUtils {
             && Files.getFileStore(source).equals(Files.getFileStore(destination.getParent()))) {
             Files.move(source, destination);
         } else {
-            moveDirectory(source, destination, PathFilters.acceptAll);
+            moveDirectory(source, destination, acceptAll);
         }
     }
 
@@ -325,6 +334,48 @@ public final class PathUtils {
         try (DirectoryStream<Path> dirContents = Files.newDirectoryStream(directory)) {
             return !dirContents.iterator().hasNext();
         }
+    }
+
+    /**
+     * Recursively sets the permission of the given path.
+     *
+     * @param path any path
+     * @param perms the new permissions
+     * @throws IOException if an error occurs while setting the permissions and/or traversing the filesystem
+     */
+    public static void chmodRecursively(final Path path, final Set<PosixFilePermission> perms) throws IOException {
+        Files.walkFileTree(path, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+                throws IOException {
+                Files.setPosixFilePermissions(dir, perms);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.setPosixFilePermissions(file, perms);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                } else {
+                    return FileVisitResult.CONTINUE;
+                }
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                } else {
+                    return FileVisitResult.CONTINUE;
+                }
+            }
+        });
     }
 
     /**
