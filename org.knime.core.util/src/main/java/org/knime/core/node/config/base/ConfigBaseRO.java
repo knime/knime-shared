@@ -420,7 +420,7 @@ public interface ConfigBaseRO extends Iterable<String> {
     public boolean[] getBooleanArray(final String key, final boolean... def);
 
     /**
-     * Return String object which can be null, or the default array if the key
+     * Return String object which can be null, or the default value if the key
      * is not available.
      *
      * @param key The key.
