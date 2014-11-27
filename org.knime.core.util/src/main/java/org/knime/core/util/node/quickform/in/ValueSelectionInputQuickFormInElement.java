@@ -64,6 +64,7 @@ public class ValueSelectionInputQuickFormInElement extends
 
     private String m_column;
     private String m_value;
+    private boolean m_lockColumn;
 
     /**
      * Create an string option input with a given description.
@@ -79,6 +80,7 @@ public class ValueSelectionInputQuickFormInElement extends
         m_choiceValues = new LinkedHashMap<String, Set<String>>();
         m_column = null;
         m_value = null;
+        m_lockColumn = false;
     }
 
     /** {@inheritDoc} */
@@ -130,5 +132,19 @@ public class ValueSelectionInputQuickFormInElement extends
      */
     public void setValue(final String value) {
         m_value = value;
+    }
+
+    /**
+     * @return the lockColumn
+     */
+    public boolean getLockColumn() {
+        return m_lockColumn;
+    }
+
+    /**
+     * @param lockColumn the lockColumn to set
+     */
+    public void setLockColumn(final boolean lockColumn) {
+        m_lockColumn = lockColumn;
     }
 }
