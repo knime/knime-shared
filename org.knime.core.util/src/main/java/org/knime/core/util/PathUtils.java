@@ -55,9 +55,12 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility function based around the new Path API in Java 7.
@@ -71,7 +74,27 @@ public final class PathUtils {
 
     private static final List<Path> TEMP_FILES = Collections.synchronizedList(new ArrayList<Path>());
 
+    /**
+     * Permission set in which everybody has all permissions.
+     */
+    public static final Set<PosixFilePermission> RWX_ALL_PERMISSIONS;
+
     static {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        //add owners permission
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        //add group permissions
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_WRITE);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+        //add others permissions
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_WRITE);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        RWX_ALL_PERMISSIONS = Collections.unmodifiableSet(perms);
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
