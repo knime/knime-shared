@@ -49,6 +49,7 @@ package org.knime.core.util;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -348,6 +349,48 @@ public final class PathUtils {
         try (DirectoryStream<Path> dirContents = Files.newDirectoryStream(directory)) {
             return !dirContents.iterator().hasNext();
         }
+    }
+
+    /**
+     * Recursively sets the permission of the given path.
+     *
+     * @param path any path
+     * @param perms the new permissions
+     * @throws IOException if an error occurs while setting the permissions and/or traversing the filesystem
+     */
+    public static void chmodRecursively(final Path path, final Set<PosixFilePermission> perms) throws IOException {
+        Files.walkFileTree(path, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+                throws IOException {
+                Files.setPosixFilePermissions(dir, perms);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.setPosixFilePermissions(file, perms);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                } else {
+                    return FileVisitResult.CONTINUE;
+                }
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                } else {
+                    return FileVisitResult.CONTINUE;
+                }
+            }
+        });
     }
 
     /**
