@@ -49,15 +49,19 @@ package org.knime.core.util;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility function based around the new Path API in Java 7.
@@ -71,7 +75,27 @@ public final class PathUtils {
 
     private static final List<Path> TEMP_FILES = Collections.synchronizedList(new ArrayList<Path>());
 
+    /**
+     * Permission set in which everybody has all permissions.
+     */
+    public static final Set<PosixFilePermission> RWX_ALL_PERMISSIONS;
+
     static {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        //add owners permission
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        //add group permissions
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_WRITE);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+        //add others permissions
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_WRITE);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        RWX_ALL_PERMISSIONS = Collections.unmodifiableSet(perms);
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -325,6 +349,48 @@ public final class PathUtils {
         try (DirectoryStream<Path> dirContents = Files.newDirectoryStream(directory)) {
             return !dirContents.iterator().hasNext();
         }
+    }
+
+    /**
+     * Recursively sets the permission of the given path.
+     *
+     * @param path any path
+     * @param perms the new permissions
+     * @throws IOException if an error occurs while setting the permissions and/or traversing the filesystem
+     */
+    public static void chmodRecursively(final Path path, final Set<PosixFilePermission> perms) throws IOException {
+        Files.walkFileTree(path, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+                throws IOException {
+                Files.setPosixFilePermissions(dir, perms);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.setPosixFilePermissions(file, perms);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                } else {
+                    return FileVisitResult.CONTINUE;
+                }
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                } else {
+                    return FileVisitResult.CONTINUE;
+                }
+            }
+        });
     }
 
     /**
