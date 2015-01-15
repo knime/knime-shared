@@ -53,27 +53,6 @@ public final class PathUtils {
         }
     };
 
-    /**
-     * Permission set in which everybody has all permissions.
-     */
-    public static final Set<PosixFilePermission> RWX_ALL_PERMISSIONS;
-
-    static {
-        Set<PosixFilePermission> perms = new HashSet<>();
-        //add owners permission
-        perms.add(PosixFilePermission.OWNER_READ);
-        perms.add(PosixFilePermission.OWNER_WRITE);
-        perms.add(PosixFilePermission.OWNER_EXECUTE);
-        //add group permissions
-        perms.add(PosixFilePermission.GROUP_READ);
-        perms.add(PosixFilePermission.GROUP_WRITE);
-        perms.add(PosixFilePermission.GROUP_EXECUTE);
-        //add others permissions
-        perms.add(PosixFilePermission.OTHERS_READ);
-        perms.add(PosixFilePermission.OTHERS_WRITE);
-        perms.add(PosixFilePermission.OTHERS_EXECUTE);
-        RWX_ALL_PERMISSIONS = Collections.unmodifiableSet(perms);
-    }
 
     private PathUtils() {
     }
