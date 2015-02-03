@@ -110,7 +110,7 @@ public abstract class AbstractQuickFormElement implements Serializable {
         } else {
             throw new InvalidSettingsException("Expected quick form element "
                     + "of type " + cl.getSimpleName() + "; got "
-                    + el == null ? "<null>" : el.getClass().getSimpleName());
+                    + ((el == null) ? "<null>" : el.getClass().getSimpleName()));
         }
     }
 
