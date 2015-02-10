@@ -110,9 +110,55 @@ public abstract class AbstractQuickFormElement implements Serializable {
         } else {
             throw new InvalidSettingsException("Expected quick form element "
                     + "of type " + cl.getSimpleName() + "; got "
-                    + el == null ? "<null>" : el.getClass().getSimpleName());
+                    + ((el == null) ? "<null>" : el.getClass().getSimpleName()));
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((m_description == null) ? 0 : m_description.hashCode());
+        result = prime * result + ((m_label == null) ? 0 : m_label.hashCode());
+        result = prime * result + m_weight;
+        return result;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AbstractQuickFormElement other = (AbstractQuickFormElement)obj;
+        if (m_description == null) {
+            if (other.m_description != null) {
+                return false;
+            }
+        } else if (!m_description.equals(other.m_description)) {
+            return false;
+        }
+        if (m_label == null) {
+            if (other.m_label != null) {
+                return false;
+            }
+        } else if (!m_label.equals(other.m_label)) {
+            return false;
+        }
+        if (m_weight != other.m_weight) {
+            return false;
+        }
+        return true;
+    }
 }

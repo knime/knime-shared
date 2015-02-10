@@ -314,4 +314,72 @@ public final class WorkflowContext implements Externalizable {
             return null;
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((m_currentLocation == null) ? 0 : m_currentLocation.hashCode());
+        result = prime * result + ((m_mountpointRoot == null) ? 0 : m_mountpointRoot.hashCode());
+        result = prime * result + ((m_originalLocation == null) ? 0 : m_originalLocation.hashCode());
+        result = prime * result + ((m_tempLocation == null) ? 0 : m_tempLocation.hashCode());
+        result = prime * result + ((m_userid == null) ? 0 : m_userid.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        WorkflowContext other = (WorkflowContext)obj;
+        if (m_currentLocation == null) {
+            if (other.m_currentLocation != null) {
+                return false;
+            }
+        } else if (!m_currentLocation.equals(other.m_currentLocation)) {
+            return false;
+        }
+        if (m_mountpointRoot == null) {
+            if (other.m_mountpointRoot != null) {
+                return false;
+            }
+        } else if (!m_mountpointRoot.equals(other.m_mountpointRoot)) {
+            return false;
+        }
+        if (m_originalLocation == null) {
+            if (other.m_originalLocation != null) {
+                return false;
+            }
+        } else if (!m_originalLocation.equals(other.m_originalLocation)) {
+            return false;
+        }
+        if (m_tempLocation == null) {
+            if (other.m_tempLocation != null) {
+                return false;
+            }
+        } else if (!m_tempLocation.equals(other.m_tempLocation)) {
+            return false;
+        }
+        if (m_userid == null) {
+            if (other.m_userid != null) {
+                return false;
+            }
+        } else if (!m_userid.equals(other.m_userid)) {
+            return false;
+        }
+        return true;
+    }
 }
