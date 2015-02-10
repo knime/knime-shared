@@ -54,6 +54,10 @@ import java.util.Date;
  */
 public class DateStringInputQuickFormInElement extends
         AbstractQuickFormInElement {
+
+    /** Format being used. */
+    public static final String FORMAT ="yyyy-MM-dd'T'HH:mm:ss.SSS";
+
     private static final long serialVersionUID = -4981974737903893978L;
 
     private Date m_value;
