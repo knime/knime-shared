@@ -1712,7 +1712,7 @@ text/javascript
 text/mathml													mml
 text/n3														n3
 text/parityfec
-text/plain													asc brf conf def diff in list log pot srt text txt
+text/plain													asc brf conf def diff in list log pot srt text txt properties
 text/prs.fallenstein.rst
 text/prs.lines.tag											dsc
 text/red

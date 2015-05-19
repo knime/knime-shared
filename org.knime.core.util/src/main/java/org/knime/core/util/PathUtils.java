@@ -205,6 +205,24 @@ public final class PathUtils {
     }
 
     /**
+     * Creates a temporary file that is automatically deleted when the JVM shuts down.
+     *
+     * @param dir the directory in which the file is to be created
+     * @param prefix the prefix string to be used in generating the file's name
+     * @param suffix the suffix string to be used in generating the file's name
+     *
+     * @return an abstract pathname denoting a newly-created empty file
+     * @throws IOException if the file could not be created
+     * @since 5.1
+     */
+    public static Path createTempFile(final Path dir, final String prefix, final String suffix) throws IOException {
+        Path tempFile = Files.createTempFile(dir, prefix, suffix);
+        TEMP_FILES.add(tempFile);
+        return tempFile;
+    }
+
+
+    /**
      * Creates a temporary directory that is automatically deleted when the JVM shuts down.
      *
      * @param prefix the prefix string to be used in generating the file's name
