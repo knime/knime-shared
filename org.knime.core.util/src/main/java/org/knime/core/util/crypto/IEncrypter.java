@@ -61,9 +61,11 @@ import javax.crypto.IllegalBlockSizeException;
  * @since 5.0
  */
 public interface IEncrypter {
+
     /**
      * Encrypts strings and returns a Base64 string. If the input string is <code>null</code>, the output will be
-     * <code>null</code>, too.
+     * <code>null</code>, too. The implementation will add a random salt so that different encryptions of the same
+     * data result in different result.
      *
      * @param data as string
      * @return the encrypted data or <code>null</code>
@@ -74,6 +76,23 @@ public interface IEncrypter {
      */
     String encrypt(final String data) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException,
         InvalidAlgorithmParameterException;
+
+    /**
+     * Encrypts strings and returns a Base64 string. If the input string is <code>null</code>, the output will be
+     * <code>null</code>, too. This implementation uses the argument salt (some random number) - the same
+     * method arguments will return the same encrypted data.
+     *
+     * @param data as string
+     * @param salt The (random or fixed) salt.
+     * @return the encrypted data or <code>null</code>
+     * @throws IllegalBlockSizeException {@link IllegalBlockSizeException}
+     * @throws BadPaddingException {@link BadPaddingException}
+     * @throws InvalidKeyException {@link InvalidKeyException}
+     * @throws InvalidAlgorithmParameterException {@link InvalidAlgorithmParameterException}
+     * @since 2.12
+     */
+    String encrypt(final String data, final int salt) throws BadPaddingException, IllegalBlockSizeException,
+        InvalidKeyException, InvalidAlgorithmParameterException;
 
     /**
      * Decrypts strings. If the input string is <code>null</code>, the output will be <code>null</code>, too.

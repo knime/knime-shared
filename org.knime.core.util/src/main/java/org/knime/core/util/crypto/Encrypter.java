@@ -80,19 +80,23 @@ public final class Encrypter implements IEncrypter {
         m_key = new SecretKeySpec(Arrays.copyOf(keyBytes, 16), "AES"); // 128bits
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public synchronized String encrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
-        InvalidKeyException, InvalidAlgorithmParameterException {
+    InvalidKeyException, InvalidAlgorithmParameterException {
+        return encrypt(data, m_random.nextInt());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public synchronized String encrypt(final String data, final int salt) throws BadPaddingException,
+        IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
         if (data == null) {
             return null;
         }
         m_cipher.init(Cipher.ENCRYPT_MODE, m_key, IV);
         byte[] dataBytes = data.getBytes(UTF8);
         byte[] unencrypted = new byte[dataBytes.length + 4]; // 4 bytes salt
-        int salt = m_random.nextInt();
         unencrypted[0] = (byte)(salt & 0xff);
         unencrypted[1] = (byte)((salt >> 8) & 0xff);
         unencrypted[2] = (byte)((salt >> 16) & 0xff);

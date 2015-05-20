@@ -27,6 +27,15 @@ public final class NoEncrypter implements IEncrypter {
      * {@inheritDoc}
      */
     @Override
+    public String encrypt(final String data, final int salt) throws BadPaddingException, IllegalBlockSizeException,
+        InvalidKeyException, InvalidAlgorithmParameterException {
+        return data;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String decrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
         InvalidKeyException, IOException, InvalidAlgorithmParameterException {
         return data;
