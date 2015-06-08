@@ -63,7 +63,7 @@ public final class NodeMessage {
         /** Error - fatal, node not executable. */
         ERROR
     }
-    
+
     /** Convenience member to signal that there is no message. */
     public static final NodeMessage NONE = new NodeMessage(Type.RESET, "");
 
@@ -82,6 +82,22 @@ public final class NodeMessage {
         m_type = messageType;
     }
 
+    /** Convenience short cut for <code>new NodeMessage(Type.WARNING, message)</code>.
+     * @param message ...
+     * @return ...
+     * @since 2.12 */
+    public static final NodeMessage newWarning(final String message) {
+        return new NodeMessage(Type.WARNING, message);
+    }
+
+    /** Convenience short cut for <code>new NodeMessage(Type.ERROR, message)</code>.
+     * @param message ...
+     * @return ...
+     * @since 2.12 */
+    public static final NodeMessage newError(final String message) {
+        return new NodeMessage(Type.ERROR, message);
+    }
+
     /**
      *
      * @return the message
@@ -97,19 +113,19 @@ public final class NodeMessage {
     public Type getMessageType() {
         return m_type;
     }
-    
+
     /** {@inheritDoc} */
     @Override
     public String toString() {
         return getMessageType() + ": " + getMessage();
     }
-    
+
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return m_type.hashCode() ^ getMessage().hashCode();
     }
-    
+
     /** {@inheritDoc} */
     @Override
     public boolean equals(final Object obj) {
@@ -122,10 +138,10 @@ public final class NodeMessage {
         NodeMessage other = (NodeMessage)obj;
         return m_type.equals(other.m_type) && m_message.equals(other.m_message);
     }
-    
+
     /**
      * Merges two messages. The result message will have the most severe type
-     * (e.g. if m1 is WARNING and m2 is ERROR the output is ERROR) and a 
+     * (e.g. if m1 is WARNING and m2 is ERROR the output is ERROR) and a
      * concatenated message string, delimited by a line break.
      * @param m1 Message 1
      * @param m2 Message 2

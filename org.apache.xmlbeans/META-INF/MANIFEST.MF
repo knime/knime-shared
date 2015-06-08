@@ -2,11 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache XMLBeans
 Bundle-SymbolicName: org.apache.xmlbeans;singleton:=true
-Bundle-Version: 2.5.0.qualifier
+Bundle-Version: 2.6.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/xbean.jar,
- lib/xbean_xpath.jar
+ lib/xbean_xpath.jar,
+ lib/xmlpublic.jar,
+ lib/saxon9.jar,
+ lib/saxon9-dom.jar,
+ lib/saxon9-xpath.jar
 Export-Package: org.apache.xmlbeans,
  org.apache.xmlbeans.impl.common,
  org.apache.xmlbeans.impl.config,
@@ -56,7 +60,6 @@ Export-Package: org.apache.xmlbeans,
  org.apache.xmlbeans.xml.stream,
  org.apache.xmlbeans.xml.stream.events,
  org.apache.xmlbeans.xml.stream.utils,
- org.w3c.dom,
  repackage,
  schemaorg_apache_xmlbeans.system.sXMLCONFIG,
  schemaorg_apache_xmlbeans.system.sXMLLANG,
