@@ -62,6 +62,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utility function based around the new Path API in Java 7.
@@ -260,10 +261,13 @@ public final class PathUtils {
      * @param source the source directory
      * @param destination the destination directory
      * @param filter a filter for files that should be moved
+     * @return the number of files (not directories!) that have been copied
      * @throws IOException if an I/O error occurs while copying
      */
-    public static void copyDirectory(final Path source, final Path destination, final PathFilter filter)
+    public static long copyDirectory(final Path source, final Path destination, final PathFilter filter)
         throws IOException {
+        final AtomicLong copiedFiles = new AtomicLong();
+
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
@@ -280,10 +284,13 @@ public final class PathUtils {
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                 if (filter.accept(file)) {
                     Files.copy(file, destination.resolve(source.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                    copiedFiles.incrementAndGet();
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
+
+        return copiedFiles.get();
     }
 
 
@@ -316,10 +323,13 @@ public final class PathUtils {
      * @param source the source directory
      * @param destination the destination directory
      * @param filter a filter for files that should be moved
+     * @return the number of files (not directories!) that have been moved
      * @throws IOException if an I/O error occurs while copying
      */
-    public static void moveDirectory(final Path source, final Path destination, final PathFilter filter)
+    public static long moveDirectory(final Path source, final Path destination, final PathFilter filter)
         throws IOException {
+        final AtomicLong movedFiles = new AtomicLong();
+
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
@@ -350,11 +360,63 @@ public final class PathUtils {
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                 if (filter.accept(file)) {
                     Files.move(file, destination.resolve(source.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                    movedFiles.incrementAndGet();
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
+
+        return movedFiles.get();
     }
+
+
+    /**
+     * Recursively counts the files (not directories!) in the given directory. Optionally a path filter can be supplied.
+     *
+     * @param directory the starting directory
+     * @param filter a filter for files that should be counted
+     * @return the number of files (not directories!)
+     * @throws IOException if an I/O error occurs while traversing the directory tree
+     * @since 5.1
+     */
+    public static long countFiles(final Path directory, final PathFilter filter)
+        throws IOException {
+        final AtomicLong count = new AtomicLong();
+
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+                throws IOException {
+                if (filter.accept(dir)) {
+                    return FileVisitResult.CONTINUE;
+                } else {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                if (filter.accept(file)) {
+                    count.incrementAndGet();
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        return count.get();
+    }
+
 
     /**
      * Returns whether the given directory is empty.
