@@ -234,7 +234,7 @@ public class ExternalNodeData {
         result = prime * result + ((m_id == null) ? 0 : m_id.hashCode());
         result = prime * result + ((m_jsonObject == null) ? 0 : m_jsonObject.hashCode());
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
-        result = prime * result + ((m_url == null) ? 0 : m_url.hashCode());
+        result = prime * result + ((m_url == null) ? 0 : m_url.toString().hashCode());
         return result;
     }
 
@@ -275,7 +275,7 @@ public class ExternalNodeData {
             if (other.m_url != null) {
                 return false;
             }
-        } else if (!m_url.equals(other.m_url)) {
+        } else if (!m_url.toString().equals(other.m_url.toString())) {
             return false;
         }
         return true;
