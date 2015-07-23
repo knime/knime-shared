@@ -48,9 +48,11 @@
  */
 package org.knime.core.node.dialog;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
+import javax.json.Json;
 import javax.json.JsonObject;
 
 /**
@@ -63,6 +65,30 @@ import javax.json.JsonObject;
  * @since 2.12
  */
 public class ExternalNodeData {
+    /**
+     * Indicator that a string value can be provided but is not available yet.
+     */
+    public static final String NO_STRING_VALUE_YET = new String("");
+
+    /**
+     * Indicator that a JSON value can be provided but is not available yet.
+     */
+    public static final JsonObject NO_JSON_VALUE_YET = Json.createObjectBuilder().build();
+
+    /**
+     * Indicator that a URL value can be provided but is not available yet.
+     */
+    public static final URL NO_URL_VALUE_YET;
+
+    static {
+        try {
+            NO_URL_VALUE_YET = new URL("file:/dev/null");
+        } catch (MalformedURLException ex) {
+            // doesn't happen
+            throw new RuntimeException(ex);
+        }
+    }
+
     /**
      * The output's ID (resource ID).
      */
@@ -110,7 +136,8 @@ public class ExternalNodeData {
      * Returns node data as a generic JSON object. This should only be used for small data as it is kept in memory.
      * The method may return <code>null</code> if no JSON data is provided.<br />
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
-     * configured is beneficial.
+     * configured is beneficial. If {@link #NO_JSON_VALUE_YET} is returned this means that eventually JSON can be
+     * provided. A <code>null</code> value means that JSON may never be available.
      *
      * @return a JSON object, may be <code>null</code>
      */
@@ -122,7 +149,8 @@ public class ExternalNodeData {
      * Returns node data as a plain string. This should only be used for small data as it is kept in memory.
      * The method may return <code>null</code> if no string data is provided.<br />
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
-     * configured is beneficial.
+     * configured is beneficial. If {@link #NO_STRING_VALUE_YET} is returned this means that eventually JSON can be
+     * provided. A <code>null</code> value means that JSON may never be available.
      *
      * @return a string, may be <code>null</code>
      */
@@ -134,7 +162,8 @@ public class ExternalNodeData {
      * Returns the URL to a larger resource. The URL is usually a file URL sitting in a temporary directory. The method
      * may return <code>null</code> if no external resource is provided.<br />
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
-     * configured is beneficial.
+     * configured is beneficial. If {@link #NO_URL_VALUE_YET} is returned this means that eventually JSON can be
+     * provided. A <code>null</code> value means that JSON may never be available.
      *
      * @return a URL to a resource, or <code>null</code>
      */
