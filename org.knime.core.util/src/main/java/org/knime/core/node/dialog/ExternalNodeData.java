@@ -54,6 +54,7 @@ import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 /**
  * This object represents output or input of a node for provided or consumed outside the workflow, e.g. in web service
@@ -97,7 +98,7 @@ public class ExternalNodeData {
     /**
      * The inline JSON output, may be <code>null</code>.
      */
-    protected JsonObject m_jsonObject;
+    protected JsonValue m_jsonValue;
 
     /**
      * The inline plain string output, may be <code>null</code>.
@@ -118,7 +119,7 @@ public class ExternalNodeData {
 
     ExternalNodeData(final ExternalNodeDataBuilder builder) {
         m_id = builder.m_id;
-        m_jsonObject = builder.m_jsonObject;
+        m_jsonValue = builder.m_jsonValue;
         m_url = builder.m_url;
         m_stringValue = builder.m_stringValue;
     }
@@ -133,16 +134,16 @@ public class ExternalNodeData {
     }
 
     /**
-     * Returns node data as a generic JSON object. This should only be used for small data as it is kept in memory.
+     * Returns node data as a generic JSON value. This should only be used for small data as it is kept in memory.
      * The method may return <code>null</code> if no JSON data is provided.<br />
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
      * configured is beneficial. If {@link #NO_JSON_VALUE_YET} is returned this means that eventually JSON can be
      * provided. A <code>null</code> value means that JSON may never be available.
      *
-     * @return a JSON object, may be <code>null</code>
+     * @return a JSON value, may be <code>null</code>
      */
-    public JsonObject getJSONObject() {
-        return m_jsonObject;
+    public JsonValue getJSONValue() {
+        return m_jsonValue;
     }
 
     /**
@@ -187,7 +188,7 @@ public class ExternalNodeData {
     public static class ExternalNodeDataBuilder {
         final String m_id;
 
-        JsonObject m_jsonObject;
+        JsonValue m_jsonValue;
 
         String m_stringValue;
 
@@ -198,18 +199,18 @@ public class ExternalNodeData {
         }
 
         /**
-         * Sets the JSON object for the external data. Either a JSON object or the string value should be set.
+         * Sets the JSON value for the external data. Either a JSON value or the string value should be set.
          *
-         * @param jsonObject a JSON object; may be <code>null</code>
+         * @param jsonValue a JSON value; may be <code>null</code>
          * @return the updated builder
          */
-        public ExternalNodeDataBuilder jsonObject(final JsonObject jsonObject) {
-            m_jsonObject = jsonObject;
+        public ExternalNodeDataBuilder jsonValue(final JsonValue jsonValue) {
+            m_jsonValue = jsonValue;
             return this;
         }
 
         /**
-         * Sets the string value for the external data. Either a JSON object or the string value should be set.
+         * Sets the string value for the external data. Either a JSON value or the string value should be set.
          *
          * @param stringValue a string value; may be <code>null</code>
          * @return the updated builder
@@ -245,8 +246,8 @@ public class ExternalNodeData {
      */
     @Override
     public String toString() {
-        if (m_jsonObject != null) {
-            return m_id + " = " + m_jsonObject;
+        if (m_jsonValue != null) {
+            return m_id + " = " + m_jsonValue;
         } else if (m_url != null) {
             return m_id + " = " + m_url;
         } else if (m_stringValue != null) {
@@ -261,7 +262,7 @@ public class ExternalNodeData {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((m_id == null) ? 0 : m_id.hashCode());
-        result = prime * result + ((m_jsonObject == null) ? 0 : m_jsonObject.hashCode());
+        result = prime * result + ((m_jsonValue == null) ? 0 : m_jsonValue.hashCode());
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
         result = prime * result + ((m_url == null) ? 0 : m_url.toString().hashCode());
         return result;
@@ -286,11 +287,11 @@ public class ExternalNodeData {
         } else if (!m_id.equals(other.m_id)) {
             return false;
         }
-        if (m_jsonObject == null) {
-            if (other.m_jsonObject != null) {
+        if (m_jsonValue == null) {
+            if (other.m_jsonValue != null) {
                 return false;
             }
-        } else if (!m_jsonObject.equals(other.m_jsonObject)) {
+        } else if (!m_jsonValue.equals(other.m_jsonValue)) {
             return false;
         }
         if (m_stringValue == null) {
