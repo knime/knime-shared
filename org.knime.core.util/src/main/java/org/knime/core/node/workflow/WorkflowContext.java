@@ -199,16 +199,22 @@ public final class WorkflowContext implements Externalizable {
     /**
      * Returns the current location of the workflow, which can be a temporary directory.
      *
-     * @return a local directory or <code>null</code>
+     * @return a local directory, never <code>null</code>
      */
     public File getCurrentLocation() {
         return m_currentLocation;
     }
 
-    /** Updates the current location, used by save-as.
-     * @param currentLocation the currentLocation to set
-     * @noreference This method is not intended to be referenced by clients. */
+    /**
+     * Updates the current location, used by save-as.
+     *
+     * @param currentLocation the currentLocation to set, must not be <code>null</code>
+     * @noreference This method is not intended to be referenced by clients.
+     */
     public void setCurrentLocation(final File currentLocation) {
+        if (currentLocation == null) {
+            throw new IllegalArgumentException("Current workflow location must be set.");
+        }
         m_currentLocation = currentLocation;
     }
 
@@ -322,7 +328,7 @@ public final class WorkflowContext implements Externalizable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((m_currentLocation == null) ? 0 : m_currentLocation.hashCode());
+        result = prime * result + m_currentLocation.hashCode();
         result = prime * result + ((m_mountpointRoot == null) ? 0 : m_mountpointRoot.hashCode());
         result = prime * result + ((m_originalLocation == null) ? 0 : m_originalLocation.hashCode());
         result = prime * result + ((m_tempLocation == null) ? 0 : m_tempLocation.hashCode());
