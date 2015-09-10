@@ -120,10 +120,32 @@ public final class PathUtils {
     }
 
     /**
+     * Removes all entried in the given directory recursively.
+     *
+     * @param startDir start directory whose contents should be deleted
+     * @throws IOException if an I/O error occurs while deleting the directory
+     * @since 5.2
+     */
+    public static void cleanDirectoryIfExists(final Path startDir) throws IOException {
+        if (!Files.exists(startDir)) {
+            return;
+        }
+
+        for (Path e : Files.newDirectoryStream(startDir)) {
+            if (Files.isDirectory(e)) {
+                deleteDirectoryIfExists(e);
+            } else {
+                Files.delete(e);
+            }
+        }
+    }
+
+
+    /**
      * Deletes the given directory recursively.
      *
      * @param startDir start directory that should be deleted
-     * @throws IOException if an I/O error occurs file deleting the directory
+     * @throws IOException if an I/O error occurs while deleting the directory
      */
     public static void deleteDirectoryIfExists(final Path startDir) throws IOException {
         deleteDirectoryIfExists(startDir, PathFilters.acceptAll);
@@ -135,7 +157,7 @@ public final class PathUtils {
      *
      * @param startDir start directory that should be deleted
      * @param filter a path filter
-     * @throws IOException if an I/O error occurs file deleting the directory
+     * @throws IOException if an I/O error occurs while deleting the directory
      */
     public static void deleteDirectoryIfExists(final Path startDir, final PathFilter filter) throws IOException {
         if (!Files.exists(startDir)) {
