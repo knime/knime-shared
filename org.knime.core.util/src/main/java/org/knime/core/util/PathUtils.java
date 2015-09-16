@@ -131,11 +131,13 @@ public final class PathUtils {
             return;
         }
 
-        for (Path e : Files.newDirectoryStream(startDir)) {
-            if (Files.isDirectory(e)) {
-                deleteDirectoryIfExists(e);
-            } else {
-                Files.delete(e);
+        try (DirectoryStream<Path> dirContents = Files.newDirectoryStream(startDir)) {
+            for (Path e : dirContents) {
+                if (Files.isDirectory(e)) {
+                    deleteDirectoryIfExists(e);
+                } else {
+                    Files.delete(e);
+                }
             }
         }
     }
