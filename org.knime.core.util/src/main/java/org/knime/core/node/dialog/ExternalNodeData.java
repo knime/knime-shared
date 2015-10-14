@@ -135,7 +135,7 @@ public class ExternalNodeData {
 
     /**
      * Returns node data as a generic JSON value. This should only be used for small data as it is kept in memory.
-     * The method may return <code>null</code> if no JSON data is provided.<br />
+     * The method may return <code>null</code> if no JSON data is provided.<br>
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
      * configured is beneficial. If {@link #NO_JSON_VALUE_YET} is returned this means that eventually JSON can be
      * provided. A <code>null</code> value means that JSON may never be available.
@@ -148,7 +148,7 @@ public class ExternalNodeData {
 
     /**
      * Returns node data as a plain string. This should only be used for small data as it is kept in memory.
-     * The method may return <code>null</code> if no string data is provided.<br />
+     * The method may return <code>null</code> if no string data is provided.<br>
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
      * configured is beneficial. If {@link #NO_STRING_VALUE_YET} is returned this means that eventually JSON can be
      * provided. A <code>null</code> value means that JSON may never be available.
@@ -161,7 +161,7 @@ public class ExternalNodeData {
 
     /**
      * Returns the URL to a larger resource. The URL is usually a file URL sitting in a temporary directory. The method
-     * may return <code>null</code> if no external resource is provided.<br />
+     * may return <code>null</code> if no external resource is provided.<br>
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
      * configured is beneficial. If {@link #NO_URL_VALUE_YET} is returned this means that eventually JSON can be
      * provided. A <code>null</code> value means that JSON may never be available.
