@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>org.knime</groupId>
 	<artifactId>core.util</artifactId>
-	<version>5.1.0</version>
+	<version>5.2.0</version>
 	<name>KNIME utility plugin</name>
 	<description>Utility plugin that should have no dependencies to other plugins.</description>
 
