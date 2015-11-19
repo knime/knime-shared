@@ -102,6 +102,17 @@ public final class WorkflowContext implements Externalizable {
             }
         }
 
+        /** New instance based on the value of the passed reference.
+         * @param origContext To copy from - not null.
+         * @since 5.3 */
+        public Factory(final WorkflowContext origContext) {
+            m_currentLocation = origContext.getCurrentLocation();
+            m_userid = origContext.getUserid();
+            m_mountpointRoot = origContext.getMountpointRoot();
+            m_originalLocation = origContext.getOriginalLocation();
+            m_tempLocation = origContext.getTempLocation();
+        }
+
         /**
          * Sets the user id of the context. The default the user id (if not set explicitly) is the id of the user
          * executing this process.
@@ -110,7 +121,7 @@ public final class WorkflowContext implements Externalizable {
          */
         public void setUserId(final String userId) {
             if (userId == null) {
-                throw new IllegalArgumentException("User id must be set.");
+                throw new IllegalArgumentException();
             }
             m_userid = userId;
         }

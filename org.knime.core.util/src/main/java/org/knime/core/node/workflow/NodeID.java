@@ -109,6 +109,14 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         return m_index;
     }
 
+    /** Create a new nodeID with this as prefix and the argument as index.
+     * @param index The child index.
+     * @return a new ID.
+     * @since 5.3 */
+    public NodeID createChild(final int index) {
+        return new NodeID(this, index);
+    }
+
     /**
      * @return string representation of ID without the leading "0:"
      * @deprecated Do not use this method any more, it will be removed
