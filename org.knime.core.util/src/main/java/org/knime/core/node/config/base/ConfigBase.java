@@ -1456,4 +1456,23 @@ public abstract class ConfigBase extends AbstractConfigEntry
             throw new RuntimeException("Error while decrypting password: " + ex.getMessage(), ex);
         }
     }
+
+    /** {@inheritDoc}
+     * @since 5.3 */
+    @Override
+    public void addTransientString(final String key, final String value) {
+        put(new ConfigTransientStringEntry(key, value));
+    }
+
+    /** {@inheritDoc}
+     * @since 5.3 */
+    @Override
+    public String getTransientString(final String key) {
+        Object o = m_map.get(key);
+        if (!(o instanceof ConfigTransientStringEntry)) {
+            return null;
+        } else {
+            return ((ConfigTransientStringEntry)o).getTransientString();
+        }
+    }
 }

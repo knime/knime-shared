@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.knime.core.util" version="2">
+    <resource path="src/main/java/org/knime/core/node/config/base/ConfigBaseRO.java" type="org.knime.core.node.config.base.ConfigBaseRO">
+        <filter id="403804204">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.config.base.ConfigBaseRO"/>
+                <message_argument value="getTransientString(String)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/node/config/base/ConfigBaseWO.java" type="org.knime.core.node.config.base.ConfigBaseWO">
+        <filter id="403804204">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.config.base.ConfigBaseWO"/>
+                <message_argument value="addTransientString(String, String)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

@@ -255,6 +255,8 @@ class XMLContentHandler extends DefaultHandler {
             AbstractConfigEntry e = c.getEntry(key);
             if (e instanceof ConfigBase) {
                 internalAsXML((ConfigBase)e, handler, depth + 1);
+            } else if (e instanceof ConfigTransientStringEntry) {
+                // don't save
             } else {
                 AttributesImpl a = new AttributesImpl();
                 a.addAttribute("", "", "key", "CDATA", key);

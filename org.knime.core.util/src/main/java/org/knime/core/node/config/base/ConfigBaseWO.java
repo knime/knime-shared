@@ -226,4 +226,16 @@ public interface ConfigBaseWO {
      * @param value the password, may be <code>null</code>
      */
     public void addPassword(final String key, final String encryptionKey, final String value);
+
+    /**
+     * Adds a 'transient' string to this settings tree. A transient string is usually a password that should be kept
+     * only in main memory and never saved to disc. Consequently, when a settings object is read from disc
+     * the string will be missing (null).
+     *
+     * @param key the key for lookup
+     * @param value that value (password)
+     * @since 5.3
+     * @see ConfigBaseRO#getTransientString(String)
+     */
+    public void addTransientString(final String key, final String value);
 }

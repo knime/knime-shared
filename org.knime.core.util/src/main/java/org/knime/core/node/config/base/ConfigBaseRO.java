@@ -475,4 +475,13 @@ public interface ConfigBaseRO extends Iterable<String> {
      * @return a decrypted password, may be <code>null</code>
      */
     public String getPassword(final String key, final String encryptionKey, final String def);
+
+    /**
+     * Returns a transient string if present or null if no longer available (setting restored from disc).
+     * @param key the key, must not be <code>null</code>
+     * @return that string or null.
+     * @since 5.3
+     * @see ConfigBaseWO#addTransientString(String, String)
+     */
+    public String getTransientString(final String key);
 }

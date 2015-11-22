@@ -233,6 +233,18 @@ public enum ConfigEntries {
         ConfigPasswordEntry createEntry(final String key, final String value) {
             return new ConfigPasswordEntry(key, value);
         }
+    },
+
+    /**
+     * Entry of a transient password.
+     * @since 5.3
+     */
+    xtransientstring {
+        /** Fails as transient strings are never saved. */
+        @Override
+        ConfigBase createEntry(final String key, final String value) {
+            throw new IllegalStateException("Transient string not supposed to be saved");
+        }
     };
 
     /**
