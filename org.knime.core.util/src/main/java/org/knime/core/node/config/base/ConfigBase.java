@@ -1246,7 +1246,7 @@ public abstract class ConfigBase extends AbstractConfigEntry
      * Writes this ConfigBase into the given stream.
      *
      * @param oos Write ConfigBase to this stream.
-     * @throws IOException If the file can not be accessed.
+     * @throws IOException If the file cannot be accessed.
      */
     public final void writeToFile(final ObjectOutputStream oos)
             throws IOException {
