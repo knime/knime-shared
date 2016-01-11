@@ -15,34 +15,35 @@
 
 package org.apache.xmlbeans;
 
-import java.util.Hashtable;
+import java.util.Properties;
 
 
 public class SystemProperties
 {
 
-	protected static Hashtable propertyH;
+	protected static Properties propertyH;
 
-	public static String getProperty(String key) {
+	public static String getProperty(final String key) {
 		if (propertyH == null) {
 			try {
 				propertyH = System.getProperties();
 			} catch(SecurityException ex) {
-				propertyH = new Hashtable();
+				propertyH = new Properties();
 				return null;
 			}
 		}
-		return (String)propertyH.get(key);
+		return propertyH.getProperty(key);
 	}
 
-	public static String getProperty(String key, String defaultValue) {
+	public static String getProperty(final String key, final String defaultValue) {
 		String result = getProperty(key);
-		if (result == null)
-			return defaultValue;
+		if (result == null) {
+            return defaultValue;
+        }
 		return result;
 	}
 
-	public static void setPropertyH(Hashtable aPropertyH) {
+	public static void setPropertyH(final Properties aPropertyH) {
 		propertyH = aPropertyH;
 	}
 
