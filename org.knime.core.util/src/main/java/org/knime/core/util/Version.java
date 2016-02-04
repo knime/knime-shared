@@ -46,13 +46,15 @@
  */
 package org.knime.core.util;
 
+import java.io.Serializable;
+
 /**
  * Simple class the represents a three digit version.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  * @since 4.5
  */
-public final class Version implements Comparable<Version> {
+public final class Version implements Comparable<Version>, Serializable {
     private final int m_major;
 
     private final int m_minor;
