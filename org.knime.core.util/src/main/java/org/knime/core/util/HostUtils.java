@@ -78,7 +78,7 @@ public final class HostUtils {
 
     private static Set<String> macAddresses;
 
-    private static final char HEX_DIGITS[] =
+    private static final char[] HEX_DIGITS =
         {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     private static String macToString(final byte[] hardwareAddress) {
@@ -120,15 +120,15 @@ public final class HostUtils {
         }
 
         Set<String> macs = new HashSet<String>();
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
-        while ((line = in.readLine()) != null) {
-            Matcher m = pattern.matcher(line);
-            if (m.find()) {
-                macs.add(m.group(1).toUpperCase().replace('-', ':'));
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                Matcher m = pattern.matcher(line);
+                if (m.find()) {
+                    macs.add(m.group(1).toUpperCase().replace('-', ':'));
+                }
             }
         }
-        in.close();
         return macs;
     }
 
