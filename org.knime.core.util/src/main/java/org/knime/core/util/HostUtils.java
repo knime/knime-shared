@@ -55,6 +55,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -120,7 +121,8 @@ public final class HostUtils {
         }
 
         Set<String> macs = new HashSet<String>();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+        try (BufferedReader in =
+            new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.defaultCharset()))) {
             String line;
             while ((line = in.readLine()) != null) {
                 Matcher m = pattern.matcher(line);
