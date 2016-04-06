@@ -448,7 +448,7 @@ public class DiskBasedByteQueue extends OutputStream {
      */
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
-        if (m_writeBuffer.freeBytes() >= 1) {
+        if (m_writeBuffer.freeBytes() >= len) {
             m_writeBuffer.write(b, off, len);
         } else {
             Buffer old = m_writeBuffer;
