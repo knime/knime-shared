@@ -71,7 +71,7 @@ import org.junit.Test;
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  */
-public class DiskBasesByteQueueTest {
+public class DiskBasedByteQueueTest {
     private static final ExecutorService ES = Executors.newCachedThreadPool();
 
     private Path m_tempDir;
