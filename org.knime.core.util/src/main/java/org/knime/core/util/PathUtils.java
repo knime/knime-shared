@@ -547,6 +547,7 @@ public final class PathUtils {
                 try (OutputStream out = Files.newOutputStream(f)) {
                     IOUtils.copyLarge(zipStream, out);
                 }
+                Files.setLastModifiedTime(f, e.getLastModifiedTime());
             }
         }
     }
