@@ -47,6 +47,7 @@
 package org.knime.core.util;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -63,6 +64,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Utility function based around the new Path API in Java 7.
@@ -514,6 +519,35 @@ public final class PathUtils {
             return parent.resolve(child.substring(1));
         } else {
             return parent.resolve(child);
+        }
+    }
+
+    /**
+     * Stores the content of the zip stream in the specified directory.
+     *
+     * @param zipStream must contain a zip archive. Is unpacked an stored in the specified directory.
+     * @param dir the destination directory the content of the zip stream is stored in
+     * @throws IOException if it was not able to store the content
+     * @since 5.4
+     */
+    public static void unzip(final ZipInputStream zipStream, final Path dir) throws IOException {
+        ZipEntry e;
+        while ((e = zipStream.getNextEntry()) != null) {
+            String name = e.getName().replace('\\', '/');
+
+            if (e.isDirectory()) {
+                if (!name.isEmpty() && !name.equals("/")) {
+                    Path d = dir.resolve(name);
+                    Files.createDirectories(d);
+                }
+            } else {
+                Path f = dir.resolve(name);
+                Files.createDirectories(f.getParent());
+
+                try (OutputStream out = Files.newOutputStream(f)) {
+                    IOUtils.copyLarge(zipStream, out);
+                }
+            }
         }
     }
 }
