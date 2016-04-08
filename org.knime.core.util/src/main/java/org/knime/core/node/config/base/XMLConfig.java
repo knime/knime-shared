@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,6 +66,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -97,6 +99,30 @@ public final class XMLConfig {
     /** dtd name from class name. */
     public static final String DTD_NAME =
             XMLConfig.class.getName().replace('.', '/') + ".dtd";
+
+    /**
+     * Entity resolver for the XMLConfig.dtd file used in some old config files.
+     */
+    public static final EntityResolver DTD_RESOLVER = new EntityResolver() {
+        @Override
+        public InputSource resolveEntity(final String publicId, final String systemId)
+            throws SAXException, IOException {
+            // XMLConfig.dtd was moved some time ago but old workflows still reference it
+            if ((systemId != null) && (systemId.endsWith(XMLConfig.DTD_NAME)
+                || systemId.replaceAll("(org/knime/core/node/config)/(?!base/)", "$1/base/")
+                    .endsWith(XMLConfig.DTD_NAME)
+                || systemId.replace("de/unikn/knime/core/node/config/", "org/knime/core/node/config/base/")
+                    .endsWith(XMLConfig.DTD_NAME))) {
+                // gets URL for systemId which specifies the dtd file+path
+                ClassLoader classLoader = XMLConfig.class.getClassLoader();
+                URL dtdURL = classLoader.getResource(XMLConfig.DTD_NAME);
+                InputStream is = dtdURL.openStream();
+                return new InputSource(is);
+            } else {
+                return null;
+            }
+        }
+    };
 
     private XMLConfig() {
         // empty

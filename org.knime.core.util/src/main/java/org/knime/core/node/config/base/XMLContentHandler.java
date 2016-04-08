@@ -48,8 +48,6 @@
 package org.knime.core.node.config.base;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Stack;
 
 import org.xml.sax.Attributes;
@@ -201,24 +199,8 @@ class XMLContentHandler extends DefaultHandler {
      * {@inheritDoc}
      */
     @Override
-    public InputSource resolveEntity(
-            final String publicId, final String systemId)
-        throws IOException, SAXException {
-        // XMLConfig.dtd was moved some time ago but old workflows still reference it
-        if ((systemId != null)
-                && (systemId.endsWith(XMLConfig.DTD_NAME)
-                        || systemId.replaceAll("(org/knime/core/node/config)/(?!base/)", "$1/base/")
-                                .endsWith(XMLConfig.DTD_NAME)
-                        || systemId.replace("de/unikn/knime/core/node/config/", "org/knime/core/node/config/base/")
-                                .endsWith(XMLConfig.DTD_NAME))) {
-            // gets URL for systemId which specifies the dtd file+path
-            ClassLoader classLoader = XMLConfig.class.getClassLoader();
-            URL dtdURL = classLoader.getResource(XMLConfig.DTD_NAME);
-            InputStream is = dtdURL.openStream();
-            return new InputSource(is);
-        } else {
-            return super.resolveEntity(publicId, systemId);
-        }
+    public InputSource resolveEntity(final String publicId, final String systemId) throws IOException, SAXException {
+        return XMLConfig.DTD_RESOLVER.resolveEntity(publicId, systemId);
     }
 
     /**
