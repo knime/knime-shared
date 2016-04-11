@@ -261,7 +261,7 @@ public class DiskBasedByteQueue extends OutputStream {
 
         private volatile IOException m_consumerException;
 
-        private static final Path CLOSED = Paths.get("/abc");
+        private static final Path CLOSED = Paths.get("");
 
         /**
          * Creates a new disk based buffer.
@@ -288,7 +288,8 @@ public class DiskBasedByteQueue extends OutputStream {
         }
 
         private void openNewChunk() throws IOException {
-            m_currentWriteChunk = PathUtils.createTempFile(m_tempDir, m_prefix, "." + m_chunkCounter++);
+            m_currentWriteChunk = PathUtils.createTempFile(m_tempDir, m_prefix, "." + m_chunkCounter);
+            m_chunkCounter++;
             m_currentChunkSize = 0;
             m_currentWriteStream = new BufferedOutputStream(Files.newOutputStream(m_currentWriteChunk));
         }
