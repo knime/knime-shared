@@ -102,6 +102,7 @@ public final class XMLConfig {
 
     /**
      * Entity resolver for the XMLConfig.dtd file used in some old config files.
+     * @since 5.4
      */
     public static final EntityResolver DTD_RESOLVER = new EntityResolver() {
         @Override
