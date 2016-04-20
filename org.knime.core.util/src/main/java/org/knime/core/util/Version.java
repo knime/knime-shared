@@ -48,6 +48,9 @@ package org.knime.core.util;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Simple class the represents a three digit version.
  *
@@ -68,7 +71,9 @@ public final class Version implements Comparable<Version>, Serializable {
      * @param minor the minor version
      * @param revision the revision
      */
-    public Version(final int major, final int minor, final int revision) {
+    @JsonCreator
+    public Version(@JsonProperty("major") final int major, @JsonProperty("minor") final int minor,
+        @JsonProperty("revision") final int revision) {
         m_major = major;
         m_minor = minor;
         m_revision = revision;
@@ -103,6 +108,7 @@ public final class Version implements Comparable<Version>, Serializable {
     /**
      * @return the major
      */
+    @JsonProperty("major")
     public int getMajor() {
         return m_major;
     }
@@ -110,6 +116,7 @@ public final class Version implements Comparable<Version>, Serializable {
     /**
      * @return the minor
      */
+    @JsonProperty("minor")
     public int getMinor() {
         return m_minor;
     }
@@ -117,6 +124,7 @@ public final class Version implements Comparable<Version>, Serializable {
     /**
      * @return the revision
      */
+    @JsonProperty("revision")
     public int getRevision() {
         return m_revision;
     }
@@ -189,8 +197,8 @@ public final class Version implements Comparable<Version>, Serializable {
      * Checks whether the version is the same or newer than the reference version.
      *
      * @param version the version to check against
-     * @return <code>true</code> if version is the same or newer than the reference version,
-     *      <code>false</code> otherwise
+     * @return <code>true</code> if version is the same or newer than the reference version, <code>false</code>
+     *         otherwise
      */
     public boolean isSameOrNewer(final Version version) {
         return compareTo(version) >= 0;
