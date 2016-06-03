@@ -51,6 +51,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.knime.core.util.User;
 
@@ -72,15 +78,17 @@ public final class WorkflowContext implements Externalizable {
      * Factory for workflow contexts. This class is not thread-safe!
      */
     public static final class Factory {
-        private String m_userid;
+        String m_userid;
 
-        private File m_currentLocation;
+        File m_currentLocation;
 
-        private File m_originalLocation;
+        File m_originalLocation;
 
-        private File m_tempLocation;
+        File m_tempLocation;
 
-        private File m_mountpointRoot;
+        File m_mountpointRoot;
+
+        URI m_mountpointUri;
 
         /**
          * Creates a new factory for workflow contexts.
@@ -166,13 +174,22 @@ public final class WorkflowContext implements Externalizable {
         }
 
         /**
+         * Sets the mount point ID and the path within the mountpoint. These values are derived from the given URI.
+         *
+         * @param uri an URI for the workflow
+         * @since 5.4
+         */
+        public void setMountpointURI(final URI uri) {
+            m_mountpointUri = uri;
+        }
+
+        /**
          * Creates a new workflow context with the information set in this factory.
          *
          * @return a new workflow context
          */
         public WorkflowContext createContext() {
-            return new WorkflowContext(m_userid, m_currentLocation, m_originalLocation, m_tempLocation,
-                m_mountpointRoot);
+            return new WorkflowContext(this);
         }
     }
 
@@ -186,15 +203,33 @@ public final class WorkflowContext implements Externalizable {
 
     private File m_mountpointRoot;
 
-    private WorkflowContext(final String userId, final File currentLocation, final File originalLocation,
-        final File tempLocation, final File mountpointRoot) {
-        assert userId != null;
-        assert currentLocation != null;
-        m_userid = userId;
-        m_currentLocation = currentLocation;
-        m_originalLocation = originalLocation;
-        m_tempLocation = tempLocation;
-        m_mountpointRoot = mountpointRoot;
+    private URI m_mountpointUri;
+
+
+    private WorkflowContext(final Factory factory) {
+        assert factory.m_userid != null : "User is must not be null";
+        assert factory.m_currentLocation != null : "Current workflow location must not be null";
+        m_userid = factory.m_userid;
+        m_currentLocation = factory.m_currentLocation;
+        m_originalLocation = factory.m_originalLocation;
+        m_tempLocation = factory.m_tempLocation;
+        m_mountpointRoot = factory.m_mountpointRoot;
+        if (factory.m_mountpointUri != null) {
+            if (factory.m_mountpointUri.getPath().endsWith("/workflow.knime")) {
+                String path = factory.m_mountpointUri.getPath();
+                try {
+                    m_mountpointUri = new URI(factory.m_mountpointUri.getScheme(), factory.m_mountpointUri.getUserInfo(),
+                        factory.m_mountpointUri.getHost(), factory.m_mountpointUri.getPort(),
+                        path.substring(0, path.length() - "/workflow.knime".length()),
+                        factory.m_mountpointUri.getQuery(), factory.m_mountpointUri.getFragment());
+                } catch (URISyntaxException ex) {
+                    // shouldn't happen because we come from a valid URI
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                }
+            } else {
+                m_mountpointUri = factory.m_mountpointUri;
+            }
+        }
     }
 
     /**
@@ -271,6 +306,17 @@ public final class WorkflowContext implements Externalizable {
     }
 
     /**
+     * Returns the URI of the workflow inside a mount point. If this information is not known an empty optional is
+     * returned.
+     *
+     * @return the workflow URI if known, an empty optional otherwise
+     * @since 5.4
+     */
+    public Optional<URI> getMountpointURI() {
+        return Optional.of(m_mountpointUri);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -293,12 +339,16 @@ public final class WorkflowContext implements Externalizable {
      */
     @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
-        out.writeInt(20130606);
+        out.writeInt(20160602);
         out.writeUTF(m_currentLocation.getAbsolutePath()); /* not null */
         writeFilePath(out, m_mountpointRoot);
         writeFilePath(out, m_originalLocation);
         writeFilePath(out, m_tempLocation);
         out.writeUTF(m_userid); /* not null */
+        out.writeBoolean(m_mountpointUri != null);
+        if (m_mountpointUri != null) {
+            out.writeObject(m_mountpointUri);
+        }
     }
 
     /**
@@ -315,6 +365,11 @@ public final class WorkflowContext implements Externalizable {
         m_originalLocation = readFilePath(in);
         m_tempLocation = readFilePath(in);
         m_userid = in.readUTF();
+        if (version >= 20160602) {
+            if (in.readBoolean()) {
+                m_mountpointUri = (URI)in.readObject();
+            }
+        }
     }
 
     private void writeFilePath(final ObjectOutput out, final File f) throws IOException {
@@ -344,6 +399,7 @@ public final class WorkflowContext implements Externalizable {
         result = prime * result + ((m_originalLocation == null) ? 0 : m_originalLocation.hashCode());
         result = prime * result + ((m_tempLocation == null) ? 0 : m_tempLocation.hashCode());
         result = prime * result + ((m_userid == null) ? 0 : m_userid.hashCode());
+        result = prime * result + ((m_mountpointUri == null) ? 0 : m_mountpointUri.hashCode());
         return result;
     }
 
@@ -397,6 +453,6 @@ public final class WorkflowContext implements Externalizable {
         } else if (!m_userid.equals(other.m_userid)) {
             return false;
         }
-        return true;
+        return Objects.equals(m_mountpointUri, other.m_mountpointUri);
     }
 }
