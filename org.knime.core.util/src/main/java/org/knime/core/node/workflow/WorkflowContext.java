@@ -313,7 +313,7 @@ public final class WorkflowContext implements Externalizable {
      * @since 5.4
      */
     public Optional<URI> getMountpointURI() {
-        return Optional.of(m_mountpointUri);
+        return Optional.ofNullable(m_mountpointUri);
     }
 
     /**
