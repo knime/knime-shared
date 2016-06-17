@@ -203,7 +203,7 @@ public final class WorkflowContext implements Externalizable {
 
     private File m_mountpointRoot;
 
-    private URI m_mountpointUri;
+    private transient URI m_mountpointUri; // the URI is only meaningful within the same instance
 
 
     private WorkflowContext(final Factory factory) {
@@ -339,16 +339,12 @@ public final class WorkflowContext implements Externalizable {
      */
     @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
-        out.writeInt(20160602);
+        out.writeInt(20130606);
         out.writeUTF(m_currentLocation.getAbsolutePath()); /* not null */
         writeFilePath(out, m_mountpointRoot);
         writeFilePath(out, m_originalLocation);
         writeFilePath(out, m_tempLocation);
         out.writeUTF(m_userid); /* not null */
-        out.writeBoolean(m_mountpointUri != null);
-        if (m_mountpointUri != null) {
-            out.writeObject(m_mountpointUri);
-        }
     }
 
     /**
@@ -365,11 +361,6 @@ public final class WorkflowContext implements Externalizable {
         m_originalLocation = readFilePath(in);
         m_tempLocation = readFilePath(in);
         m_userid = in.readUTF();
-        if (version >= 20160602) {
-            if (in.readBoolean()) {
-                m_mountpointUri = (URI)in.readObject();
-            }
-        }
     }
 
     private void writeFilePath(final ObjectOutput out, final File f) throws IOException {
