@@ -48,6 +48,7 @@ package org.knime.core.util.node.quickform.in;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Form element to choose and upload a file.
@@ -59,6 +60,8 @@ public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
     private static final long serialVersionUID = -2475223296255933339L;
     private final List<String> m_extensions;
     private File m_file;
+    private String m_urlFile;
+    private boolean m_default = false;
 
 
     /** Create a file upload element with a given label and a valid set of
@@ -89,12 +92,47 @@ public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
 
     /** @param file the file to set */
     public void setFile(final File file) {
+        if (!Objects.equals(m_file, file)) {
+            m_default = false;
+        }
         m_file = file;
     }
 
     /** @return the file */
     public File getFile() {
         return m_file;
+    }
+
+    /**
+     * @param urlFile the urlFile to set
+     * @since 5.4
+     */
+    public void setUrlFile(final String urlFile) {
+        m_urlFile = urlFile;
+    }
+
+    /**
+     * @return the urlFile
+     * @since 5.4
+     */
+    public String getUrlFile() {
+        return m_urlFile;
+    }
+
+    /**
+     * @param isDefault true, if the set file is the default file, false otherwise
+     * @since 5.4
+     */
+    public void setDefault(final boolean isDefault) {
+        m_default = isDefault;
+    }
+
+    /**
+     * @return true, if the set file is the default file, false otherwise
+     * @since 5.4
+     */
+    public boolean getDefault() {
+        return m_default;
     }
 
 }
