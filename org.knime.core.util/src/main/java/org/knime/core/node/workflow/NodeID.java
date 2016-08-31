@@ -46,6 +46,13 @@ package org.knime.core.node.workflow;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Holds hierarchical ID of a node. The hierarchy models nested meta nodes.
@@ -55,6 +62,103 @@ import java.io.Serializable;
  * @author M. Berthold/B. Wiswedel, University of Konstanz
  */
 public class NodeID implements Serializable, Comparable<NodeID> {
+    /** Utility class that only stores the workflow relative NodeID path. If the NodeID of the workflow is
+     * 0:3 and the quickforms in there are 0:3:1:1 and 0:3:1:2 then it only saves {1,1} and {1,2}. We must not
+     * save the wfm ID with the NodeIDs as those may change when the workflow is swapped out/read back in.
+     * See also bug 4478.
+     */
+    public static final class NodeIDSuffix implements Serializable {
+        private final int[] m_suffixes;
+
+        private NodeIDSuffix(final int[] suffixes) {
+            m_suffixes = suffixes;
+        }
+
+        /**
+         * Createa a node ID suffix by removing the parent ID from the node ID.
+         *
+         * @param parentID the parent ID
+         * @param nodeID the complete node ID
+         * @return the ID suffix
+         * @throws IllegalArgumentException If the parent ID is not a prefix of the node ID
+         */
+        public static NodeIDSuffix create(final NodeID parentID, final NodeID nodeID) {
+            if (!nodeID.hasPrefix(parentID)) {
+                throw new IllegalArgumentException("The argument node ID \"" + nodeID
+                    + "\" does not have the expected parent prefix \"" + parentID + "\"");
+            }
+            List<Integer> suffixList = new ArrayList<Integer>();
+            NodeID traverse = nodeID;
+            do {
+                suffixList.add(traverse.getIndex());
+                traverse = traverse.getPrefix();
+            } while (!parentID.equals(traverse));
+            Collections.reverse(suffixList);
+            return new NodeIDSuffix(ArrayUtils.toPrimitive(suffixList.toArray(new Integer[suffixList.size()])));
+        }
+
+        /**
+         * Combines this suffix with a parent ID and returns a new node ID. This is the reverse operation to
+         * {@link #create(NodeID, NodeID)}.
+         *
+         * @param parentID the parent's ID
+         * @return a new node ID
+         */
+        public NodeID prependParent(final NodeID parentID) {
+            NodeID result = parentID;
+            for (int i : m_suffixes) {
+                result = new NodeID(result, i);
+            }
+            return result;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return StringUtils.join(ArrayUtils.toObject(m_suffixes), ':');
+        }
+
+        /**
+         * Creates a new node ID suffix from a string.
+         *
+         * @param string the string as returned by {@link #toString()}
+         * @return a new {@link NodeIDSuffix}.
+         * @throws IllegalArgumentException if the passed string is not a valid node ID suffix
+         */
+        public static NodeIDSuffix fromString(final String string) {
+            String[] splitString = StringUtils.split(string, ':');
+            int[] suffixes = new int[splitString.length];
+            for (int i = 0; i < suffixes.length; i++) {
+                try {
+                    suffixes[i] = Integer.parseInt(splitString[i]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Can't parse node id suffix string \""
+                            + string + "\": " + e.getMessage(), e);
+                }
+            }
+            return new NodeIDSuffix(suffixes);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(m_suffixes);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof NodeIDSuffix)) {
+                return false;
+            }
+            return Arrays.equals(m_suffixes, ((NodeIDSuffix)obj).m_suffixes);
+        }
+    }
 
     private static final long serialVersionUID = 7099500617597215889L;
 
@@ -76,24 +180,6 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         assert prefix != null;
         m_prefix = prefix;
         m_index = ix;
-    }
-
-    /**
-     * Creates a new NodeID by combining the two given NodeIDs. This can be used e.g. if the suffix denotes a node
-     * inside a workflow relative to the workflow manager and the prefix denotes the workflow manager.
-     *
-     * @param prefix the prefix
-     * @param suffix the suffix
-     */
-    public NodeID(final NodeID prefix, final NodeID suffix) {
-        assert prefix != null : "Prefix must not be null";
-
-        m_index = suffix.getIndex();
-        if (suffix.getPrefix() != ROOTID) {
-            m_prefix = new NodeID(prefix, suffix.getPrefix());
-        } else {
-            m_prefix = prefix;
-        }
     }
 
     /** Creates top level NodeID object.
@@ -276,5 +362,4 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         }
         return this;
     }
-
 }
