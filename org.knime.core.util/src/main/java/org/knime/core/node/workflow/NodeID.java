@@ -78,6 +78,24 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         m_index = ix;
     }
 
+    /**
+     * Creates a new NodeID by combining the two given NodeIDs. This can be used e.g. if the suffix denotes a node
+     * inside a workflow relative to the workflow manager and the prefix denotes the workflow manager.
+     *
+     * @param prefix the prefix
+     * @param suffix the suffix
+     */
+    public NodeID(final NodeID prefix, final NodeID suffix) {
+        assert prefix != null : "Prefix must not be null";
+
+        m_index = suffix.getIndex();
+        if (suffix.getPrefix() != ROOTID) {
+            m_prefix = new NodeID(prefix, suffix.getPrefix());
+        } else {
+            m_prefix = prefix;
+        }
+    }
+
     /** Creates top level NodeID object.
      *
      * @param ix itself
