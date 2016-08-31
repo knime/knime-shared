@@ -71,7 +71,12 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         private static final long serialVersionUID = -6967588595219250919L;
         private final int[] m_suffixes;
 
-        private NodeIDSuffix(final int[] suffixes) {
+        /**
+         * Creates a new node ID suffix from the given array of single node IDs.
+         *
+         * @param suffixes an array of suffix IDs
+         */
+        public NodeIDSuffix(final int[] suffixes) {
             m_suffixes = suffixes;
         }
 
@@ -120,6 +125,15 @@ public class NodeID implements Serializable, Comparable<NodeID> {
                 result = new NodeID(result, i);
             }
             return result;
+        }
+
+        /**
+         * Returns an array with single-node IDs that make up the suffix. The array is a copy and may be modified.
+         *
+         * @return an array with single-node IDs
+         */
+        public int[] getSuffixArray() {
+            return m_suffixes.clone();
         }
 
         /**
