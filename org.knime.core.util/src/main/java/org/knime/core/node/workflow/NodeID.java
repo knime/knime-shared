@@ -68,6 +68,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
      * See also bug 4478.
      */
     public static final class NodeIDSuffix implements Serializable {
+        private static final long serialVersionUID = -6967588595219250919L;
         private final int[] m_suffixes;
 
         private NodeIDSuffix(final int[] suffixes) {
@@ -95,6 +96,15 @@ public class NodeID implements Serializable, Comparable<NodeID> {
             } while (!parentID.equals(traverse));
             Collections.reverse(suffixList);
             return new NodeIDSuffix(ArrayUtils.toPrimitive(suffixList.toArray(new Integer[suffixList.size()])));
+        }
+
+
+        /** Create a new nodeID with this as prefix and the argument as index.
+         * @param index The child index.
+         * @return a new ID.
+         */
+        public NodeIDSuffix createChild(final int index) {
+            return new NodeIDSuffix(ArrayUtils.add(m_suffixes, index));
         }
 
         /**
