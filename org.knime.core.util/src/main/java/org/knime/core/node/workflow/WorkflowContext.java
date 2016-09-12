@@ -90,6 +90,12 @@ public final class WorkflowContext implements Externalizable {
 
         URI m_mountpointUri;
 
+        URI m_remoteRepositoryAddress;
+
+        String m_relativeRemotePath;
+
+        String m_remoteAuthToken;
+
         /**
          * Creates a new factory for workflow contexts.
          *
@@ -114,11 +120,13 @@ public final class WorkflowContext implements Externalizable {
          * @param origContext To copy from - not null.
          * @since 5.3 */
         public Factory(final WorkflowContext origContext) {
-            m_currentLocation = origContext.getCurrentLocation();
-            m_userid = origContext.getUserid();
-            m_mountpointRoot = origContext.getMountpointRoot();
-            m_originalLocation = origContext.getOriginalLocation();
-            m_tempLocation = origContext.getTempLocation();
+            m_currentLocation = origContext.m_currentLocation;
+            m_userid = origContext.m_userid;
+            m_mountpointRoot = origContext.m_mountpointRoot;
+            m_originalLocation = origContext.m_originalLocation;
+            m_tempLocation = origContext.m_tempLocation;
+            m_mountpointUri = origContext.m_mountpointUri;
+            m_remoteRepositoryAddress = origContext.m_remoteRepositoryAddress;
         }
 
         /**
@@ -184,6 +192,33 @@ public final class WorkflowContext implements Externalizable {
         }
 
         /**
+         * Sets the root address of the server repository (the REST endpoint).
+         *
+         * @param baseUri a URI to root of the server repository
+         * @param relativePath the relative path of the workflow in the server repository
+         */
+        public void setRemoteAddress(final URI baseUri, final String relativePath) {
+            if (baseUri == null) {
+                throw new IllegalArgumentException("Base address must not be null");
+            }
+            if (relativePath == null) {
+                throw new IllegalArgumentException("Relative path must not be null");
+            }
+            m_remoteRepositoryAddress = baseUri;
+            m_relativeRemotePath = relativePath;
+        }
+
+        /**
+         * Sets the authentication token (JWT) that should be used when talking to the server specified via
+         * {@link #setRemoteAddress(URI, String)}.
+         *
+         * @param token a JWT, may be <code>null</code>
+         */
+        public void setRemoteAuthToken(final String token) {
+            m_remoteAuthToken = token;
+        }
+
+        /**
          * Creates a new workflow context with the information set in this factory.
          *
          * @return a new workflow context
@@ -204,6 +239,12 @@ public final class WorkflowContext implements Externalizable {
     private File m_mountpointRoot;
 
     private transient URI m_mountpointUri; // the URI is only meaningful within the same instance
+
+    private URI m_remoteRepositoryAddress;
+
+    private String m_relativeRemotePath;
+
+    private String m_serverAuthToken;
 
 
     private WorkflowContext(final Factory factory) {
@@ -230,6 +271,9 @@ public final class WorkflowContext implements Externalizable {
                 m_mountpointUri = factory.m_mountpointUri;
             }
         }
+        m_remoteRepositoryAddress = factory.m_remoteRepositoryAddress;
+        m_relativeRemotePath = factory.m_relativeRemotePath;
+        m_serverAuthToken = factory.m_remoteAuthToken;
     }
 
     /**
@@ -317,6 +361,34 @@ public final class WorkflowContext implements Externalizable {
     }
 
     /**
+     * Returns the base address of the server repository (the REST endpoint). This value is only set if the workflow is
+     * executed in a server executor.
+     *
+     * @return the repository base address or an empty optional if unknown
+     */
+    public Optional<URI> getRemoteRepositoryAddress() {
+        return Optional.ofNullable(m_remoteRepositoryAddress);
+    }
+
+    /**
+     * Returns the path of the workflow relative to the repository root (see {@link #getRemoteRepositoryAddress()}.
+     *
+     * @return the relative path or an empty optional if unknown
+     */
+    public Optional<String> getRelativeRemotePath() {
+        return Optional.ofNullable(m_relativeRemotePath);
+    }
+
+    /**
+     * Returns the JWT that should be used when talking to the server specified by {@link #getRemoteRepositoryAddress()}.
+     *
+     * @return an authentication token or an empty optional
+     */
+    public Optional<String> getServerAuthToken() {
+        return Optional.ofNullable(m_serverAuthToken);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -339,12 +411,26 @@ public final class WorkflowContext implements Externalizable {
      */
     @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
-        out.writeInt(20130606);
         out.writeUTF(m_currentLocation.getAbsolutePath()); /* not null */
         writeFilePath(out, m_mountpointRoot);
         writeFilePath(out, m_originalLocation);
         writeFilePath(out, m_tempLocation);
         out.writeUTF(m_userid); /* not null */
+
+        if (m_remoteRepositoryAddress != null) {
+            out.writeBoolean(true);
+            out.writeUTF(m_remoteRepositoryAddress.toString());
+            out.writeUTF(m_relativeRemotePath);
+        } else {
+            out.writeBoolean(false);
+        }
+
+        if (m_serverAuthToken != null) {
+            out.writeBoolean(true);
+            out.writeUTF(m_serverAuthToken);
+        } else {
+            out.writeBoolean(false);
+        }
     }
 
     /**
@@ -352,15 +438,20 @@ public final class WorkflowContext implements Externalizable {
      */
     @Override
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
-        final int version = in.readInt();
-        if (version < 20130606) {
-            throw new IOException("Unknown version number: " + version);
-        }
         m_currentLocation = new File(in.readUTF());
         m_mountpointRoot = readFilePath(in);
         m_originalLocation = readFilePath(in);
         m_tempLocation = readFilePath(in);
         m_userid = in.readUTF();
+
+        if (in.readBoolean()) {
+            m_remoteRepositoryAddress = URI.create(in.readUTF());
+            m_relativeRemotePath = in.readUTF();
+        }
+
+        if (in.readBoolean()) {
+            m_serverAuthToken = in.readUTF();
+        }
     }
 
     private void writeFilePath(final ObjectOutput out, final File f) throws IOException {
@@ -391,6 +482,9 @@ public final class WorkflowContext implements Externalizable {
         result = prime * result + ((m_tempLocation == null) ? 0 : m_tempLocation.hashCode());
         result = prime * result + ((m_userid == null) ? 0 : m_userid.hashCode());
         result = prime * result + ((m_mountpointUri == null) ? 0 : m_mountpointUri.hashCode());
+        result = prime * result + ((m_remoteRepositoryAddress == null) ? 0 : m_remoteRepositoryAddress.hashCode());
+        result = prime * result + ((m_relativeRemotePath == null) ? 0 : m_relativeRemotePath.hashCode());
+        result = prime * result + ((m_serverAuthToken == null) ? 0 : m_serverAuthToken.hashCode());
         return result;
     }
 
@@ -444,6 +538,9 @@ public final class WorkflowContext implements Externalizable {
         } else if (!m_userid.equals(other.m_userid)) {
             return false;
         }
-        return Objects.equals(m_mountpointUri, other.m_mountpointUri);
+        return Objects.equals(m_mountpointUri, other.m_mountpointUri)
+                && Objects.equals(m_serverAuthToken, other.m_serverAuthToken)
+                && Objects.equals(m_remoteRepositoryAddress, other.m_remoteRepositoryAddress)
+                && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath);
     }
 }
