@@ -96,6 +96,8 @@ public final class WorkflowContext implements Externalizable {
 
         String m_remoteAuthToken;
 
+        String m_remoteMountId;
+
         /**
          * Creates a new factory for workflow contexts.
          *
@@ -219,6 +221,15 @@ public final class WorkflowContext implements Externalizable {
         }
 
         /**
+         * Sets the (default) mount ID of the remote server.
+         *
+         * @param id a mount ID, may be <code>null</code>
+         */
+        public void setRemoteMountId(final String id) {
+            m_remoteMountId = id;
+        }
+
+        /**
          * Creates a new workflow context with the information set in this factory.
          *
          * @return a new workflow context
@@ -245,6 +256,8 @@ public final class WorkflowContext implements Externalizable {
     private String m_relativeRemotePath;
 
     private String m_serverAuthToken;
+
+    private String m_remoteMountId;
 
 
     private WorkflowContext(final Factory factory) {
@@ -274,6 +287,7 @@ public final class WorkflowContext implements Externalizable {
         m_remoteRepositoryAddress = factory.m_remoteRepositoryAddress;
         m_relativeRemotePath = factory.m_relativeRemotePath;
         m_serverAuthToken = factory.m_remoteAuthToken;
+        m_remoteMountId = factory.m_remoteMountId;
     }
 
     /**
@@ -372,6 +386,7 @@ public final class WorkflowContext implements Externalizable {
 
     /**
      * Returns the path of the workflow relative to the repository root (see {@link #getRemoteRepositoryAddress()}.
+     * This value is only set if the workflow is executed in a server executor.
      *
      * @return the relative path or an empty optional if unknown
      */
@@ -380,12 +395,23 @@ public final class WorkflowContext implements Externalizable {
     }
 
     /**
-     * Returns the JWT that should be used when talking to the server specified by {@link #getRemoteRepositoryAddress()}.
+     * Returns the JWT that should be used when talking to the server specified by {@link #getRemoteRepositoryAddress()}
+     * . This value is only set if the workflow is executed in a server executor.
      *
      * @return an authentication token or an empty optional
      */
     public Optional<String> getServerAuthToken() {
         return Optional.ofNullable(m_serverAuthToken);
+    }
+
+    /**
+     * Returns the (default) mount id of the remote server. This value is only set if the workflow is executed in a
+     * server executor.
+     *
+     * @return a mount id or an empty optional
+     */
+    public Optional<String> getRemoteMountId() {
+        return Optional.ofNullable(m_remoteMountId);
     }
 
     /**
