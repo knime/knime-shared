@@ -450,10 +450,15 @@ public final class WorkflowContext implements Externalizable {
         } else {
             out.writeBoolean(false);
         }
-
         if (m_serverAuthToken != null) {
             out.writeBoolean(true);
             out.writeUTF(m_serverAuthToken);
+        } else {
+            out.writeBoolean(false);
+        }
+        if (m_remoteMountId != null) {
+            out.writeBoolean(true);
+            out.writeUTF(m_remoteMountId);
         } else {
             out.writeBoolean(false);
         }
@@ -477,6 +482,9 @@ public final class WorkflowContext implements Externalizable {
 
         if (in.readBoolean()) {
             m_serverAuthToken = in.readUTF();
+        }
+        if (in.readBoolean()) {
+            m_remoteMountId = in.readUTF();
         }
     }
 
