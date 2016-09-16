@@ -129,6 +129,9 @@ public final class WorkflowContext implements Externalizable {
             m_tempLocation = origContext.m_tempLocation;
             m_mountpointUri = origContext.m_mountpointUri;
             m_remoteRepositoryAddress = origContext.m_remoteRepositoryAddress;
+            m_remoteMountId = origContext.m_remoteMountId;
+            m_remoteAuthToken = origContext.m_remoteAuthToken;
+            m_relativeRemotePath = origContext.m_relativeRemotePath;
         }
 
         /**
@@ -255,7 +258,7 @@ public final class WorkflowContext implements Externalizable {
 
     private String m_relativeRemotePath;
 
-    private String m_serverAuthToken;
+    private String m_remoteAuthToken;
 
     private String m_remoteMountId;
 
@@ -286,7 +289,7 @@ public final class WorkflowContext implements Externalizable {
         }
         m_remoteRepositoryAddress = factory.m_remoteRepositoryAddress;
         m_relativeRemotePath = factory.m_relativeRemotePath;
-        m_serverAuthToken = factory.m_remoteAuthToken;
+        m_remoteAuthToken = factory.m_remoteAuthToken;
         m_remoteMountId = factory.m_remoteMountId;
     }
 
@@ -401,7 +404,7 @@ public final class WorkflowContext implements Externalizable {
      * @return an authentication token or an empty optional
      */
     public Optional<String> getServerAuthToken() {
-        return Optional.ofNullable(m_serverAuthToken);
+        return Optional.ofNullable(m_remoteAuthToken);
     }
 
     /**
@@ -450,9 +453,9 @@ public final class WorkflowContext implements Externalizable {
         } else {
             out.writeBoolean(false);
         }
-        if (m_serverAuthToken != null) {
+        if (m_remoteAuthToken != null) {
             out.writeBoolean(true);
-            out.writeUTF(m_serverAuthToken);
+            out.writeUTF(m_remoteAuthToken);
         } else {
             out.writeBoolean(false);
         }
@@ -481,7 +484,7 @@ public final class WorkflowContext implements Externalizable {
         }
 
         if (in.readBoolean()) {
-            m_serverAuthToken = in.readUTF();
+            m_remoteAuthToken = in.readUTF();
         }
         if (in.readBoolean()) {
             m_remoteMountId = in.readUTF();
@@ -518,7 +521,7 @@ public final class WorkflowContext implements Externalizable {
         result = prime * result + ((m_mountpointUri == null) ? 0 : m_mountpointUri.hashCode());
         result = prime * result + ((m_remoteRepositoryAddress == null) ? 0 : m_remoteRepositoryAddress.hashCode());
         result = prime * result + ((m_relativeRemotePath == null) ? 0 : m_relativeRemotePath.hashCode());
-        result = prime * result + ((m_serverAuthToken == null) ? 0 : m_serverAuthToken.hashCode());
+        result = prime * result + ((m_remoteAuthToken == null) ? 0 : m_remoteAuthToken.hashCode());
         return result;
     }
 
@@ -573,7 +576,7 @@ public final class WorkflowContext implements Externalizable {
             return false;
         }
         return Objects.equals(m_mountpointUri, other.m_mountpointUri)
-                && Objects.equals(m_serverAuthToken, other.m_serverAuthToken)
+                && Objects.equals(m_remoteAuthToken, other.m_remoteAuthToken)
                 && Objects.equals(m_remoteRepositoryAddress, other.m_remoteRepositoryAddress)
                 && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath);
     }
