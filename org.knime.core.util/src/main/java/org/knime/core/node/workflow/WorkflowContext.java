@@ -233,10 +233,9 @@ public final class WorkflowContext implements Externalizable {
     }
 
     /**
-     * Returns the ID of the user which executes this workflow or <code>null</code> if this information is not
-     * available.
+     * Returns the ID of the user which executes this workflow.
      *
-     * @return a user id or <code>null</code>
+     * @return a user id, never <code>null</code>
      */
     public String getUserid() {
         return m_userid;
