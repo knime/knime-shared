@@ -312,19 +312,6 @@ public final class WorkflowContext implements Externalizable {
     }
 
     /**
-     * Updates the current location, used by save-as.
-     *
-     * @param currentLocation the currentLocation to set, must not be <code>null</code>
-     * @noreference This method is not intended to be referenced by clients.
-     */
-    public void setCurrentLocation(final File currentLocation) {
-        if (currentLocation == null) {
-            throw new IllegalArgumentException("Current workflow location must be set.");
-        }
-        m_currentLocation = currentLocation;
-    }
-
-    /**
      * Returns the original location of the workflow, e.g. in the server repository. This has only meaning if the
      * current directory is a copy and is <code>null</code> otherwise.
      *
@@ -332,17 +319,6 @@ public final class WorkflowContext implements Externalizable {
      */
     public File getOriginalLocation() {
         return m_originalLocation;
-    }
-
-    /** Set the temp location if it is currently null (otherwise throws exception). This method is used by the WFM
-     * in case the temp is not assigned (default in desktop execution).
-     * @param tempLocation the tempLocation to set
-     */
-    public void setTempLocation(final File tempLocation) {
-        if (m_tempLocation != null) {
-            throw new IllegalStateException("Temp location already set to " + m_tempLocation.getAbsolutePath());
-        }
-        m_tempLocation = tempLocation;
     }
 
     /**
