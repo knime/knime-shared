@@ -151,49 +151,59 @@ public final class WorkflowContext implements Externalizable {
          * Sets the current file system location of the workflow.
          *
          * @param currentLocation the current workflow location
+         * @return the updated factory
          */
-        public void setCurrentLocation(final File currentLocation) {
+        public Factory setCurrentLocation(final File currentLocation) {
             if (currentLocation == null) {
                 throw new IllegalArgumentException("Current workflow location must be set.");
             }
             m_currentLocation = currentLocation;
+            return this;
         }
 
         /**
          * Sets the original file system location of the workflow, e.g. if the current location is a copy.
          *
          * @param originalLocation the original workflow location
+         * @return the updated factory
          */
-        public void setOriginalLocation(final File originalLocation) {
+        public Factory setOriginalLocation(final File originalLocation) {
             m_originalLocation = originalLocation;
+            return this;
         }
 
         /**
          * Sets the location for temporary files associated with the workflow.
          *
          * @param tempLocation the temp location
+         * @return the updated factory
          */
-        public void setTempLocation(final File tempLocation) {
+        public Factory setTempLocation(final File tempLocation) {
             m_tempLocation = tempLocation;
+            return this;
         }
 
         /**
          * Sets the root of the mountpoint the workflow is contained in.
          *
          * @param mountpointRoot the path to the mountpoint's root
+         * @return the updated factory
          */
-        public void setMountpointRoot(final File mountpointRoot) {
+        public Factory setMountpointRoot(final File mountpointRoot) {
             m_mountpointRoot = mountpointRoot;
+            return this;
         }
 
         /**
          * Sets the mount point ID and the path within the mountpoint. These values are derived from the given URI.
          *
          * @param uri an URI for the workflow
+         * @return the updated factory
          * @since 5.4
          */
-        public void setMountpointURI(final URI uri) {
+        public Factory setMountpointURI(final URI uri) {
             m_mountpointUri = uri;
+            return this;
         }
 
         /**
@@ -201,8 +211,9 @@ public final class WorkflowContext implements Externalizable {
          *
          * @param baseUri a URI to root of the server repository
          * @param relativePath the relative path of the workflow in the server repository
+         * @return the updated factory
          */
-        public void setRemoteAddress(final URI baseUri, final String relativePath) {
+        public Factory setRemoteAddress(final URI baseUri, final String relativePath) {
             if (baseUri == null) {
                 throw new IllegalArgumentException("Base address must not be null");
             }
@@ -211,6 +222,7 @@ public final class WorkflowContext implements Externalizable {
             }
             m_remoteRepositoryAddress = baseUri;
             m_relativeRemotePath = relativePath;
+            return this;
         }
 
         /**
@@ -218,18 +230,22 @@ public final class WorkflowContext implements Externalizable {
          * {@link #setRemoteAddress(URI, String)}.
          *
          * @param token a JWT, may be <code>null</code>
+         * @return the updated factory
          */
-        public void setRemoteAuthToken(final String token) {
+        public Factory setRemoteAuthToken(final String token) {
             m_remoteAuthToken = token;
+            return this;
         }
 
         /**
          * Sets the (default) mount ID of the remote server.
          *
          * @param id a mount ID, may be <code>null</code>
+         * @return the updated factory
          */
-        public void setRemoteMountId(final String id) {
+        public Factory setRemoteMountId(final String id) {
             m_remoteMountId = id;
+            return this;
         }
 
         /**
