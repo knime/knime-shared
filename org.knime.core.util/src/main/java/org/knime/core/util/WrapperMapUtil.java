@@ -72,11 +72,17 @@ public class WrapperMapUtil {
     private static final WeakHashMap<Object, Object> MAP = new WeakHashMap<Object, Object>();
 
     /**
+     * Creates, casts or returns a cached object
      *
-     * @param key
-     * @param fct
-     * @param wrapperClass
-     * @return TODO, <code>null</code> if the key is <code>null</code>
+     * @param key the key to look for in the internal map (and to store newly created objects with)
+     * @param fct tells how to create the object if not present in the internal map
+     * @param wrapperClass if the key is assignable to this class, the (casted) key-object will be returned
+     * @return<ul>
+     * <li><code>null</code> if the key is <code>null</code>
+     * <li>a newly created instance of the object to be created,</li>
+     * <li>the key itself if it can be caste to the given wrapper class</li>
+     * <li>or the object stored in the internal map for the given key</li>
+     * </ul>
      */
     public static <K, V> V getOrCreate(final K key, final Function<K, V> fct, final Class<V> wrapperClass) {
         if (key == null) {
@@ -84,6 +90,31 @@ public class WrapperMapUtil {
         } else if (wrapperClass.isAssignableFrom(key.getClass())) {
             //if the key is already a wrapper
             return wrapperClass.cast(key);
+        } else {
+            V obj = (V)MAP.get(key);
+            if (obj == null) {
+                //create wrapper entry
+                obj = fct.apply(key);
+                MAP.put(key, obj);
+            }
+            return obj;
+        }
+    }
+
+    /**
+     * Creates or returns a cached object.
+     *
+     * @param key key the key to look for in the internal map (and to store newly created objects with)
+     * @param fct fct tells how to create the object if not present in the internal map
+     * @return <ul>
+     * <li><code>null</code> if the key is <code>null</code>
+     * <li>a newly created instance of the object to be created,</li>
+     * <li>or the object stored in the internal map for the given key</li>
+     * </ul>
+     */
+    public static <K, V> V getOrCreate(final K key, final Function<K, V> fct) {
+        if (key == null) {
+            return null;
         } else {
             V obj = (V)MAP.get(key);
             if (obj == null) {
