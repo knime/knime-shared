@@ -60,6 +60,7 @@ import java.util.function.Function;
  * This global map keeps all instances and their wrappers (weak references) for look up.
  *
  * TODO rename since its functionally is probably not only limited to wrapper classes
+ * TODO not only provide it as a utility class with static methods but also instanceable (such that the used keys don't need to be globally valid)
  *
  * @author Martin Horn, University of Konstanz
  */
