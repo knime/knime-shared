@@ -70,7 +70,7 @@ import javax.crypto.NoSuchPaddingException;
 public class KNIMEDecryptionStream extends CipherInputStream {
     private static final BigInteger MODULUS =
             new BigInteger(
-                    "***REMOVED***");
+                    "8223998319282482690146488153241862335542214318568381453270007102857099231460895057902208512610925982296284056281176108672885891699571600006343600214931329");
 
     private static final BigInteger EXPONENT = new BigInteger("65537");
 
