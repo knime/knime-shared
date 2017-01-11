@@ -47,6 +47,9 @@ package org.knime.core.node.config.base;
 
 import java.util.Objects;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONPassword;
+
 /**
  * Config entry for password values.
  *
@@ -95,5 +98,13 @@ public final class ConfigPasswordEntry extends AbstractConfigEntry {
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         ConfigPasswordEntry e = (ConfigPasswordEntry) ace;
         return Objects.equals(m_password, e.m_password);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONPassword(m_password);
     }
 }

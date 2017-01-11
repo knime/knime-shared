@@ -1,5 +1,6 @@
 /*
  * ------------------------------------------------------------------------
+ *
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,74 +41,37 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * -------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   Jan 10, 2017 (wiswedel): created
  */
-package org.knime.core.node.config.base;
+package org.knime.core.node.config.base.json;
 
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONInt;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Config entry for integer values.
- *
- * @author Thomas Gabriel, University of Konstanz
+ * Base class for all child elements contained in {@link JSONRoot}.
+ * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
-public final class ConfigIntEntry extends AbstractConfigEntry {
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value=JSONChar.class, name="char")
+})
+public abstract class AbstractJSONEntry {
 
-    /** The int value. */
-    private final int m_int;
-
-    /**
-     * Creates a new Config entry for an int value.
-     * @param key The key for this value.
-     * @param i The int value.
-     */
-    public ConfigIntEntry(final String key, final int i) {
-        super(ConfigEntries.xint, key);
-        m_int = i;
-    }
-
-    /**
-     * Creates a new Config entry for an int value.
-     * @param key The key for this value.
-     * @param i The int value as String.
-     */
-    public ConfigIntEntry(final String key, final String i) {
-        super(ConfigEntries.xint, key);
-        m_int = Integer.parseInt(i);
-    }
-
-    /**
-     * @return The int value.
-     */
-    public int getInt() {
-        return m_int;
-    }
-
-    /**
-     * @return A String representation of this int.
-     * @see Integer#toString(int)
-     */
+    /** {@inheritDoc} */
     @Override
-    public String toStringValue() {
-        return Integer.toString(m_int);
+    public int hashCode() {
+        return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        return ((ConfigIntEntry) ace).m_int == m_int;
+    public boolean equals(final Object obj) {
+        return obj instanceof AbstractJSONEntry;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONInt(m_int);
-    }
 
 }

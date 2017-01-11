@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONLong;
+
 /**
  * Config entry for <code>long</code> values.
  *
@@ -97,6 +100,14 @@ public final class ConfigLongEntry extends AbstractConfigEntry {
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         return ((ConfigLongEntry) ace).m_long == m_long;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONLong(m_long);
     }
 
 }

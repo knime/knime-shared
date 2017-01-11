@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONShort;
+
 /**
  * Config entry for short values.
  *
@@ -97,6 +100,14 @@ public final class ConfigShortEntry extends AbstractConfigEntry {
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         return ((ConfigShortEntry) ace).m_short == m_short;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONShort(m_short);
     }
 
 }

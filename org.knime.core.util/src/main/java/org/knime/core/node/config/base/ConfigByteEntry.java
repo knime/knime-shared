@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONByte;
+
 /**
  * Config entry for byte objects.
  *
@@ -97,6 +100,14 @@ public final class ConfigByteEntry extends AbstractConfigEntry {
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         return ((ConfigByteEntry) ace).m_byte == m_byte;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONByte(m_byte);
     }
 
 }

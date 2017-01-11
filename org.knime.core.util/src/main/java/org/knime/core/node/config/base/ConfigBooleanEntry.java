@@ -47,6 +47,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONBoolean;
+
 /**
  * Config entry for boolean objects.
  *
@@ -99,6 +102,14 @@ public final class ConfigBooleanEntry extends AbstractConfigEntry {
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         return ((ConfigBooleanEntry)ace).m_boolean == m_boolean;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONBoolean(m_boolean);
     }
 
 }

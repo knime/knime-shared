@@ -47,6 +47,9 @@ package org.knime.core.node.config.base;
 
 import java.util.Objects;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONString;
+
 /**
  * Config entry for transient strings values. These values are not saved when stored to disc.
  *
@@ -94,6 +97,14 @@ public final class ConfigTransientStringEntry extends AbstractConfigEntry {
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         ConfigTransientStringEntry e = (ConfigTransientStringEntry) ace;
         return Objects.equals(m_transientString, e.m_transientString);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONString(toStringValue());
     }
 
 }

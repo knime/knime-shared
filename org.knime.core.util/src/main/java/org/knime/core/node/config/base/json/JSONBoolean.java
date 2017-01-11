@@ -1,5 +1,6 @@
 /*
  * ------------------------------------------------------------------------
+ *
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,74 +41,57 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * -------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   Jan 10, 2017 (wiswedel): created
  */
-package org.knime.core.node.config.base;
+package org.knime.core.node.config.base.json;
 
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONInt;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * Config entry for integer values.
- *
- * @author Thomas Gabriel, University of Konstanz
+ * Jackson serializable representation of a boolean.
+ * @author Bernd Wiswedel, KNIME.com, KNIME.com, Zurich
  */
-public final class ConfigIntEntry extends AbstractConfigEntry {
+@JsonTypeName("boolean")
+public final class JSONBoolean extends AbstractJSONEntry {
 
-    /** The int value. */
-    private final int m_int;
+    private final boolean m_boolean;
 
     /**
-     * Creates a new Config entry for an int value.
-     * @param key The key for this value.
-     * @param i The int value.
+     * @param b The value
      */
-    public ConfigIntEntry(final String key, final int i) {
-        super(ConfigEntries.xint, key);
-        m_int = i;
+    public JSONBoolean(@JsonProperty("value") final boolean b) {
+        m_boolean = b;
     }
 
-    /**
-     * Creates a new Config entry for an int value.
-     * @param key The key for this value.
-     * @param i The int value as String.
-     */
-    public ConfigIntEntry(final String key, final String i) {
-        super(ConfigEntries.xint, key);
-        m_int = Integer.parseInt(i);
+    /** @return the boolean */
+    @JsonProperty("value")
+    public boolean getBoolean() {
+        return m_boolean;
     }
 
-    /**
-     * @return The int value.
-     */
-    public int getInt() {
-        return m_int;
-    }
-
-    /**
-     * @return A String representation of this int.
-     * @see Integer#toString(int)
-     */
+    /** {@inheritDoc} */
     @Override
-    public String toStringValue() {
-        return Integer.toString(m_int);
+    public String toString() {
+        return Boolean.toString(m_boolean);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        return ((ConfigIntEntry) ace).m_int == m_int;
+    public int hashCode() {
+        return super.hashCode() ^ Boolean.hashCode(m_boolean);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONInt(m_int);
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof JSONBoolean)) {
+            return false;
+        }
+        return super.equals(obj) && ((JSONBoolean)obj).m_boolean == m_boolean;
     }
 
 }

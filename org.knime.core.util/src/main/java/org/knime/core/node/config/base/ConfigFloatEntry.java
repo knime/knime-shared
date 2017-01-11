@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONFloat;
+
 /**
  * Config entry for float values.
  *
@@ -97,6 +100,14 @@ public final class ConfigFloatEntry extends AbstractConfigEntry {
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         return Float.compare(((ConfigFloatEntry) ace).m_float, m_float) == 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONFloat(m_float);
     }
 
 }

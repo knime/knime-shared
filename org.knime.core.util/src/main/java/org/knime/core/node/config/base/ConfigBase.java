@@ -59,8 +59,10 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -69,6 +71,9 @@ import javax.swing.tree.TreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONRoot;
+import org.knime.core.node.config.base.json.JSONTree;
 import org.knime.core.util.crypto.Encrypter;
 import org.knime.core.util.crypto.IEncrypter;
 import org.xml.sax.SAXException;
@@ -1475,4 +1480,23 @@ public abstract class ConfigBase extends AbstractConfigEntry
             return ((ConfigTransientStringEntry)o).getTransientString();
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        Map<String, AbstractJSONEntry> jsonMap = m_map.entrySet().stream()
+                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toJSONEntry()));
+        return new JSONTree(jsonMap);
+    }
+
+    /** Converts this to a JSON root element that can then be serialized.
+     * @return A new root element. */
+    JSONRoot toJSONRoot() {
+        Map<String, AbstractJSONEntry> jsonMap = m_map.entrySet().stream()
+                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toJSONEntry()));
+        return new JSONRoot(getKey(), jsonMap);
+    }
+
 }
