@@ -126,17 +126,18 @@ public final class JSONConfig {
         mapper.writeValue(writer, root);
     }
 
-    public JSONRoot readJSON(final ConfigBaseWO emptyConfig, final Reader reader) throws IOException {
+    public static <C extends ConfigBaseWO> C readJSON(final C emptyConfig, final Reader reader) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(reader, JSONRoot.class);
-
+        JSONRoot root = mapper.readValue(reader, JSONRoot.class);
+        root.addToConfigBase(getChecked(emptyConfig), (conf, entry) -> conf.put(entry));
+        return emptyConfig;
     }
 
     /** Performs validation and case of argument.
      * @param config Non-null, cast to ConfigBaseRO
      * @return Cast object
      */
-    private static ConfigBase getChecked(final ConfigBaseRO config) {
+    private static ConfigBase getChecked(final Object config) {
         CheckUtils.checkArgumentNotNull(config);
         CheckUtils.checkState(config instanceof ConfigBase, "Argument not subclass of %s but %s",
             ConfigBase.class.getSimpleName(), config.getClass().getName());

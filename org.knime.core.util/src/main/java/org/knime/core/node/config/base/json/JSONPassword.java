@@ -49,6 +49,11 @@
 package org.knime.core.node.config.base.json;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.node.config.base.ConfigPasswordEntry;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -77,6 +82,12 @@ public final class JSONPassword extends AbstractJSONEntry {
 
     /** {@inheritDoc} */
     @Override
+    void addToConfigBase(final String key, final ConfigBase config, final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        addToConfigCallBack.accept(config, new ConfigPasswordEntry(key, m_password));
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public String toString() {
         return m_password;
     }
@@ -93,6 +104,6 @@ public final class JSONPassword extends AbstractJSONEntry {
         if (!(obj instanceof JSONPassword)) {
             return false;
         }
-        return super.equals(obj) && ((JSONPassword)obj).m_password == m_password;
+        return super.equals(obj) && Objects.equals(((JSONPassword)obj).m_password, m_password);
     }
 }

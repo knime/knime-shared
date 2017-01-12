@@ -48,61 +48,72 @@
  */
 package org.knime.core.node.config.base.json;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import org.knime.core.node.config.base.AbstractConfigEntry;
 import org.knime.core.node.config.base.ConfigBase;
-import org.knime.core.node.config.base.ConfigFloatEntry;
+import org.knime.core.node.config.base.ConfigTransientStringEntry;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * Jackson serializable representation of a float.
+ * Jackson serializable representation of a transient String (value not saved).
  * @author Bernd Wiswedel, KNIME.com, KNIME.com, Zurich
  */
-@JsonTypeName("float")
-public final class JSONFloat extends AbstractJSONEntry {
+@JsonTypeName("transient-string")
+public final class JSONTransientString extends AbstractJSONEntry {
 
-    private final float m_float;
+    private final String m_transientString;
 
-    /**
-     * @param f The value
-     */
-    public JSONFloat(@JsonProperty("value") final float f) {
-        m_float = f;
+    /** Desiralization constructor for Jackson. */
+    @JsonCreator
+    public JSONTransientString() {
+        this(ConfigTransientStringEntry.HIDDEN_VALUE);
     }
 
-    /** @return the float */
-    @JsonProperty("value")
-    public float getFloat() {
-        return m_float;
+    /** User constructor to initialize with the real string (which is not saved). |
+     * @param s The value
+     */
+    @JsonIgnore
+    public JSONTransientString(final String s) {
+        m_transientString = s;
+    }
+
+    /** @return the 'real' string as passed in the constructor. */
+    @JsonIgnore
+    public String getString() {
+        return m_transientString;
     }
 
     /** {@inheritDoc} */
     @Override
-    void addToConfigBase(final String key, final ConfigBase config, final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
-        addToConfigCallBack.accept(config, new ConfigFloatEntry(key, m_float));
+    void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        addToConfigCallBack.accept(config, new ConfigTransientStringEntry(key, m_transientString));
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Float.toString(m_float);
+        return m_transientString;
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return super.hashCode() ^ Float.hashCode(m_float);
+        return super.hashCode() ^ Objects.hash(m_transientString);
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean equals(final Object obj) {
-        if (!(obj instanceof JSONFloat)) {
+        if (!(obj instanceof JSONTransientString)) {
             return false;
         }
-        return super.equals(obj) && ((JSONFloat)obj).m_float == m_float;
+        return super.equals(obj) &&
+                Objects.equals(((JSONTransientString)obj).m_transientString, m_transientString);
     }
 }

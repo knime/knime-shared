@@ -48,6 +48,12 @@
  */
 package org.knime.core.node.config.base.json;
 
+import java.util.function.BiConsumer;
+
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.node.config.base.ConfigShortEntry;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -71,6 +77,13 @@ public final class JSONShort extends AbstractJSONEntry {
     @JsonProperty("value")
     public short getShort() {
         return m_short;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        addToConfigCallBack.accept(config, new ConfigShortEntry(key, m_short));
     }
 
     /** {@inheritDoc} */

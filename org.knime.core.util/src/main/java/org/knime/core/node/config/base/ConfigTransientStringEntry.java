@@ -48,7 +48,7 @@ package org.knime.core.node.config.base;
 import java.util.Objects;
 
 import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONString;
+import org.knime.core.node.config.base.json.JSONTransientString;
 
 /**
  * Config entry for transient strings values. These values are not saved when stored to disc.
@@ -57,6 +57,10 @@ import org.knime.core.node.config.base.json.JSONString;
  * @since 5.3
  */
 public final class ConfigTransientStringEntry extends AbstractConfigEntry {
+
+    /** The value that is saved to disc to indicate that the string is not serialized/transient. */
+    public static final String HIDDEN_VALUE = "<hidden value>";
+
     private static final long serialVersionUID = -16516947852957583L;
 
     /** The String value. */
@@ -87,7 +91,7 @@ public final class ConfigTransientStringEntry extends AbstractConfigEntry {
      */
     @Override
     public String toStringValue() {
-        return m_transientString == null ? null : "<hidden value>";
+        return m_transientString == null ? null : HIDDEN_VALUE;
     }
 
     /**
@@ -104,7 +108,7 @@ public final class ConfigTransientStringEntry extends AbstractConfigEntry {
      */
     @Override
     AbstractJSONEntry toJSONEntry() {
-        return new JSONString(toStringValue());
+        return new JSONTransientString(toStringValue());
     }
 
 }

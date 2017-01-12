@@ -49,6 +49,11 @@
 package org.knime.core.node.config.base.json;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.node.config.base.ConfigStringEntry;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -77,6 +82,13 @@ public final class JSONString extends AbstractJSONEntry {
 
     /** {@inheritDoc} */
     @Override
+    void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        addToConfigCallBack.accept(config, new ConfigStringEntry(key, m_string));
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public String toString() {
         return m_string;
     }
@@ -93,6 +105,6 @@ public final class JSONString extends AbstractJSONEntry {
         if (!(obj instanceof JSONString)) {
             return false;
         }
-        return super.equals(obj) && ((JSONString)obj).m_string == m_string;
+        return super.equals(obj) && Objects.equals(((JSONString)obj).m_string, m_string);
     }
 }

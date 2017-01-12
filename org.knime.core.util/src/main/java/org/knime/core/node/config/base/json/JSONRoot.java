@@ -49,8 +49,12 @@
 package org.knime.core.node.config.base.json;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.util.CheckUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -88,6 +92,17 @@ public final class JSONRoot {
         return m_map;
     }
 
+    /** Adds the elements in this tree recursively to the argument {@link ConfigBase}. The key
+     * of this root element is ignored and the one in the argument is retained.
+     * @param base To add to
+     * @param addToConfigCallBack A callback providing access to the package-scope put method.
+     */
+    public void addToConfigBase(final ConfigBase base,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        m_map.entrySet().forEach(e -> e.getValue().addToConfigBase(
+            e.getKey(), base, addToConfigCallBack));
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {
@@ -97,7 +112,10 @@ public final class JSONRoot {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(m_rootName).append(m_map).toHashCode();
+        return new HashCodeBuilder()
+                .appendSuper(super.hashCode())
+                .append(m_rootName)
+                .append(m_map).toHashCode();
     }
 
     /** {@inheritDoc} */
@@ -106,6 +124,9 @@ public final class JSONRoot {
         if (!(obj instanceof JSONRoot)) {
             return false;
         }
-        return super.equals(obj) && ((JSONRoot)obj).m_rootName == m_rootName;
+        String otherName = ((JSONRoot)obj).m_rootName;
+        Map<String, AbstractJSONEntry> otherMap = ((JSONRoot)obj).m_map;
+        return super.equals(obj) && Objects.equals(otherName, m_rootName)
+                && Objects.equals(otherMap, m_map);
     }
 }

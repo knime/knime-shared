@@ -50,6 +50,10 @@ package org.knime.core.node.config.base.json;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -74,6 +78,15 @@ public final class JSONTree extends AbstractJSONEntry {
     @JsonProperty("value")
     public Map<String, AbstractJSONEntry> getMap() {
         return m_map;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        ConfigBase childConfig = config.addConfigBase(key);
+        m_map.entrySet().forEach(e -> e.getValue().addToConfigBase(
+            e.getKey(), childConfig, addToConfigCallBack));
     }
 
     /** {@inheritDoc} */

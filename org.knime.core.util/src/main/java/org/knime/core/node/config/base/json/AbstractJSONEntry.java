@@ -48,6 +48,11 @@
  */
 package org.knime.core.node.config.base.json;
 
+import java.util.function.BiConsumer;
+
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -57,9 +62,30 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value=JSONChar.class, name="char")
+    @JsonSubTypes.Type(value=JSONBoolean.class, name="boolean"),
+    @JsonSubTypes.Type(value=JSONByte.class, name="byte"),
+    @JsonSubTypes.Type(value=JSONChar.class, name="char"),
+    @JsonSubTypes.Type(value=JSONDouble.class, name="double"),
+    @JsonSubTypes.Type(value=JSONFloat.class, name="float"),
+    @JsonSubTypes.Type(value=JSONInt.class, name="int"),
+    @JsonSubTypes.Type(value=JSONLong.class, name="long"),
+    @JsonSubTypes.Type(value=JSONPassword.class, name="password"),
+    @JsonSubTypes.Type(value=JSONShort.class, name="short"),
+    @JsonSubTypes.Type(value=JSONString.class, name="string"),
+    @JsonSubTypes.Type(value=JSONTransientString.class, name="transient-string"),
+    @JsonSubTypes.Type(value=JSONTree.class, name="tree")
 })
 public abstract class AbstractJSONEntry {
+
+    /**
+     * Adds the content of this JSON piece into the KNIME native config class.
+     *
+     * @param config to add to, not null.
+     * @param addToConfigCallBack A callback providing access to package scope methods on {@link ConfigBase}
+     *          (needed for password entries, which otherwise require the plain password + encryption key).
+     */
+    abstract void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack);
 
     /** {@inheritDoc} */
     @Override
