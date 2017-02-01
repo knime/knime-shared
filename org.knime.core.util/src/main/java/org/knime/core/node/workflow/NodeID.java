@@ -217,6 +217,14 @@ public class NodeID implements Serializable, Comparable<NodeID> {
     }
 
     /**
+     * @return <code>true</code> if this is {@link #ROOTID}.
+     * @since 3.3
+     */
+    public final boolean isRoot() {
+        return this == ROOTID;
+    }
+
+    /**
      * @return index of this node (without prefix!).
      */
     public int getIndex() {
@@ -261,7 +269,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         if (m_prefix.equals(prefix)) {
             return true;
         }
-        if (m_prefix == ROOTID) {
+        if (m_prefix.isRoot()) {
             return false;
         }
         return m_prefix.hasPrefix(prefix);
@@ -276,6 +284,9 @@ public class NodeID implements Serializable, Comparable<NodeID> {
      * @throws NullPointerException If string argument is null.
      */
     public static NodeID fromString(final String nodeIDString) {
+        if (nodeIDString.isEmpty()) {
+            return ROOTID;
+        }
         String[] idStrings = nodeIDString.split(PREFIX_SEPERATOR);
         NodeID nodeID = null;
         for (String idString : idStrings) {
@@ -347,10 +358,10 @@ public class NodeID implements Serializable, Comparable<NodeID> {
         if (this == o) {
             return 0;
         }
-        if (this == ROOTID) {
+        if (isRoot()) {
             return -1;
         }
-        if (o == ROOTID) {
+        if (o.isRoot()) {
             return +1;
         }
         int prefixComp = this.m_prefix.compareTo(o.m_prefix);
