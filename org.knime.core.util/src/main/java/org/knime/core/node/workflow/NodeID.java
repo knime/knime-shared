@@ -54,6 +54,9 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Holds hierarchical ID of a node. The hierarchy models nested meta nodes.
  * All IDs will have one static instance of ROOTID as their top ID in this
@@ -297,6 +300,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
      * @throws IllegalArgumentException If string cannot be parsed.
      * @throws NullPointerException If string argument is null.
      */
+    @JsonCreator
     public static NodeID fromString(final String nodeIDString) {
         if (nodeIDString.isEmpty()) {
             return ROOTID;
@@ -323,6 +327,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
      * @see java.lang.Object#toString()
      */
     @Override
+    @JsonValue
     public String toString() {
         StringBuilder sb = new StringBuilder("");
         assembleString(sb);

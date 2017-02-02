@@ -47,9 +47,12 @@
  */
 package org.knime.core.node.workflow;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
- *
+ * @noreference This class is not intended to be referenced by clients.
  * @author Fabian Dill, University of Konstanz
  */
 public final class NodeMessage {
@@ -77,7 +80,9 @@ public final class NodeMessage {
      * @param messageType the message type (error or warning)
      * @param message the message
      */
-    public NodeMessage(final Type messageType, final String message) {
+    @JsonCreator
+    public NodeMessage(@JsonProperty("messageType") final Type messageType,
+        @JsonProperty("message") final String message) {
         m_message = message;
         m_type = messageType;
     }
@@ -102,6 +107,7 @@ public final class NodeMessage {
      *
      * @return the message
      */
+    @JsonProperty("message")
     public String getMessage() {
         return m_message;
     }
@@ -110,6 +116,7 @@ public final class NodeMessage {
      *
      * @return the type
      */
+    @JsonProperty("messageType")
     public Type getMessageType() {
         return m_type;
     }
