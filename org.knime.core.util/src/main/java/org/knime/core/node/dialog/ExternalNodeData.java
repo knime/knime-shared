@@ -56,6 +56,11 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * This object represents output or input of a node for provided or consumed outside the workflow, e.g. in web service
  * calls. The data can either be "small" amounts of data as in in-memory JSON object or larger amounts of data as
@@ -117,6 +122,11 @@ public class ExternalNodeData {
 
     }
 
+    @JsonCreator
+    private ExternalNodeData(@JsonProperty("id") final String id) {
+        m_id = id;
+    }
+
     ExternalNodeData(final ExternalNodeDataBuilder builder) {
         m_id = builder.m_id;
         m_jsonValue = builder.m_jsonValue;
@@ -129,6 +139,7 @@ public class ExternalNodeData {
      *
      * @return unique ID for the data object, never <code>null</code>
      */
+    @JsonProperty("id")
     public String getID() {
         return m_id;
     }
@@ -142,8 +153,15 @@ public class ExternalNodeData {
      *
      * @return a JSON value, may be <code>null</code>
      */
+    @JsonProperty("jsonValue")
+    @JsonInclude(Include.NON_NULL)
     public JsonValue getJSONValue() {
         return m_jsonValue;
+    }
+
+    @JsonProperty("jsonValue")
+    private void setJSONValue(final JsonValue value) {
+        m_jsonValue = value;
     }
 
     /**
@@ -155,8 +173,15 @@ public class ExternalNodeData {
      *
      * @return a string, may be <code>null</code>
      */
+    @JsonProperty("stringValue")
+    @JsonInclude(Include.NON_NULL)
     public String getStringValue() {
         return m_stringValue;
+    }
+
+    @JsonProperty("stringValue")
+    private void setStringValue(final String s) {
+        m_stringValue = s;
     }
 
     /**
@@ -168,8 +193,15 @@ public class ExternalNodeData {
      *
      * @return a URL to a resource, or <code>null</code>
      */
+    @JsonProperty("resource")
+    @JsonInclude(Include.NON_NULL)
     public URL getResource() {
         return m_url;
+    }
+
+    @JsonProperty("resource")
+    private void setResource(final URL url) {
+        m_url = url;
     }
 
     /**
