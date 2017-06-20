@@ -21,7 +21,8 @@ Export-Package: org.apache.commons.io,
  org.knime.core.util.node.config.display,
  org.knime.core.util.node.quickform,
  org.knime.core.util.node.quickform.in,
- org.knime.core.util.node.quickform.out
+ org.knime.core.util.node.quickform.out,
+ org.knime.core.util.report
 Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  org.apache.xerces;bundle-version="[2.9.0,3.0.0)",
  org.apache.xalan;bundle-version="[2.7.1,3.0.0)",
