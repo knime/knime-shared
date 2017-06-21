@@ -71,6 +71,12 @@ public final class ReportingConstants {
         // hide constructor of utility class
     }
 
+    /** Name of the report design file. */
+    public static final String KNIME_REPORT_FILE = "default_report.rptdesign";
+
+    /** Name of the report config file (this contains parameters for the report.) */
+    public static final String KNIME_REPORT_CONFIG_FILE = "default_report.rptconfig";
+
     /**
      * The parameter name for the report. DO NOT change this name as it is required by BIRT.
      */
