@@ -55,6 +55,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 /**
  * A bunch of static constants that are required for report generation. They are
  * used in open source code (for instance "call local workflow") and also on the
@@ -242,10 +247,16 @@ public final class ReportingConstants {
      * Counterpart to birt's RenderOption class. Passed during rendering generation, currently used to specify html
      * image directories.
      */
+    @JsonTypeInfo(use = Id.CLASS, property = "_class")
     public static class RptOutputOptions implements Serializable {
         private static final long serialVersionUID = 1785732712075844025L;
 
         private final Map<String, String> m_options;
+
+        @JsonCreator
+        private RptOutputOptions(@JsonProperty("options") final Map<String, String> options) {
+            m_options = options;
+        }
 
         /**
          * Creates a new instance.
@@ -275,6 +286,7 @@ public final class ReportingConstants {
         /**
          * @return a map containing all options mapping option names to values
          */
+        @JsonProperty("options")
         public Map<String, String> getOptions() {
             return Collections.unmodifiableMap(m_options);
         }
@@ -339,12 +351,24 @@ public final class ReportingConstants {
             m_imageDirectory = imageDirectory;
         }
 
+
+        @JsonCreator
+        private HtmlRptOutputOptions(@JsonProperty("options") final Map<String, String> options,
+            @JsonProperty("baseUrl") final String baseUrl,
+            @JsonProperty("imageDirectory") final String imageDirectory) {
+            super(options);
+            m_baseUrl = baseUrl;
+            m_imageDirectory = imageDirectory;
+        }
+
         /** @return the baseUrl */
+        @JsonProperty("baseUrl")
         public String getBaseUrl() {
             return m_baseUrl;
         }
 
         /** @return the imageDirectory */
+        @JsonProperty("imageDirectory")
         public String getImageDirectory() {
             return m_imageDirectory;
         }
@@ -353,6 +377,7 @@ public final class ReportingConstants {
          * @return If report images are supposed to be embedded in the resulting HTML.
          * @since 3.8
          */
+        @JsonProperty("embedImages")
         public boolean isEmbedImages() {
             return m_embedImages;
         }
@@ -361,6 +386,7 @@ public final class ReportingConstants {
          * @param embedImages If report images are supposed to be embedded in the resulting HTML.
          * @since 3.8
          */
+        @JsonProperty("embedImages")
         public void setEmbedImages(final boolean embedImages) {
             m_embedImages = embedImages;
         }
