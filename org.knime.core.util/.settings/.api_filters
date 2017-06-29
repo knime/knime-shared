@@ -16,4 +16,12 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/core/util/report/ReportingConstants.java" type="org.knime.core.util.report.ReportingConstants">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.report.ReportingConstants"/>
+                <message_argument value="getDefaultReportOptions(ReportingConstants.RptOutputFormat, Collection&lt;String&gt;)"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>

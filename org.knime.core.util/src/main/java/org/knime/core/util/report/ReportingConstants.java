@@ -49,7 +49,6 @@
 package org.knime.core.util.report;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -497,12 +496,10 @@ public final class ReportingConstants {
      * Creates default reporting options for the desired report format.
      *
      * @param format the desired report format
-     * @param additionalReportFormats
      * @return the default reporting options
-     * @since 4.1
+     * @since 5.7
      */
-    public static RptOutputOptions getDefaultReportOptions(final RptOutputFormat format,
-        final Collection<String> additionalReportFormats) {
+    public static RptOutputOptions getDefaultReportOptions(final RptOutputFormat format) {
         RptOutputOptions renderOptions = new RptOutputOptions();
         if (RptOutputFormat.HTML.equals(format)) {
             renderOptions = new HtmlRptOutputOptions(null, null);
