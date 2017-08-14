@@ -270,6 +270,22 @@ public final class PathUtils {
     }
 
     /**
+     * Creates a symlink that is automatically deleted when the JVM shuts down.
+     *
+     * @param link the path the symlink will point to
+     * @param target the target path to create the symlink
+     * @return the path object of the newly created symlink
+     * @throws IOException if an I/O exception occurs while creating symlink
+     * @throws UnsupportedOperationException if the file system does not support symbolic links
+     * @since 5.7
+     */
+    public static Path createSymLink(final Path link, final Path target) throws IOException {
+        Path symLink = Files.createSymbolicLink(link, target);
+        TEMP_FILES.add(symLink);
+        return symLink;
+    }
+
+    /**
      * Recursively copied the source directory to the destination directory. The source directory is not copied
      * <em>into</em> the destination but the destination directory has the same contents as the source directory in the
      * end. If the destination directory already exists, the contents are merged with the source taking precedence.
