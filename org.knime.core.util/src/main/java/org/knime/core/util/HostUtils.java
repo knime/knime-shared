@@ -63,7 +63,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Utility methods for access host information, such as IP and MAC addresses.
@@ -72,7 +73,7 @@ import org.apache.log4j.Logger;
  * @since 5.4
  */
 public final class HostUtils {
-    private static final Logger LOGGER = Logger.getLogger(HostUtils.class);
+    private static final Log LOGGER = LogFactory.getLog(HostUtils.class);
 
     private HostUtils() {}
 

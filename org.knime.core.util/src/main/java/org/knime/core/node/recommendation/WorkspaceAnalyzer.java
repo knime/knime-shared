@@ -80,7 +80,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.LogFactory;
 import org.knime.core.node.NodeFrequencies;
 import org.knime.core.node.NodeInfo;
 import org.knime.core.node.NodeTriple;
@@ -240,7 +240,7 @@ public class WorkspaceAnalyzer {
                         m_listeners.stream().forEach(c -> c.accept(file.toString()));
                         analyzeWorkflow(file);
                     } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException ex) {
-                        Logger.getLogger(WorkspaceAnalyzer.this.getClass())
+                        LogFactory.getLog(WorkspaceAnalyzer.this.getClass())
                             .error("Errow while analyzing workflow file '" + file + "': " + ex.getMessage(), ex);
                     }
                 }
