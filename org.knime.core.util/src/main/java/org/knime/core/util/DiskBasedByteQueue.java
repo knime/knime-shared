@@ -76,6 +76,26 @@ import org.apache.commons.io.IOUtils;
  * @since 5.4
  */
 public class DiskBasedByteQueue extends OutputStream {
+    /**
+     * Exception that is thrown then the queue has been closed but further read or write access occurs.
+     *
+     * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+     * @since 5.6
+     */
+    public static class QueueClosedException extends IOException {
+        private static final long serialVersionUID = -1273277247159534336L;
+
+        /**
+         * Constructs an {@code QueueClosedException} with the specified detail message.
+         *
+         * @param message the detail message
+         */
+        public QueueClosedException(final String message) {
+            super(message);
+        }
+    }
+
+
     private abstract static class Buffer extends OutputStream {
         /**
          * Returns the number of free bytes in the buffer.
@@ -288,6 +308,9 @@ public class DiskBasedByteQueue extends OutputStream {
         }
 
         private void openNewChunk() throws IOException {
+            if (m_currentWriteChunk == CLOSED) {
+                throw new IOException("Queue has been closed");
+            }
             m_currentWriteChunk = PathUtils.createTempFile(m_tempDir, m_prefix, "." + m_chunkCounter);
             m_chunkCounter++;
             m_currentChunkSize = 0;
@@ -369,6 +392,7 @@ public class DiskBasedByteQueue extends OutputStream {
          */
         @Override
         void cleanup() throws IOException {
+            assert m_currentWriteChunk == CLOSED : "Queue has not been closed yet";
             for (Path p : m_chunks) {
                 if (p != CLOSED) {
                     Files.deleteIfExists(p);
@@ -397,6 +421,9 @@ public class DiskBasedByteQueue extends OutputStream {
 
     private final int m_diskChunkSize;
 
+    private volatile boolean m_closed;
+
+
     /**
      * Creates a new queue.
      *
@@ -419,6 +446,10 @@ public class DiskBasedByteQueue extends OutputStream {
      */
     @Override
     public void write(final int b) throws IOException {
+        if (m_closed) {
+            throw new QueueClosedException("Queue has been closed");
+        }
+
         if (m_writeBuffer.freeBytes() >= 1) {
             m_writeBuffer.write(b);
         } else {
@@ -434,6 +465,9 @@ public class DiskBasedByteQueue extends OutputStream {
      */
     @Override
     public void write(final byte[] b) throws IOException {
+        if (m_closed) {
+            throw new QueueClosedException("Queue has been closed");
+        }
         if (m_writeBuffer.freeBytes() >= b.length) {
             m_writeBuffer.write(b);
         } else {
@@ -449,6 +483,10 @@ public class DiskBasedByteQueue extends OutputStream {
      */
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
+        if (m_closed) {
+            throw new QueueClosedException("Queue has been closed");
+        }
+
         if (m_writeBuffer.freeBytes() >= len) {
             m_writeBuffer.write(b, off, len);
         } else {
@@ -472,6 +510,7 @@ public class DiskBasedByteQueue extends OutputStream {
      */
     @Override
     public void close() throws IOException {
+        m_closed = true;
         m_writeBuffer.close();
         m_readBuffer.close();
     }
@@ -485,6 +524,9 @@ public class DiskBasedByteQueue extends OutputStream {
      * @throws IOException if an I/O error occurs
      */
     public void transferTo(final OutputStream os) throws InterruptedException, IOException {
+        if (m_closed) {
+            throw new QueueClosedException("Queue has been closed");
+        }
         m_readBuffer.transferTo(os);
         if (m_readBuffer != m_writeBuffer) {
             // the write buffer has switched and there is potential data available
