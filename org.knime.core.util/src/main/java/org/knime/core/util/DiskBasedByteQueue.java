@@ -381,9 +381,9 @@ public class DiskBasedByteQueue extends OutputStream {
                 } catch (IOException ex) {
                     m_consumerException = ex;
                     throw ex;
+                } finally {
+                    Files.delete(chunk);
                 }
-
-                Files.delete(chunk);
             }
         }
 
