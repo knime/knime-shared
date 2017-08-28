@@ -524,9 +524,6 @@ public class DiskBasedByteQueue extends OutputStream {
      * @throws IOException if an I/O error occurs
      */
     public void transferTo(final OutputStream os) throws InterruptedException, IOException {
-        if (m_closed) {
-            throw new QueueClosedException("Queue has been closed");
-        }
         m_readBuffer.transferTo(os);
         if (m_readBuffer != m_writeBuffer) {
             // the write buffer has switched and there is potential data available
