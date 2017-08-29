@@ -53,6 +53,7 @@ import java.util.Objects;
  * @param <T> class of the first object
  * @param <M> class of the second object
  * @author Thorsten Meinl, University of Konstanz
+ * @since 5.7
  */
 public final class Pair<T, M> {
     private final T m_first;

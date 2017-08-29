@@ -58,7 +58,9 @@ import org.knime.core.node.config.base.json.JSONTransientString;
  */
 public final class ConfigTransientStringEntry extends AbstractConfigEntry {
 
-    /** The value that is saved to disc to indicate that the string is not serialized/transient. */
+    /** The value that is saved to disc to indicate that the string is not serialized/transient.
+     * @noreference This field is not intended to be referenced by clients.
+     * @since 5.7 */
     public static final String HIDDEN_VALUE = "<hidden value>";
 
     private static final long serialVersionUID = -16516947852957583L;

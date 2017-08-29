@@ -63,6 +63,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 /**
  * Serialization/Deserialization of {@link ConfigBase} type objects into JSON.
  * @author Bernd Wiswedel
+ * @since 5.7
  */
 public final class JSONConfig {
 
