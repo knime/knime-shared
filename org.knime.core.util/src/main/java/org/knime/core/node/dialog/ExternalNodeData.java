@@ -50,7 +50,10 @@ package org.knime.core.node.dialog;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -341,5 +344,35 @@ public class ExternalNodeData {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Returns the requested external node data object from the map. The input id can either be fully qualified , i.e.
+     * containing the node id at the end (json-input-1:1) or unqualified, i.e. only using the name defined in the node
+     * (json-input). First an exact match is attempted and if that fails an unqualified match is attempted. If both fail
+     * or don't produce a unique entry an {@link IllegalArgumentException} will be thrown.
+     *
+     * @param inputMap a map with input data
+     * @param inputId the request input id, either fully qualified or unqualified
+     * @return the requested object, never <code>null</code>
+     * @throws IllegalArgumentException if no unique entry could be found
+     * @since 5.6
+     */
+    public static ExternalNodeData getData(final Map<String, ExternalNodeData> inputMap, final String inputId) {
+        ExternalNodeData extData = inputMap.get(inputId);
+        if (extData == null) {
+            List<ExternalNodeData> candidates = inputMap.values().stream()
+                    .filter(e -> e.getID().equals(inputId)).collect(Collectors.toList());
+            if (candidates.isEmpty()) {
+                throw new IllegalArgumentException("No such input parameter: " + inputId);
+            } else if (candidates.size() > 1) {
+                throw new IllegalArgumentException(
+                    "Input parameter " + inputId + " is not unique, try using a fully qualified name instead");
+            } else {
+                return candidates.get(0);
+            }
+        } else {
+            return extData;
+        }
     }
 }
