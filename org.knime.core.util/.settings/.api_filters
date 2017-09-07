@@ -3,24 +3,8 @@
     <resource path="META-INF/MANIFEST.MF">
         <filter id="924844039">
             <message_arguments>
+                <message_argument value="5.6.1"/>
                 <message_argument value="5.6.0"/>
-                <message_argument value="5.6.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/main/java/org/knime/core/node/config/base/ConfigBaseRO.java" type="org.knime.core.node.config.base.ConfigBaseRO">
-        <filter id="403804204">
-            <message_arguments>
-                <message_argument value="org.knime.core.node.config.base.ConfigBaseRO"/>
-                <message_argument value="getTransientString(String)"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/main/java/org/knime/core/node/config/base/ConfigBaseWO.java" type="org.knime.core.node.config.base.ConfigBaseWO">
-        <filter id="403804204">
-            <message_arguments>
-                <message_argument value="org.knime.core.node.config.base.ConfigBaseWO"/>
-                <message_argument value="addTransientString(String, String)"/>
             </message_arguments>
         </filter>
     </resource>
