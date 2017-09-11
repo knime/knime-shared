@@ -49,6 +49,7 @@
 package org.knime.core.node.dialog;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -114,9 +115,10 @@ public class ExternalNodeData {
     protected String m_stringValue;
 
     /**
-     * URL to a output resource, may be <code>null</code>.
+     * URI to a output resource, may be <code>null</code>.
+     * @since 5.7
      */
-    protected URL m_url;
+    protected URI m_uri;
 
     /**
      * May be used by subclasses.
@@ -133,7 +135,7 @@ public class ExternalNodeData {
     ExternalNodeData(final ExternalNodeDataBuilder builder) {
         m_id = builder.m_id;
         m_jsonValue = builder.m_jsonValue;
-        m_url = builder.m_url;
+        m_uri = builder.m_uri;
         m_stringValue = builder.m_stringValue;
     }
 
@@ -188,23 +190,24 @@ public class ExternalNodeData {
     }
 
     /**
-     * Returns the URL to a larger resource. The URL is usually a file URL sitting in a temporary directory. The method
+     * Returns the URI to a larger resource. The URI is usually a file URI sitting in a temporary directory. The method
      * may return <code>null</code> if no external resource is provided.<br>
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
      * configured is beneficial. If {@link #NO_URL_VALUE_YET} is returned this means that eventually JSON can be
      * provided. A <code>null</code> value means that JSON may never be available.
      *
      * @return a URL to a resource, or <code>null</code>
+     * @since 5.7
      */
     @JsonProperty("resource")
     @JsonInclude(Include.NON_NULL)
-    public URL getResource() {
-        return m_url;
+    public URI getResource() {
+        return m_uri;
     }
 
     @JsonProperty("resource")
-    private void setResource(final URL url) {
-        m_url = url;
+    private void setResource(final URI uri) {
+        m_uri = uri;
     }
 
     /**
@@ -227,7 +230,7 @@ public class ExternalNodeData {
 
         String m_stringValue;
 
-        URL m_url;
+        URI m_uri;
 
         ExternalNodeDataBuilder(final String id) {
             m_id = Objects.requireNonNull(id, "ID must not be null");
@@ -256,13 +259,14 @@ public class ExternalNodeData {
         }
 
         /**
-         * Sets the URL to the external resource.
+         * Sets the URI to the external resource.
          *
-         * @param url a URL, may be <code>null</code>
+         * @param uri a URI, may be <code>null</code>
          * @return the updated builder
+         * @since 5.7
          */
-        public ExternalNodeDataBuilder resource(final URL url) {
-            m_url = url;
+        public ExternalNodeDataBuilder resource(final URI uri) {
+            m_uri = uri;
             return this;
         }
 
@@ -283,8 +287,8 @@ public class ExternalNodeData {
     public String toString() {
         if (m_jsonValue != null) {
             return m_id + " = " + m_jsonValue;
-        } else if (m_url != null) {
-            return m_id + " = " + m_url;
+        } else if (m_uri != null) {
+            return m_id + " = " + m_uri;
         } else if (m_stringValue != null) {
             return m_id + " = " + m_stringValue;
         } else {
@@ -299,7 +303,7 @@ public class ExternalNodeData {
         result = prime * result + ((m_id == null) ? 0 : m_id.hashCode());
         result = prime * result + ((m_jsonValue == null) ? 0 : m_jsonValue.hashCode());
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
-        result = prime * result + ((m_url == null) ? 0 : m_url.toString().hashCode());
+        result = prime * result + ((m_uri == null) ? 0 : m_uri.hashCode());
         return result;
     }
 
@@ -336,11 +340,11 @@ public class ExternalNodeData {
         } else if (!m_stringValue.equals(other.m_stringValue)) {
             return false;
         }
-        if (m_url == null) {
-            if (other.m_url != null) {
+        if (m_uri == null) {
+            if (other.m_uri != null) {
                 return false;
             }
-        } else if (!m_url.toString().equals(other.m_url.toString())) {
+        } else if (!m_uri.equals(other.m_uri)) {
             return false;
         }
         return true;

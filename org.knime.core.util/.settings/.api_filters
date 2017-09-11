@@ -16,6 +16,28 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/core/node/dialog/ExternalNodeData.java" type="org.knime.core.node.dialog.ExternalNodeData">
+        <filter id="338755678">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.dialog.ExternalNodeData"/>
+                <message_argument value="m_url"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.dialog.ExternalNodeData"/>
+                <message_argument value="getResource()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/node/dialog/ExternalNodeData.java" type="org.knime.core.node.dialog.ExternalNodeData$ExternalNodeDataBuilder">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.dialog.ExternalNodeData.ExternalNodeDataBuilder"/>
+                <message_argument value="resource(URL)"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/main/java/org/knime/core/util/report/ReportingConstants.java" type="org.knime.core.util.report.ReportingConstants">
         <filter id="338792546">
             <message_arguments>
