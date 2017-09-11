@@ -219,7 +219,7 @@ public final class HostUtils {
     }
 
     /**
-     * Checks if the string is a valid IPv4 address or at most a class B network.
+     * Checks if the string is a valid IPv4 address or at most a class A network.
      *
      * @param ip a string
      * @return <code>true</code> if it is a valid IPv4 address, <code>false</code> otherwise
@@ -251,7 +251,7 @@ public final class HostUtils {
             }
         }
 
-        // check netmask, we allow at most class B networks
+        // check netmask, we allow at most class A networks
         s = mask.split("\\.");
         if (s.length != 4) {
             return false;
@@ -262,7 +262,7 @@ public final class HostUtils {
                 return false;
             }
             b = Integer.parseInt(s[1]);
-            if (b != 255) {
+            if ((b > 255) || (b < 0)) {
                 return false;
             }
             b = Integer.parseInt(s[2]);
