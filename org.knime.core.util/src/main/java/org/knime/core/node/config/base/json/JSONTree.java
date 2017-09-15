@@ -1,5 +1,6 @@
 /*
  * ------------------------------------------------------------------------
+ *
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,77 +41,73 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * -------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   Jan 10, 2017 (wiswedel): created
  */
-package org.knime.core.node.config.base;
+package org.knime.core.node.config.base.json;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONTransientString;
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * Config entry for transient strings values. These values are not saved when stored to disc.
- *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
- * @since 5.3
+ * Jackson serializable representation of a list of {@link AbstractJSONEntry}.
+ * @author Bernd Wiswedel, KNIME.com, KNIME.com, Zurich
  */
-public final class ConfigTransientStringEntry extends AbstractConfigEntry {
+@JsonTypeName("config")
+public final class JSONTree extends AbstractJSONEntry {
 
-    /** The value that is saved to disc to indicate that the string is not serialized/transient.
-     * @noreference This field is not intended to be referenced by clients.
-     * @since 5.7 */
-    public static final String HIDDEN_VALUE = "<hidden value>";
-
-    private static final long serialVersionUID = -16516947852957583L;
-
-    /** The String value. */
-    private final transient String m_transientString;
+    private final Map<String, AbstractJSONEntry> m_map;
 
     /**
-     * Creates a new password entry.
-     *
-     * @param key the key for this value
-     * @param value the password, maybe <code>null</code>
+     * @param map The value
      */
-    public ConfigTransientStringEntry(final String key, final String value) {
-        super(ConfigEntries.xtransientstring, key);
-        m_transientString = value;
+    public JSONTree(@JsonProperty("value") final Map<String, AbstractJSONEntry> map) {
+        m_map = map;
     }
 
-    /**
-     * Returns the transient string.
-     *
-     * @return the string or <code>null</code>
-     */
-    public String getTransientString() {
-        return m_transientString;
+    /** @return the map */
+    @JsonProperty("value")
+    public Map<String, AbstractJSONEntry> getMap() {
+        return m_map;
     }
 
-    /**
-     * @return <code>null</code>
-     */
+    /** {@inheritDoc} */
     @Override
-    public String toStringValue() {
-        return m_transientString == null ? null : HIDDEN_VALUE;
+    void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack) {
+        ConfigBase childConfig = config.addConfigBase(key);
+        m_map.entrySet().forEach(e -> e.getValue().addToConfigBase(
+            e.getKey(), childConfig, addToConfigCallBack));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        ConfigTransientStringEntry e = (ConfigTransientStringEntry) ace;
-        return Objects.equals(m_transientString, e.m_transientString);
+    public String toString() {
+        return Objects.toString(m_map);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONTransientString(toStringValue());
+    public int hashCode() {
+        return super.hashCode() ^ Objects.hashCode(m_map);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof JSONTree)) {
+            return false;
+        }
+        return super.equals(obj) && Objects.equals(((JSONTree)obj).m_map, m_map);
     }
 
 }

@@ -1,5 +1,6 @@
 /*
  * ------------------------------------------------------------------------
+ *
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,77 +41,18 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * -------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   Jan 11, 2017 (wiswedel): created
  */
 package org.knime.core.node.config.base;
 
-import java.util.Objects;
-
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONTransientString;
-
 /**
- * Config entry for transient strings values. These values are not saved when stored to disc.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
- * @since 5.3
+ * @author Bernd Wiswedel, KNIME.com, Zurich, Switzlerland
  */
-public final class ConfigTransientStringEntry extends AbstractConfigEntry {
+public class JSONConfigTest {
 
-    /** The value that is saved to disc to indicate that the string is not serialized/transient.
-     * @noreference This field is not intended to be referenced by clients.
-     * @since 5.7 */
-    public static final String HIDDEN_VALUE = "<hidden value>";
-
-    private static final long serialVersionUID = -16516947852957583L;
-
-    /** The String value. */
-    private final transient String m_transientString;
-
-    /**
-     * Creates a new password entry.
-     *
-     * @param key the key for this value
-     * @param value the password, maybe <code>null</code>
-     */
-    public ConfigTransientStringEntry(final String key, final String value) {
-        super(ConfigEntries.xtransientstring, key);
-        m_transientString = value;
-    }
-
-    /**
-     * Returns the transient string.
-     *
-     * @return the string or <code>null</code>
-     */
-    public String getTransientString() {
-        return m_transientString;
-    }
-
-    /**
-     * @return <code>null</code>
-     */
-    @Override
-    public String toStringValue() {
-        return m_transientString == null ? null : HIDDEN_VALUE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        ConfigTransientStringEntry e = (ConfigTransientStringEntry) ace;
-        return Objects.equals(m_transientString, e.m_transientString);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONTransientString(toStringValue());
-    }
 
 }

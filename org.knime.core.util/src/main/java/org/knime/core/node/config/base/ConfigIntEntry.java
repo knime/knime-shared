@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONInt;
+
 /**
  * Config entry for integer values.
  *
@@ -97,6 +100,14 @@ public final class ConfigIntEntry extends AbstractConfigEntry {
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
         return ((ConfigIntEntry) ace).m_int == m_int;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONInt(m_int);
     }
 
 }

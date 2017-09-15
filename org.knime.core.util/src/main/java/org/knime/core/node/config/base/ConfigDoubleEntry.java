@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONDouble;
+
 /**
  * Config entry for double values.
  *
@@ -96,8 +99,15 @@ public final class ConfigDoubleEntry extends AbstractConfigEntry {
      */
     @Override
     protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        return
-            Double.compare(((ConfigDoubleEntry) ace).m_double, m_double) == 0;
+        return Double.compare(((ConfigDoubleEntry) ace).m_double, m_double) == 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONDouble(m_double);
     }
 
 }

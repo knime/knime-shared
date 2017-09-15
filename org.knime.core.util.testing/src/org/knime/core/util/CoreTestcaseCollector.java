@@ -40,77 +40,41 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * -------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   20.11.2010 (meinl): created
  */
-package org.knime.core.node.config.base;
+package org.knime.core.util;
 
-import java.util.Objects;
+import junit.framework.JUnit4TestAdapter;
+import junit.framework.TestSuite;
 
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONTransientString;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
+import org.knime.testing.core.AbstractTestcaseCollector;
 
 /**
- * Config entry for transient strings values. These values are not saved when stored to disc.
+ * Testcase collector for this plug-in.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
- * @since 5.3
+ * @author Thorsten Meinl, University of Konstanz
  */
-public final class ConfigTransientStringEntry extends AbstractConfigEntry {
-
-    /** The value that is saved to disc to indicate that the string is not serialized/transient.
-     * @noreference This field is not intended to be referenced by clients.
-     * @since 5.7 */
-    public static final String HIDDEN_VALUE = "<hidden value>";
-
-    private static final long serialVersionUID = -16516947852957583L;
-
-    /** The String value. */
-    private final transient String m_transientString;
-
+@RunWith(AllTests.class)
+public class CoreTestcaseCollector extends AbstractTestcaseCollector {
     /**
-     * Creates a new password entry.
+     * This is called via the JUnit framework in order to collect all testcases.
      *
-     * @param key the key for this value
-     * @param value the password, maybe <code>null</code>
-     */
-    public ConfigTransientStringEntry(final String key, final String value) {
-        super(ConfigEntries.xtransientstring, key);
-        m_transientString = value;
-    }
-
-    /**
-     * Returns the transient string.
+     * @return a test suite with all testcases
      *
-     * @return the string or <code>null</code>
+     * @throws Exception if something goes wrong
      */
-    public String getTransientString() {
-        return m_transientString;
-    }
+    public static TestSuite suite() throws Exception {
+        TestSuite suite = new TestSuite();
 
-    /**
-     * @return <code>null</code>
-     */
-    @Override
-    public String toStringValue() {
-        return m_transientString == null ? null : HIDDEN_VALUE;
-    }
+        for (Class<?> testClass : new CoreTestcaseCollector().getUnittestsClasses()) {
+            suite.addTest(new JUnit4TestAdapter(testClass));
+        }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        ConfigTransientStringEntry e = (ConfigTransientStringEntry) ace;
-        return Objects.equals(m_transientString, e.m_transientString);
+        return suite;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONTransientString(toStringValue());
-    }
-
 }

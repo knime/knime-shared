@@ -51,6 +51,8 @@ import java.util.Enumeration;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+
 /**
  * Abstract Config entry holding only a Config entry type. Deriving classes must
  * store the corresponding value and implement.
@@ -261,5 +263,8 @@ public abstract class AbstractConfigEntry implements Serializable, TreeNode {
     public Enumeration<TreeNode> children() {
         return DefaultMutableTreeNode.EMPTY_ENUMERATION;
     }
+
+    abstract AbstractJSONEntry toJSONEntry();
+
 
 }

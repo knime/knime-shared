@@ -1,5 +1,6 @@
 /*
  * ------------------------------------------------------------------------
+ *
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,77 +41,63 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * -------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   Jan 10, 2017 (wiswedel): created
  */
-package org.knime.core.node.config.base;
+package org.knime.core.node.config.base.json;
 
-import java.util.Objects;
+import java.util.function.BiConsumer;
 
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONTransientString;
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigBase;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Config entry for transient strings values. These values are not saved when stored to disc.
- *
+ * Base class for all child elements contained in {@link JSONRoot}.
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
- * @since 5.3
  */
-public final class ConfigTransientStringEntry extends AbstractConfigEntry {
-
-    /** The value that is saved to disc to indicate that the string is not serialized/transient.
-     * @noreference This field is not intended to be referenced by clients.
-     * @since 5.7 */
-    public static final String HIDDEN_VALUE = "<hidden value>";
-
-    private static final long serialVersionUID = -16516947852957583L;
-
-    /** The String value. */
-    private final transient String m_transientString;
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value=JSONBoolean.class, name="boolean"),
+    @JsonSubTypes.Type(value=JSONByte.class, name="byte"),
+    @JsonSubTypes.Type(value=JSONChar.class, name="char"),
+    @JsonSubTypes.Type(value=JSONDouble.class, name="double"),
+    @JsonSubTypes.Type(value=JSONFloat.class, name="float"),
+    @JsonSubTypes.Type(value=JSONInt.class, name="int"),
+    @JsonSubTypes.Type(value=JSONLong.class, name="long"),
+    @JsonSubTypes.Type(value=JSONPassword.class, name="password"),
+    @JsonSubTypes.Type(value=JSONShort.class, name="short"),
+    @JsonSubTypes.Type(value=JSONString.class, name="string"),
+    @JsonSubTypes.Type(value=JSONTransientString.class, name="transient-string"),
+    @JsonSubTypes.Type(value=JSONTree.class, name="tree")
+})
+public abstract class AbstractJSONEntry {
 
     /**
-     * Creates a new password entry.
+     * Adds the content of this JSON piece into the KNIME native config class.
      *
-     * @param key the key for this value
-     * @param value the password, maybe <code>null</code>
+     * @param config to add to, not null.
+     * @param addToConfigCallBack A callback providing access to package scope methods on {@link ConfigBase}
+     *          (needed for password entries, which otherwise require the plain password + encryption key).
      */
-    public ConfigTransientStringEntry(final String key, final String value) {
-        super(ConfigEntries.xtransientstring, key);
-        m_transientString = value;
-    }
+    abstract void addToConfigBase(final String key, final ConfigBase config,
+        final BiConsumer<ConfigBase, AbstractConfigEntry> addToConfigCallBack);
 
-    /**
-     * Returns the transient string.
-     *
-     * @return the string or <code>null</code>
-     */
-    public String getTransientString() {
-        return m_transientString;
-    }
-
-    /**
-     * @return <code>null</code>
-     */
+    /** {@inheritDoc} */
     @Override
-    public String toStringValue() {
-        return m_transientString == null ? null : HIDDEN_VALUE;
+    public int hashCode() {
+        return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        ConfigTransientStringEntry e = (ConfigTransientStringEntry) ace;
-        return Objects.equals(m_transientString, e.m_transientString);
+    public boolean equals(final Object obj) {
+        return obj instanceof AbstractJSONEntry;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONTransientString(toStringValue());
-    }
 
 }

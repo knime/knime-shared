@@ -45,6 +45,9 @@
  */
 package org.knime.core.node.config.base;
 
+import org.knime.core.node.config.base.json.AbstractJSONEntry;
+import org.knime.core.node.config.base.json.JSONString;
+
 /**
  * Config entry for String values.
  *
@@ -92,6 +95,14 @@ public final class ConfigStringEntry extends AbstractConfigEntry {
             return true;
         }
         return (m_string != null && m_string.equals(e.m_string));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    AbstractJSONEntry toJSONEntry() {
+        return new JSONString(m_string);
     }
 
 }

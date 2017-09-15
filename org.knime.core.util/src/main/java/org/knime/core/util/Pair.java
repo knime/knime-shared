@@ -1,4 +1,4 @@
-/*
+/* Created on Jun 27, 2006 3:54:35 PM by thor
  * ------------------------------------------------------------------------
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,74 +43,89 @@
  * -------------------------------------------------------------------
  *
  */
-package org.knime.core.node.config.base;
+package org.knime.core.util;
 
 import java.util.Objects;
 
-import org.knime.core.node.config.base.json.AbstractJSONEntry;
-import org.knime.core.node.config.base.json.JSONTransientString;
-
 /**
- * Config entry for transient strings values. These values are not saved when stored to disc.
+ * This class is a simple pair of objects.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
- * @since 5.3
+ * @param <T> class of the first object
+ * @param <M> class of the second object
+ * @author Thorsten Meinl, University of Konstanz
+ * @since 5.7
  */
-public final class ConfigTransientStringEntry extends AbstractConfigEntry {
-
-    /** The value that is saved to disc to indicate that the string is not serialized/transient.
-     * @noreference This field is not intended to be referenced by clients.
-     * @since 5.7 */
-    public static final String HIDDEN_VALUE = "<hidden value>";
-
-    private static final long serialVersionUID = -16516947852957583L;
-
-    /** The String value. */
-    private final transient String m_transientString;
+public final class Pair<T, M> {
+    private final T m_first;
+    private final M m_second;
 
     /**
-     * Creates a new password entry.
+     * Creates a new pair.
      *
-     * @param key the key for this value
-     * @param value the password, maybe <code>null</code>
+     * @param first the first object
+     * @param second the second object
      */
-    public ConfigTransientStringEntry(final String key, final String value) {
-        super(ConfigEntries.xtransientstring, key);
-        m_transientString = value;
+    public Pair(final T first, final M second) {
+        m_first = first;
+        m_second = second;
     }
 
     /**
-     * Returns the transient string.
+     * Returns the first object.
      *
-     * @return the string or <code>null</code>
+     * @return the first object
      */
-    public String getTransientString() {
-        return m_transientString;
-    }
+    public T getFirst() { return m_first; }
 
     /**
-     * @return <code>null</code>
+     * Returns the second object.
+     *
+     * @return the second object
+     */
+    public M getSecond() { return m_second; }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public String toStringValue() {
-        return m_transientString == null ? null : HIDDEN_VALUE;
+    public boolean equals(final Object o) {
+        if (!(o instanceof Pair)) { return false; }
+
+        Pair<?, ?> p = (Pair<?, ?>) o;
+        if (!Objects.equals(m_first, p.m_first)) {
+            return false;
+        }
+        if (!Objects.equals(m_second, p.m_second)) {
+            return false;
+        }
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean hasIdenticalValue(final AbstractConfigEntry ace) {
-        ConfigTransientStringEntry e = (ConfigTransientStringEntry) ace;
-        return Objects.equals(m_transientString, e.m_transientString);
+    public int hashCode() {
+        int firstHash = m_first == null ? 0 : m_first.hashCode();
+        int secondHash = m_second == null ? 0 : m_second.hashCode();
+        return firstHash ^ (secondHash << 2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    AbstractJSONEntry toJSONEntry() {
-        return new JSONTransientString(toStringValue());
+    public String toString() {
+        return "<" + m_first +  ";" + m_second + ">";
     }
 
+    /** Factory method that infers the generic arguments, equivalent to {@link #Pair(Object, Object) constructor}.
+     * @param first The first element
+     * @param second The second element
+     * @return a new pair
+     * @param <T> Type of first element
+     * @param <M> Type of second element
+     * @since 2.9
+     */
+    public static final <T, M> Pair<T, M> create(final T first, final M second) {
+        return new Pair<T, M>(first, second);
+    }
 }
