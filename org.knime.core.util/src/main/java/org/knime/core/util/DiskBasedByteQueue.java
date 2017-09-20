@@ -281,6 +281,8 @@ public class DiskBasedByteQueue extends OutputStream {
 
         private volatile IOException m_consumerException;
 
+        private boolean m_closed;
+
         private static final Path CLOSED = Paths.get("");
 
         /**
@@ -308,7 +310,7 @@ public class DiskBasedByteQueue extends OutputStream {
         }
 
         private void openNewChunk() throws IOException {
-            if (m_currentWriteChunk == CLOSED) {
+            if (m_closed) {
                 throw new IOException("Queue has been closed");
             }
             m_currentWriteChunk = PathUtils.createTempFile(m_tempDir, m_prefix, "." + m_chunkCounter);
@@ -352,9 +354,9 @@ public class DiskBasedByteQueue extends OutputStream {
          */
         @Override
         public void close() throws IOException {
+            m_closed = true;
             m_currentWriteStream.close();
             m_chunks.offer(m_currentWriteChunk);
-            m_currentWriteChunk = CLOSED;
             m_chunks.offer(CLOSED);
         }
 
@@ -392,12 +394,13 @@ public class DiskBasedByteQueue extends OutputStream {
          */
         @Override
         void cleanup() throws IOException {
-            assert m_currentWriteChunk == CLOSED : "Queue has not been closed yet";
+            assert m_closed : "Queue has not been closed yet";
             for (Path p : m_chunks) {
                 if (p != CLOSED) {
                     Files.deleteIfExists(p);
                 }
             }
+            Files.deleteIfExists(m_currentWriteChunk);
         }
 
         /**
