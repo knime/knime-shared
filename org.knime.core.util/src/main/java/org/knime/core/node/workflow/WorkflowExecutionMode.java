@@ -93,7 +93,7 @@ public enum WorkflowExecutionMode {
     /**
      * Wizard execution, can either be quickform for subnode execution. This mode should only be used for requesting
      * a mode while loading a workflow but not for the actual mode once the workflow has been inspected.
-     * @since 5.6
+     * @since 5.7
      */
     WIZARD_EXECUTION;
 }
