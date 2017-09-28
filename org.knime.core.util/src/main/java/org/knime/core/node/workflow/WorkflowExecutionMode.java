@@ -51,11 +51,10 @@ package org.knime.core.node.workflow;
  * @author Christian Albrecht, KNIME.com AG, Zurich, Switzerland
  */
 public enum WorkflowExecutionMode {
-
     /**
      * Regular execution mode (execute all).
      */
-    REGULAR(0) {
+    REGULAR {
         /**
          * {@inheritDoc}
          */
@@ -68,7 +67,7 @@ public enum WorkflowExecutionMode {
     /**
      * Quickform execution (pre 2.10 wizard execution).
      */
-    QUICKFORM_EXECUTION(1) {
+    QUICKFORM_EXECUTION {
         /**
          * {@inheritDoc}
          */
@@ -81,7 +80,7 @@ public enum WorkflowExecutionMode {
     /**
      * Subnode execution (post 2.9 wizard execution).
      */
-    SUBNODE_EXECUTION(2) {
+    SUBNODE_EXECUTION {
         /**
          * {@inheritDoc}
          */
@@ -89,34 +88,12 @@ public enum WorkflowExecutionMode {
         public String toString() {
             return "Subnode execution";
         }
-    };
-
-    private final int m_value;
-
-    private WorkflowExecutionMode(final int value) {
-        m_value = value;
-    }
+    },
 
     /**
-     * @return the integer value of the enum value, use for serialization
+     * Wizard execution, can either be quickform for subnode execution. This mode should only be used for requesting
+     * a mode while loading a workflow but not for the actual mode once the workflow has been inspected.
+     * @since 5.6
      */
-    public int getIntValue() {
-        return m_value;
-    }
-
-    /**
-     * @param value the int value
-     * @return an execution mode enum value from given int value
-     */
-    public static WorkflowExecutionMode fromIntValue(final int value) {
-        switch (value) {
-            case 2:
-                return SUBNODE_EXECUTION;
-            case 1:
-                return QUICKFORM_EXECUTION;
-            default:
-                return REGULAR;
-        }
-    }
-
+    WIZARD_EXECUTION;
 }
