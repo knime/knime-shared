@@ -8,4 +8,18 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/core/node/workflow/WorkflowExecutionMode.java" type="org.knime.core.node.workflow.WorkflowExecutionMode">
+        <filter id="372346978">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.workflow.WorkflowExecutionMode"/>
+                <message_argument value="fromIntValue(int)"/>
+            </message_arguments>
+        </filter>
+        <filter id="372346978">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.workflow.WorkflowExecutionMode"/>
+                <message_argument value="getIntValue()"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>
