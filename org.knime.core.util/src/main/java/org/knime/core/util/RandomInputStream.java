@@ -55,6 +55,7 @@ import java.util.Random;
  * Input stream that creates random bytes. This is probably only useful for testing.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @since 5.7
  */
 public class RandomInputStream extends InputStream {
     private final Random m_rand = new Random();
