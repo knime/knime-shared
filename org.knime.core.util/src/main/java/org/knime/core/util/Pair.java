@@ -106,9 +106,11 @@ public final class Pair<T, M> {
      */
     @Override
     public int hashCode() {
-        int firstHash = m_first == null ? 0 : m_first.hashCode();
-        int secondHash = m_second == null ? 0 : m_second.hashCode();
-        return firstHash ^ (secondHash << 2);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((m_first == null) ? 0 : m_first.hashCode());
+        result = prime * result + ((m_second == null) ? 0 : m_second.hashCode());
+        return result;
     }
 
     /** {@inheritDoc} */
