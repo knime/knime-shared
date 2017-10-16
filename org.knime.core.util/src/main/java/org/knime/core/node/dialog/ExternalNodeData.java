@@ -48,9 +48,8 @@
  */
 package org.knime.core.node.dialog;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,15 +87,17 @@ public class ExternalNodeData {
     /**
      * Indicator that a URL value can be provided but is not available yet.
      */
-    public static final URL NO_URL_VALUE_YET;
+    public static final URI NO_URI_VALUE_YET;
 
     static {
+        URI uri;
         try {
-            NO_URL_VALUE_YET = new URL("file:/dev/null");
-        } catch (MalformedURLException ex) {
+            uri = new URI("file:/dev/null");
+        } catch (URISyntaxException e) {
             // doesn't happen
-            throw new RuntimeException(ex);
+            uri = null;
         }
+        NO_URI_VALUE_YET = uri;
     }
 
     /**
@@ -129,10 +130,10 @@ public class ExternalNodeData {
 
     @JsonCreator
     private ExternalNodeData(@JsonProperty("id") final String id) {
-        m_id = id;
+        m_id = Objects.requireNonNull(id, "ID must not be null");
     }
 
-    ExternalNodeData(final ExternalNodeDataBuilder builder) {
+    private ExternalNodeData(final ExternalNodeDataBuilder builder) {
         m_id = builder.m_id;
         m_jsonValue = builder.m_jsonValue;
         m_uri = builder.m_uri;
@@ -193,7 +194,7 @@ public class ExternalNodeData {
      * Returns the URI to a larger resource. The URI is usually a file URI sitting in a temporary directory. The method
      * may return <code>null</code> if no external resource is provided.<br>
      * Data needs only be provided if the node/workflow is executed, but providing a template in case the node is
-     * configured is beneficial. If {@link #NO_URL_VALUE_YET} is returned this means that eventually JSON can be
+     * configured is beneficial. If {@link #NO_URI_VALUE_YET} is returned this means that eventually JSON can be
      * provided. A <code>null</code> value means that JSON may never be available.
      *
      * @return a URL to a resource, or <code>null</code>
@@ -300,7 +301,7 @@ public class ExternalNodeData {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((m_id == null) ? 0 : m_id.hashCode());
+        result = prime * result + m_id.hashCode();
         result = prime * result + ((m_jsonValue == null) ? 0 : m_jsonValue.hashCode());
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
         result = prime * result + ((m_uri == null) ? 0 : m_uri.hashCode());
@@ -319,11 +320,7 @@ public class ExternalNodeData {
             return false;
         }
         ExternalNodeData other = (ExternalNodeData)obj;
-        if (m_id == null) {
-            if (other.m_id != null) {
-                return false;
-            }
-        } else if (!m_id.equals(other.m_id)) {
+        if (!m_id.equals(other.m_id)) {
             return false;
         }
         if (m_jsonValue == null) {
