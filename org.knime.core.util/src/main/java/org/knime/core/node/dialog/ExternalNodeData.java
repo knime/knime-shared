@@ -86,6 +86,7 @@ public class ExternalNodeData {
 
     /**
      * Indicator that a URL value can be provided but is not available yet.
+     * @since 5.7
      */
     public static final URI NO_URI_VALUE_YET;
 

@@ -4,6 +4,12 @@
         <filter id="338755678">
             <message_arguments>
                 <message_argument value="org.knime.core.node.dialog.ExternalNodeData"/>
+                <message_argument value="NO_URL_VALUE_YET"/>
+            </message_arguments>
+        </filter>
+        <filter id="338755678">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.dialog.ExternalNodeData"/>
                 <message_argument value="m_url"/>
             </message_arguments>
         </filter>
