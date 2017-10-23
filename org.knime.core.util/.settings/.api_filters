@@ -19,6 +19,17 @@
                 <message_argument value="getResource()"/>
             </message_arguments>
         </filter>
+        <filter id="388161617">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.dialog.ExternalNodeData"/>
+                <message_argument value="NO_URL_VALUE_YET"/>
+            </message_arguments>
+        </filter>
+        <filter id="1143996420">
+            <message_arguments>
+                <message_argument value="NO_URI_VALUE_YET"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="src/main/java/org/knime/core/node/dialog/ExternalNodeData.java" type="org.knime.core.node.dialog.ExternalNodeData$ExternalNodeDataBuilder">
         <filter id="338792546">

@@ -54,11 +54,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+
+import org.knime.core.node.util.CheckUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -75,6 +79,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @since 2.12
  */
 public class ExternalNodeData {
+    /**
+     * A pattern to parse a URL or REST parameter or a batch argument. It reads the
+     * In/OutputNode parameter name and an optional node id suffix, which the user may or
+     * may not specify (to guarantee uniqueness). For instance, it splits "foobar-123-xy-2" into "foobar-123-xy"
+     * (parameter name) and 2 (node id suffix).
+     * @since 5.7
+     * @noreference This field is not intended to be referenced by clients.
+     */
+    public static final Pattern PARAMETER_NAME_PATTERN = Pattern.compile("^(?:(.+)-)?(\\d+(?:\\:\\d+)*)$");
+
     /**
      * Indicator that a string value can be provided but is not available yet.
      */
@@ -420,5 +434,16 @@ public class ExternalNodeData {
         } else {
             return extData;
         }
+    }
+
+    /** If the argument is fully qualified (such as "foo-bar-17:3") it will return the simple name ("foo-bar"). Otherwise
+     * it returns the argument.
+     * @param idPossiblyFullyQualified The parameter ID, must not be null.
+     * @return the simple parameter name or the argument if already "simple".
+     * @since 5.7
+     */
+    public static String getSimpleIDFrom(final String idPossiblyFullyQualified) {
+        Matcher nameMacher = PARAMETER_NAME_PATTERN.matcher(CheckUtils.checkArgumentNotNull(idPossiblyFullyQualified));
+        return nameMacher.matches() ? nameMacher.group(1) : idPossiblyFullyQualified;
     }
 }
