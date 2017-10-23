@@ -53,6 +53,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -122,6 +123,13 @@ public class ExternalNodeData {
      */
     protected URI m_uri;
 
+
+    /**
+     * Description, may be <code>null</code>.
+     * @since 5.7
+     */
+    protected String m_description;
+
     /**
      * May be used by subclasses.
      */
@@ -139,6 +147,7 @@ public class ExternalNodeData {
         m_jsonValue = builder.m_jsonValue;
         m_uri = builder.m_uri;
         m_stringValue = builder.m_stringValue;
+        m_description = builder.m_description;
     }
 
     /**
@@ -212,6 +221,23 @@ public class ExternalNodeData {
         m_uri = uri;
     }
 
+
+    @JsonProperty("description")
+    private void setDescription(final String s) {
+        m_description = s;
+    }
+
+    /**
+     * Returns an optional description for this external node data.
+     *
+     * @return a description or an empty optional
+     * @since 5.7
+     */
+    @JsonProperty("description")
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(m_description);
+    }
+
     /**
      * Creates a new builder for an external node data.
      *
@@ -233,6 +259,8 @@ public class ExternalNodeData {
         String m_stringValue;
 
         URI m_uri;
+
+        String m_description;
 
         ExternalNodeDataBuilder(final String id) {
             m_id = Objects.requireNonNull(id, "ID must not be null");
@@ -273,6 +301,18 @@ public class ExternalNodeData {
         }
 
         /**
+         * Sets a description for the external data.
+         *
+         * @param description a description, may be <code>null</code>
+         * @return the updated builder
+         * @since 5.7
+         */
+        public ExternalNodeDataBuilder description(final String description) {
+            m_description = description;
+            return this;
+        }
+
+        /**
          * Builds a new external node data with the values from this builder.
          *
          * @return a new external node data
@@ -306,6 +346,7 @@ public class ExternalNodeData {
         result = prime * result + ((m_jsonValue == null) ? 0 : m_jsonValue.hashCode());
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
         result = prime * result + ((m_uri == null) ? 0 : m_uri.hashCode());
+        result = prime * result + ((m_description == null) ? 0 : m_description.hashCode());
         return result;
     }
 
@@ -343,6 +384,9 @@ public class ExternalNodeData {
                 return false;
             }
         } else if (!m_uri.equals(other.m_uri)) {
+            return false;
+        }
+        if (!Objects.equals(this.m_description, other.m_description)) {
             return false;
         }
         return true;
