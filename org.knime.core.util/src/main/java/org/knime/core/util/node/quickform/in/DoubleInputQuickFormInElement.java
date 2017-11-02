@@ -1,6 +1,6 @@
 /*
  * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ package org.knime.core.util.node.quickform.in;
 /**
  * A form element to enter a simple double-precision floating point number.
  *
- * @author Peter Ohl, KNIME.com, Zurich, Switzerland
+ * @author Peter Ohl, KNIME AG, Zurich, Switzerland
  */
 public class DoubleInputQuickFormInElement extends AbstractQuickFormInElement {
 

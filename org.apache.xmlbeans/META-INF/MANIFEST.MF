@@ -65,6 +65,6 @@ Export-Package: org.apache.xmlbeans,
  schemaorg_apache_xmlbeans.system.sXMLLANG,
  schemaorg_apache_xmlbeans.system.sXMLSCHEMA,
  schemaorg_apache_xmlbeans.system.sXMLTOOLS
-Bundle-Vendor: KNIME GmbH, Konstanz, Germany
+Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Eclipse-BuddyPolicy: dependent
 Require-Bundle: org.apache.ant;bundle-version="[1.9.4,2.0.0)"

@@ -1,6 +1,6 @@
 /*
  * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -42,13 +42,13 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 15.01.2014 by Christian Albrecht, KNIME.com AG, Zurich, Switzerland
+ * Created on 15.01.2014 by Christian Albrecht, KNIME AG, Zurich, Switzerland
  */
 package org.knime.core.node.workflow;
 
 /**
  *
- * @author Christian Albrecht, KNIME.com AG, Zurich, Switzerland
+ * @author Christian Albrecht, KNIME AG, Zurich, Switzerland
  */
 public enum WorkflowExecutionMode {
     /**

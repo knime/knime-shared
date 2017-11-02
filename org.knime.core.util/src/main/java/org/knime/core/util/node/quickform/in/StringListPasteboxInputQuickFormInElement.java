@@ -1,6 +1,6 @@
 /*
  * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ package org.knime.core.util.node.quickform.in;
  * A form element to enter list of strings (e.g. comma separated) in a single
  * text element.
  *
- * @author Dominik Morent, KNIME.com, Zurich, Switzerland
+ * @author Dominik Morent, KNIME AG, Zurich, Switzerland
  * @since 4.1
  */
 public class StringListPasteboxInputQuickFormInElement extends AbstractQuickFormInElement {

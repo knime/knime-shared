@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -71,7 +71,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * file-based resources. Additional formats may be added over time. Objects are built using the
  * {@link ExternalNodeDataBuilder} which can be acquired via {@link #builder(String)}.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  * @since 2.12
  */
 public class ExternalNodeData {

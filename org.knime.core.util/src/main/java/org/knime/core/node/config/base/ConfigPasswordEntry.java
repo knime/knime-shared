@@ -1,6 +1,6 @@
 /*
  * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@ import org.knime.core.node.config.base.json.JSONPassword;
 /**
  * Config entry for password values.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  */
 public final class ConfigPasswordEntry extends AbstractConfigEntry {
     private static final long serialVersionUID = -16516947852957585L;

@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
  *
  * @since 5.6
  *
- * @author Dominik Morent, KNIME.com, Zurich, Switzerland
+ * @author Dominik Morent, KNIME AG, Zurich, Switzerland
  */
 public final class ReportingConstants {
 
@@ -437,7 +437,7 @@ public final class ReportingConstants {
     /**
      * RptOutputOptions to be used when Arctorus BIRT emitters are installed.
      *
-     * @author Christian Albrecht, KNIME.com AG, Zurich, Switzerland
+     * @author Christian Albrecht, KNIME AG, Zurich, Switzerland
      * @since 3.9
      */
     public static final class ArctorusRptOutputOptions extends RptOutputOptions {

@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -96,7 +96,7 @@ import org.xml.sax.SAXException;
  * Analyzes all workflows in the given workspace/directory and creates a predecessor-node-successor table with
  * frequencies.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  * @since 4.3
  */
 public class WorkspaceAnalyzer {

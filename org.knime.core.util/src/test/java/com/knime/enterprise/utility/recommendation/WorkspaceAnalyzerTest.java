@@ -2,7 +2,7 @@ package com.knime.enterprise.utility.recommendation;
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -78,7 +78,7 @@ import org.knime.core.util.PathUtils;
 /**
  * Testcase for {@link WorkspaceAnalyzer}.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  */
 public class WorkspaceAnalyzerTest {
     private Path m_workspaceDir;

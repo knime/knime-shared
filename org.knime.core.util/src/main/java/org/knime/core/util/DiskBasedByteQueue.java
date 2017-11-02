@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -72,14 +72,14 @@ import org.apache.commons.io.IOUtils;
  * However in this case the consumer has proven to be slower than the writer (otherwise the in-memory buffer would still
  * be used) therefore the small delay until data is available again is tolerable.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  * @since 5.4
  */
 public class DiskBasedByteQueue extends OutputStream {
     /**
      * Exception that is thrown then the queue has been closed but further read or write access occurs.
      *
-     * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+     * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
      * @since 5.7
      */
     public static class QueueClosedException extends IOException {
@@ -129,7 +129,7 @@ public class DiskBasedByteQueue extends OutputStream {
      * assumes that there is always enough space for data that is written by one of the write methods. Clients must
      * check with {@link #freeBytes()} before writing, otherwise the data is overwritten.
      *
-     * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+     * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
      */
     private static class InMemoryBuffer extends Buffer {
         private final byte[] m_buffer;
@@ -260,7 +260,7 @@ public class DiskBasedByteQueue extends OutputStream {
      * "reader" can consume it. Chunks that have been consumed are immediately deleted. There is no limit in the total
      * size of the buffer.
      *
-     * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+     * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
      */
     private static class OnDiskBuffer extends Buffer {
         private final Path m_tempDir;

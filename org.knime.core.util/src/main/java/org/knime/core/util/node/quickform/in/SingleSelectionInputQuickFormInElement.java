@@ -1,6 +1,6 @@
 /*
  * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@ import java.io.IOException;
 /**
  * A form element to select a single string (which is a selection of possible choices).
  *
- * @author Thomas Gabriel, KNIME.com, Zurich, Switzerland
+ * @author Thomas Gabriel, KNIME AG, Zurich, Switzerland
  * @since 4.4
  */
 public class SingleSelectionInputQuickFormInElement extends AbstractQuickFormInElement {

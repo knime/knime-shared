@@ -3,10 +3,10 @@
       id="org.knime.features.util"
       label="KNIME Utilities (do not install!)"
       version="3.5.0.qualifier"
-      provider-name="KNIME GmbH, Konstanz, Germany">
+      provider-name="KNIME AG, Zurich, Switzerland">
 
    <copyright>
-      Copyright by KNIME GmbH, Konstanz, Germany
+      Copyright by KNIME AG, Zurich, Switzerland
    </copyright>
 
    <license>

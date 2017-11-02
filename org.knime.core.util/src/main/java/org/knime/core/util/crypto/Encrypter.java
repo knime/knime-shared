@@ -2,7 +2,7 @@
  * This source code, its documentation and all appendant files
  * are protected by copyright law. All rights reserved.
  *
- * Copyright by KNIME.com, Zurich, Switzerland
+ * Copyright by KNIME AG, Zurich, Switzerland
  *
  * You may not modify, publish, transmit, transfer or sell, reproduce,
  * create derivative works from, distribute, perform, display, or in
@@ -41,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Simple class to en-/decrypt strings with a fixed key.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  * @since 5.0
  */
 public final class Encrypter implements IEncrypter {

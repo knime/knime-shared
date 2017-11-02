@@ -1,6 +1,6 @@
 /*
  * ------------------------------------------------------------------------
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@ import org.knime.core.node.config.base.json.JSONTransientString;
 /**
  * Config entry for transient strings values. These values are not saved when stored to disc.
  *
- * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
+ * @author Bernd Wiswedel, KNIME AG, Zurich, Switzerland
  * @since 5.3
  */
 public final class ConfigTransientStringEntry extends AbstractConfigEntry {

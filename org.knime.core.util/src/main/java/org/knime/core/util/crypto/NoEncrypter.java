@@ -10,7 +10,7 @@ import javax.crypto.IllegalBlockSizeException;
 /**
  * Encrypter that doesn't really encrypt, it just returns the input.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  * @since 5.0
  */
 public final class NoEncrypter implements IEncrypter {
