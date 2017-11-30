@@ -444,6 +444,6 @@ public class ExternalNodeData {
      */
     public static String getSimpleIDFrom(final String idPossiblyFullyQualified) {
         Matcher nameMacher = PARAMETER_NAME_PATTERN.matcher(CheckUtils.checkArgumentNotNull(idPossiblyFullyQualified));
-        return nameMacher.matches() ? nameMacher.group(1) : idPossiblyFullyQualified;
+        return (nameMacher.matches() && (nameMacher.group(1) != null)) ? nameMacher.group(1) : idPossiblyFullyQualified;
     }
 }
