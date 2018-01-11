@@ -1,0 +1,102 @@
+{{>licenseInfo}}
+package {{package}};
+
+import com.knime.enterprise.gateway.rest.api.{{baseName}}Api;
+
+import java.time.Duration;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+
+import com.knime.enterprise.server.rest.impl.v4.AbstractRESTService;
+import com.knime.enterprise.utility.ExecutorException;
+import com.knime.enterprise.utility.PermissionException;
+
+import java.io.IOException;
+import javax.ws.rs.core.Response;
+
+/**
+ * Implementation of {@link {{baseName}}Api}. 
+ * Essentially forwards the requests via json-rpc 2.0 to the executor.
+ *
+ {{>authors}}
+ */
+{{>generatedAnnotation}}
+public class {{classname}} extends AbstractRESTService implements {{baseName}}Api {
+
+	/**
+     * Leading part of a json-rpc response that have all responses (not matter it's a success result or an error) have
+     * in common.
+     */
+    private static final String JSONRPC_RESPONSE_HEAD = "{\"jsonrpc\":\"2.0\",\"id\":\"\",";
+    
+	/**
+     * The scaffold of the expected json-rpc responses. The variable parts (such as result and id) are left out.
+     * Mainly used to determine how to cut-out the json-rpc result without expensively parsing it.
+     */
+    private static final String JSONRPC_RESPONSE_SCAFFOLD = JSONRPC_RESPONSE_HEAD + "\"result\":}";
+    
+    private final ObjectMapper m_objectMapper = new ObjectMapper();
+
+{{#operations}}
+{{#operation}}
+
+    {{#summary}}
+    /**
+     * {{summary}}
+     *
+     {{#notes}}
+     * {{notes}}
+     *
+     {{/notes}}
+     */
+    {{/summary}}
+    @Override
+    public Response {{nickname}}({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    	throws ExecutorException, TimeoutException, InterruptedException, PermissionException, IOException {
+    	//turn request into a json-rpc 2.0 request
+    	ObjectNode jsonRpcRequest = JsonNodeFactory.instance.objectNode();
+        jsonRpcRequest.put("jsonrpc", "2.0");
+        jsonRpcRequest.put("method", "{{baseName}}Service.{{nickname}}");
+        ArrayNode params = JsonNodeFactory.instance.arrayNode();
+        {{#allParams}}
+        {{^isPrimitiveType}}
+        params.add({{paramName}}.toString());
+        {{/isPrimitiveType}}
+        {{#isPrimitiveType}}
+        params.add({{paramName}});
+        {{/isPrimitiveType}}
+        {{/allParams}}
+        jsonRpcRequest.set("params", params);
+        String jsonRpcRequestId = UUID.randomUUID().toString();
+        jsonRpcRequest.put("id", jsonRpcRequestId);
+        byte[] response = m_jobManager.sendGenericRequest(jobId, "jsonrpc2.0",
+            new ObjectMapper().writeValueAsString(jsonRpcRequest).getBytes(), Duration.ofSeconds(10));
+        
+        //extract either the result or the error message from the json-rpc response
+        //error can be distinguished from a result by checking for the (r)esult or (e)rror entry at a fixed position 
+        if (response[JSONRPC_RESPONSE_HEAD.length() + jsonRpcRequestId.length() + 1] == 'e') {
+            //parse error message
+            JsonNode errorResponse = m_objectMapper.readerFor(JsonNode.class).readValue(response);
+            //TODO set exception class in response header
+            return Response.status(errorResponse.get("error").get("data").asInt()).entity(errorResponse.get("error").get("message")).build();
+        } else if (response[JSONRPC_RESPONSE_HEAD.length() + jsonRpcRequestId.length() + 1] == 'r') {
+            //cut-out the actual result from the json-rpc response without parsing it entirely
+            byte[] result = new byte[response.length - (JSONRPC_RESPONSE_SCAFFOLD.length() + jsonRpcRequestId.length()) - 1];
+            System.arraycopy(response, JSONRPC_RESPONSE_SCAFFOLD.length() + jsonRpcRequestId.length() - 1, result, 0,
+                result.length);
+            return Response.ok(result).build();
+        } else {
+            throw new IllegalStateException("Unexpected json-rpc message format!");
+        }
+    }
+{{/operation}}
+}
+{{/operations}}
+

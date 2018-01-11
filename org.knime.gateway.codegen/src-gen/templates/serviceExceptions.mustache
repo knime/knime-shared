@@ -1,0 +1,26 @@
+{{>licenseInfo}}
+package {{serviceExceptions.mustache#package}};
+
+/**
+ * Summarizes auto-generated exceptions that can occur in the executor.
+ *
+ {{>authors}}
+ */
+{{>generatedAnnotation}}
+public final class ServiceExceptions {
+
+    {{#executorExceptions}}
+    {{^fullname}}
+    /**
+    * {{description}}
+    */
+    public static class {{name}} extends Exception {
+        public {{name}}(String message) {
+            super(message);
+        }
+    }
+    
+    {{/fullname}}
+    {{/executorExceptions}}
+    
+}

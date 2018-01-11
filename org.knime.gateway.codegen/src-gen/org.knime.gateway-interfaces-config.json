@@ -1,0 +1,35 @@
+{
+    "lang" : "org.knime.gateway.codegen.GatewayCodegen",
+    "inputSpec" : "src-gen/api/gateway.yaml",
+    "outputDir" : "../../knime-gateway/org.knime.gateway",
+    "modelPackage" : "org.knime.gateway.v0.entity",
+    "apiPackage"   : "org.knime.gateway.v0.service",
+    "fullJavaUtil" : true,
+    "dateLibrary" : "java8",
+    "sourceFolder" : "src/generated",
+    "templateDir" : "src-gen/templates",
+    "additionalProperties" : {
+        "codegenName" : "interfaces",
+        "apiTemplateFile" : "serviceInterface.mustache",
+        "modelTemplateFile" : "entity.mustache",
+        "apiNamePattern" : "##name##Service",
+        "modelNamePattern" : "##name##Ent",
+        "supportingFiles" : [
+            {
+                "templateFile" : "listEntities.mustache",
+                "destinationFileName" : "ListEntities.java",
+                "package" : "org.knime.gateway.v0.entity.util"
+            },
+            {
+                "templateFile" : "listServices.mustache",
+                "destinationFileName" : "ListServices.java",
+                "package" : "org.knime.gateway.v0.service.util"
+            },
+            {
+                "templateFile" : "serviceExceptions.mustache",
+                "destinationFileName" : "ServiceExceptions.java",
+                "package" : "org.knime.gateway.v0.service.util" 
+            }    
+         ]
+    }   
+}

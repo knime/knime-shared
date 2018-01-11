@@ -1,0 +1,77 @@
+{{>licenseInfo}}
+package {{package}};
+
+import java.util.concurrent.TimeoutException;
+
+import com.knime.enterprise.utility.ExecutorException;
+import com.knime.enterprise.utility.PermissionException;
+
+import java.io.IOException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
+{{#operations}}
+{{#appName}}
+/**
+ * {{{appName}}}
+ *
+ {{#appDescription}}
+ * <p>{{{appDescription}}}
+ {{/appDescription}}
+ *
+ * <p> {{tagDescription}}
+ *
+ {{>authors}}
+ */
+{{/appName}}
+@Path("{{contextPath}}")
+@Api(value = "/", description = "{{description}}")
+{{#addConsumesProducesJson}}
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+{{/addConsumesProducesJson}}
+{{>generatedAnnotation}}
+public interface {{classname}} {
+
+{{#operation}}
+
+    /**
+     *
+     {{#notes}}
+     * {{.}}
+     *
+     {{/notes}}
+     *
+     {{#allParams}}
+     * @param {{paramName}} {{description}}
+     {{/allParams}}
+     * @return the response
+     * @throws PermissionException if the current user does not have access permissions for the job (will result in a
+     *             <tt>403 Forbidden</tt> return code)
+     * @throws ExecutorException if an error occurs while fetching job information from the RMI instance (will result in
+     *             a <tt>500 Internal Server Error</tt> return code)
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws TimeoutException thrown when time to contact the executor has been exceeded
+     */
+    @{{httpMethod}}
+    @Path("{{{path}}}")
+{{#hasConsumes}}
+    @Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} })
+{{/hasConsumes}}
+{{#hasProduces}}
+    @Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
+{{/hasProduces}}
+    @ApiOperation(value = "{{{summary}}}", tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
+    @ApiResponses(value = { {{#responses}}
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"){{#hasMore}},{{/hasMore}}{{/responses}} })
+    public Response {{nickname}}({{#allParams}}{{>rest/queryParams}}{{>rest/pathParams}}{{>rest/headerParams}}{{>rest/bodyParams}}{{>rest/formParams}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+        throws ExecutorException, TimeoutException, InterruptedException, PermissionException, IOException;
+{{/operation}}
+}
+{{/operations}}
+

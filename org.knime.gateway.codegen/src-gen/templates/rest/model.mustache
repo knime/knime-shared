@@ -1,0 +1,19 @@
+{{>licenseInfo}}
+package {{package}};
+
+{{#imports}}import {{import}};
+{{/imports}}
+{{#useBeanValidation}}
+import javax.validation.constraints.*;
+{{/useBeanValidation}}
+
+{{#models}}
+{{#model}}
+{{#isEnum}}
+{{>rest/enumOuterClass}}
+{{/isEnum}}
+{{^isEnum}}
+{{>rest/pojo}}
+{{/isEnum}}
+{{/model}}
+{{/models}}

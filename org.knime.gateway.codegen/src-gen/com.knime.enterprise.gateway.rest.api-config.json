@@ -1,0 +1,16 @@
+{
+    "lang" : "org.knime.gateway.codegen.GatewayCodegen",
+    "inputSpec" : "src-gen/api/gateway.yaml",
+    "outputDir" : "../../knime-server/com.knime.enterprise.gateway.rest",
+    "modelPackage" : "NOT_GENERATED",
+    "apiPackage"   : "com.knime.enterprise.gateway.rest.api",
+    "fullJavaUtil" : true,
+    "dateLibrary" : "java8",
+    "sourceFolder" : "src/main/generated",
+    "templateDir" : "src-gen/templates",
+    "additionalProperties" : {
+        "codegenName" : "rest-api",
+        "apiTemplateFile" : "rest/api.mustache",
+        "apiNamePattern" : "##name##Api"
+    }
+}
