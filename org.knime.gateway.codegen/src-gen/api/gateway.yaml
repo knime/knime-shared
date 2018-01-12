@@ -79,9 +79,9 @@ paths:
           type: string
       responses:
         200:
-          description: Successful response, with a json-representation of the settings
+          description: Successful response, with a representation of the Node.
           schema:
-            type: string
+            $ref: "#/definitions/Node"
         403:
           $ref: "#/responses/NoPermission"
         404:
