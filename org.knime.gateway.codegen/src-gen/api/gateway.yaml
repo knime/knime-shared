@@ -26,6 +26,9 @@ parameters:
   type: string
   format: uuid
 
+# Remark on the responses for the operation: only the 200-response affects the gateway-code generation 
+# by defining the operations return type. The other responses are for documentation purposes.
+# The x-knimegateway-exceptions are meant for the gateway-code-generation.
 paths:
 
   # the workflow endpoint
@@ -49,6 +52,14 @@ paths:
           description: Successful response, with a representation of the Workflow.
           schema:
             $ref: "#/definitions/Workflow"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
     
   # the node endpoint
   /workflow/node/{node-id}:
@@ -68,18 +79,25 @@ paths:
           type: string
       responses:
         200:
-          description: Successful response, with a representation of the Node.
+          description: Successful response, with a json-representation of the settings
           schema:
-            $ref: "#/definitions/Node"
+            type: string
         403:
-            $ref: "#/responses/NoPermission"
+          $ref: "#/responses/NoPermission"
         404:
-            $ref: "#/responses/NodeNotFound"
+          $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
   # endpoint for node settings        
   /workflow/node/{node-id}/settings:
@@ -106,13 +124,21 @@ paths:
           $ref: "#/responses/NoPermission"
         404:
           $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
         
 # Collection of java-exceptions for the gateway code generation.
+# For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
 # The exception have fall into the following categories:
 #   executor: exceptions that are thrown at the executor
 #   server: exceptions that are thrown at the server
@@ -130,17 +156,34 @@ x-knimegateway-exceptions:
       status-code: 404
   server:
     NoPermission:
-      fullname: com.enterprise.utility.PermissionException
+      fullname: com.knime.enterprise.utility.PermissionException
       description: if the current user does not have access permissions for the job
       status-code: 403
+    ExecutorException:
+      fullname: com.knime.enterprise.utility.ExecutorException
+      description: if an error occurs while fetching job information from the RMI instance
+      status-code: 500
+    IOException:
+      fullname: java.io.IOException
+      description: IO error
+      status-code: 500
+    Timeout:
+      fullname: java.util.concurrent.TimeoutException
+      description: thrown when time to contact the executor has been exceeded
+      status-code: 504
 
-# For every http-response there must be a corresponding knimegateway-exception (see section above).
+# For every http-response there should be a corresponding knimegateway-exception (see section above).
+# These responses are mainly for documentation purposes and don't affect the code-generation.
 responses:
   NodeNotFound:
     # should be the same description as for the corresponding knime-gateway exception (such that the generated documentation fits)
     description: The requested node was not found.
   NoPermission:
     description: if the current user does not have access permissions for the job
+  InternalServerError:
+    description: internal server error, e.g. if an error occurs while fetching job information from the RMI
+  Timeout:
+    description: when time to contact the executor has been exceeded
 
 # A comment on object/schema/model inheritance: polymorphism/subtyping in swagger is achieved by the 'allOf'-property
 # and the specification of a 'dicriminator'-property to be able to tell them apart (see, e.g., Node).
