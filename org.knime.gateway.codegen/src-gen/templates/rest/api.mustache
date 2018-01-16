@@ -25,14 +25,11 @@ import javax.ws.rs.core.Response;
 {{/addConsumesProducesJson}}
 {{>generatedAnnotation}}
 public interface {{classname}} {
-
 {{#operation}}
 
     /**
-     *
      {{#notes}}
      * {{.}}
-     *
      {{/notes}}
      *
      {{#allParams}}

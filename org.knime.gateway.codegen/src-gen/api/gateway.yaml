@@ -7,7 +7,7 @@ info:
   description: Gateway operations on KNIME workflows.
 basePath: /v4/jobs/{job-id}
 
-# node used in gateway code generation so far
+# not used in gateway code generation so far
 schemes:
 - http
 - https
@@ -180,6 +180,7 @@ paths:
 #   fullname: the name including the package (java-notation)
 #    if specified, the exception is assumed to existent already,
 #    if not specified the exception will be explicitly generated (using the exception name/key)
+# TODO: another useful property: whether an exception is a runtime exception
 x-knimegateway-exceptions:
   executor:
     NodeNotFound:
