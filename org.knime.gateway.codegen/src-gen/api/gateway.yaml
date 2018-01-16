@@ -171,7 +171,7 @@ paths:
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
-# The exception have fall into the following categories:
+# The exception fall into the following categories:
 #   executor: exceptions that are thrown at the executor
 #   server: exceptions that are thrown at the server
 # and have the following properties:
@@ -217,11 +217,11 @@ responses:
   NotASubWorkflow:
     description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
   NoPermission:
-    description: if the current user does not have access permissions for the job
+    description: If the current user does not have access permissions for the job.
   InternalServerError:
-    description: internal server error, e.g. if an error occurs while fetching job information from the RMI
+    description: Internal server error, e.g. if an error occurs while fetching job information from the RMI.
   Timeout:
-    description: when time to contact the executor has been exceeded
+    description: When time to contact the executor has been exceeded.
 
 # A comment on object/schema/model inheritance: polymorphism/subtyping in swagger is achieved by the 'allOf'-property
 # and the specification of a 'dicriminator'-property to be able to tell them apart (see, e.g., Node).
