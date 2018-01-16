@@ -27,7 +27,7 @@ public interface {{classname}} extends GatewayService {
      * {{#returnType}}@return the result{{/returnType}}
      {{#vendorExtensions.x-knimegateway-exceptions.executor}}
      * @throws {{>exceptionName}} {{description}}
-     {{/vendorExtensions.x-knimegateway-exceptions.executor}};
+     {{/vendorExtensions.x-knimegateway-exceptions.executor}}
      */
     {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}){{>throwsExecutorExceptions}};
         

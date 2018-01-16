@@ -5,12 +5,14 @@ info:
   title: KNIME Gateway API
   version: 1.0.0
   description: Gateway operations on KNIME workflows.
-# TODO
 basePath: /v4/jobs/{job-id}
+
+# node used in gateway code generation so far
 schemes:
 - http
 - https
 
+# E.g. gateway-service interfaces are created from the tags, such as WorkflowService or NodeService
 tags:
 - name: Workflow
   description: Operations on workflows.
@@ -36,24 +38,53 @@ paths:
     get:
       tags:
       - Workflow
-      description: Retrieves the complete structure of the workflow (nodes, connections, annotations).
+      description: Retrieves the complete structure (nodes, connections, annotations) of the workflow
       operationId: getWorkflow
       produces:
       - application/json
       parameters:
         - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: query
-          description: The ID of the node this sub(!)-workflow is requested for. If not given, the root-workflow will be returned.
-          required: false
-          type: string
       responses:
         200:
-          description: Successful response, with a representation of the Workflow.
+          description: Successful response, with a representation of the workflow.
           schema:
             $ref: "#/definitions/Workflow"
       x-knimegateway-exceptions:
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+
+  # the sub-workflow endpoint
+  /workflow/{node-id}:
+    get:
+      tags:
+      - Workflow
+      description: Retrieves the complete structure (nodes, connections, annotations) of sub-workflows.
+      operationId: getSubWorkflow
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node this sub-workflow is requested for.
+            For nested sub-workflows the node id's are concatenated with an ':' (e.g. 6:4:3).
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response, with a representation of the sub-workflow.
+          schema:
+            $ref: "#/definitions/Workflow"
+        400:
+            $ref: "#/responses/NotASubWorkflow"
+        404:
+            $ref: "#/responses/NodeNotFound"
+      x-knimegateway-exceptions:
         executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
@@ -113,6 +144,7 @@ paths:
         - name: node-id
           in: path
           description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
           required: true
           type: string
       responses:
@@ -143,7 +175,7 @@ paths:
 #   executor: exceptions that are thrown at the executor
 #   server: exceptions that are thrown at the server
 # and have the following properties:
-#   http-code: the corresponding http-code for the exception
+#   status-code: the corresponding http-status-code for the exception
 #   description: a description for the exception, should be the same description as for the corresponding http-response
 #   fullname: the name including the package (java-notation)
 #    if specified, the exception is assumed to existent already,
@@ -154,6 +186,10 @@ x-knimegateway-exceptions:
       name: NodeNotFoundException
       description: The requested node was not found.
       status-code: 404
+    NotASubWorkflow:
+      name: NotASubWorkflowException
+      description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
+      status-code: 400
   server:
     NoPermission:
       fullname: com.knime.enterprise.utility.PermissionException
@@ -178,6 +214,8 @@ responses:
   NodeNotFound:
     # should be the same description as for the corresponding knime-gateway exception (such that the generated documentation fits)
     description: The requested node was not found.
+  NotASubWorkflow:
+    description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
   NoPermission:
     description: if the current user does not have access permissions for the job
   InternalServerError:
