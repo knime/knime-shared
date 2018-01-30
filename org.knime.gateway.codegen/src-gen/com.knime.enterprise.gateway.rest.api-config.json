@@ -11,6 +11,6 @@
     "additionalProperties" : {
         "codegenName" : "rest-api",
         "apiTemplateFile" : "rest/api.mustache",
-        "apiNamePattern" : "##name##Api"
+        "apiNamePattern" : "##name##"
     }
 }

@@ -1,7 +1,7 @@
 {{>licenseInfoCom}}
 package {{package}};
 
-import com.knime.enterprise.gateway.rest.api.{{baseName}}Api;
+import com.knime.enterprise.gateway.rest.api.{{baseName}};
 
 import java.time.Duration;
 import java.util.UUID;
@@ -24,13 +24,13 @@ import java.io.IOException;
 import javax.ws.rs.core.Response;
 
 /**
- * Implementation of {@link {{baseName}}Api}. 
+ * Implementation of {@link {{baseName}}. 
  * Essentially forwards the requests via json-rpc 2.0 to the executor.
  *
  {{>authors}}
  */
 {{>generatedAnnotation}}
-public class {{classname}} extends AbstractRESTService implements {{baseName}}Api {
+public class {{classname}} extends AbstractRESTService implements {{baseName}} {
 
 	/**
      * Leading part of a json-rpc response that have all responses (not matter it's a success result or an error) have
