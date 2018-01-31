@@ -92,7 +92,36 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
     
-  # the node endpoint
+  # the root node endpoint
+  /workflow/node:
+     get:
+      tags:
+      - Node
+      description: Retrieves the root node referencing the workflow
+      operationId: getRootNode
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+      responses:
+        200:
+          description: Successful response, with a representation of the Node.
+          schema:
+            $ref: "#/definitions/Node"
+        403:
+          $ref: "#/responses/NoPermission"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+  
+  #the node endpoint
   /workflow/node/{node-id}:
     get:
       tags:
