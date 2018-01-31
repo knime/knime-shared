@@ -1,0 +1,74 @@
+{{>licenseInfo}}
+package {{package}};
+
+{{#imports}}
+import {{import}};
+{{/imports}}
+
+{{#operations}}
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.concurrent.TimeoutException;
+
+import javax.ws.rs.WebApplicationException;
+
+import org.knime.gateway.service.ServiceException;
+import org.knime.gateway.v0.service.{{baseName}}Service;
+import org.knime.gateway.v0.service.util.ServiceExceptions;
+
+import com.knime.enterprise.gateway.rest.api.{{baseName}};
+import com.knime.enterprise.utility.ExecutorException;
+import com.knime.enterprise.utility.PermissionException;
+import com.knime.gateway.rest.client.AbstractGatewayClient;
+
+/**
+ * Client that provides access to a KNIME Gateway's <tt>{{baseName}}</tt> resource. 
+ *
+ {{>authors}}
+ */
+{{>generatedAnnotation}}
+public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implements {{baseName}}Service {
+
+    /**
+     * See {@link AbstractGatewayClient#AbstractGatewayClient(URI, String)}.
+     *
+     * @param restAddress
+     * @param jwt
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws IOException
+     */
+    public {{baseName}}Client(final URI restAddress, final String jwt)
+        throws InstantiationException, IllegalAccessException, IOException {
+        super(restAddress, jwt);
+    }
+    
+    {{#operation}}
+    @Override
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}){{>throwsExecutorExceptions}} {
+        try{
+            {{#returnType}}return {{/returnType}}doRequest(c -> {
+                try {
+                    return c.{{nickname}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+                } catch (PermissionException | ExecutorException | IOException | TimeoutException ex) {
+                    //server errors
+                    // TODO exception handling
+                    throw new RuntimeException(ex);
+                }
+            }, {{#returnType}}{{{returnType}}}.class{{/returnType}}{{^returnType}}null{{/returnType}});
+        } catch (WebApplicationException ex) {
+            //executor errors
+        {{#vendorExtensions.x-knimegateway-exceptions.executor}}
+            if (ex.getResponse().getStatus() == {{status-code}}) {
+                throw new {{>exceptionName}}(readExceptionMessage(ex.getResponse()));
+            }
+        {{/vendorExtensions.x-knimegateway-exceptions.executor}}
+            throw new ServiceException(
+                "Error response with status code '" + ex.getResponse().getStatus() + "' and message: " + readExceptionMessage(ex.getResponse()));
+        }
+    }
+    
+    {{/operation}}
+}
+{{/operations}}

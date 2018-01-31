@@ -1,0 +1,17 @@
+{
+    "lang" : "org.knime.gateway.codegen.GatewayCodegen",
+    "inputSpec" : "src-gen/api/gateway.yaml",
+    "outputDir" : "../../knime-com-gateway/com.knime.gateway.rest.client",
+    "modelPackage" : "org.knime.gateway.v0.entity",
+    "apiPackage"   : "com.knime.gateway.rest.client.service",
+    "fullJavaUtil" : true,
+    "dateLibrary" : "java8",
+    "sourceFolder" : "src/generated",
+    "templateDir" : "src-gen/templates",
+    "additionalProperties" : {
+        "codegenName" : "rest-cli",
+        "apiTemplateFile" : "rest-cli/serviceRestClient.mustache",
+        "apiNamePattern" : "##name##Client",
+        "modelNamePattern" : "##name##Ent"
+    }   
+}
