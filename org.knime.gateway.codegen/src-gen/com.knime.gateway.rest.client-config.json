@@ -12,6 +12,13 @@
         "codegenName" : "rest-cli",
         "apiTemplateFile" : "rest-cli/serviceRestClient.mustache",
         "apiNamePattern" : "##name##Client",
-        "modelNamePattern" : "##name##Ent"
+        "modelNamePattern" : "##name##Ent",
+        "supportingFiles" : [
+            {
+                "templateFile" : "rest-cli/serviceInterface2RestClientMap.mustache",
+                "package" : "com.knime.gateway.rest.client",
+                "destinationFileName" : "ServiceInterface2RestClientMap.java"
+            }
+        ]
     }   
 }

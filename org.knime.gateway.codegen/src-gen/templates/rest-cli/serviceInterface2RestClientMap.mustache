@@ -1,0 +1,48 @@
+{{>licenseInfoCom}}
+package {{rest-cli/serviceInterface2RestClientMap.mustache#package}};
+
+{{#tags}}
+import com.knime.gateway.rest.client.service.{{.}}Client;
+import org.knime.gateway.v0.service.{{.}}Service;
+{{/tags}}
+
+import java.io.IOException;
+import java.net.URI;
+
+import org.knime.gateway.service.GatewayService;
+
+/**
+ * Maps a service interface (i.e. it's class) to the respective rest client implementation.
+ *
+ {{>authors}}
+ */
+{{>generatedAnnotation}}
+public class ServiceInterface2RestClientMap {
+
+    private ServiceInterface2RestClientMap() {
+        //utility class
+    }
+
+    /**
+     * Maps a gateway service (i.e. its interface class) to an instance of the corresponding rest client implementation.
+     *
+     * @param clazz the service class to be mapped to the corresponding rest client implementation
+     * @param restAddress the rest adress
+     * @param jwt an optional json web token for authentication
+     * @return a new instance of the respective rest client
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws IOException
+     */
+    public static AbstractGatewayClient<?> get(Class<? extends GatewayService> clazz, final URI restAddress,
+        final String jwt)  throws InstantiationException, IllegalAccessException, IOException {
+    {{#tags}}
+        if(clazz == {{.}}Service.class) {
+            return new {{.}}Client(restAddress, jwt);
+        }        
+    {{/tags}}
+        else {
+            throw new IllegalArgumentException("No service mapping.");
+        }    
+    }
+}
