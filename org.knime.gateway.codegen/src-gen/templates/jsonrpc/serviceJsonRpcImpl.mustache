@@ -11,10 +11,10 @@ import com.googlecode.jsonrpc4j.JsonRpcMethod;
 import com.googlecode.jsonrpc4j.JsonRpcParam;
 import com.googlecode.jsonrpc4j.JsonRpcService;
 
-import org.knime.gateway.v0.service.util.ServiceExceptions;
+import com.knime.gateway.v0.service.util.ServiceExceptions;
 
 {{#operations}}
-import org.knime.gateway.v0.service.{{baseName}}Service;
+import com.knime.gateway.v0.service.{{baseName}}Service;
 
 /**
  * Json rpc annotated class that wraps another service and delegates the method calls. 

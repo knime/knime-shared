@@ -4,10 +4,10 @@ package {{jsonrpc/wrapWithJsonRpcService.mustache#package}};
 
 {{#tags}}
 import com.knime.gateway.jsonrpc.remote.service.JsonRpc{{.}}ServiceWrapper;
-import org.knime.gateway.v0.service.{{.}}Service;
+import com.knime.gateway.v0.service.{{.}}Service;
 {{/tags}}
 
-import org.knime.gateway.service.GatewayService;
+import com.knime.gateway.service.GatewayService;
 
 import java.lang.reflect.InvocationTargetException;
 

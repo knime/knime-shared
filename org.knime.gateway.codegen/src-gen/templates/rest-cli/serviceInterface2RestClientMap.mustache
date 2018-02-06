@@ -3,13 +3,13 @@ package {{rest-cli/serviceInterface2RestClientMap.mustache#package}};
 
 {{#tags}}
 import com.knime.gateway.rest.client.service.{{.}}Client;
-import org.knime.gateway.v0.service.{{.}}Service;
+import com.knime.gateway.v0.service.{{.}}Service;
 {{/tags}}
 
 import java.io.IOException;
 import java.net.URI;
 
-import org.knime.gateway.service.GatewayService;
+import com.knime.gateway.service.GatewayService;
 
 /**
  * Maps a service interface (i.e. it's class) to the respective rest client implementation.

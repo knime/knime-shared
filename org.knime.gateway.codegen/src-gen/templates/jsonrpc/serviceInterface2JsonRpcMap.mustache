@@ -3,11 +3,11 @@
 package {{jsonrpc/serviceInterface2JsonRpcMap.mustache#package}};
 
 {{#tags}}
-import org.knime.gateway.jsonrpc.local.service.JsonRpc{{.}}Service;
-import org.knime.gateway.v0.service.{{.}}Service;
+import com.knime.gateway.jsonrpc.local.service.JsonRpc{{.}}Service;
+import com.knime.gateway.v0.service.{{.}}Service;
 {{/tags}}
 
-import org.knime.gateway.service.GatewayService;
+import com.knime.gateway.service.GatewayService;
 
 /**
  * Maps a service interface (i.e. it's class) to the respective JsonRpc-service.

@@ -5,13 +5,13 @@ package {{package}};
 import {{import}};
 {{/imports}}
 
-import org.knime.gateway.entity.GatewayEntityBuilder;
+import com.knime.gateway.entity.GatewayEntityBuilder;
 
 {{#models}}
 {{#model}}
 
 {{^parent}}
-import org.knime.gateway.entity.GatewayEntity;
+import com.knime.gateway.entity.GatewayEntity;
 {{/parent}}
 
 /**

@@ -3,7 +3,7 @@ package {{listEntities.mustache#package}};
 
 {{#models}}
 {{#model}}
-import org.knime.gateway.v0.entity.{{classname}};
+import com.knime.gateway.v0.entity.{{classname}};
 {{/model}}
 {{/models}}
 
@@ -12,7 +12,7 @@ import java.util.List;
 
 
 /**
- * Lists all gateway entities of package <code>org.knime.gateway.v0.entity</code>.
+ * Lists all gateway entities of package <code>com.knime.gateway.v0.entity</code>.
  *
  {{>authors}}
  */
@@ -24,7 +24,7 @@ public class ListEntities {
     }
 
     /**
-     * Lists all gateway entity classes of package <code>org.knime.gateway.v0.entity</code>.
+     * Lists all gateway entity classes of package <code>com.knime.gateway.v0.entity</code>.
      * @return the class list
      */
     public static List<Class<?>> listEntityClasses() {
@@ -38,7 +38,7 @@ public class ListEntities {
     }
     
     /**
-     * Lists all gateway entity builder classes of package <code>org.knime.gateway.v0.entity</code>.
+     * Lists all gateway entity builder classes of package <code>com.knime.gateway.v0.entity</code>.
      * @return the class list
      */
     public static List<Class<?>> listEntityBuilderClasses() {
