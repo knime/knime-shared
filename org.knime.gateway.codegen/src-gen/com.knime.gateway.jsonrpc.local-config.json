@@ -1,9 +1,9 @@
 {
     "lang" : "org.knime.gateway.codegen.GatewayCodegen",
     "inputSpec" : "src-gen/api/gateway.yaml",
-    "outputDir" : "../../knime-gateway/org.knime.gateway.jsonrpc.local",
-    "modelPackage" : "org.knime.gateway.v0.entity",
-    "apiPackage"   : "org.knime.gateway.jsonrpc.local.service",
+    "outputDir" : "../../knime-gateway/com.knime.gateway.jsonrpc.local",
+    "modelPackage" : "com.knime.gateway.v0.entity",
+    "apiPackage"   : "com.knime.gateway.jsonrpc.local.service",
     "fullJavaUtil" : true,
     "dateLibrary" : "java8",
     "sourceFolder" : "src/generated",
@@ -16,7 +16,7 @@
         "supportingFiles" : [
             {
                 "templateFile" : "jsonrpc/serviceInterface2JsonRpcMap.mustache",
-                "package" : "org.knime.gateway.jsonrpc.local.service.util",
+                "package" : "com.knime.gateway.jsonrpc.local.service.util",
                 "destinationFileName" : "ServiceInterface2JsonRpcMap.java"
             }
         ]

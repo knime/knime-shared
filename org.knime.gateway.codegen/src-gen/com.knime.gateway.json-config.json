@@ -1,8 +1,8 @@
 {
     "lang" : "org.knime.gateway.codegen.GatewayCodegen",
     "inputSpec" : "src-gen/api/gateway.yaml",
-    "outputDir" : "../../knime-gateway/org.knime.gateway.json",
-    "modelPackage" : "org.knime.gateway.json.entity",
+    "outputDir" : "../../knime-gateway/com.knime.gateway.json",
+    "modelPackage" : "com.knime.gateway.json.entity",
     "apiPackage"   : "NOT GENERATED",
     "fullJavaUtil" : true,
     "dateLibrary" : "java8",
@@ -13,11 +13,11 @@
         "modelTemplateFile" : "json/entityMixIn.mustache",
         "modelNamePattern" : "##name##EntMixIn",
         "modelPropertyNamePattern" : "##name##Ent",
-        "modelPropertyPackage" : "org.knime.gateway.v0.entity",
+        "modelPropertyPackage" : "com.knime.gateway.v0.entity",
         "supportingFiles" : [
             {
                 "templateFile": "json/listMixInEntities.mustache",
-                "package" : "org.knime.gateway.json.entity.util",
+                "package" : "com.knime.gateway.json.entity.util",
                 "destinationFileName" : "ListEntities.java"
             }     
          ]
