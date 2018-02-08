@@ -1,7 +1,7 @@
 {
     "lang" : "org.knime.gateway.codegen.GatewayCodegen",
     "inputSpec" : "src-gen/api/gateway.yaml",
-    "outputDir" : "../../knime-com-gateway/com.knime.gateway.rest.client",
+    "outputDir" : "../../knime-gateway/com.knime.gateway.rest.client",
     "modelPackage" : "com.knime.gateway.v0.entity",
     "apiPackage"   : "com.knime.gateway.rest.client.service",
     "fullJavaUtil" : true,

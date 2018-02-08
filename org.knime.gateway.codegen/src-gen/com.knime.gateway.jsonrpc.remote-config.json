@@ -1,7 +1,7 @@
 {
     "lang" : "org.knime.gateway.codegen.GatewayCodegen",
     "inputSpec" : "src-gen/api/gateway.yaml",
-    "outputDir" : "../../knime-com-gateway/com.knime.gateway.jsonrpc.remote",
+    "outputDir" : "../../knime-gateway/com.knime.gateway.jsonrpc.remote",
     "modelPackage" : "com.knime.gateway.v0.entity",
     "apiPackage"   : "com.knime.gateway.jsonrpc.remote.service",
     "fullJavaUtil" : true,
