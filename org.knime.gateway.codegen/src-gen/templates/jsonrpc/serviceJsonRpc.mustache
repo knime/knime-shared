@@ -5,6 +5,8 @@ package {{package}};
 import {{import}};
 {{/imports}}
 
+import com.knime.gateway.v0.service.util.ServiceExceptions;
+
 import com.googlecode.jsonrpc4j.JsonRpcMethod;
 
 {{#operations}}
@@ -24,7 +26,7 @@ public interface {{classname}} extends {{baseName}}Service {
      */
     @Override
     @JsonRpcMethod(value = "{{baseName}}Service.{{nickname}}")
-    {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}});
+    {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}){{>throwsExecutorExceptions}};
 
     {{/operation}}
 }
