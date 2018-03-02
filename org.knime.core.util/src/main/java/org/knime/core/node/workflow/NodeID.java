@@ -55,6 +55,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -79,7 +80,8 @@ public class NodeID implements Serializable, Comparable<NodeID> {
          *
          * @param suffixes an array of suffix IDs
          */
-        public NodeIDSuffix(final int[] suffixes) {
+        @JsonCreator
+        public NodeIDSuffix(@JsonProperty("suffixes") final int[] suffixes) {
             m_suffixes = suffixes;
         }
 
@@ -135,6 +137,7 @@ public class NodeID implements Serializable, Comparable<NodeID> {
          *
          * @return an array with single-node IDs
          */
+        @JsonProperty("suffixes")
         public int[] getSuffixArray() {
             return m_suffixes.clone();
         }
