@@ -61,11 +61,11 @@ public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implement
             //executor errors
         {{#vendorExtensions.x-knimegateway-exceptions.executor}}
             if (ex.getResponse().getStatus() == {{status-code}}) {
-                throw new {{>exceptionName}}(readExceptionMessage(ex.getResponse()));
+                throw new {{>exceptionName}}(readExceptionMessage(ex));
             }
         {{/vendorExtensions.x-knimegateway-exceptions.executor}}
             throw new ServiceException(
-                "Error response with status code '" + ex.getResponse().getStatus() + "' and message: " + readExceptionMessage(ex.getResponse()));
+                "Error response with status code '" + ex.getResponse().getStatus() + "' and message: " + readExceptionMessage(ex));
         }
     }
     
