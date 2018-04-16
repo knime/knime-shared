@@ -36,7 +36,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
         ArrayNode params = JsonNodeFactory.instance.arrayNode();
         {{#allParams}}
         {{^isPrimitiveType}}
-        params.add({{paramName}}.toString());
+        params.add({{paramName}} == null ? null : {{paramName}}.toString());
         {{/isPrimitiveType}}
         {{#isPrimitiveType}}
         params.add({{paramName}});
