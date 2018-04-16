@@ -21,11 +21,14 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} implements
   protected {{{datatypeWithEnum}}} m_{{name}};
   {{/vars}}
   
-  {{^parent}}
   protected {{classname}}() {
     //for sub-classes
   }
-  {{/parent}}
+  
+  @Override
+  public String getTypeID() {
+    return "{{name}}";
+  }
   
   private {{classname}}({{classname}}Builder builder) {
     {{#parent}}super();{{/parent}}

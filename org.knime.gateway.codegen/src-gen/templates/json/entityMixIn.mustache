@@ -8,6 +8,7 @@ import {{import}};
 
 import com.knime.gateway.json.JsonUtil;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -45,6 +46,10 @@ import com.knime.gateway.v0.entity.impl.Default{{name}}Ent;
 @JsonDeserialize(builder=Default{{name}}EntBuilder.class)
 {{>generatedAnnotation}}
 public interface {{classname}} extends {{name}}Ent {
+
+    @Override
+    @JsonIgnore
+    public String getTypeID();
 
 {{#allVars}}
     @Override
