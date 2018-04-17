@@ -18,6 +18,10 @@ public final class ServiceExceptions {
         public {{name}}(String message) {
             super(message);
         }
+        
+        public {{name}}(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
     
     {{/fullname}}
