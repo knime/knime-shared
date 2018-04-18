@@ -46,7 +46,7 @@ paths:
         - $ref: "#/parameters/job-id"
       responses:
         200:
-          description: Successful response, with a representation of the workflow.
+          description: Successful response, with a representation of the workflow accompanied by a snapshot id. The snapshot id allows to subsequently retrieve workflow changes only using the workflow-diff endpoints.
           schema:
             $ref: "#/definitions/WorkflowSnapshot"
       x-knimegateway-exceptions:
@@ -61,7 +61,7 @@ paths:
     get:
       tags:
       - Workflow
-      description: Gives the changes of the workflow as a patch. 
+      description: Gives the changes of the workflow as patch. Please note that there is not always a snapshot available for the provided snapshot id, either because the snapshot never existed or has expired.
       operationId: getWorkflowDiff
       produces:
       - application/json
