@@ -3,6 +3,8 @@ package {{package}};
 
 import static com.knime.gateway.util.DefaultEntUtil.immutable;
 
+import java.util.Objects;
+
 {{#imports}}
 import {{import}};
 {{/imports}}
@@ -43,6 +45,24 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} implements
     m_{{name}} = immutable(builder.m_{{name}});
     {{/allVars}}
   }
+  
+   /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+        {{classname}} ent = ({{classname}})o;
+        return{{#allVars}} Objects.equals(m_{{name}}, ent.m_{{name}}){{^-last}} &&{{/-last}}{{/allVars}};
+    }
 
 
   {{#vars}}
