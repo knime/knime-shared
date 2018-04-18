@@ -592,6 +592,9 @@ definitions:
       nodeState:
         description: The state of the node.
         $ref: "#/definitions/NodeState"
+      progress:
+        description: The node's progress.
+        $ref: "#/definitions/NodeProgress"
       inPorts:
         description: The list of inputs.
         type: array
@@ -683,6 +686,17 @@ definitions:
         description: The name of the port.
         type: string
   
+  NodeProgress:
+    description: Represents the node's progress.
+    type: object
+    properties:
+      progress:
+        description: The actual progress, a value between 0 and 1.
+        type: number
+      message:
+        description: A progress message.
+        type: string
+
   NodeState:
     type: object
     required:
@@ -704,7 +718,8 @@ definitions:
                 POSTEXECUTE,
                 EXECUTED
               ]
-        
+
+      
   NodeUIInfo:
     type: object
     properties:
