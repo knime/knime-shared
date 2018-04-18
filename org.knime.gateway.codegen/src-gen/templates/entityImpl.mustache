@@ -1,6 +1,8 @@
 {{>licenseInfoCom}}
 package {{package}};
 
+import static com.knime.gateway.util.DefaultEntUtil.immutable;
+
 {{#imports}}
 import {{import}};
 {{/imports}}
@@ -38,7 +40,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} implements
         throw new IllegalArgumentException("{{name}} must not be null.");
     }
     {{/required}}
-    m_{{name}} = builder.m_{{name}};
+    m_{{name}} = immutable(builder.m_{{name}});
     {{/allVars}}
   }
 
