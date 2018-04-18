@@ -98,6 +98,8 @@ public final class WorkflowContext implements Externalizable {
 
         String m_remoteMountId;
 
+        boolean m_isTempCopy;
+
         /**
          * Creates a new factory for workflow contexts.
          *
@@ -132,6 +134,7 @@ public final class WorkflowContext implements Externalizable {
             m_remoteMountId = origContext.m_remoteMountId;
             m_remoteAuthToken = origContext.m_remoteAuthToken;
             m_relativeRemotePath = origContext.m_relativeRemotePath;
+            m_isTempCopy = origContext.m_isTempCopy;
         }
 
         /**
@@ -249,6 +252,19 @@ public final class WorkflowContext implements Externalizable {
         }
 
         /**
+         * Sets whether the workflow location is a temporary copy of a workflow living somewhere else. In this case the
+         * resolution of relative knime-URLs has to be done differently than for "real" workflows.
+         *
+         * @param b <code>true</code> if the workflow is a temporary copy, <code>false</code> otherwise
+         * @return the updated factory
+         * @since 5.8
+         */
+        public Factory setTemporaryCopy(final boolean b) {
+            m_isTempCopy = b;
+            return this;
+        }
+
+        /**
          * Creates a new workflow context with the information set in this factory.
          *
          * @return a new workflow context
@@ -277,6 +293,8 @@ public final class WorkflowContext implements Externalizable {
     private String m_remoteAuthToken;
 
     private String m_remoteMountId;
+
+    private boolean m_isTempCopy;
 
 
     private WorkflowContext(final Factory factory) {
@@ -307,6 +325,7 @@ public final class WorkflowContext implements Externalizable {
         m_relativeRemotePath = factory.m_relativeRemotePath;
         m_remoteAuthToken = factory.m_remoteAuthToken;
         m_remoteMountId = factory.m_remoteMountId;
+        m_isTempCopy = factory.m_isTempCopy;
     }
 
     /**
@@ -406,6 +425,17 @@ public final class WorkflowContext implements Externalizable {
      */
     public Optional<String> getRemoteMountId() {
         return Optional.ofNullable(m_remoteMountId);
+    }
+
+    /**
+     * Returns whether the workflow location is a temporary copy of a workflow living somewhere else. In this case the
+     * resolution of relative knime-URLs has to be done differently than for "real" workflows.
+     *
+     * @return <code>true</code> if the workflow is a temporary copy, <code>false</code> otherwise
+     * @since 5.8
+     */
+    public boolean isTemporaryCopy() {
+        return m_isTempCopy;
     }
 
     /**
@@ -513,6 +543,7 @@ public final class WorkflowContext implements Externalizable {
         result = prime * result + ((m_remoteRepositoryAddress == null) ? 0 : m_remoteRepositoryAddress.hashCode());
         result = prime * result + ((m_relativeRemotePath == null) ? 0 : m_relativeRemotePath.hashCode());
         result = prime * result + ((m_remoteAuthToken == null) ? 0 : m_remoteAuthToken.hashCode());
+        result = prime * result + (m_isTempCopy ? 77 : 0);
         return result;
     }
 
@@ -566,9 +597,11 @@ public final class WorkflowContext implements Externalizable {
         } else if (!m_userid.equals(other.m_userid)) {
             return false;
         }
+
         return Objects.equals(m_mountpointUri, other.m_mountpointUri)
                 && Objects.equals(m_remoteAuthToken, other.m_remoteAuthToken)
                 && Objects.equals(m_remoteRepositoryAddress, other.m_remoteRepositoryAddress)
-                && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath);
+                && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath)
+                && (m_isTempCopy == other.m_isTempCopy);
     }
 }
