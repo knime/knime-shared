@@ -273,6 +273,54 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+          
+  # endpoint for node's state and actions to change it (e.g. execute, cancel, reset)      
+  /workflow/node/{node-id}/state:
+    get:
+      tags:
+      - Node
+      description: Retrieves and manipulates the node's state for the given node-id.
+      operationId: changeAndGetNodeState
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+        - name: action
+          description: The action (reset, cancel, execute) to be performed in order to change the node's state.
+          in: query
+          type: string
+          enum: [reset, cancel, execute]
+      responses:
+        200:
+          description: Successful response, with the current node's state.
+          schema:
+            type: string
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/ActionNotAllowed"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/ActionNotAllowed"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
@@ -302,6 +350,10 @@ x-knimegateway-exceptions:
       name: NotFoundException
       description: A resource couldn't be found. Please refer to the exception message for more details.
       status-code: 404
+    ActionNotAllowed:
+      name: ActionNotAllowedException
+      description: If the following action is not allowed because it's not applicable or it doesn't exist.
+      status-code: 405
   server:
     NoPermission:
       fullname: com.knime.enterprise.utility.PermissionException
