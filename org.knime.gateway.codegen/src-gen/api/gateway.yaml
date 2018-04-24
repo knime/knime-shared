@@ -577,7 +577,7 @@ definitions:
                 VirtualOut
               ]
       parentNodeID:
-        description: The parent node id of the node or not present if it's the root node.
+        description: The parent node id of the node or "root" if it's the root node/workflow.
         type: string
       rootWorkflowID:
         description: The id of the root workflow this node is contained in or represents.
@@ -615,6 +615,10 @@ definitions:
           $ref: "#/definitions/NodeOutPort"
       deletable:
         description: Whether the node is deletable.
+        type: boolean
+        default: false
+      resetable:
+        description: Whether the node is resetable. Please note that it only represents the 'local' reset-state but doesn't take the whole workflow into account (e.g. executing successors).
         type: boolean
         default: false
       hasDialog:
