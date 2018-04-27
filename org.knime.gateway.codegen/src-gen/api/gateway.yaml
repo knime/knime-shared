@@ -521,6 +521,9 @@ definitions:
           nodeFactoryKey:
             description: The key/ID of the node factory defining all details.
             $ref: "#/definitions/NodeFactoryKey"
+          inactive:
+            description: Whether this node is inactive, e.g. due to inactive connections
+            type: boolean
             
   NodeAnnotation:
     description: The annotation to a node.
@@ -666,6 +669,11 @@ definitions:
     description: The output port of a node.
     allOf:
       - $ref: "#/definitions/NodePort"
+      - type: object
+        properties:
+          inactive:
+            description: Determines whether the output is inactive.  
+            type: boolean
         
   NodePort:
     description: A single port of a node.
@@ -898,6 +906,10 @@ definitions:
           virtualOutNodeID:
             description: Node ID of the virtual out-node (i.e. sink).
             type: string
+          inactive:
+            description: Whether this node is inactive, e.g. due to inactive connections
+            type: boolean
+ 
                     
   XY:
     type: object
