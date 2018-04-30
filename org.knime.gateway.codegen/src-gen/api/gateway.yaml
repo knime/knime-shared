@@ -591,21 +591,7 @@ definitions:
         $ref: '#/definitions/NodeMessage'
       nodeState:
         description: The state of the node.
-        type: string
-        enum: [
-                IDLE,
-                CONFIGURED,
-                UNCONFIGURED_MARKEDFOREXEC,
-                CONFIGURED_MARKEDFOREXEC,
-                EXECUTED_MARKEDFOREXEC,
-                CONFIGURED_QUEUED,
-                EXECUTED_QUEUED,
-                PREEXECUTE,
-                EXECUTING,
-                EXECUTINGREMOTELY,
-                POSTEXECUTE,
-                EXECUTED
-              ]
+        $ref: "#/definitions/NodeState"
       inPorts:
         description: The list of inputs.
         type: array
@@ -696,6 +682,28 @@ definitions:
       portName:
         description: The name of the port.
         type: string
+  
+  NodeState:
+    type: object
+    required:
+      - state
+    properties:
+      state:
+        type: string
+        enum: [
+                IDLE,
+                CONFIGURED,
+                UNCONFIGURED_MARKEDFOREXEC,
+                CONFIGURED_MARKEDFOREXEC,
+                EXECUTED_MARKEDFOREXEC,
+                CONFIGURED_QUEUED,
+                EXECUTED_QUEUED,
+                PREEXECUTE,
+                EXECUTING,
+                EXECUTINGREMOTELY,
+                POSTEXECUTE,
+                EXECUTED
+              ]
         
   NodeUIInfo:
     type: object
@@ -852,6 +860,11 @@ definitions:
           encrypted:
             description: Whether the referenced workflow is encrypted is required to be unlocked before it can be accessed.
             type: boolean
+          workflowOutgoingPortNodeStates:
+            description: The state of the inner node connected to a particular outport. TODO Should actually be part of a specialization of NodeOutPort (i.e. WorkflowOutPort) but doesn't work with inheritance and generics in Java.
+            type: array
+            items:
+              $ref: "#/definitions/NodeState"
 
   WorkflowSnapshot:
     description: A workflow with an additional snapshot id.
