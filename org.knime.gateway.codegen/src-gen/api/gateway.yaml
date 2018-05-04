@@ -277,7 +277,7 @@ paths:
           
   # endpoint for node's state and actions to change it (e.g. execute, cancel, reset)      
   /workflow/node/{node-id}/state:
-    get:
+    post:
       tags:
       - Node
       description: Retrieves and manipulates the node's state for the given node-id.
