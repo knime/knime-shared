@@ -321,6 +321,136 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+  # endpoint for node port specification        
+  /workflow/node/{node-id}/outportspecs:
+    get:
+      tags:
+      - Node
+      description: Provides the node's output port specifications for the given node-id.
+      operationId: getOutputPortSpecs
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response, with a list of json-representations of the port object specs.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/PortObjectSpec"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/NotSupported"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+  # endpoint for node port specification        
+  /workflow/node/{node-id}/inportspecs:
+    get:
+      tags:
+      - Node
+      description: Provides the node's input port specifications for the given node-id. I.e. all output port specs of the output ports connected to the input ports of this node.
+      operationId: getInputPortSpecs
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response, with a list of json-representations of the port object specs.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/PortObjectSpec"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/NotSupported"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+  # endpoint for flow variables of a node        
+  /workflow/node/{node-id}/flowvariables:
+    get:
+      tags:
+      - Node
+      description: Provides the node's flow variables available for the node with the given node-id.
+      operationId: getFlowVariables
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response, with a all flow variables available
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/FlowVariable"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
+    
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
@@ -352,7 +482,11 @@ x-knimegateway-exceptions:
       status-code: 404
     ActionNotAllowed:
       name: ActionNotAllowedException
-      description: If the following action is not allowed because it's not applicable or it doesn't exist.
+      description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.0m
+      status-code: 405
+    NotSupported:
+      name: NotSupportedException
+      description: If the request is not supported for a reason. Please refer to the exception message for more details.
       status-code: 405
   server:
     NoPermission:
@@ -378,6 +512,8 @@ responses:
   NodeNotFound:
     # should be the same description as for the corresponding knime-gateway exception (such that the generated documentation fits)
     description: The requested node was not found.
+  NotFound:
+    description: A resource couldn't be found.
   NotASubWorkflow:
     description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
   NoPermission:
@@ -386,6 +522,11 @@ responses:
     description: Internal server error, e.g. if an error occurs while fetching job information from the RMI.
   Timeout:
     description: When time to contact the executor has been exceeded.
+  ActionNotAllowed:
+    description: If the an action is not allowed because it's not applicable or it doesn't exist.
+  NotSupported:
+    description: If the request is not supported for a reason.
+  
 
 # A comment on object/schema/model inheritance: polymorphism/subtyping in swagger is achieved by the 'allOf'-property
 # and the specification of a 'dicriminator'-property to be able to tell them apart (see, e.g., Node).
@@ -476,7 +617,21 @@ definitions:
         type: string
         enum: [STD, WFMIN, WFMOUT, WFMTHROUGH]
         description: The type of the connection (standard, workflow input / output /through).
-        
+  
+  FlowVariable:
+    description: Local variable of basic type which is passed along connections in a workflow.
+    type: object
+    properties:
+      name:
+        description: The flow variable's name.
+        type: string
+      type:
+        description: The flow variables's type.
+        type: string
+        enum: [DOUBLE, INTEGER, STRING]
+      value:
+        description: The actual value.
+        type: string
               
   JobManager:
     description: node's job manager
@@ -777,6 +932,19 @@ definitions:
      from: 
       type: string 
       description: A string containing a JSON Pointer value.      
+  
+  PortObjectSpec:
+    description: Specification of a port object.
+    type: object
+    required:
+      - type
+    properties:
+      type:
+        description: The port type the specification refers to.
+        $ref: "#/definitions/PortType"
+      representation:
+        description: The actual port object spec representation.
+        type: string
   
   PortType:
     description: The type of a port.
