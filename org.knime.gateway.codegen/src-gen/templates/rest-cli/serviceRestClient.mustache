@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.concurrent.TimeoutException;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericType;
 
 import com.knime.gateway.service.ServiceException;
 import com.knime.gateway.v0.service.{{baseName}}Service;
@@ -56,7 +57,7 @@ public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implement
                     // TODO exception handling
                     throw new RuntimeException(ex);
                 }
-            }, {{#returnType}}{{{returnType}}}.class{{/returnType}}{{^returnType}}null{{/returnType}});
+            }{{>rest-cli/returnType}});
         } catch (WebApplicationException ex) {
             //executor errors
         {{#vendorExtensions.x-knimegateway-exceptions.executor}}
