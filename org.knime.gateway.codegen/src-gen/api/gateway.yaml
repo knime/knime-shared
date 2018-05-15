@@ -938,6 +938,7 @@ definitions:
     type: object
     required:
       - type
+      - inactive
     properties:
       type:
         description: The port type the specification refers to.
@@ -945,6 +946,9 @@ definitions:
       representation:
         description: The actual port object spec representation.
         type: string
+      inactive:
+        description: Flag indicating whether the port is inactive. If true, there will be no representation available.
+        type: boolean
   
   PortType:
     description: The type of a port.
