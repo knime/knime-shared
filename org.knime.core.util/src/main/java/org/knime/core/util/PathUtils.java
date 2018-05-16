@@ -582,29 +582,41 @@ public final class PathUtils {
      * @since 5.8
      */
     public static void zip(final Path dir, final OutputStream out, final int compressionLevel) throws IOException {
-        byte[] buf = new byte[16384];
-
         try (ZipOutputStream zout = new ZipOutputStream(out)) {
             zout.setLevel(compressionLevel);
+            zip(dir, zout);
+        }
+    }
 
-            Deque<Path> queue = new ArrayDeque<>(32);
-            queue.push(dir);
+    /**
+     * Zips the contents of the given directory (and its subdirectories) into the provided ZIP stream. The stream will
+     * not be closed by this method
+     *
+     * @param dir the directory to ZIP
+     * @param zout an existing ZIP output stream
+     * @throws IOException if an I/O error occurs
+     * @since 5.8
+     */
+    public static void zip(final Path dir, final ZipOutputStream zout) throws IOException {
+        byte[] buf = new byte[16384];
 
-            while (!queue.isEmpty()) {
-                Path p = queue.poll();
-                if (Files.isDirectory(p)) {
-                    if (p != dir) {
-                        // don't add an (empty) entry for the root directory itself
-                        zout.putNextEntry(new ZipEntry(dir.relativize(p) + "/"));
-                    }
-                    try (DirectoryStream<Path> contents = Files.newDirectoryStream(p)) {
-                        contents.forEach(e -> queue.add(e));
-                    }
-                } else {
-                    zout.putNextEntry(new ZipEntry(dir.relativize(p).toString()));
-                    try (InputStream is = Files.newInputStream(p)) {
-                        IOUtils.copyLarge(is, zout, buf);
-                    }
+        Deque<Path> queue = new ArrayDeque<>(32);
+        queue.push(dir);
+
+        while (!queue.isEmpty()) {
+            Path p = queue.poll();
+            if (Files.isDirectory(p)) {
+                if (p != dir) {
+                    // don't add an (empty) entry for the root directory itself
+                    zout.putNextEntry(new ZipEntry(dir.relativize(p) + "/"));
+                }
+                try (DirectoryStream<Path> contents = Files.newDirectoryStream(p)) {
+                    contents.forEach(e -> queue.add(e));
+                }
+            } else {
+                zout.putNextEntry(new ZipEntry(dir.relativize(p).toString()));
+                try (InputStream is = Files.newInputStream(p)) {
+                    IOUtils.copyLarge(is, zout, buf);
                 }
             }
         }
