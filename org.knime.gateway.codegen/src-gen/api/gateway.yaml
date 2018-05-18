@@ -1027,6 +1027,9 @@ definitions:
       workflowUIInfo:
         description: Additional workflow UI information such as grid settings, connection appearance etc. TODO could be moved to an extra UI service in order to not polute the WorkflowEnt too much and separate UI logics.
         $ref: "#/definitions/WorkflowUIInfo"
+      hasCredentials:
+        description: Flag indicating whether the workflow has credentials stored.
+        type: boolean
        
   WorkflowNode:
     description: A node containing (referencing) a workflow (also referred to it as metanode)
