@@ -256,7 +256,7 @@ paths:
         200:
           description: Successful response, with a json-representation of the settings
           schema:
-            type: string
+            $ref: "#/definitions/NodeSettings"
         403:
           $ref: "#/responses/NoPermission"
         404:
@@ -268,6 +268,48 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+    put:
+      tags:
+      - Node
+      description: Sets the node's settings for the given node-id.
+      operationId: setNodeSettings
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+        - name: node-settings
+          in: body
+          description: The node settings to set.
+          schema:
+            $ref: "#/definitions/NodeSettings"
+      responses:
+        204:
+          description: Settings successfully set.
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/InvalidSettings"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidSettings"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -488,6 +530,10 @@ x-knimegateway-exceptions:
       name: NotSupportedException
       description: If the request is not supported for a reason. Please refer to the exception message for more details.
       status-code: 405
+    InvalidSettings:
+      name: InvalidSettingsException
+      description: If settings couldn't be applied.
+      status-code: 405
   server:
     NoPermission:
       fullname: com.knime.enterprise.utility.PermissionException
@@ -526,6 +572,8 @@ responses:
     description: If the an action is not allowed because it's not applicable or it doesn't exist.
   NotSupported:
     description: If the request is not supported for a reason.
+  InvalidSettings:
+    description: If settings couldn't be applied.
   
 
 # A comment on object/schema/model inheritance: polymorphism/subtyping in swagger is achieved by the 'allOf'-property
@@ -949,7 +997,7 @@ definitions:
       inactive:
         description: Flag indicating whether the port is inactive. If true, there will be no representation available.
         type: boolean
-  
+
   PortType:
     description: The type of a port.
     type: object
@@ -963,6 +1011,15 @@ definitions:
       optional:
         description: Whether the port is optional, only applies to input ports.
         type: boolean
+  
+  NodeSettings:
+    description: Settings of a node.
+    type: object
+    properties:
+      content:
+        description: The actual settings as a json-string.
+        type: string
+    x-knimegateway-isUsedAsParameter: true
         
   StyleRange:
     description: Defines the style of a range (e.g. within a workflow annotation).

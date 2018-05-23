@@ -51,7 +51,7 @@ public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implement
         try{
             {{#returnType}}return {{/returnType}}doRequest(c -> {
                 try {
-                    return c.{{nickname}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+                    return c.{{nickname}}({{#allParams}}{{#isBodyParam}}toByteArray({{paramName}}){{/isBodyParam}}{{^isBodyParam}}{{paramName}}{{/isBodyParam}}{{^-last}}, {{/-last}}{{/allParams}});
                 } catch (PermissionException | ExecutorException | IOException | TimeoutException ex) {
                     //server errors
                     // TODO exception handling

@@ -31,16 +31,21 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
      */
     {{/summary}}
     @Override
-    public Response {{nickname}}({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    public Response {{nickname}}({{#allParams}}{{#isBodyParam}}byte[]{{/isBodyParam}}{{^isBodyParam}}{{{dataType}}}{{/isBodyParam}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
        {{>throwsServerExceptions}} {
         ArrayNode params = JsonNodeFactory.instance.arrayNode();
         {{#allParams}}
+        {{#isBodyParam}}
+        params.add(getObjectMapper().readTree(nodeSettings));
+       	{{/isBodyParam}} 
+        {{^isBodyParam}}
         {{^isPrimitiveType}}
         params.add({{paramName}} == null ? null : {{paramName}}.toString());
         {{/isPrimitiveType}}
         {{#isPrimitiveType}}
         params.add({{paramName}});
         {{/isPrimitiveType}}
+        {{/isBodyParam}}
         {{/allParams}}
         return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{httpMethod}}");
     }
