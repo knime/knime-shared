@@ -227,6 +227,15 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 		}
 	}
 
+    @Override
+    public String toBooleanGetter(final String name) {
+        if (name.startsWith("has")) {
+            return "has" + getterAndSetterCapitalize(name.substring(3));
+        } else {
+            return super.toBooleanGetter(name);
+        }
+    }
+
 	@Override
 	public CodegenProperty fromProperty(final String name, final Property p) {
 		// enables properties to have another name then the property they are
