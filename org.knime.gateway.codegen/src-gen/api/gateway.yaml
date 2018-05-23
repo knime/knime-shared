@@ -482,7 +482,7 @@ x-knimegateway-exceptions:
       status-code: 404
     ActionNotAllowed:
       name: ActionNotAllowedException
-      description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.0m
+      description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.
       status-code: 405
     NotSupported:
       name: NotSupportedException
