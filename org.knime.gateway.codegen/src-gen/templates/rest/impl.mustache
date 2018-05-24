@@ -42,7 +42,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
         params.add({{paramName}});
         {{/isPrimitiveType}}
         {{/allParams}}
-        return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params);
+        return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{httpMethod}}");
     }
 {{/operation}}
 
