@@ -278,7 +278,7 @@ paths:
       - Node
       description: Sets the node's settings for the given node-id.
       operationId: setNodeSettings
-      produces:
+      consumes:
       - application/json
       parameters:
         - $ref: "#/parameters/job-id"
