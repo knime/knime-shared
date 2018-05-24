@@ -323,7 +323,7 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
   # endpoint for node port specification        
-  /workflow/node/{node-id}/outportspecs:
+  /workflow/node/{node-id}/output/specs:
     get:
       tags:
       - Node
@@ -367,7 +367,7 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
   # endpoint for node port specification        
-  /workflow/node/{node-id}/inportspecs:
+  /workflow/node/{node-id}/input/specs:
     get:
       tags:
       - Node
@@ -411,12 +411,12 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
   # endpoint for flow variables of a node        
-  /workflow/node/{node-id}/flowvariables:
+  /workflow/node/{node-id}/input/flowvariables:
     get:
       tags:
       - Node
       description: Provides the node's flow variables available for the node with the given node-id.
-      operationId: getFlowVariables
+      operationId: getInputFlowVariables
       produces:
       - application/json
       parameters:
