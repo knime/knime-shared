@@ -302,6 +302,8 @@ paths:
           $ref: "#/responses/NodeNotFound"
         405:
           $ref: "#/responses/InvalidSettings"
+        409:
+          $ref: "#/responses/IllegalState"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -310,6 +312,7 @@ paths:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
           - $ref: "#/x-knimegateway-exceptions/executor/InvalidSettings"
+          - $ref: "#/x-knimegateway-exceptions/executor/IllegalState"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -534,6 +537,10 @@ x-knimegateway-exceptions:
       name: InvalidSettingsException
       description: If settings couldn't be applied.
       status-code: 405
+    IllegalState:
+      name: IllegalStateException
+      description: If node is not in the right state to apply the settings.
+      status-code: 409
   server:
     NoPermission:
       fullname: com.knime.enterprise.utility.PermissionException
@@ -574,6 +581,8 @@ responses:
     description: If the request is not supported for a reason.
   InvalidSettings:
     description: If settings couldn't be applied.
+  IllegalState:
+    description: If node is not in the right state to apply the settings.
   
 
 # A comment on object/schema/model inheritance: polymorphism/subtyping in swagger is achieved by the 'allOf'-property
