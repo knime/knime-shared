@@ -63,6 +63,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,6 +72,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -84,6 +88,83 @@ public final class PathUtils {
     }
 
     private static final List<Path> TEMP_FILES = Collections.synchronizedList(new ArrayList<Path>());
+
+    private static final PermissionsHandler PERM_HANDLER = System.getProperty("os.name").startsWith("Windows") ?
+        new WindowsPermissionsHandler(): new UnixPermissionsHandler();
+
+    private interface PermissionsHandler {
+        void setArchiveMode(ZipArchiveEntry e, Path p) throws IOException;
+        void setFileMode(ZipArchiveEntry e, Path p) throws IOException;
+    }
+
+    private static class WindowsPermissionsHandler implements PermissionsHandler {
+        @Override
+        public void setArchiveMode(final ZipArchiveEntry e, final Path p) throws IOException {
+            // nothing to do
+        }
+
+        @Override
+        public void setFileMode(final ZipArchiveEntry e, final Path p) throws IOException {
+            // nothing to do
+        }
+    }
+
+    private static class UnixPermissionsHandler implements PermissionsHandler {
+        @Override
+        public void setArchiveMode(final ZipArchiveEntry entry, final Path path) throws IOException {
+            Set<PosixFilePermission> p = Files.getPosixFilePermissions(path);
+            int mode = (p.contains(PosixFilePermission.OWNER_READ) ? 0400 : 0) |
+                    (p.contains(PosixFilePermission.OWNER_WRITE) ? 0200 : 0) |
+                    (p.contains(PosixFilePermission.OWNER_EXECUTE) ? 0100 : 0) |
+                    (p.contains(PosixFilePermission.GROUP_READ) ? 0040 : 0) |
+                    (p.contains(PosixFilePermission.GROUP_WRITE) ? 0020 : 0) |
+                    (p.contains(PosixFilePermission.GROUP_EXECUTE) ? 0010 : 0) |
+                    (p.contains(PosixFilePermission.OTHERS_READ) ? 0004 : 0) |
+                    (p.contains(PosixFilePermission.OTHERS_WRITE) ? 0002 : 0) |
+                    (p.contains(PosixFilePermission.OTHERS_EXECUTE) ? 0001 : 0);
+            entry.setUnixMode(mode);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void setFileMode(final ZipArchiveEntry entry, final Path path) throws IOException {
+            int mode = entry.getUnixMode();
+            if (mode > 0) {
+                Set<PosixFilePermission> perms = new HashSet<>();
+                if ((mode & 0400) != 0) {
+                    perms.add(PosixFilePermission.OWNER_READ);
+                }
+                if ((mode & 0200) != 0) {
+                    perms.add(PosixFilePermission.OWNER_WRITE);
+                }
+                if ((mode & 0100) != 0) {
+                    perms.add(PosixFilePermission.OWNER_EXECUTE);
+                }
+                if ((mode & 0040) != 0) {
+                    perms.add(PosixFilePermission.GROUP_READ);
+                }
+                if ((mode & 0020) != 0) {
+                    perms.add(PosixFilePermission.GROUP_WRITE);
+                }
+                if ((mode & 0010) != 0) {
+                    perms.add(PosixFilePermission.GROUP_EXECUTE);
+                }
+                if ((mode & 0004) != 0) {
+                    perms.add(PosixFilePermission.OTHERS_READ);
+                }
+                if ((mode & 0002) != 0) {
+                    perms.add(PosixFilePermission.OTHERS_WRITE);
+                }
+                if ((mode & 0001) != 0) {
+                    perms.add(PosixFilePermission.OTHERS_EXECUTE);
+                }
+                Files.setPosixFilePermissions(path, perms);
+            }
+        }
+    }
+
 
     /**
      * Permission set in which everybody has all permissions.
@@ -618,6 +699,106 @@ public final class PathUtils {
                 try (InputStream is = Files.newInputStream(p)) {
                     IOUtils.copyLarge(is, zout, buf);
                 }
+            }
+        }
+    }
+
+    /**
+     * Zips the contents of the given directory (and its subdirectories) into the provided ZIP stream. The stream will
+     * not be closed by this method. In contrast to {@link #zip(Path, ZipOutputStream)} this method is capable of adding
+     * Unix file permissions to the ZIP file.
+     *
+     * @param dir the directory to ZIP
+     * @param zout an existing ZIP output stream
+     * @throws IOException if an I/O error occurs
+     * @since 5.9
+     */
+    public static void zip(final Path dir, final ZipArchiveOutputStream zout) throws IOException {
+        zip(dir, zout, false);
+    }
+
+    /**
+     * Zips the contents of the given directory (and its subdirectories) into the provided ZIP stream. The stream will
+     * not be closed by this method. In contrast to {@link #zip(Path, ZipOutputStream)} this method is capable of adding
+     * Unix file permissions to the ZIP file.
+     *
+     * @param dir the directory to ZIP
+     * @param zout an existing ZIP output stream
+     * @param includeRootDir <code>true</code> if the start directory should be included in the zip file and all
+     *            archived files prefixed with it, <code>false</code> only the contents of the start directory should be
+     *            added
+     * @throws IOException if an I/O error occurs
+     * @since 5.9
+     */
+    public static void zip(final Path dir, final ZipArchiveOutputStream zout, final boolean includeRootDir)
+        throws IOException {
+        byte[] buf = new byte[16384];
+
+        Deque<Path> queue = new ArrayDeque<>(32);
+        queue.push(dir);
+
+        String prefix = includeRootDir ? dir.getFileName().toString() + "/" : "";
+
+        while (!queue.isEmpty()) {
+            Path p = queue.poll();
+            if (Files.isDirectory(p)) {
+                if (includeRootDir || (p != dir)) {
+                    // only add an (empty) entry for the root directory itself if requested
+                    String name = prefix + dir.relativize(p);
+                    ZipArchiveEntry entry = new ZipArchiveEntry(name.endsWith("/") ? name : name + "/");
+                    entry.setTime(Files.getLastModifiedTime(p).toMillis());
+                    PERM_HANDLER.setArchiveMode(entry, p);
+                    zout.putArchiveEntry(entry);
+                    zout.closeArchiveEntry();
+                }
+                try (DirectoryStream<Path> contents = Files.newDirectoryStream(p)) {
+                    contents.forEach(e -> queue.add(e));
+                }
+            } else {
+                ZipArchiveEntry entry = new ZipArchiveEntry(prefix + dir.relativize(p));
+                entry.setTime(Files.getLastModifiedTime(p).toMillis());
+                entry.setSize(Files.size(p));
+                PERM_HANDLER.setArchiveMode(entry, p);
+                zout.putArchiveEntry(entry);
+                try (InputStream is = Files.newInputStream(p)) {
+                    IOUtils.copyLarge(is, zout, buf);
+                }
+                zout.closeArchiveEntry();
+            }
+        }
+    }
+
+
+    /**
+     * Stores the content of the zip file in the specified directory. This method is capable of restoring file
+     * permissions stored in the ZIP under Linux and macOS.
+     *
+     * @param zipFile a ZIP file
+     * @param dir the destination directory the content of the zip file is stored in
+     * @throws IOException if it was not able to store the content
+     * @since 5.9
+     */
+    public static void unzip(final ZipFile zipFile, final Path dir) throws IOException {
+        Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+        while (entries.hasMoreElements()) {
+            ZipArchiveEntry entry = entries.nextElement();
+            String name = entry.getName().replace('\\', '/');
+
+            if (entry.isDirectory()) {
+                if (!name.isEmpty() && !name.equals("/")) {
+                    Path d = dir.resolve(name);
+                    Files.createDirectories(d);
+                    PERM_HANDLER.setFileMode(entry, d);
+                }
+            } else {
+                Path f = dir.resolve(name);
+                Files.createDirectories(f.getParent());
+
+                try (OutputStream out = Files.newOutputStream(f); InputStream in = zipFile.getInputStream(entry)) {
+                    IOUtils.copyLarge(in, out);
+                }
+                Files.setLastModifiedTime(f, entry.getLastModifiedTime());
+                PERM_HANDLER.setFileMode(entry, f);
             }
         }
     }
