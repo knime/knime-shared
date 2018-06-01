@@ -294,7 +294,7 @@ paths:
           schema:
             $ref: "#/definitions/NodeSettings"
       responses:
-        204:
+        200:
           description: Settings successfully set.
         403:
           $ref: "#/responses/NoPermission"
@@ -1028,6 +1028,9 @@ definitions:
       content:
         description: The actual settings as a json-string.
         type: string
+    # marks entities that are also used as parameters
+    # necessary for the code-generation to not generate all entities
+    # but only the ones used as parameters (in server-projects)
     x-knimegateway-isUsedAsParameter: true
         
   StyleRange:
