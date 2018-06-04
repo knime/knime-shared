@@ -58,7 +58,7 @@ import org.osgi.service.application.ApplicationHandle;
  * Singleton used to determine if application is running in server context (in an RMI application) or not.
  *
  * @author Rene Damyon, KNIME GmbH, Berlin, Germany
- * @since 5.8
+ * @since 5.9
  */
 public enum KNIMERuntimeContext {
 

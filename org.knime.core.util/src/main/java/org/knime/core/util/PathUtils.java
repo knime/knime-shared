@@ -660,7 +660,7 @@ public final class PathUtils {
      * @param out the output stream to which the compressed contents will be written
      * @param compressionLevel the compression level (0-9)
      * @throws IOException if an I/O error occurs
-     * @since 5.8
+     * @since 5.9
      */
     public static void zip(final Path dir, final OutputStream out, final int compressionLevel) throws IOException {
         try (ZipOutputStream zout = new ZipOutputStream(out)) {
@@ -676,7 +676,7 @@ public final class PathUtils {
      * @param dir the directory to ZIP
      * @param zout an existing ZIP output stream
      * @throws IOException if an I/O error occurs
-     * @since 5.8
+     * @since 5.9
      */
     public static void zip(final Path dir, final ZipOutputStream zout) throws IOException {
         byte[] buf = new byte[16384];

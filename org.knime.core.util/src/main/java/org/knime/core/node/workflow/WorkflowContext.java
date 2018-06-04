@@ -257,7 +257,7 @@ public final class WorkflowContext implements Externalizable {
          *
          * @param b <code>true</code> if the workflow is a temporary copy, <code>false</code> otherwise
          * @return the updated factory
-         * @since 5.8
+         * @since 5.9
          */
         public Factory setTemporaryCopy(final boolean b) {
             m_isTempCopy = b;
@@ -432,7 +432,7 @@ public final class WorkflowContext implements Externalizable {
      * resolution of relative knime-URLs has to be done differently than for "real" workflows.
      *
      * @return <code>true</code> if the workflow is a temporary copy, <code>false</code> otherwise
-     * @since 5.8
+     * @since 5.9
      */
     public boolean isTemporaryCopy() {
         return m_isTempCopy;
