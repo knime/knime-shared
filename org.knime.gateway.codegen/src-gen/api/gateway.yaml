@@ -495,6 +495,51 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
+          
+  # endpoint for web views of a node
+  /workflow/node/{node-id}/webview:
+    get:
+      tags:
+      - Node
+      description: Provides the node's web view at a given index.
+      operationId: getWebView
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+        - name: index
+          in: query
+          description: The index of the view to request. It's the same index as the view name provided by the node's property 'webViewNames'.
+          type: integer
+      responses:
+        200:
+          description: Successful response with requested the web view.
+          schema: 
+            $ref: "#/definitions/WebView"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
+    
+         
     
         
 # Collection of java-exceptions for the gateway code generation.
@@ -831,6 +876,11 @@ definitions:
       nodeAnnotation:
         description: The annotation below the node.
         $ref: "#/definitions/NodeAnnotation"
+      webViewNames:
+        description: The names of the available web views. Can be an empty list.
+        type: array
+        items:
+          type: string
       jobManager:
         description: The job manager (e.g. cluster or streaming).
         $ref: '#/definitions/JobManager'
@@ -1059,6 +1109,40 @@ definitions:
       foregroundColor:
         description: Style range foreground color.
         type: integer
+  
+  WebView:
+    description: Represents a web view, e.g. Javascript.
+    type: object
+    properties:
+      javascriptObjectID:
+        description: The object id used in the javascript implementation of the view.
+        type: string
+      viewRepresentation:
+        description: The view's representation.
+        type: object
+        properties:
+          classname: 
+            description: The class name of the view representation.
+            type: string
+          content:
+            description: The actual content as a json string.
+            type: string
+      viewValue:
+        description: The view's value.
+        type: object
+        properties:
+          classname:
+            description: The class name of the view content.
+            type: string
+          content:
+            description: The actual content as a json string.
+            type: string
+      viewHTMLPath:
+        description: The path to the generated HTML containing the view or null if not applicable.
+        type: string
+      hideInWizard:
+        description: Property set in the configuration dialog to the node to skip this node in the wizard execution.
+        type: boolean
         
   WorkflowAnnotation:
     description: A workflow annotation.
