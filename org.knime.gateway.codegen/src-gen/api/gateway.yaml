@@ -497,12 +497,12 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
           
   # endpoint for web views of a node
-  /workflow/node/{node-id}/webview:
+  /workflow/node/{node-id}/viewdata:
     get:
       tags:
       - Node
-      description: Provides the node's web view at a given index.
-      operationId: getWebView
+      description: Provides the data for the node's views, iff the node supports views.
+      operationId: getViewData
       produces:
       - application/json
       parameters:
@@ -513,19 +513,17 @@ paths:
             For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
           required: true
           type: string
-        - name: index
-          in: query
-          description: The index of the view to request. It's the same index as the view name provided by the node's property 'webViewNames'.
-          type: integer
       responses:
         200:
           description: Successful response with requested the web view.
           schema: 
-            $ref: "#/definitions/WebView"
+            $ref: "#/definitions/ViewData"
         403:
           $ref: "#/responses/NoPermission"
         404:
           $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/NotSupported"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -533,13 +531,12 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
-    
-         
     
         
 # Collection of java-exceptions for the gateway code generation.
@@ -1085,6 +1082,40 @@ definitions:
     # necessary for the code-generation to not generate all entities
     # but only the ones used as parameters (in server-projects)
     x-knimegateway-isUsedAsParameter: true
+
+  ViewData:
+    description: The data for a node's views. 
+    type: object
+    properties:
+      javascriptObjectID:
+        description: The object id used in the javascript implementation of the view.
+        type: string
+      viewRepresentation:
+        description: The views representation.
+        type: object
+        properties:
+          classname: 
+            description: The class name of the view representation.
+            type: string
+          content:
+            description: The actual content as a json string.
+            type: string
+      viewValue:
+        description: The views value.
+        type: object
+        properties:
+          classname:
+            description: The class name of the view content.
+            type: string
+          content:
+            description: The actual content as a json string.
+            type: string
+      viewHTMLPath:
+        description: The path to the generated HTML containing the view or null if not applicable.
+        type: string
+      hideInWizard:
+        description: Property set in the configuration dialog to the node to skip this node in the wizard execution.
+        type: boolean
         
   StyleRange:
     description: Defines the style of a range (e.g. within a workflow annotation).
@@ -1110,40 +1141,6 @@ definitions:
         description: Style range foreground color.
         type: integer
   
-  WebView:
-    description: Represents a web view, e.g. Javascript.
-    type: object
-    properties:
-      javascriptObjectID:
-        description: The object id used in the javascript implementation of the view.
-        type: string
-      viewRepresentation:
-        description: The view's representation.
-        type: object
-        properties:
-          classname: 
-            description: The class name of the view representation.
-            type: string
-          content:
-            description: The actual content as a json string.
-            type: string
-      viewValue:
-        description: The view's value.
-        type: object
-        properties:
-          classname:
-            description: The class name of the view content.
-            type: string
-          content:
-            description: The actual content as a json string.
-            type: string
-      viewHTMLPath:
-        description: The path to the generated HTML containing the view or null if not applicable.
-        type: string
-      hideInWizard:
-        description: Property set in the configuration dialog to the node to skip this node in the wizard execution.
-        type: boolean
-        
   WorkflowAnnotation:
     description: A workflow annotation.
     allOf:
