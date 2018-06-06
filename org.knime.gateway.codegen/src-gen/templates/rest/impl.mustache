@@ -36,7 +36,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
         ArrayNode params = JsonNodeFactory.instance.arrayNode();
         {{#allParams}}
         {{#isBodyParam}}
-        params.add(getObjectMapper().readTree(nodeSettings));
+        params.add(getObjectMapper().readTree({{paramName}}));
        	{{/isBodyParam}} 
         {{^isBodyParam}}
         {{^isPrimitiveType}}

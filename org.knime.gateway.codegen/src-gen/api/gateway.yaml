@@ -497,11 +497,11 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
           
   # endpoint for web views of a node
-  /workflow/node/{node-id}/viewdata:
+  /workflow/node/{node-id}/views/data:
     get:
       tags:
       - Node
-      description: Provides the data for the node's views, iff the node supports views.
+      description: Provides the data for the node's views, iff the node supports views. The data includes the views' and the representation.
       operationId: getViewData
       produces:
       - application/json
@@ -537,7 +537,54 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
-    
+
+  /workflow/node/{node-id}/views/data/value:
+    put:
+      tags:
+      - Node
+      description: Saves back the views value (e.g. title etc.) to the server.
+      operationId: setViewsValue
+      consumes:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+        - name: use-as-default
+          in: query
+          description: True if node settings are to be updated by view content.
+          type: boolean
+        - name: view-value
+          in: body
+          description: The view value to set.
+          schema:
+            $ref: "#/definitions/ViewContent"
+      responses:
+        200:
+          description: The new view value has been set successfully.
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/NotSupported"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
@@ -1082,9 +1129,21 @@ definitions:
     # necessary for the code-generation to not generate all entities
     # but only the ones used as parameters (in server-projects)
     x-knimegateway-isUsedAsParameter: true
+    
+  ViewContent:
+    description: A view content object.
+    type: object
+    properties:
+      classname: 
+        description: The class name of the view content object.
+        type: string
+      content:
+        description: The actual content as a json string.
+        type: string
+    x-knimegateway-isUsedAsParameter: true   
 
   ViewData:
-    description: The data for a node's views. 
+    description: The data for a node's views encompasing the view representation and value.
     type: object
     properties:
       javascriptObjectID:
@@ -1093,26 +1152,11 @@ definitions:
       viewRepresentation:
         description: The views representation.
         type: object
-        properties:
-          classname: 
-            description: The class name of the view representation.
-            type: string
-          content:
-            description: The actual content as a json string.
-            type: string
+        $ref: "#/definitions/ViewContent"
       viewValue:
         description: The views value.
         type: object
-        properties:
-          classname:
-            description: The class name of the view content.
-            type: string
-          content:
-            description: The actual content as a json string.
-            type: string
-      viewHTMLPath:
-        description: The path to the generated HTML containing the view or null if not applicable.
-        type: string
+        $ref: "#/definitions/ViewContent"
       hideInWizard:
         description: Property set in the configuration dialog to the node to skip this node in the wizard execution.
         type: boolean
