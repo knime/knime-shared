@@ -872,6 +872,9 @@ definitions:
       - $ref: "#/definitions/NodePort"
       - type: object
         properties:
+          summary:
+            description: The port summary, e.g. num of rows and cols in case of a table.
+            type: string
           inactive:
             description: Determines whether the output is inactive.  
             type: boolean
