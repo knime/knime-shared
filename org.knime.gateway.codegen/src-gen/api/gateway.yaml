@@ -469,6 +469,46 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
 
+  # endpoint for flow variables of a node        
+  /workflow/node/{node-id}/output/flowvariables:
+    get:
+      tags:
+      - Node
+      description: Provides the node's flow variables available for the node's output with the given node-id. For metanodes (not wrapped metanodes) the same variables are returned as with '... For metanodes (not wrapped metanodes) the same variables are returned as with '.../input/flowvariables'.
+      operationId: getOutputFlowVariables
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response, with a all flow variables available
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/FlowVariable"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
           
   # endpoint for node port specification        
   /workflow/node/{node-id}/input/specs:
