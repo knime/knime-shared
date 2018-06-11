@@ -396,7 +396,7 @@ paths:
         404:
           $ref: "#/responses/NodeNotFound"
         405:
-          $ref: "#/responses/NotSupported"
+          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -404,12 +404,71 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+
+  # endpoint for node port specification        
+  /workflow/node/{node-id}/output/{port-idx}/table:
+    get:
+      tags:
+      - Node
+      description: Gives access to the table at the a certain port index (if it's a table). Otherwise will return 'not supported'.
+      operationId: getOutputDataTable
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+        - name: port-idx
+          in: path
+          description: The port index to get the table for.
+          required: true
+          type: integer
+        - name: from
+          in: query
+          description: row index to start returning the rows
+          required: true
+          type: integer
+          format: int64
+        - name: size
+          in: query
+          description: number of rows to retrieve
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response, with the specified range of rows.
+          schema:
+            $ref: "#/definitions/DataTable"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/InvalidRequest"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+
           
   # endpoint for node port specification        
   /workflow/node/{node-id}/input/specs:
@@ -440,7 +499,7 @@ paths:
         404:
           $ref: "#/responses/NodeNotFound"
         405:
-          $ref: "#/responses/NotSupported"
+          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -448,7 +507,7 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -618,9 +677,9 @@ x-knimegateway-exceptions:
       name: ActionNotAllowedException
       description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.
       status-code: 405
-    NotSupported:
-      name: NotSupportedException
-      description: If the request is not supported for a reason. Please refer to the exception message for more details.
+    InvalidRequest:
+      name: InvalidRequestException
+      description: If the request is invalid for a reason. Please refer to the exception message for more details.
       status-code: 405
     InvalidSettings:
       name: InvalidSettingsException
@@ -666,8 +725,8 @@ responses:
     description: When time to contact the executor has been exceeded.
   ActionNotAllowed:
     description: If the an action is not allowed because it's not applicable or it doesn't exist.
-  NotSupported:
-    description: If the request is not supported for a reason.
+  InvalidRequest:
+    description: If the request is invalid for a reason.
   InvalidSettings:
     description: If settings couldn't be applied.
   IllegalState:
@@ -763,6 +822,46 @@ definitions:
         type: string
         enum: [STD, WFMIN, WFMOUT, WFMTHROUGH]
         description: The type of the connection (standard, workflow input / output /through).
+        
+  DataCell:
+    description: A cell of a data table.
+    type: object
+    properties:
+      valueAsString:
+        description: The cell value as a string.
+        type: string
+
+  DataRow:
+    description: A data row.
+    type: object
+    properties:
+      rowID:
+        description: The row id.
+        type: string
+      columns:
+        description: The column list.
+        type: array
+        items:
+          $ref: "#/definitions/DataCell"
+
+  DataTable:
+    description: A data table. Might not contain all rows but only a chunk of rows.
+    type: object
+    properties:
+      columnNames:
+        description: The column names.
+        type: array
+        items:
+          type: string
+      numTotalRows:
+        description: The total number of rows. Might be larger then the number of rows contained here.
+        type: integer
+        format: int64
+      rows:
+        description: The actual rows.
+        type: array
+        items:
+          $ref: "#/definitions/DataRow"
   
   FlowVariable:
     description: Local variable of basic type which is passed along connections in a workflow.
