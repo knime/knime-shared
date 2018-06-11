@@ -435,14 +435,14 @@ paths:
           type: integer
         - name: from
           in: query
-          description: row index to start returning the rows
-          required: true
+          description: Row index to start returning the rows. Rows from the beginning (i.e. index 0) will be returned.
+          required: false
           type: integer
           format: int64
         - name: size
           in: query
-          description: number of rows to retrieve
-          required: true
+          description: Number of rows to retrieve. If not given, all rows to the end of the table are returned.
+          required: false
           type: integer
       responses:
         200:
