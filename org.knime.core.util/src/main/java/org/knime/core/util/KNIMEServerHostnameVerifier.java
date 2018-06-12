@@ -58,6 +58,7 @@ import org.apache.http.conn.ssl.DefaultHostnameVerifier;
  * Hostname verifier that accepts any hostname if the certificate seems to be from a default KNIME Server installation.
  *
  * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
+ * @since 5.9
  */
 public final class KNIMEServerHostnameVerifier implements HostnameVerifier {
     private static final HostnameVerifier INSTANCE = new KNIMEServerHostnameVerifier();
