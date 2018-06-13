@@ -196,6 +196,48 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+
+  # endpoint for wrapped metanodes' dialog representations        
+  /workflow/wmetanode/{node-id}/dialog:
+    get:
+      tags:
+      - Node
+      description: Gives access to the dialog representations, values and configs of a wrapped metanode.
+      operationId: getWMetaNodeDialog
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: The ID of the node the information is requested for.
+            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response with a representation of the metanode dialog. 
+          schema:
+            $ref: "#/definitions/MetaNodeDialog"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/InvalidRequest"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest" 
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
   
   #the node endpoint
   /workflow/node/{node-id}:
@@ -902,6 +944,57 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/DataRow"
+  
+  MetaNodeDialog:
+    description: A representation of a metanode dialog.
+    type: object
+    properties:
+      components:
+        description: List of contributing dialog components.
+        type: array
+        items:
+          $ref: "#/definitions/MetaNodeDialogComp"
+
+  MetaNodeDialogComp:
+    description: A component that is part of a metanode dialog.
+    type: object
+    properties:
+      nodeID:
+        description: The id of the node contributing to this dialog.
+        type: string
+      isHideInDialog:
+        description: Whether the component should be hid in the subnode's dialog.
+        type: boolean
+      representation:
+        description: Dialog component representation. 
+        type: object
+        properties:
+          classname:
+            description: The java type of the dialog representation.
+            type: string
+          content:
+            description: The actual representation as json-string.
+            type: string  
+      value:
+        description: Dialog component's value. 
+        type: object
+        properties:
+          classname:
+            description: The java type of the dialog value.
+            type: string
+          content:
+            description: The actual value content as json-string.
+            type: string
+      config:
+        description: Dialog component's config.
+        type: object
+        properties:
+          classname:
+            description: The java type of the dialog config.
+            type: string
+          content:
+            description: The actual config ocntent as json-string.
+            type: string
   
   FlowVariable:
     description: Local variable of basic type which is passed along connections in a workflow.
