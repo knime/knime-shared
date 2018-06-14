@@ -582,7 +582,7 @@ paths:
         404:
           $ref: "#/responses/NodeNotFound"
         405:
-          $ref: "#/responses/NotSupported"
+          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -590,7 +590,7 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -630,7 +630,7 @@ paths:
         404:
           $ref: "#/responses/NodeNotFound"
         405:
-          $ref: "#/responses/NotSupported"
+          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -638,7 +638,7 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotSupported"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
