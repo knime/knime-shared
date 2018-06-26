@@ -105,7 +105,20 @@ public final class HostUtils {
         if (osname.startsWith("Windows")) {
             process = Runtime.getRuntime().exec("ipconfig /all");
             pattern = Pattern.compile(": ((?:[0-9a-fA-F]{2,2}-){5,5}[0-9a-fA-F]{2,2})$");
-        } else if (osname.equals("Linux") || osname.equals("Mac OS X")) {
+        } else if (osname.equals("Linux")) {
+            File ip = new File("/sbin/ip");
+            if (!ip.exists()) {
+                ip = new File("/bin/ip");
+            }
+            if (!ip.exists()) {
+                ip = new File("/usr/sbin/ip");
+            }
+            if (!ip.exists()) {
+                ip = new File("/usr/bin/ip");
+            }
+            process = Runtime.getRuntime().exec(ip.getAbsolutePath() + " link", new String[]{"LANG=C"});
+            pattern = Pattern.compile("ether\\s+((?:[0-9a-fA-F]{2,2}:){5,5}[0-9a-fA-F]{2,2})");
+        } else if (osname.equals("Mac OS X")) {
             File ifConfig = new File("/sbin/ifconfig");
             if (!ifConfig.exists()) {
                 ifConfig = new File("/bin/ifconfig");
