@@ -703,7 +703,7 @@ paths:
           in: body
           description: The view value to set.
           schema:
-            $ref: "#/definitions/ViewContent"
+            $ref: "#/definitions/JavaObject"
       responses:
         200:
           description: The new view value has been set successfully.
@@ -959,6 +959,9 @@ definitions:
     description: A component that is part of a metanode dialog.
     type: object
     properties:
+      paramName:
+        description: Parameter name for external parametrization.
+        type: string
       nodeID:
         description: The id of the node contributing to this dialog.
         type: string
@@ -968,33 +971,7 @@ definitions:
       representation:
         description: Dialog component representation. 
         type: object
-        properties:
-          classname:
-            description: The java type of the dialog representation.
-            type: string
-          content:
-            description: The actual representation as json-string.
-            type: string  
-      value:
-        description: Dialog component's value. 
-        type: object
-        properties:
-          classname:
-            description: The java type of the dialog value.
-            type: string
-          content:
-            description: The actual value content as json-string.
-            type: string
-      config:
-        description: Dialog component's config.
-        type: object
-        properties:
-          classname:
-            description: The java type of the dialog config.
-            type: string
-          content:
-            description: The actual config ocntent as json-string.
-            type: string
+        $ref: "#/definitions/JavaObject"
   
   FlowVariable:
     description: Local variable of basic type which is passed along connections in a workflow.
@@ -1010,6 +987,18 @@ definitions:
       value:
         description: The actual value.
         type: string
+        
+  JavaObject:
+    description: A java object/class that can be deserialized from a string.
+    type: object
+    properties:
+      classname: 
+        description: The fully qualified class name of the java object.
+        type: string
+      content:
+        description: The actual content as a (json) string.
+        type: string
+    x-knimegateway-isUsedAsParameter: true   
               
   JobManager:
     description: node's job manager
@@ -1362,18 +1351,6 @@ definitions:
     # but only the ones used as parameters (in server-projects)
     x-knimegateway-isUsedAsParameter: true
     
-  ViewContent:
-    description: A view content object.
-    type: object
-    properties:
-      classname: 
-        description: The class name of the view content object.
-        type: string
-      content:
-        description: The actual content as a json string.
-        type: string
-    x-knimegateway-isUsedAsParameter: true   
-
   ViewData:
     description: The data for a node's view encompasing the view representation and value.
     type: object
@@ -1384,11 +1361,11 @@ definitions:
       viewRepresentation:
         description: The view representation.
         type: object
-        $ref: "#/definitions/ViewContent"
+        $ref: "#/definitions/JavaObject"
       viewValue:
         description: The view value.
         type: object
-        $ref: "#/definitions/ViewContent"
+        $ref: "#/definitions/JavaObject"
       hideInWizard:
         description: Property set in the configuration dialog to the node to skip this node in the wizard execution.
         type: boolean
