@@ -1366,7 +1366,10 @@ definitions:
       hasCredentials:
         description: Flag indicating whether the workflow has credentials stored.
         type: boolean
-       
+      inWizardExecution:
+        description: If the workflow is executed step by step, i.e. in wizard execution mode.
+        type: boolean
+
   WorkflowNode:
     description: A node containing (referencing) a workflow (also referred to it as metanode)
     allOf:
