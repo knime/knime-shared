@@ -995,7 +995,7 @@ definitions:
       classname: 
         description: The fully qualified class name of the java object.
         type: string
-      content:
+      jsonContent:
         description: The actual content as a (json) string.
         type: string
     x-knimegateway-isUsedAsParameter: true   
@@ -1343,7 +1343,7 @@ definitions:
     description: Settings of a node.
     type: object
     properties:
-      content:
+      jsonContent:
         description: The actual settings as a json-string.
         type: string
     # marks entities that are also used as parameters
