@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.knime.enterprise</groupId>
 		<artifactId>mavenconfig</artifactId>
-		<version>4.7.0</version>
+		<version>4.7.1</version>
 		<relativePath>../../knime-com-shared/com.knime.enterprise.mavenconfig/pom.xml</relativePath>
 	</parent>
 	<groupId>org.knime</groupId>
