@@ -55,6 +55,144 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+  # endpoint actions on worklfow parts (nodes, annotations) of a worklfow (e.g. deleting and copying).
+  /workflow/parts:
+    post:
+      tags:
+      - Workflow
+      description: "Selects and essentially copies the specified part of the workflow.
+        It will still be available even if (sub)parts are deleted. The part can then be referenced by a part-id. 
+        Note: connections will be ignored and _not_ copied!"
+      operationId: createWorkflowCopy
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: parts
+          in: body
+          description: The actual part selection.
+          required: true
+          schema:
+            $ref: "#/definitions/WorkflowParts"
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      responses:
+        201:
+          description: Successfully created. Returns the parts-id.
+          schema:
+            type: string
+            format: uuid
+      x-knimegateway-exceptions:
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+            
+    delete:
+      tags:
+      - Workflow
+      description: Deletes the given workflow parts. Cannot be undone unless a copy has been made before.
+      operationId: deleteWorkflowParts
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: parts
+          in: body
+          description: The parts to be deleted.
+          required: true
+          schema:
+            $ref: "#/definitions/WorkflowParts"
+        - name: copy
+          in: query
+          description: If a copy should be created before removal. False by default.
+            Please note that the copy will _only_ include the connections that are entirely enclosed by the parts to be removed
+            (i.e. connections that are connecting two removed nodes - all others won't be kept)
+          required: false
+          type: boolean
+          default: false
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Parts have been deleted successfully.
+            If there were selected parts that weren't part of the actual workflow, it will still give a successful response.
+            If a copy has been chosen to be created, the respective part-id of the copy will be returned otherwise null. 
+          schema:
+            type: string
+            format: uuid
+        400:
+            #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
+            $ref: "#/responses/NotASubWorkflow"
+        404:
+            #if the parent id of the parts to be deleted doesn't refere to a node
+            $ref: "#/responses/NodeNotFound"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+  
+  /workflow/parts/{parts-id}:
+    put:
+      tags:
+      - Workflow
+      description: Pastes the referenced parts into the referenced (sub-)workflow.
+      operationId: pasteWorkflowParts
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: parts-id
+          in: path
+          description: The id referencing the parts to paste.
+          required: true
+          type: string
+          format: uuid
+        - name: x
+          in: query
+          description: The x position to paste the parts.
+          type: integer
+          required: true
+        - name: y
+          in: query
+          description: The y position to paste the parts.
+          type: integer
+          required: true
+        - name: node-id
+          in: query
+          description: The ID of the node referencing a sub-workflow to paste the parts into.
+            If none is given it will be pasted into the root workflow.
+            For nested sub-workflows the node id's are concatenated with an ':' (e.g. 6:4:3).
+          type: string
+          required: false
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Parts have been successfully pasted. Returns the pasted workflow parts.
+          schema:
+            $ref: "#/definitions/WorkflowParts"
+        400:
+            #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
+            $ref: "#/responses/NotASubWorkflow"
+        404:
+            #if the parent id of the parts to be deleted doesn't refere to a node
+            #OR: if there is no copy for the given part-id
+            $ref: "#/responses/NotFound"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
 
   # endpoint for workflow changes (i.e. diff)
   /workflowdiff:
@@ -102,8 +240,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node this sub-workflow is requested for.
-            For nested sub-workflows the node id's are concatenated with an ':' (e.g. 6:4:3).
+          description: "The ID of the node this sub-workflow is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -138,8 +277,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node this sub-workflow is requested for.
-            For nested sub-workflows the node id's are concatenated with an ':' (e.g. 6:4:3).
+          description: "The ID of the node this sub-workflow is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
         - name: snapshot-id
@@ -210,8 +350,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -252,7 +393,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -290,8 +433,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -326,8 +470,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
         - name: node-settings
@@ -375,8 +520,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
         - name: action
@@ -422,8 +568,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -466,8 +613,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
         - name: port-idx
@@ -524,8 +672,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -565,8 +714,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -609,8 +759,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -650,8 +801,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
       responses:
@@ -691,8 +843,9 @@ paths:
         - $ref: "#/parameters/job-id"
         - name: node-id
           in: path
-          description: The ID of the node the information is requested for.
-            For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
           required: true
           type: string
         - name: use-as-default
@@ -725,7 +878,43 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+  /worklfow/connection:
+    post:
+      tags:
+      - Workflow 
+      description: "Creates a new connection between two nodes.
+        Note: replaces/removes existing connections if destination port is already in use."
+      operationId: createConnection
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: connection
+          in: body
+          description: The connection.
+          required: true
+          schema:
+            $ref: "#/definitions/Connection"
+      responses:
+        201:
+          description: Connection has been created.
+          schema:
+            description: The connection id. Connection is identified by its destination node id and destination port index and build as '<dest-node-id>_<dest-ports-index>'
+            type: string
+        405:
+          #if connection could be added, e.g. because node is executing or a node for a given node id doesn't exist
+          $ref: "#/responses/ActionNotAllowed"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/ActionNotAllowed"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+            
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
@@ -877,16 +1066,21 @@ definitions:
       - destPort
       - source
       - sourcePort
+      - type
     properties:
       dest:
         type: string
-        description: The destination node.
+        description: "The destination node.
+          The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+          Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
       destPort:
         type: integer
         description: The destination port, starting at 0.
       source:
         type: string
-        description: The source node.
+        description: "The source node.
+          The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+          Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
       sourcePort:
         type: integer
         description: The source port, starting at 0.
@@ -904,6 +1098,7 @@ definitions:
         type: string
         enum: [STD, WFMIN, WFMOUT, WFMTHROUGH]
         description: The type of the connection (standard, workflow input / output /through).
+    x-knimegateway-isUsedAsParameter: true   
         
   DataCell:
     description: A cell of a data table.
@@ -1398,6 +1593,13 @@ definitions:
     description: A workflow annotation.
     allOf:
       - $ref: "#/definitions/Annotation"
+      - type: object
+        required:
+          - annotationID
+        properties:
+          annotationID:
+            description: Identifier for the workflow annotations.
+            type: string
         
   Workflow:
     type: object
@@ -1412,8 +1614,10 @@ definitions:
           $ref: '#/definitions/Node'
       connections:
         description: The list of connections.
-        type: array
-        items:
+        #string to Connection map
+        type: object
+        additionalProperties:
+          type: object
           $ref: '#/definitions/Connection'
       metaInPortInfos:
         description: The inputs of a metanode (if this workflow is one).
@@ -1427,8 +1631,10 @@ definitions:
           $ref: "#/definitions/MetaPortInfo"
       workflowAnnotations:
         description: List of all workflow annotations. TODO could be moved to an extra UI service in order to not polute the WorkflowEnt too much and separate UI logics.
-        type: array
-        items:
+        #string to WorkflowAnnotation map
+        type: object
+        additionalProperties:
+          type: object
           $ref: "#/definitions/WorkflowAnnotation"
       workflowUIInfo:
         description: Additional workflow UI information such as grid settings, connection appearance etc. TODO could be moved to an extra UI service in order to not polute the WorkflowEnt too much and separate UI logics.
@@ -1439,7 +1645,7 @@ definitions:
       inWizardExecution:
         description: If the workflow is executed step by step, i.e. in wizard execution mode.
         type: boolean
-
+  
   WorkflowNode:
     description: A node containing (referencing) a workflow (also referred to it as metanode)
     allOf:
@@ -1464,6 +1670,35 @@ definitions:
             type: array
             items:
               $ref: "#/definitions/NodeState"
+              
+  WorkflowParts:
+    description: Represents a selection of parts of a workflow (i.e collections of nodes, connection, annotations etc.), e.g. to be copied or deleted.
+    type: object
+    required:
+      - parentNodeID
+    properties:
+      parentNodeID:
+        description: "The parent node id of parts or 'root' if it's the root node/workflow.
+          The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+          Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
+        type: string
+      nodeIDs:
+        description: The ids of the nodes referenced.
+        type: array
+        items:
+          type: string
+      connectionIDs:
+        description: "The ids of the connections referenced. 
+          The id has the following format: <dest-node-id>_<dest-port-idx>"
+        type: array
+        items:
+          type: string
+      annotationIDs:
+        description: The ids of the workflow annotations referenced.
+        type: array
+        items:
+          type: string
+    x-knimegateway-isUsedAsParameter: true   
 
   WorkflowSnapshot:
     description: A workflow with an additional snapshot id.
@@ -1521,7 +1756,6 @@ definitions:
           inactive:
             description: Whether this node is inactive, e.g. due to inactive connections
             type: boolean
- 
                     
   XY:
     type: object
