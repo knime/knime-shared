@@ -117,8 +117,7 @@ paths:
       - application/json
       responses:
         200:
-          description: Parts have been deleted successfully.
-            If there were selected parts that weren't part of the actual workflow, it will still give a successful response.
+          description: Parts have been deleted successfully. Parts that don't exist in the workflow will be ignored.
             If a copy has been chosen to be created, the respective part-id of the copy will be returned otherwise null. 
           schema:
             type: string
@@ -129,10 +128,14 @@ paths:
         404:
             #if the parent id of the parts to be deleted doesn't refere to a node
             $ref: "#/responses/NodeNotFound"
+        405:
+            #if a part exists but couldn't be removed
+            $ref: "#/responses/ActionNotAllowed"
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/ActionNotAllowed"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
