@@ -62,7 +62,7 @@ paths:
       tags:
       - Workflow
       description: "Selects and essentially copies the specified part of the workflow.
-        It will still be available even if (sub)parts are deleted. The part can then be referenced by a part-id. 
+        It will still be available even if (sub)parts are deleted. The parts are referenced by a part-id. 
         Note: connections will be ignored and _not_ copied!"
       operationId: createWorkflowCopy
       parameters:
@@ -83,7 +83,20 @@ paths:
           schema:
             type: string
             format: uuid
+        400:
+            #if the parent id of the parts to be copied doesn't refer to a sub-workflow
+            $ref: "#/responses/NotASubWorkflow"
+        404:
+            #if the parent id of the parts to be copied doesn't refer to a node
+            $ref: "#/responses/NodeNotFound"
+        405:
+            #if parts to be copied don't exist
+            $ref: "#/responses/InvalidRequest"
       x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -126,7 +139,7 @@ paths:
             #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
             $ref: "#/responses/NotASubWorkflow"
         404:
-            #if the parent id of the parts to be deleted doesn't refere to a node
+            #if the parent id of the parts to be deleted doesn't refer to a node
             $ref: "#/responses/NodeNotFound"
         405:
             #if a part exists but couldn't be removed
