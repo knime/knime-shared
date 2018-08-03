@@ -18,6 +18,8 @@ tags:
   description: Operations on workflows.
 - name: Node
   description: Operations on single nodes.
+- name: Annotation
+  description: Operations on single workflow annotations.
   
 parameters:
  job-id:
@@ -154,7 +156,7 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-  
+          
   /workflow/parts/{parts-id}:
     put:
       tags:
@@ -200,6 +202,7 @@ paths:
             #if the parent id of the parts to be deleted doesn't refere to a node
             #OR: if there is no copy for the given part-id
             $ref: "#/responses/NotFound"
+        #TODO add other responses (timeout, no-permission) etc. here!
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
@@ -427,6 +430,48 @@ paths:
           $ref: "#/responses/Timeout"
         505:
           $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+
+  # endpoint for node bounds
+  /workflow/node/{node-id}/bounds:
+    put:
+      tags:
+      - Node
+      description: Sets the node's bounds for the given node-id.
+      operationId: setNodeBounds
+      consumes:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: "The ID of the node the information is requested for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
+          required: true
+          type: string
+        - name: bounds
+          in: body
+          description: The node bounds to set.
+          required: true
+          schema:
+            $ref: "#/definitions/Bounds"
+      responses:
+        200:
+          description: Settings successfully set.
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
@@ -930,7 +975,92 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-            
+         
+  /workflow/annotation/{anno-id}/bounds:
+    put:
+      tags:
+      - Annotation
+      description: Changes the bounds (x,y,width,height) of a workflow annotation
+      operationId: setAnnotationBounds
+      consumes:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: anno-id
+          in: path
+          required: true
+          type: string
+        - name: bounds
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Bounds"
+      responses:
+        200:
+          description: Bounds successfully changed
+        404:
+            # if either the node or the annotation couldn't be found
+            $ref: "#/responses/NotFound"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
+  /workflow/{node-id}/annotation/{anno-id}/bounds:
+    put:
+      tags:
+      - Annotation
+      description: Changes the bounds (x,y,width,height) of a workflow annotation in a sub-workflow.
+      operationId: setAnnotationBoundsInSubWorkflow
+      consumes:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        - name: node-id
+          in: path
+          description: "The ID of the sub-workflow to change the annotation for.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
+          required: true
+          type: string
+        
+        - name: anno-id
+          in: path
+          required: true
+          type: string
+        - name: bounds
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Bounds"
+      responses:
+        200:
+          description: Bounds successfully changed
+        400:
+            $ref: "#/responses/NotASubWorkflow"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+            # if either the node or the annotation couldn't be found
+            $ref: "#/responses/NotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
@@ -961,6 +1091,7 @@ x-knimegateway-exceptions:
       description: A resource couldn't be found. Please refer to the exception message for more details.
       status-code: 404
     ActionNotAllowed:
+      # TODO maybe rename to 'OperationNotAllowed'
       name: ActionNotAllowedException
       description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.
       status-code: 405
@@ -1073,6 +1204,7 @@ definitions:
         type: integer
       height:
         type: integer
+    x-knimegateway-isUsedAsParameter: true   
         
   Connection:
     description: A single connection between two nodes.
