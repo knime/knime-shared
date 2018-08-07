@@ -56,7 +56,7 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
-  # endpoint actions on worklfow parts (nodes, annotations) of a worklfow (e.g. deleting and copying).
+  # endpoint actions on workflow parts (nodes, annotations) of a workflow (e.g. deleting and copying).
   /workflow/parts:
     post:
       tags:
@@ -896,7 +896,7 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
-  /worklfow/connection:
+  /workflow/connection:
     post:
       tags:
       - Workflow 
