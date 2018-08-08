@@ -7,12 +7,24 @@
                 <message_argument value="org.knime.core.util_5.9.0"/>
             </message_arguments>
         </filter>
+        <filter id="305422471">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.dialog.ExternalNodeDataTest"/>
+                <message_argument value="org.knime.quickform.nodes.legacy_3.6.0"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="src/test/java/org/knime/core/util/PathUtilsTest.java" type="org.knime.core.util.PathUtilsTest">
         <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.knime.core.util.PathUtilsTest"/>
                 <message_argument value="org.knime.core.util_5.9.0"/>
+            </message_arguments>
+        </filter>
+        <filter id="305422471">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.PathUtilsTest"/>
+                <message_argument value="org.knime.quickform.nodes.legacy_3.6.0"/>
             </message_arguments>
         </filter>
     </resource>
