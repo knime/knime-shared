@@ -52,6 +52,7 @@ import java.io.File;
  * flow variables.
  *
  * @author Bernd Wiswedel, KNIME AG, Zurich, Switzerland
+ * @since 5.10
  */
 public class FileDownloadQuickFormOutElement extends
         AbstractQuickFormOutElement {
@@ -60,6 +61,8 @@ public class FileDownloadQuickFormOutElement extends
 
     private final File m_file;
 
+    private final String m_resourceName;
+
     /** Creates output element with the given label and description.
      * @param label The label as shown in the GUI/Web, not null.
      * @param description The description, maybe null.
@@ -67,13 +70,33 @@ public class FileDownloadQuickFormOutElement extends
      *        lighter value for more top-level alignment
      * @param value The value, must be a valid type, i.e. instance of
      * String, Integer or Double.
+     * @deprecated use {@link #FileDownloadQuickFormOutElement(String, String, int, String)} instead
      */
+    @Deprecated
     public FileDownloadQuickFormOutElement(
             final String label, final String description, final int weight,
             final File value) {
         super(label, description, weight);
         m_file = value;
+        m_resourceName = "";
     }
+
+    /** Creates output element with the given label and description.
+     * @param label The label as shown in the GUI/Web, not null.
+     * @param description The description, maybe null.
+     * @param weight Weight factory,
+     *        lighter value for more top-level alignment
+     * @param resourceName the name of the download resource
+     * @since 5.10
+     */
+    public FileDownloadQuickFormOutElement(
+            final String label, final String description, final int weight,
+            final String resourceName) {
+        super(label, description, weight);
+        m_file = null;
+        m_resourceName = resourceName;
+    }
+
 
     /** {@inheritDoc} */
     @Override
@@ -81,9 +104,22 @@ public class FileDownloadQuickFormOutElement extends
         return Type.FileDownload;
     }
 
-    /** @return The file represented by this download element. */
+    /**
+     * @return The file represented by this download element.
+     * @deprecated use {@link #getResourceName()} instead
+     */
+    @Deprecated
     public File getFile() {
         return m_file;
     }
 
+    /**
+     * Returns the resource name for this file download,
+     *
+     * @return a (possibly empty) resource name, never <code>null</code>
+     * @since 5.10
+     */
+    public String getResourceName() {
+        return m_resourceName;
+    }
 }
