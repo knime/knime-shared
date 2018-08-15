@@ -1195,6 +1195,7 @@ definitions:
   Bounds:
     description: Node dimensions - position and size.
     type: object
+    required: [x, "y", width, height]
     properties:
       x:
         type: integer
