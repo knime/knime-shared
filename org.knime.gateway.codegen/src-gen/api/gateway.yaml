@@ -403,7 +403,7 @@ paths:
         executor:
           # if the parent node is not a metanode (i.e. a sub-workflow) 
           - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          # if the parent node couldn't be found
+          # if the parent node couldn't be found or the node factory key is unknown
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
@@ -1653,16 +1653,21 @@ definitions:
     description: Essentially the position of a node including some
       flags indicating a necessary correction of that given position.
     type: object
+    required:
+    - bounds
     properties:
       bounds:
         description: The absolute node coordinates.
         $ref: "#/definitions/Bounds"
       symbolRelative:
         type: boolean
+        default: false
       dropLocation:
         type: boolean
+        default: false
       snapToGrid:
         type: boolean 
+        default: false
     x-knimegateway-isUsedAsParameter: true
 
   Patch:
