@@ -355,6 +355,40 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+     post:
+      tags:
+      - Node
+      description: Creates and adds a new native node to the workflow.
+      operationId: createNode
+      produces:
+      - application/json
+      parameters:
+        - $ref: "#/parameters/job-id"
+        #- name: parent-node TODO - in order to add a node to a subworkflow
+        - name: node-factory-key
+          description: The key representing the native node to be added to the workflow.
+          in: query
+          required: true
+          type: string
+        - name: ui-info
+          description: "Represents essentially the position of the new node.
+            TODO: Relatively specific endpoint for the eclipse-client. Future variation of that 
+            endpoint will be necessary that is happy with the x,y-coordinates only."
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NodeUIInfo"
+      responses:
+        201:
+          description: New node has been successfully created. Returns the new node id. 
+          schema:
+            type: string
+      x-knimegateway-exceptions:
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
 
   # endpoint for wrapped metanodes' dialog representations        
   /workflow/wmetanode/{node-id}/dialog:
@@ -1595,18 +1629,20 @@ definitions:
 
       
   NodeUIInfo:
+    description: Essentially the position of a node including some
+      flags indicating a necessary correction of that given position.
     type: object
     properties:
       bounds:
+        description: The absolute node coordinates.
         $ref: "#/definitions/Bounds"
       symbolRelative:
-        type: boolean
-      hasAbsoluteCoordinates:
         type: boolean
       dropLocation:
         type: boolean
       snapToGrid:
         type: boolean 
+    x-knimegateway-isUsedAsParameter: true
 
   Patch:
     description: A list of patch operations.
