@@ -364,11 +364,17 @@ paths:
       - application/json
       parameters:
         - $ref: "#/parameters/job-id"
-        #- name: parent-node TODO - in order to add a node to a subworkflow
         - name: node-factory-key
           description: The key representing the native node to be added to the workflow.
           in: query
           required: true
+          type: string
+        - name: parent-node-id
+          description: "Optional id of the parent node if the new node should be added to a sub-workflow.
+            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
+            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
+          in: query
+          required: false
           type: string
         - name: ui-info
           description: "Represents essentially the position of the new node.
@@ -383,7 +389,22 @@ paths:
           description: New node has been successfully created. Returns the new node id. 
           schema:
             type: string
+        400:
+          $ref: "#/responses/NotASubWorkflow"
+        403:
+          $ref: "#/responses/NoPermission"
+        404:
+          $ref: "#/responses/NodeNotFound"
+        504:
+          $ref: "#/responses/Timeout"
+        505:
+          $ref: "#/responses/InternalServerError"
       x-knimegateway-exceptions:
+        executor:
+          # if the parent node is not a metanode (i.e. a sub-workflow) 
+          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          # if the parent node couldn't be found
+          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
