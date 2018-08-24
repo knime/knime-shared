@@ -46,9 +46,11 @@
 package org.knime.core.util.node.quickform.in;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Form element to choose and upload a file.
@@ -62,6 +64,8 @@ public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
     private File m_file;
     private String m_urlFile;
     private boolean m_default = false;
+
+    private URI m_uploadUri;
 
 
     /** Create a file upload element with a given label and a valid set of
@@ -135,4 +139,24 @@ public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
         return m_default;
     }
 
+    /**
+     * Sets an optional URI where the uploaded file can be retrieved by remote executors.
+     *
+     * @param uri a remote URI to the uploaded file
+     * @since 5.10
+     */
+    public void setUploadUri(final URI uri) {
+        m_uploadUri = uri;
+    }
+
+    /**
+     * Returns an optional URI where the uploaded file can be retrieved by remote executors. Note that the URI may
+     * require authentication.
+     *
+     * @return a remote URI to the uploaded file
+     * @since 5.10
+     */
+    public Optional<URI> getUploadUri() {
+        return Optional.ofNullable(m_uploadUri);
+    }
 }
