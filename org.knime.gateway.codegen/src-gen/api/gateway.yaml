@@ -1311,6 +1311,18 @@ definitions:
       valueAsString:
         description: The cell value as a string.
         type: string
+      missing:
+        description: "If it's a missing cell -
+          The error message is passed via the 'valueAsString'-prop."
+        type: boolean
+      binary:
+        description: "Whether the 'valueAsString'-prop contains a serialized binary string, 
+          that is base64-encoded."
+        type: boolean
+      problem:
+        description: "Indicates whether there was a problem creating this cell.
+          The details are given via the 'valueAsString'-prop."
+        type: boolean
 
   DataRow:
     description: A data row.
