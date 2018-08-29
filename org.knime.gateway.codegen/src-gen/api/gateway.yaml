@@ -1308,6 +1308,12 @@ definitions:
     description: A cell of a data table.
     type: object
     properties:
+      type:
+        description: "The type of the data cell
+         represented by the implementing java-class name.
+         If not given, it is assumed that the type can
+         be infered from the data table spec."
+        type: string
       valueAsString:
         description: The cell value as a string.
         type: string
