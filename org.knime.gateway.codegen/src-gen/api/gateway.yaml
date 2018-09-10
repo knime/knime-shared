@@ -20,6 +20,8 @@ tags:
   description: Operations on single nodes.
 - name: Annotation
   description: Operations on single workflow annotations.
+- name: StaticNode 
+  description: Static node information, such as the node repository, icons, node descriptions etc.
   
 parameters:
  job-id:
@@ -1116,6 +1118,35 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
           
+          
+# KNIME 4.0 Prototype endpoints
+  /nodes:
+    get:
+      tags:
+      - StaticNode  
+      description: All nodes available in the node repository.
+      operationId: getAllNodes
+      produces:
+      - application/json
+      parameters:
+      - $ref: "#/parameters/job-id"
+      - name: nodeType
+        in: query
+        description: The node type to filter for - returns all nodes if none given
+        type: string
+      responses:
+        200:
+          description: All available nodes.
+          schema:
+            $ref: "#/definitions/NodeCategory"
+      x-knimegateway-exceptions:
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+ 
+      
         
 # Collection of java-exceptions for the gateway code generation.
 # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
@@ -1994,5 +2025,19 @@ definitions:
         type: integer
       y:
         type: integer
-    
         
+# KNIME 4.0 Prototype definitions
+  NodeCategory:
+    type: object
+    description: a category in the node repository
+    properties:
+      name:
+        type: string
+      categoryChildren:
+        type: array
+        items:
+          $ref: "#/definitions/NodeCategory"
+      nodeFactoryChildren:
+        type: array
+        items:
+          $ref: "#/definitions/NodeFactoryKey"
