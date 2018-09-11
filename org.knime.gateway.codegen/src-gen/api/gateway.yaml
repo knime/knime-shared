@@ -22,6 +22,8 @@ tags:
   description: Operations on single workflow annotations.
 - name: StaticNode 
   description: Static node information, such as the node repository, icons, node descriptions etc.
+- name: ExecEnv
+  description: Operations on execution environments.
   
 parameters:
  job-id:
@@ -1145,7 +1147,31 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
           - $ref: "#/x-knimegateway-exceptions/server/IOException"
           - $ref: "#/x-knimegateway-exceptions/server/Timeout"
- 
+          
+  /execenvs:
+    get:
+      tags:
+      - ExecEnv 
+      description: All available execution environment instances
+      operationId: getAllExecEnvs
+      produces:
+      - application/json
+      parameters:
+      - $ref: "#/parameters/job-id"
+      responses:
+        200:
+          description: List of all available execution environment instances.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ExecEnv"
+      x-knimegateway-exceptions:
+        server:
+          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          
       
         
 # Collection of java-exceptions for the gateway code generation.
@@ -1599,6 +1625,9 @@ definitions:
         $ref: '#/definitions/JobManager'
       uIInfo:
         $ref: "#/definitions/NodeUIInfo"
+      # KNIME 4.0 Prototype
+      execEnvInstanceID:
+        type: string
         
   NodeFactoryKey:
     description: Object to identify a node-specific node implementation.
@@ -2037,7 +2066,43 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/NodeCategory"
-      nodeFactoryChildren:
+      nodeTemplateChildren:
         type: array
         items:
-          $ref: "#/definitions/NodeFactoryKey"
+          $ref: "#/definitions/NodeTemplate"
+       
+  NodeTemplate:
+    type: object
+    properties:
+      name:
+        type: string
+      execEnvNodeType:
+        type: string
+      nodeFactory:
+        $ref: "#/definitions/NodeFactoryKey"
+      
+          
+  ExecEnv:
+    type: object
+    description: Execution environment instance
+    properties:
+      execEnvID:
+        type: string
+      instanceID:
+        type: string
+      typeName:
+        type: string
+      allowedNodeTypes:
+        type: array
+        items:
+          type: string
+          
+  ConverterNode:
+    description: Converter node.
+    #inheritance
+    allOf:
+      - $ref: '#/definitions/NativeNode'
+      - type: object
+        properties:
+          outExecEnvInstanceID:
+            type: string
