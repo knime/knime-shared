@@ -62,10 +62,16 @@ public class GatewayJSClientCodegen extends DefaultCodegen implements CodegenCon
     public static final String USE_ES6 = "useES6";
 
     final String[][] JAVASCRIPT_SUPPORTING_FILES = new String[][] {
+            new String[] {"README.mustache", "README.md"},
+            new String[] {"package.mustache", "package.json"},
+            new String[] {"index.mustache", "src/index.js"},
             new String[] {"ApiClient.mustache", "src/ApiClient.js"}
     };
 
     final String[][] JAVASCRIPT_ES6_SUPPORTING_FILES = new String[][] {
+            new String[] {"README.mustache", "README.md"},
+            new String[] {"package.mustache", "package.json"},
+            new String[] {"index.mustache", "src/index.js"},
             new String[] {"ApiClient.mustache", "src/ApiClient.js"}
     };
 
@@ -81,6 +87,8 @@ public class GatewayJSClientCodegen extends DefaultCodegen implements CodegenCon
     protected boolean usePromises;
     protected boolean emitModelMethods;
     protected boolean emitJSDoc = true;
+    protected String apiDocPath = "docs/";
+    protected String modelDocPath = "docs/";
     protected String apiTestPath = "api/";
     protected String modelTestPath = "model/";
     protected boolean useES6 = false; // default is ES5
@@ -92,6 +100,8 @@ public class GatewayJSClientCodegen extends DefaultCodegen implements CodegenCon
         // subfolder Javascript/es6
         apiPackage = "api";
         modelPackage = "model";
+        modelDocTemplateFiles.put("model_doc.mustache", ".md");
+        apiDocTemplateFiles.put("api_doc.mustache", ".md");
 
         // reference: http://www.w3schools.com/js/js_reserved.asp
         setReservedWordsLowerCase(
@@ -313,6 +323,10 @@ public class GatewayJSClientCodegen extends DefaultCodegen implements CodegenCon
         additionalProperties.put(EMIT_JS_DOC, emitJSDoc);
         additionalProperties.put(USE_ES6, useES6);
 
+        // make api and model doc path available in mustache template
+        additionalProperties.put("apiDocPath", apiDocPath);
+        additionalProperties.put("modelDocPath", modelDocPath);
+
         String[][] supportingTemplateFiles = JAVASCRIPT_SUPPORTING_FILES;
         if (useES6) {
             supportingTemplateFiles = JAVASCRIPT_ES6_SUPPORTING_FILES;
@@ -441,12 +455,12 @@ public class GatewayJSClientCodegen extends DefaultCodegen implements CodegenCon
 
     @Override
     public String apiDocFileFolder() {
-        return null;
+        return createPath(outputFolder, apiDocPath);
     }
 
     @Override
     public String modelDocFileFolder() {
-        return null;
+        return createPath(outputFolder, modelDocPath);
     }
 
     @Override
