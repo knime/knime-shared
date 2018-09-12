@@ -1,0 +1,6 @@
+{
+    "lang" : "org.knime.gateway.codegen.GatewayJSClientCodegen",
+    "inputSpec" : "src-gen/api/gateway.yaml",
+    "outputDir" : "../../knime4.0-js-gateway-api",
+    "templateDir" : "src-gen/templates/js-cli" 
+}
