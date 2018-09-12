@@ -12,6 +12,15 @@ schemes:
 - http
 - https
 
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    
+security:
+  - Bearer: []
+
 # E.g. gateway-service interfaces are created from the tags, such as WorkflowService or NodeService
 tags:
 - name: Workflow
