@@ -55,8 +55,8 @@ import java.util.logging.Logger;
 
 /**
  * This class is a replacement for {@link Runtime#addShutdownHook(Thread)} which allows ordering of hooks. If a hook
- * must be executed as the first hook, it can be added using {@link #addFirstShutdownHook(Runnable)} which puts it to
- * the front of the list. {@link #addShutdownHook(Runnable)} will add it to the back of the list. In contrast to the
+ * must be executed as the first hook, it can be added using {@link #prependShutdownHook(Runnable)} which puts it to
+ * the front of the list. {@link #appendShutdownHook(Runnable)} will add it to the back of the list. In contrast to the
  * implementation in {@link Runtime}, the hooks are executed sequentially one after the other.
  *
  * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
@@ -81,9 +81,9 @@ public class ShutdownHelper {
                 setName("KNIME shutdown hooks - " + r.getClass().getName());
                 try {
                     r.run();
-                } catch (Exception ex) {
+                } catch (Throwable t) {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                        "Error while running shutdown hook " + r.getClass() + ": " + ex.getMessage(), ex);
+                        "Error while running shutdown hook " + r.getClass() + ": " + t.getMessage(), t);
                 }
             }
         }
@@ -108,16 +108,17 @@ public class ShutdownHelper {
      *
      * @param r the hook
      */
-    public void addFirstShutdownHook(final Runnable r) {
+    public synchronized void prependShutdownHook(final Runnable r) {
         m_shutdownHooks.add(0, r);
     }
 
     /**
-     * Adds a new hook to be run during shutdown. It will be run after all already registered hooks.
+     * Adds a new hook to be run during shutdown to the end of the list. It will be run after all already registered
+     * hooks.
      *
      * @param r the hook
      */
-    public void addShutdownHook(final Runnable r) {
+    public synchronized void appendShutdownHook(final Runnable r) {
         m_shutdownHooks.add(r);
     }
 }

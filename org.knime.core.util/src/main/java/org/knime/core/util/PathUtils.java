@@ -187,23 +187,20 @@ public final class PathUtils {
         perms.add(PosixFilePermission.OTHERS_EXECUTE);
         RWX_ALL_PERMISSIONS = Collections.unmodifiableSet(perms);
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                for (Path p : TEMP_FILES) {
-                    if (!Files.exists(p)) {
-                        continue;
-                    }
+        ShutdownHelper.getInstance().appendShutdownHook(() -> {
+            for (Path p : TEMP_FILES) {
+                if (!Files.exists(p)) {
+                    continue;
+                }
 
-                    try {
-                        if (Files.isRegularFile(p)) {
-                            Files.delete(p);
-                        } else if (Files.isDirectory(p)) {
-                            deleteDirectoryIfExists(p);
-                        }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                try {
+                    if (Files.isRegularFile(p)) {
+                        Files.delete(p);
+                    } else if (Files.isDirectory(p)) {
+                        deleteDirectoryIfExists(p);
                     }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
             }
         });
