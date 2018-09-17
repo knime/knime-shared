@@ -707,8 +707,6 @@ paths:
           $ref: "#/responses/NoPermission"
         404:
           $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -716,7 +714,6 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -853,8 +850,6 @@ paths:
           $ref: "#/responses/NoPermission"
         404:
           $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -862,7 +857,6 @@ paths:
       x-knimegateway-exceptions:
         executor:
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
@@ -1750,7 +1744,7 @@ definitions:
         description: The port type the specification refers to.
         $ref: "#/definitions/PortType"
       representation:
-        description: The actual port object spec representation.
+        description: The actual port object spec representation or "not supported" if not supported.
         type: string
       inactive:
         description: Flag indicating whether the port is inactive. If true, there will be no representation available.
