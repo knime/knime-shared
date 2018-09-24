@@ -364,11 +364,16 @@ paths:
       - application/json
       parameters:
         - $ref: "#/parameters/job-id"
-        - name: node-factory-key
-          description: The key representing the native node to be added to the workflow.
+        - name: x
+          description: the x coordinate to place the new node 
           in: query
           required: true
-          type: string
+          type: integer
+        - name: y
+          description: the y coordinate to place the new node
+          in: query
+          required: true
+          type: integer
         - name: parent-node-id
           description: "Optional id of the parent node if the new node should be added to a sub-workflow.
             The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
@@ -376,14 +381,12 @@ paths:
           in: query
           required: false
           type: string
-        - name: ui-info
-          description: "Represents essentially the position of the new node.
-            TODO: Relatively specific endpoint for the eclipse-client. Future variation of that 
-            endpoint will be necessary that is happy with the x,y-coordinates only."
+        - name: node-factory-key
+          description: The key representing the native node to be added to the workflow.
           in: body
           required: true
           schema:
-            $ref: "#/definitions/NodeUIInfo"
+            $ref: "#/definitions/NodeFactoryKey"
       responses:
         201:
           description: New node has been successfully created. Returns the new node id. 
@@ -395,6 +398,8 @@ paths:
           $ref: "#/responses/NoPermission"
         404:
           $ref: "#/responses/NodeNotFound"
+        405:
+          $ref: "#/responses/InvalidRequest"
         504:
           $ref: "#/responses/Timeout"
         505:
@@ -405,6 +410,8 @@ paths:
           - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
           # if the parent node couldn't be found or the node factory key is unknown
           - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          # if the node factory key's settings are required but missing or not readable
+          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest" 
         server:
           - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
           - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
