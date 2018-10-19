@@ -446,4 +446,18 @@ public class ExternalNodeData {
         Matcher nameMacher = PARAMETER_NAME_PATTERN.matcher(CheckUtils.checkArgumentNotNull(idPossiblyFullyQualified));
         return (nameMacher.matches() && (nameMacher.group(1) != null)) ? nameMacher.group(1) : idPossiblyFullyQualified;
     }
+
+    /**
+     * {@inheritDoc}
+     * @since 5.10
+     */
+    @Override
+    public ExternalNodeData clone() {
+        ExternalNodeData clone = new ExternalNodeData();
+        clone.m_description = this.m_description;
+        clone.m_id = this.m_id;
+        clone.m_jsonValue = this.m_jsonValue;
+        clone.m_uri = this.m_uri;
+        return clone;
+    }
 }
