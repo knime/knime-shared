@@ -50,6 +50,7 @@ package org.knime.core.node.config.base;
 import java.io.IOException;
 import java.util.Stack;
 
+import org.knime.core.util.XMLUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -171,7 +172,7 @@ class XMLContentHandler extends DefaultHandler {
             String type = attributes.getValue("type");
             String value = attributes.getValue("value");
 
-            value = unescape(value);
+            value = XMLUtils.unescape(value);
 
             ConfigEntries configEntryType;
             // transform runtime IllegalArgumentException into a IOException
@@ -249,88 +250,12 @@ class XMLContentHandler extends DefaultHandler {
                     a.addAttribute("", "", "isnull", "CDATA", "true");
                     value = "";
                 }
-                value = escape(value);
+                value = XMLUtils.escape(value);
                 a.addAttribute("", "", "value", "CDATA", value);
                 handler.startElement("", "", "entry", a);
                 handler.endElement("", "", "entry");
             }
         }
         handler.endElement("", "", ConfigEntries.config.name());
-    }
-
-    /**
-     * Escapes all forbidden XML characters so that we can save them
-     * nevertheless. They are escaped as &quot;%%ddddd&quot;, with ddddd being
-     * their decimal Unicode.
-     *
-     * @param s the string to escape
-     * @return the escaped string
-     */
-    static final String escape(final String s) {
-        if (s == null) {
-            return null;
-        }
-        char[] c = s.toCharArray();
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < c.length; i++) {
-            if (((c[i] < 32) || (c[i] > 0xd7ff))
-                    || ((i < c.length - 1) && (c[i] == '%') && c[i + 1] == '%')) {
-                // if c contains '%' we encode the '%'
-                buf.append("%%");
-                if (c[i] < 10) {
-                    buf.append('0');
-                }
-                if (c[i] < 100) {
-                    buf.append('0');
-                }
-                if (c[i] < 1000) {
-                    buf.append('0');
-                }
-                if (c[i] < 10000) {
-                    buf.append('0');
-                }
-
-                buf.append(Integer.toString(c[i]));
-            } else {
-                buf.append(c[i]);
-            }
-        }
-
-        return buf.toString();
-    }
-
-    /**
-     * Unescapes all forbidden XML characters that were previous escaped by
-     * {@link #escape(String)}. Must pay attention to handle not escaped
-     * strings for backward compatibility (it will not correctly handle them,
-     * they still are unescaped, but it must not fail on those strings).
-     *
-     * @param s the escaped string
-     * @return the unescaped string
-     */
-    static final String unescape(final String s) {
-        if (s == null) {
-            return null;
-        }
-        char[] c = s.toCharArray();
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < c.length; i++) {
-            if ((c[i] == '%') && (i < c.length - 6) && c[i + 1] == '%'
-                    && Character.isDigit(c[i + 2])
-                    && Character.isDigit(c[i + 3])
-                    && Character.isDigit(c[i + 4])
-                    && Character.isDigit(c[i + 5])
-                    && Character.isDigit(c[i + 6])) {
-                buf
-                        .append((char)((c[i + 2] - '0') * 10000
-                                + (c[i + 3] - '0') * 1000 + (c[i + 4] - '0')
-                                * 100 + (c[i + 5] - '0') * 10 + (c[i + 6] - '0')));
-                i += 6;
-            } else {
-                buf.append(c[i]);
-            }
-        }
-
-        return buf.toString();
     }
 }
