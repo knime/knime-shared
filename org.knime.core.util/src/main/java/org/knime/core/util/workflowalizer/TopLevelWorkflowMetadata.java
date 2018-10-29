@@ -49,33 +49,32 @@
 package org.knime.core.util.workflowalizer;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-
-import org.knime.core.util.Version;
 
 /**
  * Represents the metadata of a top level KNIME workflow (i.e. not a metanode).
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-public final class TopLevelWorkflowMetadata extends AbstractWorkflowMetadata {
+public final class TopLevelWorkflowMetadata extends AbstractWorkflowMetadata<TopLevelWorkflowMetadataBuilder> {
 
     private final AuthorInformation m_authorInfo;
     private final Optional<String> m_svg;
     private final Optional<Collection<String>> m_artifacts;
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
-    TopLevelWorkflowMetadata(final Version version, final Version createdBy, final Optional<List<String>> annotations,
-        final List<NodeConnection> connections, final List<NodeMetadata> nodes, final Optional<String> name,
-        final Optional<String> customDescription, final Collection<String> unexpectedFiles,
-        final AuthorInformation authorInfo, final Optional<String> svg, final Optional<Collection<String>> artifacts,
-        final Optional<WorkflowSetMeta> workflowSetMeta) {
-        super(version, createdBy, annotations, connections, nodes, name, customDescription, unexpectedFiles);
-        m_authorInfo = authorInfo;
-        m_svg = svg;
-        m_artifacts = artifacts;
-        m_workflowSetMeta = workflowSetMeta;
+    TopLevelWorkflowMetadata(final TopLevelWorkflowMetadataBuilder builder) {
+        super(builder);
+        if (builder.getAuthor() != null && builder.getAuthorDate() != null && builder.getLastEditor() != null
+            && builder.getLastEditDate() != null) {
+            m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
+                builder.getLastEditDate());
+        } else {
+            m_authorInfo = null;
+        }
+        m_svg = builder.getWorkflowSVGFile();
+        m_artifacts = builder.getArtifactsFileNames();
+        m_workflowSetMeta = builder.getWorkflowSetMeta();
     }
 
     /**

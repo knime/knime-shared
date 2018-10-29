@@ -44,82 +44,80 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Oct 4, 2018 (awalter): created
+ *   Oct 9, 2018 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
 /**
- * Represents the metadata for a KNIME Metanode.
+ * Configuration and quasi-builder for all fields in {@link NodeMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMetadataBuilder> implements NodeMetadata {
+class NodeFields {
 
-    private final Integer m_nodeId;
-    private final String m_type;
-    private final Optional<String> m_annotationText;
-    private final Optional<String> m_template;
+    private Integer m_id;
+    private String m_type;
+    private Optional<String> m_annotationText;
 
-    MetanodeMetadata(final MetanodeMetadataBuilder builder) {
-        super(builder);
-        m_nodeId = builder.getNodeFields().getId();
-        m_type = builder.getNodeFields().getType();
-        m_annotationText = builder.getNodeFields().getAnnotationText();
-        m_template = builder.getTemplateLink();
+    private final boolean m_readId;
+    private final boolean m_readType;
+    private final boolean m_readAnnotationText;
+
+    NodeFields(final boolean readId, final boolean readType, final boolean readAnnotationText) {
+        m_readId = readId;
+        m_readType = readType;
+        m_readAnnotationText = readAnnotationText;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNodeId() {
-        if (m_nodeId == null) {
-            throw new UnsupportedOperationException("getNodeId() is unsupported, field was not read");
-        }
-        return m_nodeId;
+    // -- Getters --
+
+    Integer getId() {
+        return m_id;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getType() {
-        if (m_type == null) {
-            throw new UnsupportedOperationException("getType() is unsupported, field was not read");
-        }
+    String getType() {
         return m_type;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<String> getAnnotationText() {
-        if (m_annotationText == null) {
-            throw new UnsupportedOperationException("getAnnotationText() is unsupported, field was not read");
-        }
+    Optional<String> getAnnotationText() {
         return m_annotationText;
     }
 
-    /**
-     * @return link information for the template
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
-     */
-    public Optional<String> getTemplateLink() {
-        if (m_template == null) {
-            throw new UnsupportedOperationException("getTemplateLink() is unsupported, field was not read");
+    // -- Setters --
+
+    void setId(final int id) {
+        m_id = id;
+    }
+
+    void setType(final String type) {
+        m_type = type;
+    }
+
+    void setAnnotationText(final Optional<String> annotationText) {
+        m_annotationText = annotationText;
+    }
+
+    // -- Validate --
+
+    void validate() {
+        if (m_readId) {
+            if (m_id == null) {
+                throw new IllegalArgumentException("Requested field, id, should not be null");
+            }
         }
-        return m_template;
+        if (m_readType) {
+            checkPopulated(m_type, "type");
+        }
+        if (m_readAnnotationText) {
+            checkPopulated(m_annotationText, "annotation text");
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isMetaNode() {
-        return true;
+    protected static void checkPopulated(final Object field, final String name) {
+        if (field == null) {
+            throw new IllegalArgumentException("Requested field, " + name + ", should not be null");
+        }
     }
-
 }

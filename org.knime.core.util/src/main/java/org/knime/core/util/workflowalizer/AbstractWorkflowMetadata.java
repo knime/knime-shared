@@ -59,7 +59,7 @@ import org.knime.core.util.Version;
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-abstract class AbstractWorkflowMetadata implements WorkflowMetadata {
+abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> implements WorkflowMetadata {
 
     private final Version m_version;
     private final Version m_createdBy;
@@ -71,27 +71,17 @@ abstract class AbstractWorkflowMetadata implements WorkflowMetadata {
     private final Collection<String> m_unexpectedFiles;
 
     /**
-     * @param version
-     * @param createdBy
-     * @param annotations
-     * @param connections
-     * @param nodes
-     * @param name
-     * @param customDescription
-     * @param unexpectedFiles
+     * @param builder
      */
-    public AbstractWorkflowMetadata(final Version version, final Version createdBy,
-        final Optional<List<String>> annotations, final List<NodeConnection> connections,
-        final List<NodeMetadata> nodes, final Optional<String> name, final Optional<String> customDescription,
-        final Collection<String> unexpectedFiles) {
-        m_version = version;
-        m_createdBy = createdBy;
-        m_annotations = annotations;
-        m_connections = connections;
-        m_nodes = nodes;
-        m_name = name;
-        m_customDescription = customDescription;
-        m_unexpectedFiles = unexpectedFiles;
+    public AbstractWorkflowMetadata(final B builder) {
+        m_version = builder.getWorkflowFields().getVersion();
+        m_createdBy = builder.getWorkflowFields().getCreatedBy();
+        m_annotations = builder.getWorkflowFields().getAnnotations();
+        m_connections = builder.getWorkflowFields().getConnections();
+        m_nodes = builder.getWorkflowFields().getNodes();
+        m_name = builder.getWorkflowFields().getName();
+        m_customDescription = builder.getWorkflowFields().getCustomDescription();
+        m_unexpectedFiles = builder.getWorkflowFields().getUnexpectedFileNames();
     }
 
     /**

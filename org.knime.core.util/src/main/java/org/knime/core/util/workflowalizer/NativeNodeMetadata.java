@@ -66,15 +66,13 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
     private final Optional<String> m_customNodeDescription;
     private final NodeAndBundleInformation m_nodeAndBundleInfo;
 
-    NativeNodeMetadata(final Integer nodeId, final String type, final Optional<ConfigBase> modelParams,
-        final Optional<String> annotationText, final Optional<String> customNodeDescription,
-        final NodeAndBundleInformation nodeAndBundleInfo) {
-        m_nodeId = nodeId;
-        m_type = type;
-        m_modelParams = modelParams;
-        m_annotationText = annotationText;
-        m_customNodeDescription = customNodeDescription;
-        m_nodeAndBundleInfo = nodeAndBundleInfo;
+    NativeNodeMetadata(final NativeNodeMetadataBuilder builder) {
+        m_nodeId = builder.getSingleNodeFields().getId();
+        m_type = builder.getSingleNodeFields().getType();
+        m_modelParams = builder.getSingleNodeFields().getModelParameters();
+        m_annotationText = builder.getSingleNodeFields().getAnnotationText();
+        m_customNodeDescription = builder.getSingleNodeFields().getCustomDescription();
+        m_nodeAndBundleInfo = builder.buildNodeAndBundleInformation();
     }
 
     /**

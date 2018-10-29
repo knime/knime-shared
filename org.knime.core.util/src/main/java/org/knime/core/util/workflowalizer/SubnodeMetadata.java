@@ -48,19 +48,16 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.knime.core.node.config.base.ConfigBase;
-import org.knime.core.util.Version;
 
 /**
  * Represents metadata for a KNIME subnode.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-public final class SubnodeMetadata extends AbstractWorkflowMetadata implements SingleNodeMetadata {
+public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetadataBuilder> implements SingleNodeMetadata {
 
     private final Integer m_nodeId;
     private final String m_type;
@@ -69,18 +66,14 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata implements S
     private final Optional<String> m_customNodeDescription;
     private final Optional<String> m_template;
 
-    SubnodeMetadata(final Version version, final Version createdBy, final Optional<List<String>> annotations,
-        final List<NodeConnection> connections, final List<NodeMetadata> nodes, final Optional<String> name,
-        final Optional<String> customDescription, final Collection<String> unexpectedFiles, final Integer nodeId,
-        final String type, final Optional<ConfigBase> modelParams, final Optional<String> annotationText,
-        final Optional<String> customNodeDescription, final Optional<String> template) {
-        super(version, createdBy, annotations, connections, nodes, name, customDescription, unexpectedFiles);
-        m_nodeId = nodeId;
-        m_type = type;
-        m_modelParams = modelParams;
-        m_annotationText = annotationText;
-        m_customNodeDescription = customNodeDescription;
-        m_template = template;
+    SubnodeMetadata(final SubnodeMetadataBuilder builder) {
+        super(builder);
+        m_nodeId = builder.getSingleNodeFields().getId();
+        m_type = builder.getSingleNodeFields().getType();
+        m_modelParams = builder.getSingleNodeFields().getModelParameters();
+        m_annotationText = builder.getSingleNodeFields().getAnnotationText();
+        m_customNodeDescription = builder.getSingleNodeFields().getCustomDescription();
+        m_template = builder.getTemplateLink();
     }
 
     /**
