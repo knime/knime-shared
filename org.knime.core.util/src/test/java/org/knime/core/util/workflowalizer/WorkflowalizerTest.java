@@ -61,6 +61,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -831,6 +832,111 @@ public class WorkflowalizerTest {
             .isIdentical(mtnMtd.getModelParameters().get()));
         assertEquals(16, mtnMtd.getNodeId());
         assertEquals(readTemplateLink(readMetaNodeNodeLines), mtnMtd.getTemplateLink());
+    }
+
+    // -- Test reading from zip --
+
+    /**
+     * Test reading a workflow from a zip file
+     *
+     * @throws Exception
+     */
+    @Test
+    @SuppressWarnings("null")
+    public void testReadingZipWorkflow() throws Exception {
+        // This zip contains multiple workflows, but only the first should be read
+        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAll().build();
+        final TopLevelWorkflowMetadata twm = Workflowalizer.readWorkflow(zipFile, wc);
+
+        assertEquivalentAnnotations(readAnnotations(m_readWorkflowLines), twm.getAnnotations());
+        assertEquals(readAuthorInformation(m_readWorkflowLines), twm.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), twm.getConnections());
+        assertEquals(readCreatedBy(m_readWorkflowLines), twm.getCreatedBy());
+        assertEquals(readCustomDescription(m_readWorkflowLines), twm.getCustomDescription());
+        assertEquals(readName(m_readWorkflowLines), twm.getName());
+        assertEquals(readVersion(m_readWorkflowLines), twm.getVersion());
+        assertEquals("workflowalizer-test/Testing_Workflowalizer_360Pre/workflow.svg", twm.getWorkflowSvg().get());
+        assertEquals("workflowalizer-test/Testing_Workflowalizer_360Pre/.artifacts/openapi-input-parameters.json",
+            twm.getArtifacts().get().iterator().next());
+        assertTrue(twm.getUnexpectedFileNames().isEmpty());
+
+        // Top-level workflow nodes
+        List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
+        List<NodeMetadata> nodes = twm.getNodes();
+        assertEquals(nodeIds.size(), nodes.size());
+        int nativeNodeCount = 0;
+        int subnodeCount = 0;
+        int metanodeCount = 0;
+        MetanodeMetadata mm = null;
+        SubnodeMetadata sm = null;
+        for (final NodeMetadata node : nodes) {
+            assertTrue(nodeIds.contains(node.getNodeId()));
+            if (node.getType().equals("NativeNode")) {
+                nativeNodeCount++;
+            }
+            if (node.getType().equals("SubNode")) {
+                subnodeCount++;
+                sm = (SubnodeMetadata)node;
+            }
+            if (node.getType().equals("MetaNode")) {
+                metanodeCount++;
+                mm = (MetanodeMetadata)node;
+            }
+        }
+        assertEquals(7, nativeNodeCount);
+        assertEquals(1, subnodeCount);
+        assertEquals(1, metanodeCount);
+
+        // Metanode nodes
+        final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
+            new File(m_workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
+        nodeIds = readNodeIds(readMetaNodeWorkflowLines);
+        nodes = mm.getNodes();
+        assertEquals(nodeIds.size(), nodes.size());
+        nativeNodeCount = 0;
+        subnodeCount = 0;
+        metanodeCount = 0;
+        for (final NodeMetadata node : nodes) {
+            assertTrue(nodeIds.contains(node.getNodeId()));
+            if (node.getType().equals("NativeNode")) {
+                nativeNodeCount++;
+            }
+            if (node.getType().equals("SubNode")) {
+                subnodeCount++;
+            }
+            if (node.getType().equals("MetaNode")) {
+                metanodeCount++;
+            }
+        }
+        assertEquals(3, nativeNodeCount);
+        assertEquals(0, subnodeCount);
+        assertEquals(0, metanodeCount);
+
+        // Subnode nodes
+        final List<String> readSubNodeWorkflowLines = Files.readAllLines(
+            new File(m_workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
+        nodeIds = readNodeIds(readSubNodeWorkflowLines);
+        nodes = sm.getNodes();
+        assertEquals(nodeIds.size(), nodes.size());
+        nativeNodeCount = 0;
+        subnodeCount = 0;
+        metanodeCount = 0;
+        for (final NodeMetadata node : nodes) {
+            assertTrue(nodeIds.contains(node.getNodeId()));
+            if (node.getType().equals("NativeNode")) {
+                nativeNodeCount++;
+            }
+            if (node.getType().equals("SubNode")) {
+                subnodeCount++;
+            }
+            if (node.getType().equals("MetaNode")) {
+                metanodeCount++;
+            }
+        }
+        assertEquals(6, nativeNodeCount);
+        assertEquals(0, subnodeCount);
+        assertEquals(0, metanodeCount);
     }
 
     // -- Helper methods --

@@ -48,9 +48,11 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -65,10 +67,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -79,6 +84,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.LoadVersion;
@@ -138,6 +145,15 @@ public class Workflowalizer {
         if (!Files.exists(path)) {
             throw new FileNotFoundException("File does not exist at path " + path);
         }
+        if (isZip(path)) {
+            try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
+                final String workflowPath = findFirstWorkflow(zip);
+                if (workflowPath == null) {
+                    throw new IllegalArgumentException("Zip file does not contain a workflow: " + path);
+                }
+                return readTopLevelWorkflow(workflowPath, zip, config);
+            }
+        }
         if (!Files.isDirectory(path)) {
             throw new IllegalArgumentException("Path is not a directory: " + path);
         }
@@ -149,7 +165,7 @@ public class Workflowalizer {
         if (!Files.exists(workflowPath)) {
             throw new IllegalArgumentException(path + " is not a workflow");
         }
-        return readTopLevelWorkflow(path.toAbsolutePath().toString(), config);
+        return readTopLevelWorkflow(path.toAbsolutePath().toString(), null, config);
     }
 
     // -- Helper methods --
@@ -193,11 +209,16 @@ public class Workflowalizer {
         return parser;
     }
 
-    private static TopLevelWorkflowMetadata readTopLevelWorkflow(final String path,
+    private static TopLevelWorkflowMetadata readTopLevelWorkflow(final String path, final ZipFile zip,
         final WorkflowalizerConfiguration wc) throws FileNotFoundException, IOException, InvalidSettingsException,
         ParseException, XPathExpressionException, ParserConfigurationException, SAXException {
         // Reading workflow.knime
-        MetadataConfig workflowKnime = readFile(Paths.get(path, "workflow.knime"), "workflow.knime");
+        MetadataConfig workflowKnime = null;
+        if (zip == null) {
+            workflowKnime = readFile(Paths.get(path, "workflow.knime"), "workflow.knime");
+        } else {
+            workflowKnime = readFile(path + "workflow.knime", zip, "workflow.knime");
+        }
 
         // Version checking
         final String readVersion = workflowKnime.getString("version");
@@ -208,7 +229,7 @@ public class Workflowalizer {
 
         final WorkflowFields wf = wc.createWorkflowFields();
         builder.setWorkflowFields(wf);
-        populateWorkflowFields(wf, wc, parser, workflowKnime, null, path);
+        populateWorkflowFields(wf, wc, parser, workflowKnime, null, path, zip);
 
         if (wc.parseAuthor()) {
             final String author = parser.getAuthorName(workflowKnime);
@@ -227,21 +248,42 @@ public class Workflowalizer {
             builder.setLastEditor(lastEditor);
         }
         if (wc.parseArtifacts()) {
-            final Optional<Collection<String>> artifactsFiles = artifactsFiles(parser, Paths.get(path));
+            Optional<Collection<String>> artifactsFiles = null;
+            if (zip == null) {
+                artifactsFiles = artifactsFiles(parser, Paths.get(path));
+            } else {
+                artifactsFiles = artifactsFiles(parser, path, zip);
+            }
             builder.setArtifactsFileNames(artifactsFiles);
         }
         if (wc.parseSVG()) {
-            final Optional<String> svg = svgFile(parser, Paths.get(path));
+            Optional<String> svg = null;
+            if (zip == null) {
+                svg = svgFile(parser, Paths.get(path));
+            } else {
+                svg = svgFile(parser, path, zip);
+            }
             builder.setWorkflowSVGFile(svg);
         }
         if ((wc.parseWorkflowSetAuthor() || wc.parseWorkflowSetComments())) {
             Optional<WorkflowSetMeta> wsa = null;
-            final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
-            if (!Files.exists(workflowsetPath)) {
-                wsa = Optional.empty();
+            if (zip == null) {
+                final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
+                if (!Files.exists(workflowsetPath)) {
+                    wsa = Optional.empty();
+                } else {
+                    try (final InputStream is = Files.newInputStream(workflowsetPath)) {
+                        wsa = Optional.ofNullable(readWorkflowSetMeta(is, wc));
+                    }
+                }
             } else {
-                try (final InputStream is = Files.newInputStream(workflowsetPath)) {
-                    wsa = Optional.ofNullable(readWorkflowSetMeta(is, wc));
+                final ZipEntry entry = zip.getEntry(path + parser.getWorkflowSetMetaFileName());
+                if (entry == null) {
+                    wsa = Optional.empty();
+                } else {
+                    try (final InputStream is = zip.getInputStream(entry)) {
+                        wsa = Optional.ofNullable(readWorkflowSetMeta(is, wc));
+                    }
                 }
             }
             builder.setWorkflowSetMeta(wsa);
@@ -250,7 +292,7 @@ public class Workflowalizer {
         return builder.build(wc);
     }
 
-    private static Map<Integer, NodeMetadata> readNodes(final String currentWorkflowDirectory,
+    private static Map<Integer, NodeMetadata> readNodes(final String currentWorkflowDirectory, final ZipFile zip,
         final List<ConfigBase> configs, final WorkflowalizerConfiguration wc, final WorkflowParser parser)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final Map<Integer, NodeMetadata> map = new HashMap<>();
@@ -259,13 +301,13 @@ public class Workflowalizer {
             NodeMetadata n = null;
             int id = -1;
             if (type.equals("NativeNode")) {
-                n = readNativeNode(currentWorkflowDirectory, config, wc, parser);
+                n = readNativeNode(currentWorkflowDirectory, zip, config, wc, parser);
                 id = wc.parseId() ? n.getNodeId() : parser.getId(config);
             } else if (type.equals("SubNode")) {
-                n = readWrappedMetanode(currentWorkflowDirectory, config, wc, parser);
+                n = readWrappedMetanode(currentWorkflowDirectory, zip, config, wc, parser);
                 id = wc.parseId() ? n.getNodeId() : parser.getId(config);
             } else if (type.equals("MetaNode")) {
-                n = readMetanode(currentWorkflowDirectory, wc, config, parser);
+                n = readMetanode(currentWorkflowDirectory, zip, wc, config, parser);
                 id = wc.parseId() ? n.getNodeId() : parser.getId(config);
             } else {
                 throw new IllegalArgumentException("Unknown node type: " + type);
@@ -276,18 +318,26 @@ public class Workflowalizer {
         return map;
     }
 
-    private static MetanodeMetadata readMetanode(final String parentDirectory, final WorkflowalizerConfiguration wc,
-        final ConfigBase configBase, final WorkflowParser parser)
+    private static MetanodeMetadata readMetanode(final String parentDirectory, final ZipFile zip,
+        final WorkflowalizerConfiguration wc, final ConfigBase configBase, final WorkflowParser parser)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final MetanodeMetadataBuilder builder = new MetanodeMetadataBuilder();
 
-        final Path metaNodeFile = Paths.get(parentDirectory, settings);
-        final String metaNodeDirectory = metaNodeFile.getParent().toAbsolutePath().toString();
-        final MetadataConfig workflowKnime = readFile(metaNodeFile, metaNodeFile.getFileName().toString());
+        MetadataConfig workflowKnime = null;
+        String metaNodeDirectory = null;
+        if (zip == null) {
+            final Path metaNodeFile = Paths.get(parentDirectory, settings);
+            metaNodeDirectory = metaNodeFile.getParent().toAbsolutePath().toString();
+            workflowKnime = readFile(metaNodeFile, metaNodeFile.getFileName().toString());
+        } else {
+            final String nodePath = parentDirectory + settings;
+            workflowKnime = readFile(nodePath, zip, "workflow.knime");
+            metaNodeDirectory = nodePath.substring(0, nodePath.lastIndexOf("/") + 1);
+        }
 
         final WorkflowFields wf = wc.createWorkflowFields();
-        populateWorkflowFields(wf, wc, parser, workflowKnime, null, metaNodeDirectory);
+        populateWorkflowFields(wf, wc, parser, workflowKnime, null, metaNodeDirectory, zip);
         builder.setWorkflowFields(wf);
 
         final NodeFields nf = wc.createNodeFields();
@@ -306,21 +356,31 @@ public class Workflowalizer {
         return builder.build(wc);
     }
 
-    private static SubnodeMetadata readWrappedMetanode(final String parentDirectory,
+    private static SubnodeMetadata readWrappedMetanode(final String parentDirectory, final ZipFile zip,
         final ConfigBase configBase, final WorkflowalizerConfiguration wc, final WorkflowParser parser)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final SubnodeMetadataBuilder builder = new SubnodeMetadataBuilder();
 
-        final Path subnodeFile = Paths.get(parentDirectory, settings);
-        final Path subnodeDirectoryPath = subnodeFile.getParent();
-        final String subnodeDirectory = subnodeDirectoryPath.toAbsolutePath().toString();
-        final MetadataConfig settingsXml = readFile(subnodeFile, subnodeFile.getFileName().toString());
-        final MetadataConfig workflowKnime =
-            readFile(subnodeDirectoryPath.resolve(parser.getWorkflowFileName()), parser.getWorkflowFileName());
+        MetadataConfig workflowKnime = null;
+        MetadataConfig settingsXml = null;
+        String subnodeDirectory = null;
+        if (zip == null) {
+            final Path subnodeFile = Paths.get(parentDirectory, settings);
+            final Path subnodeDirectoryPath = subnodeFile.getParent();
+            subnodeDirectory = subnodeDirectoryPath.toAbsolutePath().toString();
+            settingsXml = readFile(subnodeFile, subnodeFile.getFileName().toString());
+            workflowKnime =
+                readFile(subnodeDirectoryPath.resolve(parser.getWorkflowFileName()), parser.getWorkflowFileName());
+        } else {
+            final String nodePath = parentDirectory + settings;
+            subnodeDirectory = nodePath.substring(0, nodePath.lastIndexOf("/") + 1);
+            settingsXml = readFile(nodePath, zip, "settings.xml");
+            workflowKnime = readFile(subnodeDirectory + parser.getWorkflowFileName(), zip, "workflow.knime");
+        }
 
         final WorkflowFields wf = wc.createWorkflowFields();
-        populateWorkflowFields(wf, wc, parser, workflowKnime, null, subnodeDirectory);
+        populateWorkflowFields(wf, wc, parser, workflowKnime, null, subnodeDirectory, zip);
         builder.setWorkflowFields(wf);
 
         final SingleNodeFields snf = wc.createSingleNodeFields();
@@ -335,14 +395,19 @@ public class Workflowalizer {
         return builder.build(wc);
     }
 
-    private static NativeNodeMetadata readNativeNode(final String parentDirectory,
+    private static NativeNodeMetadata readNativeNode(final String parentDirectory, final ZipFile zip,
         final ConfigBase configBase, final WorkflowalizerConfiguration wc, final WorkflowParser parser)
         throws InvalidSettingsException, FileNotFoundException, IOException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final NativeNodeMetadataBuilder builder = new NativeNodeMetadataBuilder();
 
-        final Path nodeFile = Paths.get(parentDirectory, settings);
-        final MetadataConfig settingsXml = readFile(nodeFile, nodeFile.getFileName().toString());
+        MetadataConfig settingsXml = null;
+        if (zip == null) {
+            final Path nodeFile = Paths.get(parentDirectory, settings);
+            settingsXml = readFile(nodeFile, nodeFile.getFileName().toString());
+        } else {
+            settingsXml = readFile(parentDirectory + settings, zip, "settings.xml");
+        }
 
         final SingleNodeFields snf = wc.createSingleNodeFields();
         populateSingleNodeFields(snf, wc, parser, settingsXml, configBase);
@@ -396,7 +461,8 @@ public class Workflowalizer {
     // -- Populate methods --
 
     private static void populateWorkflowFields(final WorkflowFields wf, final WorkflowalizerConfiguration wc,
-        final WorkflowParser parser, final ConfigBase workflowKnime, final ConfigBase templateKnime, final String path) throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
+        final WorkflowParser parser, final ConfigBase workflowKnime, final ConfigBase templateKnime, final String path,
+        final ZipFile zip) throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
         if (wc.parseVersion()) {
             final Version version = parser.getVersion(workflowKnime, templateKnime);
             wf.setVersion(version);
@@ -419,7 +485,7 @@ public class Workflowalizer {
         }
         if (wc.parseNodes()) {
             final Map<Integer, NodeMetadata> nodes =
-                readNodes(path, parser.getNodeConfigs(workflowKnime), wc, parser);
+                readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser);
             wf.setNodes(new ArrayList<>(nodes.values()));
             if (wc.parseConnections()) {
                 final List<NodeConnection> connections = parser.getConnections(workflowKnime, nodes);
@@ -427,7 +493,12 @@ public class Workflowalizer {
             }
         }
         if (wc.parseUnexpectedFiles()) {
-            final Collection<String> files = findUnexpectedFiles(parser.getExpectedFileNames(workflowKnime), Paths.get(path));
+            Collection<String> files = null;
+            if (zip == null) {
+                files = findUnexpectedFiles(parser.getExpectedFileNames(workflowKnime), Paths.get(path));
+            } else {
+                files = findUnexpectedFiles(parser.getExpectedFileNames(workflowKnime), path, zip);
+            }
             wf.setUnexpectedFileNames(files);
         }
     }
@@ -476,6 +547,39 @@ public class Workflowalizer {
         }
     }
 
+    private static MetadataConfig readFile(final String entry, final ZipFile zip, final String key) throws IOException {
+        final ZipEntry e = zip.getEntry(entry);
+        if (e == null) {
+            throw new FileNotFoundException("Zip entry does not exist: " + entry);
+        }
+        try (final InputStream s = zip.getInputStream(e)) {
+            final MetadataConfig c = new MetadataConfig(key);
+            c.load(s);
+            return c;
+        }
+    }
+
+    private static boolean isZip(final Path path) throws FileNotFoundException, IOException {
+        if (!Files.exists(path)) {
+            return false;
+        }
+        if (Files.isDirectory(path)) {
+            return false;
+        }
+
+        final File file = path.toFile();
+        if (!FilenameUtils.getExtension(file.getName()).equals("zip")) {
+            return false;
+        }
+        int fileSignature = 0;
+        try (final RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
+            fileSignature = raf.readInt();
+        }
+        // Zip file signatures or "magic number"
+        // see https://en.wikipedia.org/wiki/List_of_file_signatures
+        return fileSignature == 0x504B0304 || fileSignature == 0x504B0506 || fileSignature == 0x504B0708;
+    }
+
     private static Collection<String> findUnexpectedFiles(final Collection<String> expectedFiles, final Path path)
         throws InvalidSettingsException, IOException {
         final List<String> unexpectedFiles = new ArrayList<>();
@@ -499,6 +603,30 @@ public class Workflowalizer {
         };
         Files.walkFileTree(path, visitor);
         return unexpectedFiles;
+    }
+
+    private static Collection<String> findUnexpectedFiles(final Collection<String> expectedFiles, final String path,
+        final ZipFile zip) {
+        final Enumeration<? extends ZipEntry> entries = zip.entries();
+        final List<String> files = new ArrayList<>();
+        while (entries.hasMoreElements()) {
+            final ZipEntry entry = entries.nextElement();
+            final String name = entry.getName();
+            if (!entry.isDirectory() && name.startsWith(path) && !name.equals(path)) {
+                final String relativePath = name.substring(path.length(), name.length());
+                boolean match = false;
+                for (final String expected : expectedFiles) {
+                    if (relativePath.contains(expected)) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) {
+                    files.add(name);
+                }
+            }
+        }
+        return files;
     }
 
     private static Optional<Collection<String>> artifactsFiles(final WorkflowParser parser,
@@ -525,6 +653,32 @@ public class Workflowalizer {
         return Optional.of(files);
     }
 
+    private static Optional<Collection<String>> artifactsFiles(final WorkflowParser parser, final String path,
+        final ZipFile zip) {
+        String entryName = path + parser.getArtifactsDirectoryName();
+        ZipEntry entry = zip.getEntry(entryName);
+        if (entry == null) {
+            entryName = entryName + "/";
+            entry = zip.getEntry(entryName);
+        }
+        if (entry == null) {
+            return Optional.empty();
+        }
+        if (!entry.isDirectory()) {
+            throw new IllegalArgumentException(parser.getArtifactsDirectoryName() + " is not a directory");
+        }
+        final Collection<String> files = new ArrayList<>();
+        final Enumeration<? extends ZipEntry> entries = zip.entries();
+        while (entries.hasMoreElements()) {
+            final ZipEntry e = entries.nextElement();
+            final String name = e.getName();
+            if (name.startsWith(entryName) && !e.isDirectory()) {
+                files.add(name);
+            }
+        }
+        return Optional.of(files);
+    }
+
     private static Optional<String> svgFile(final WorkflowParser parser, final Path workflowDirectory)
         throws IOException {
         final Path svg = workflowDirectory.resolve(parser.getWorkflowSVGFileName());
@@ -535,6 +689,53 @@ public class Workflowalizer {
             throw new IllegalArgumentException(parser.getWorkflowSVGFileName() + " is not an SVG");
         }
         return Optional.of(svg.toAbsolutePath().toString());
+    }
+
+    private static Optional<String> svgFile(final WorkflowParser parser, final String path, final ZipFile zip) {
+        final ZipEntry svg = zip.getEntry(path + parser.getWorkflowSVGFileName());
+        if (svg == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(svg.getName());
+    }
+
+    private static String findFirstWorkflow(final ZipFile zipFile) {
+        final List<String> templates = new ArrayList<>();
+        boolean isTemplate = false;
+        String workflow = null;
+
+        do {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            int numSlashes = Integer.MAX_VALUE;
+            while (entries.hasMoreElements()) {
+                final ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                final String name = entry.getName();
+                if (name.contains("workflow.knime") && !templates.contains(name)) {
+                    final int matches = StringUtils.countMatches(name, "/");
+                    if (matches < numSlashes) {
+                        numSlashes = matches;
+                        workflow = name.substring(0, name.length() - 14);
+                    }
+                }
+            }
+
+            // check if it is a template
+            entries = zipFile.entries();
+            isTemplate = false;
+            while (entries.hasMoreElements()) {
+                final String name = entries.nextElement().getName();
+                if (name.equals(workflow + "template.knime")) {
+                    isTemplate = true;
+                    templates.add(workflow + "workflow.knime");
+                    break;
+                }
+            }
+        } while (isTemplate);
+
+        return workflow;
     }
 
 }
