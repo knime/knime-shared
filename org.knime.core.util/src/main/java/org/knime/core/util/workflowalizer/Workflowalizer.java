@@ -101,6 +101,64 @@ import org.xml.sax.SAXException;
 public class Workflowalizer {
 
     /**
+     * Reads the workflowset meta file.
+     *
+     * @param workflowsetMetaFile path to "workflowset.meta" file
+     * @return the metadata contained within the file as {@link WorkflowSetMeta}
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     * @throws XPathExpressionException
+     */
+    public static WorkflowSetMeta readWorkflowGroup(final Path workflowsetMetaFile)
+        throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        return readWorkflowGroup(workflowsetMetaFile,
+            WorkflowalizerConfiguration.builder().readWorkflowSetMeta().build());
+    }
+
+    /**
+     * Reads the workflowset meta file, but only the requested fields
+     *
+     * @param workflowsetMetaFile path to "workflowset.meta" file
+     * @param config the {@link WorkflowalizerConfiguration}, this cannot be {@code null}
+     * @return the metadata contained within the file as {@link WorkflowSetMeta}
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     * @throws XPathExpressionException
+     */
+    public static WorkflowSetMeta readWorkflowGroup(final Path workflowsetMetaFile,
+        final WorkflowalizerConfiguration config)
+        throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        if (config == null) {
+            throw new IllegalArgumentException("Configuration cannot be null");
+        }
+
+        if (isZip(workflowsetMetaFile)) {
+            try (final ZipFile zip = new ZipFile(workflowsetMetaFile.toAbsolutePath().toString())) {
+                final String workflowPath = findFirstWorkflowGroup(zip);
+                if (workflowPath == null) {
+                    throw new IllegalArgumentException(
+                        "Zip file does not contain a workflow group: " + workflowsetMetaFile);
+                }
+                try (final InputStream is = zip.getInputStream(zip.getEntry(workflowPath))) {
+                    return readWorkflowSetMeta(is, config);
+                }
+            }
+        }
+
+        if (!Files.exists(workflowsetMetaFile)) {
+            throw new FileNotFoundException(workflowsetMetaFile + " does not exist");
+        }
+        if (Files.isDirectory(workflowsetMetaFile)) {
+            throw new IllegalArgumentException(workflowsetMetaFile + " is a directory");
+        }
+        try (final InputStream is = Files.newInputStream(workflowsetMetaFile)) {
+            return readWorkflowSetMeta(is, config);
+        }
+    }
+
+    /**
      * Reads the workflow in the given directory. All node and workflow fields will be read.
      *
      * @param path the workflow directory
@@ -736,6 +794,48 @@ public class Workflowalizer {
         } while (isTemplate);
 
         return workflow;
+    }
+
+    private static String findFirstWorkflowGroup(final ZipFile zipFile) {
+        final List<String> workflows = new ArrayList<>();
+        boolean isWorkflow = false;
+        String workflowgroup = null;
+
+        do {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            int numSlashes = Integer.MAX_VALUE;
+            while (entries.hasMoreElements()) {
+                final ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                final String name = entry.getName();
+                if (name.contains("workflowset.meta") && !workflows.contains(name)) {
+                    final int matches = StringUtils.countMatches(name, "/");
+                    if (matches < numSlashes) {
+                        numSlashes = matches;
+                        workflowgroup = name;
+                    }
+                }
+            }
+
+            // check if it is a workflow
+            isWorkflow = false;
+            if (workflowgroup != null) {
+                final String workflowGroupDir = workflowgroup.substring(0, workflowgroup.length() - 16);
+                entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    final String name = entries.nextElement().getName();
+                    if (name.equals(workflowGroupDir + "workflow.knime")) {
+                        isWorkflow = true;
+                        workflows.add(workflowgroup);
+                        break;
+                    }
+                }
+            }
+        } while (isWorkflow);
+
+        return workflowgroup;
     }
 
 }

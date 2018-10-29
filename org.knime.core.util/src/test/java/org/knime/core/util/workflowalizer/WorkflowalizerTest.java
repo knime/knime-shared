@@ -98,9 +98,11 @@ public class WorkflowalizerTest {
     private static Path m_workspaceDir;
     private static Path m_workflowDir;
     private static Path m_nodeDir;
+    private static Path m_workflowGroupFile;
     private static List<String> m_readWorkflowLines;
     private static List<String> m_readNodeLines;
     private static List<String> m_readWorkflowSetLines;
+    private static List<String> m_readWorkflowGroupLines;
 
     /** Exception for testing */
     @Rule
@@ -125,6 +127,9 @@ public class WorkflowalizerTest {
 
         final Path workflowSetMetaPath = m_workflowDir.resolve("workflowset.meta");
         m_readWorkflowSetLines = Files.readAllLines(workflowSetMetaPath);
+
+        m_workflowGroupFile = m_workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta");
+        m_readWorkflowGroupLines = Files.readAllLines(m_workflowGroupFile);
     }
 
     /**
@@ -937,6 +942,46 @@ public class WorkflowalizerTest {
         assertEquals(6, nativeNodeCount);
         assertEquals(0, subnodeCount);
         assertEquals(0, metanodeCount);
+    }
+
+    // -- Workflow group --
+
+    /**
+     * Tests reading a workflow group
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowGroup() throws Exception {
+        final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile);
+        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
+        assertEquals(parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines), wsm.getComments().orElse(null));
+    }
+
+    /**
+     * Tests reading a workflow group author field
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowGroupAuthor() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowSetAuthor().build();
+        final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile, wc);
+        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
+        assertUOEThrown(wsm::getComments);
+    }
+
+    /**
+     * Tests reading a workflow group comments field
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowGroupComments() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowSetComments().build();
+        final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile, wc);
+        assertEquals(parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines), wsm.getComments().orElse(null));
+        assertUOEThrown(wsm::getAuthor);
     }
 
     // -- Helper methods --
