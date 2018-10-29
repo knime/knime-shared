@@ -98,9 +98,12 @@ public class WorkflowalizerTest {
     private static Path m_workspaceDir;
     private static Path m_workflowDir;
     private static Path m_nodeDir;
+    private static Path m_templateDir;
     private static Path m_workflowGroupFile;
     private static List<String> m_readWorkflowLines;
     private static List<String> m_readNodeLines;
+    private static List<String> m_readTemplateWorkflowKnime;
+    private static List<String> m_readTemplateTemplateKnime;
     private static List<String> m_readWorkflowSetLines;
     private static List<String> m_readWorkflowGroupLines;
 
@@ -124,6 +127,13 @@ public class WorkflowalizerTest {
 
         m_nodeDir = new File(m_workflowDir.toFile(), "Column Splitter (#10)").toPath();
         m_readNodeLines = Files.readAllLines(new File(m_nodeDir.toFile(), "settings.xml").toPath());
+
+        m_templateDir =
+            new File(m_workspaceDir.toFile(), "workflowalizer-test/Hierarchical Cluster Assignment").toPath();
+        m_readTemplateWorkflowKnime =
+            Files.readAllLines(Paths.get(m_templateDir.toAbsolutePath().toString(), "workflow.knime"));
+        m_readTemplateTemplateKnime =
+            Files.readAllLines(Paths.get(m_templateDir.toAbsolutePath().toString(), "template.knime"));
 
         final Path workflowSetMetaPath = m_workflowDir.resolve("workflowset.meta");
         m_readWorkflowSetLines = Files.readAllLines(workflowSetMetaPath);
@@ -944,6 +954,148 @@ public class WorkflowalizerTest {
         assertEquals(0, metanodeCount);
     }
 
+    // -- Test reading template --
+
+    /**
+     * Tests that the template has the correct structure
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testTemplateStructure() throws Exception {
+        final TemplateMetadata template = Workflowalizer.readTemplate(m_templateDir);
+        final Path t = Paths.get(m_templateDir.toAbsolutePath().toString(), "workflow.knime");
+        testStructure(template, t);
+    }
+
+    /**
+     * Tests that the template fields are read correctly.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testTemplateMetadata() throws Exception {
+        final TemplateMetadata template = Workflowalizer.readTemplate(m_templateDir);
+
+        assertEquivalentAnnotations(readAnnotations(m_readTemplateWorkflowKnime), template.getAnnotations());
+        assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), template.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), template.getConnections());
+        assertEquals(readCreatedBy(m_readTemplateTemplateKnime), template.getCreatedBy());
+        assertEquals(readCustomDescription(m_readTemplateWorkflowKnime), template.getCustomDescription());
+        assertEquals(readName(m_readTemplateWorkflowKnime), template.getName());
+
+        final List<Integer> nodeIds = readNodeIds(m_readTemplateWorkflowKnime);
+        final List<NodeMetadata> nodes = template.getNodes();
+        assertEquals(nodeIds.size(), nodes.size());
+        for (final NodeMetadata node : nodes) {
+            assertTrue(nodeIds.contains(node.getNodeId()));
+        }
+        assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), template.getTemplateInformation());
+        assertEquals(readVersion(m_readTemplateTemplateKnime), template.getVersion());
+        assertTrue(template.getUnexpectedFileNames().isEmpty());
+    }
+
+    /**
+     * Test reading a template's author information only
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingTemplateMetadataAuthorInformation() throws Exception {
+        final WorkflowalizerConfiguration config =
+            WorkflowalizerConfiguration.builder().readAuthorInformation().build();
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_templateDir, config);
+
+        assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), tm.getAuthorInformation());
+
+        assertUOEThrown(tm::getAnnotations);
+        assertUOEThrown(tm::getConnections);
+        assertUOEThrown(tm::getCreatedBy);
+        assertUOEThrown(tm::getCustomDescription);
+        assertUOEThrown(tm::getName);
+        assertUOEThrown(tm::getNodes);
+        assertUOEThrown(tm::getTemplateInformation);
+        assertUOEThrown(tm::getUnexpectedFileNames);
+        assertUOEThrown(tm::getVersion);
+    }
+
+    /**
+     * Tests reading a template's template information only
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingTemplateMetadataTemplateInformation() throws Exception {
+        final WorkflowalizerConfiguration config =
+            WorkflowalizerConfiguration.builder().readTemplateInformation().build();
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_templateDir, config);
+
+        assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), tm.getTemplateInformation());
+
+        assertUOEThrown(tm::getAnnotations);
+        assertUOEThrown(tm::getAuthorInformation);
+        assertUOEThrown(tm::getConnections);
+        assertUOEThrown(tm::getCreatedBy);
+        assertUOEThrown(tm::getCustomDescription);
+        assertUOEThrown(tm::getName);
+        assertUOEThrown(tm::getNodes);
+        assertUOEThrown(tm::getUnexpectedFileNames);
+        assertUOEThrown(tm::getVersion);
+    }
+
+    /**
+     * Tests reading a template from a zip
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingTemplateFromZip() throws Exception {
+        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
+
+        assertEquivalentAnnotations(readAnnotations(m_readTemplateWorkflowKnime), tm.getAnnotations());
+        assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), tm.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), tm.getConnections());
+        assertEquals(readCreatedBy(m_readTemplateTemplateKnime), tm.getCreatedBy());
+        assertEquals(readCustomDescription(m_readTemplateWorkflowKnime), tm.getCustomDescription());
+        assertEquals(readName(m_readTemplateWorkflowKnime), tm.getName());
+
+        final List<Integer> nodeIds = readNodeIds(m_readTemplateWorkflowKnime);
+        final List<NodeMetadata> nodes = tm.getNodes();
+        assertEquals(nodeIds.size(), nodes.size());
+        for (final NodeMetadata node : nodes) {
+            assertTrue(nodeIds.contains(node.getNodeId()));
+        }
+        assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), tm.getTemplateInformation());
+        assertEquals(readVersion(m_readTemplateTemplateKnime), tm.getVersion());
+        assertTrue(tm.getUnexpectedFileNames().isEmpty());
+    }
+
+    /**
+     * Tests trying to read a template as a workflow
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingTemplateAsWorkflow()
+        throws Exception {
+        m_exception.expect(IllegalArgumentException.class);
+        m_exception.expectMessage(m_templateDir + " is a template, not a workflow");
+        Workflowalizer.readWorkflow(m_templateDir);
+    }
+
+    /**
+     * Tests trying to read a workflow as a template
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowAsTemplate() throws Exception {
+        m_exception.expect(IllegalArgumentException.class);
+        m_exception.expectMessage(m_workflowDir + " is a workflow, not a template");
+        Workflowalizer.readTemplate(m_workflowDir);
+    }
+
     // -- Workflow group --
 
     /**
@@ -1133,6 +1285,17 @@ public class WorkflowalizerTest {
 
         return new AuthorInformation(author, df.parse(authoredString), Optional.ofNullable(lastEditor),
             Optional.ofNullable(lastEdited));
+    }
+
+    private static TemplateInformation readTemplateInformation(final List<String> readTemplateLines)
+        throws IOException, ParseException {
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        final String role = parseValue(readTemplateLines, "role");
+        final Date timeStamp = df.parse(parseValue(readTemplateLines, "timestamp"));
+        final Optional<String> sourceURI = Optional.ofNullable(parseValue(readTemplateLines, "sourceURI"));
+        final String type = parseValue(readTemplateLines, "templateType");
+
+        return new TemplateInformation(role, timeStamp, sourceURI, type);
     }
 
     private static void assertEquivalentAnnotations(final Optional<List<String>> expected,

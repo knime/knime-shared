@@ -226,6 +226,66 @@ public class Workflowalizer {
         return readTopLevelWorkflow(path.toAbsolutePath().toString(), null, config);
     }
 
+    /**
+     * Reads the template in the given directory/zip file, all the fields will be read.
+     *
+     * @param path the template directory, or zip file containing the template. If the zip contains multiple template
+     *            only the first will be read.
+     * @return the template metadata
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws InvalidSettingsException
+     * @throws ParseException
+     */
+    public static TemplateMetadata readTemplate(final Path path)
+        throws IOException, URISyntaxException, InvalidSettingsException, ParseException {
+        return readTemplate(path, WorkflowalizerConfiguration.builder().readAll().build());
+    }
+
+    /**
+     * Reads the template in the given directory/zip, only the requested fields will be populated.
+     *
+     * @param path the template directory, or zip file containing the template. If the zip contains multiple templates
+     *            only the first will be read.
+     * @param config the {@link WorkflowalizerConfiguration}, this cannot be {@code null}
+     * @return the template metadata
+     * @throws IOException
+     * @throws InvalidSettingsException
+     * @throws ParseException
+     * @throws URISyntaxException
+     */
+    public static TemplateMetadata readTemplate(final Path path, final WorkflowalizerConfiguration config)
+        throws IOException, URISyntaxException, InvalidSettingsException, ParseException {
+        if (config == null) {
+            throw new IllegalArgumentException("Configuration cannot be null");
+        }
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("File does not exist at path " + path);
+        }
+        if (isZip(path)) {
+            try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
+                final String zipPath = findFirstTemplate(zip);
+                if (zipPath == null) {
+                    throw new IllegalArgumentException("Zip file does not contain a template: " + path);
+                }
+                return readTemplateMetadata(zipPath, zip, config);
+            }
+        }
+        if (!Files.isDirectory(path)) {
+            throw new IllegalArgumentException("Path is not a directory: " + path);
+        }
+        // validate it is a template
+        final Path workflowPath = path.resolve("workflow.knime");
+        final Path templatePath = path.resolve("template.knime");
+        if (!Files.exists(templatePath) && Files.exists(workflowPath)) {
+            throw new IllegalArgumentException(path + " is a workflow, not a template");
+        }
+        if (!Files.exists(templatePath) || !Files.exists(workflowPath)) {
+            throw new IllegalArgumentException(path + " is not a template");
+        }
+        return readTemplateMetadata(path.toAbsolutePath().toString(), null, config);
+    }
+
     // -- Helper methods --
 
     private static WorkflowSetMeta readWorkflowSetMeta(final InputStream is, final WorkflowalizerConfiguration config)
@@ -345,6 +405,68 @@ public class Workflowalizer {
                 }
             }
             builder.setWorkflowSetMeta(wsa);
+        }
+
+        return builder.build(wc);
+    }
+
+    private static TemplateMetadata readTemplateMetadata(final String path, final ZipFile zip,
+        final WorkflowalizerConfiguration wc)
+        throws InvalidSettingsException, FileNotFoundException, ParseException, IOException {
+        // Reading files
+        // TODO: Is the template file always template.knime?
+        MetadataConfig workflowKnime = null;
+        MetadataConfig templateKnime = null;
+        if (zip == null) {
+            workflowKnime = readFile(Paths.get(path, "workflow.knime"), "workflow.knime");
+            templateKnime = readFile(Paths.get(path, "template.knime"), "template.knime");
+        } else {
+            workflowKnime = readFile(path + "workflow.knime", zip, "workflow.knime");
+            templateKnime = readFile(path + "template.knime", zip, "template.knime");
+        }
+
+        // Version checking
+        final String readVersion = templateKnime.getString("version");
+        final WorkflowParser parser = getParser(readVersion);
+
+        // Read template
+        final TemplateMetadataBuilder builder = new TemplateMetadataBuilder();
+
+        final WorkflowFields wf = wc.createWorkflowFields();
+        builder.setWorkflowFields(wf);
+        populateWorkflowFields(wf, wc, parser, workflowKnime, templateKnime, path, zip);
+
+        if (wc.parseAuthor()) {
+            final String author = parser.getAuthorName(workflowKnime);
+            builder.setAuthor(author);
+        }
+        if (wc.parseAuthorDate()) {
+            final Date authoredDate = parser.getAuthoredDate(workflowKnime);
+            builder.setAuthorDate(authoredDate);
+        }
+        if (wc.parseLastEditedDate()) {
+            final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
+            builder.setLastEditDate(lastEditedDate);
+        }
+        if (wc.parseLastEditor()) {
+            final Optional<String> lastEditor = parser.getEditorName(workflowKnime);
+            builder.setLastEditor(lastEditor);
+        }
+        if (wc.parseRole()) {
+            final String role = parser.getRole(templateKnime);
+            builder.setRole(role);
+        }
+        if (wc.parseTimeStamp()) {
+            final Date timeStamp = parser.getTimeStamp(templateKnime);
+            builder.setTimeStamp(timeStamp);
+        }
+        if (wc.parseSourceURI()) {
+            final Optional<String> sourceURI = parser.getSourceURI(templateKnime);
+            builder.setSourceURI(sourceURI);
+        }
+        if (wc.parseTemplateType()) {
+            final String templateType = parser.getTemplateType(templateKnime);
+            builder.setType(templateType);
         }
 
         return builder.build(wc);
@@ -794,6 +916,27 @@ public class Workflowalizer {
         } while (isTemplate);
 
         return workflow;
+    }
+
+    private static String findFirstTemplate(final ZipFile zipFile) {
+        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        int numSlashes = Integer.MAX_VALUE;
+        String template = null;
+        while (entries.hasMoreElements()) {
+            final ZipEntry entry = entries.nextElement();
+            if (entry.isDirectory()) {
+                continue;
+            }
+            final String name = entry.getName();
+            if (name.endsWith("template.knime")) {
+                final int matches = StringUtils.countMatches(name, "/");
+                if (matches < numSlashes) {
+                    numSlashes = matches;
+                    template = name.substring(0, name.length() - 14);
+                }
+            }
+        }
+        return template;
     }
 
     private static String findFirstWorkflowGroup(final ZipFile zipFile) {
