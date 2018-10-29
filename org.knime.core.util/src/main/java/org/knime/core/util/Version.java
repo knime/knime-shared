@@ -48,6 +48,9 @@ package org.knime.core.util;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -58,11 +61,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @since 4.5
  */
 public final class Version implements Comparable<Version>, Serializable {
+
+    /** Empty version 0.0.0 */
+    public static final Version EMPTY_VERSION = new Version(0, 0, 0);
+
     private final int m_major;
 
     private final int m_minor;
 
     private final int m_revision;
+
+    private final String m_qualifier;
 
     /**
      * Creates a new version.
@@ -77,6 +86,24 @@ public final class Version implements Comparable<Version>, Serializable {
         m_major = major;
         m_minor = minor;
         m_revision = revision;
+        m_qualifier = "";
+    }
+
+    /**
+     * Creates a new version.
+     *
+     * @param major the major version
+     * @param minor the minor version
+     * @param revision the revision
+     * @param qualifier the qualifier String
+     */
+    @JsonCreator
+    public Version(@JsonProperty("major") final int major, @JsonProperty("minor") final int minor,
+        @JsonProperty("revision") final int revision, @JsonProperty("qualifier") final String qualifier) {
+        m_major = major;
+        m_minor = minor;
+        m_revision = revision;
+        m_qualifier = qualifier == null ? "" : qualifier;
     }
 
     /**
@@ -88,21 +115,53 @@ public final class Version implements Comparable<Version>, Serializable {
      * @throws NumberFormatException if a version part is not numeric
      */
     public Version(final String version) {
-        String[] parts = version.split("[\\.-]"); // "-" because of versions like 3.8.0-SNAPSHOT
+        final String[] parts = version.split("\\.");
         if (parts.length < 1) {
             throw new IllegalArgumentException("Wrong version format: " + version);
         }
+
+        // Major version
         m_major = Integer.parseInt(parts[0]);
+
+        // Minor version
         if (parts.length > 1) {
             m_minor = Integer.parseInt(parts[1]);
         } else {
             m_minor = 0;
         }
+
+        // Revision version
+        String revision = null;
+        String qualifier = "";
+
         if (parts.length > 2) {
-            m_revision = Integer.parseInt(parts[2]);
+            int split = 0;
+            for (int i = 0; i < parts[2].length(); i++) {
+                if (!Character.isDigit(parts[2].charAt(i))) {
+                    split = i;
+                    break;
+                }
+            }
+            if (split == 0) {
+                revision = parts[2];
+                qualifier = "";
+            }
+            else {
+                revision = parts[2].substring(0, split);
+                qualifier = parts[2].substring(split, parts[2].length());
+            }
+            m_revision = Integer.parseInt(revision);
         } else {
             m_revision = 0;
         }
+
+        // Qualifier string
+        if (parts.length > 3) {
+            for (int i = 3; i < parts.length; i++) {
+                qualifier = qualifier + "." +  parts[i];
+            }
+        }
+        m_qualifier = qualifier;
     }
 
     /**
@@ -130,6 +189,14 @@ public final class Version implements Comparable<Version>, Serializable {
     }
 
     /**
+     * @return the qualifier String
+     */
+    @JsonProperty("qualifier")
+    public String getQualifier() {
+        return m_qualifier;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -142,7 +209,11 @@ public final class Version implements Comparable<Version>, Serializable {
         if (diff != 0) {
             return diff;
         }
-        return this.m_revision - o.m_revision;
+        diff = this.m_revision - o.m_revision;
+        if (diff != 0) {
+            return diff;
+        }
+        return m_qualifier.compareTo(o.m_qualifier);
     }
 
     /**
@@ -150,7 +221,7 @@ public final class Version implements Comparable<Version>, Serializable {
      */
     @Override
     public String toString() {
-        return m_major + "." + m_minor + "." + m_revision;
+        return m_major + "." + m_minor + "." + m_revision + m_qualifier;
     }
 
     /**
@@ -158,12 +229,12 @@ public final class Version implements Comparable<Version>, Serializable {
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + m_major;
-        result = prime * result + m_minor;
-        result = prime * result + m_revision;
-        return result;
+        return new HashCodeBuilder()
+                .append(m_major)
+                .append(m_minor)
+                .append(m_revision)
+                .append(m_qualifier)
+                .toHashCode();
     }
 
     /**
@@ -181,16 +252,12 @@ public final class Version implements Comparable<Version>, Serializable {
             return false;
         }
         Version other = (Version)obj;
-        if (m_major != other.m_major) {
-            return false;
-        }
-        if (m_minor != other.m_minor) {
-            return false;
-        }
-        if (m_revision != other.m_revision) {
-            return false;
-        }
-        return true;
+        return new EqualsBuilder()
+                .append(m_major, other.getMajor())
+                .append(m_minor, other.getMinor())
+                .append(m_revision, other.getRevision())
+                .append(m_qualifier, other.getQualifier())
+                .isEquals();
     }
 
     /**
