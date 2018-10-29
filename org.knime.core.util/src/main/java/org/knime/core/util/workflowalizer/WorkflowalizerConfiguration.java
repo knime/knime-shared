@@ -81,6 +81,11 @@ public class WorkflowalizerConfiguration {
     private boolean m_readSVG;
     private boolean m_readArtifacts;
 
+    private boolean m_readRole;
+    private boolean m_readTimeStamp;
+    private boolean m_readSourceURI;
+    private boolean m_readTemplateType;
+
     private boolean m_readTemplateLink;
 
     private boolean m_readNodeName;
@@ -182,6 +187,22 @@ public class WorkflowalizerConfiguration {
         return m_readArtifacts;
     }
 
+    boolean parseRole() {
+        return m_readRole;
+    }
+
+    boolean parseTimeStamp() {
+        return m_readTimeStamp;
+    }
+
+    boolean parseSourceURI() {
+        return m_readSourceURI;
+    }
+
+    boolean parseTemplateType() {
+        return m_readTemplateType;
+    }
+
     boolean parseTemplateLink() {
         return m_readTemplateLink;
     }
@@ -273,6 +294,10 @@ public class WorkflowalizerConfiguration {
         private boolean m_workflowSetComments;
         private boolean m_svg;
         private boolean m_artifacts;
+        private boolean m_role;
+        private boolean m_timeStamp;
+        private boolean m_sourceURI;
+        private boolean m_templateType;
         private boolean m_templateLink;
         private boolean m_nodeName;
         private boolean m_factoryClass;
@@ -653,6 +678,79 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
+         * Sets the configuration to read the template's role.
+         *
+         * <p>
+         * This field will be read for: templates
+         * </p>
+         *
+         * @return the builder
+         */
+        public Builder readRole() {
+            m_role = true;
+            return this;
+        }
+
+        /**
+         * Sets the configuration to read the template's timestamp.
+         *
+         * <p>
+         * This field will be read for: templates
+         * </p>
+         *
+         * @return the builder
+         */
+        public Builder readTimeStamp() {
+            m_timeStamp = true;
+            return this;
+        }
+
+        /**
+         * Sets the configuration to read the template's source URI.
+         *
+         * <p>
+         * This field will be read for: templates
+         * </p>
+         *
+         * @return the builder
+         */
+        public Builder readSourceURI() {
+            m_sourceURI = true;
+            return this;
+        }
+
+        /**
+         * Sets the configuration to read the template's type.
+         *
+         * <p>
+         * This field will be read for: templates
+         * </p>
+         *
+         * @return the builder
+         */
+        public Builder readTemplateType() {
+            m_templateType = true;
+            return this;
+        }
+
+        /**
+         * Sets the configuration to read all fields in {@link TemplateInformation}.
+         *
+         * <p>
+         * This field will be read for: templates
+         * </p>
+         *
+         * @return the builder
+         */
+        public Builder readTemplateInformation() {
+            m_role = true;
+            m_timeStamp = true;
+            m_sourceURI = true;
+            m_templateType = true;
+            return this;
+        }
+
+        /**
          * Sets the configuration to read the template links for metanodes
          *
          * <p>
@@ -856,6 +954,10 @@ public class WorkflowalizerConfiguration {
             m_workflowSetComments = true;
             m_svg = true;
             m_artifacts = true;
+            m_role = true;
+            m_timeStamp = true;
+            m_sourceURI = true;
+            m_templateType = true;
             m_templateLink = true;
             m_nodeName = true;
             m_factoryClass = true;
@@ -898,6 +1000,10 @@ public class WorkflowalizerConfiguration {
             config.m_readWorkflowSetComments = m_workflowSetComments;
             config.m_readSVG = m_svg;
             config.m_readArtifacts = m_artifacts;
+            config.m_readRole = m_role;
+            config.m_readTimeStamp = m_timeStamp;
+            config.m_readSourceURI = m_sourceURI;
+            config.m_readTemplateType = m_templateType;
             config.m_readTemplateLink = m_templateLink;
             config.m_readNodeName = m_nodeName;
             config.m_readFactoryClass = m_factoryClass;

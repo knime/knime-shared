@@ -232,6 +232,37 @@ interface WorkflowParser {
      */
     String getArtifactsDirectoryName();
 
+    // -- Template --
+
+    /**
+     * @param config the {@link ConfigBase} the xml was read into
+     * @return the template role
+     * @throws InvalidSettingsException
+     */
+    String getRole(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * @param config the {@link ConfigBase} the xml was read into
+     * @return the template time stamp
+     * @throws InvalidSettingsException
+     * @throws ParseException
+     */
+    Date getTimeStamp(final ConfigBase config) throws InvalidSettingsException, ParseException;
+
+    /**
+     * @param config the {@link ConfigBase} the xml was read into
+     * @return the template's source URI, if non-null
+     * @throws InvalidSettingsException
+     */
+    Optional<String> getSourceURI(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * @param config the {@link ConfigBase} the xml was read into
+     * @return the template's type
+     * @throws InvalidSettingsException
+     */
+    String getTemplateType(final ConfigBase config) throws InvalidSettingsException;
+
     // -- MetaNodes --
 
     /**

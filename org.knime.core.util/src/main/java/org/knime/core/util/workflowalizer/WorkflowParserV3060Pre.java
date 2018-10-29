@@ -308,6 +308,49 @@ class WorkflowParserV3060Pre implements WorkflowParser {
         return ".artifacts";
     }
 
+    // -- Templates --
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getRole(final ConfigBase config) throws InvalidSettingsException {
+        return config.getConfigBase("workflow_template_information").getString("role");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getTimeStamp(final ConfigBase config) throws InvalidSettingsException, ParseException {
+        final String readDate = config.getConfigBase("workflow_template_information").getString("timestamp");
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return df.parse(readDate);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getSourceURI(final ConfigBase config) throws InvalidSettingsException {
+        if (config.containsKey("workflow_template_information")) {
+            final ConfigBase template = config.getConfigBase("workflow_template_information");
+            if (template.containsKey("sourceURI")) {
+                final String sourceURI = template.getString("sourceURI");
+                return sourceURI == null || sourceURI.isEmpty() ? Optional.empty() : Optional.of(sourceURI);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getTemplateType(final ConfigBase config) throws InvalidSettingsException {
+        return config.getConfigBase("workflow_template_information").getString("templateType");
+    }
+
     // -- Metanodes --
 
     /**
