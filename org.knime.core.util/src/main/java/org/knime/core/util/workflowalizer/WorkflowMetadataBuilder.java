@@ -44,64 +44,100 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Sep 12, 2018 (awalter): created
+ *   Oct 4, 2018 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 /**
- * Represents the metadata of a top level KNIME workflow (i.e. not a metanode).
+ * Builder for {@link WorkflowMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-public final class TopLevelWorkflowMetadata extends AbstractWorkflowMetadata<TopLevelWorkflowMetadataBuilder> {
+class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> {
 
-    private final AuthorInformation m_authorInfo;
-    private final Optional<String> m_svg;
-    private final Optional<Collection<String>> m_artifacts;
-    private final Optional<WorkflowSetMeta> m_workflowSetMeta;
+    private Optional<String> m_svg;
+    private Optional<Collection<String>> m_artifacts;
+    private String m_author;
+    private Date m_authorDate;
+    private Optional<String> m_lastEditor;
+    private Optional<Date> m_lastEditDate;
+    private Optional<WorkflowSetMeta> m_workflowSetMeta;
 
-    TopLevelWorkflowMetadata(final TopLevelWorkflowMetadataBuilder builder) {
-        super(builder);
-        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
-            builder.getLastEditDate());
-        m_svg = builder.getWorkflowSVGFile();
-        m_artifacts = builder.getArtifactsFileNames();
-        m_workflowSetMeta = builder.getWorkflowSetMeta();
+    void setWorkflowSVGFile(final Optional<String> workflowSVGFile) {
+        m_svg = workflowSVGFile;
     }
 
-    /**
-     * @return the {@link AuthorInformation} associated with this workflow
-     */
-    public AuthorInformation getAuthorInformation() {
-        return m_authorInfo;
+    void setArtifactsFileNames(final Optional<Collection<String>> artifactsFileNames) {
+        m_artifacts = artifactsFileNames;
     }
 
-    /**
-     * @return a file path for the workflow SVG if present
-     */
-    public Optional<String> getWorkflowSvg() {
+    void setAuthor(final String author) {
+        m_author = author;
+    }
+
+    void setAuthorDate(final Date authorDate) {
+        m_authorDate = authorDate;
+    }
+
+    void setLastEditor(final Optional<String> lastEditor) {
+        m_lastEditor = lastEditor;
+    }
+
+    void setLastEditDate(final Optional<Date> lastEditDate) {
+        m_lastEditDate = lastEditDate;
+    }
+
+    void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
+        m_workflowSetMeta = workflowSetMeta;
+    }
+
+    Optional<String> getWorkflowSVGFile() {
         return m_svg;
     }
 
-    /**
-     * @return a collection of file paths for items in the artifacts directory, if the directory exists
-     */
-    public Optional<Collection<String>> getArtifacts() {
+    Optional<Collection<String>> getArtifactsFileNames() {
         return m_artifacts;
     }
 
-    /**
-     * @return {@link WorkflowSetMeta} containing fields from workflowset file, if the file existed
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
-     */
-    public Optional<WorkflowSetMeta> getWorkflowSetMetadata() {
-        if (m_workflowSetMeta == null) {
-            throw new UnsupportedOperationException("getWorkflowSetMetadata() is unsupported, field was not read");
-        }
+    String getAuthor() {
+        return m_author;
+    }
+
+    Date getAuthorDate() {
+        return m_authorDate;
+    }
+
+    Optional<String> getLastEditor() {
+        return m_lastEditor;
+    }
+
+    Optional<Date> getLastEditDate() {
+        return m_lastEditDate;
+    }
+
+    Optional<WorkflowSetMeta> getWorkflowSetMeta() {
         return m_workflowSetMeta;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    WorkflowMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
+        checkPopulated(m_author, "author");
+        checkPopulated(m_authorDate, "authored date");
+        checkPopulated(m_lastEditDate, "last edited date");
+        checkPopulated(m_lastEditor, "last editor");
+        checkPopulated(m_svg, "workflow SVG file");
+        checkPopulated(m_artifacts, "artifacts directory");
+        if (wc.parseWorkflowMeta()) {
+            checkPopulated(m_workflowSetMeta, "workflowset.meta");
+        }
+        return new WorkflowMetadata(this);
     }
 
 }

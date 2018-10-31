@@ -55,7 +55,7 @@ import java.util.Optional;
 import org.knime.core.util.Version;
 
 /**
- * Configuration and quasi-builder for all fields in {@link WorkflowMetadata}.
+ * Configuration and quasi-builder for all fields in {@link IWorkflowMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */

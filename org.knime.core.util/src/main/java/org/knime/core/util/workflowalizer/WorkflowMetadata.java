@@ -49,58 +49,59 @@
 package org.knime.core.util.workflowalizer;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
-import org.knime.core.util.Version;
-
 /**
- * POJO for KNIME workflow meta-data.
+ * Represents the metadata of a top level KNIME workflow (i.e. not a metanode).
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-public interface WorkflowMetadata {
+public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> {
+
+    private final AuthorInformation m_authorInfo;
+    private final Optional<String> m_svg;
+    private final Optional<Collection<String>> m_artifacts;
+    private final Optional<WorkflowSetMeta> m_workflowSetMeta;
+
+    WorkflowMetadata(final WorkflowMetadataBuilder builder) {
+        super(builder);
+        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
+            builder.getLastEditDate());
+        m_svg = builder.getWorkflowSVGFile();
+        m_artifacts = builder.getArtifactsFileNames();
+        m_workflowSetMeta = builder.getWorkflowSetMeta();
+    }
 
     /**
-     * @return the workflow version
+     * @return the {@link AuthorInformation} associated with this workflow
      */
-    Version getVersion();
+    public AuthorInformation getAuthorInformation() {
+        return m_authorInfo;
+    }
 
     /**
-     * @return the KNIME version used to create this workflow
+     * @return a file path for the workflow SVG if present
      */
-    Version getCreatedBy();
+    public Optional<String> getWorkflowSvg() {
+        return m_svg;
+    }
 
     /**
-     * @return the name of this workflow
+     * @return a collection of file paths for items in the artifacts directory, if the directory exists
      */
-    Optional<String> getName();
+    public Optional<Collection<String>> getArtifacts() {
+        return m_artifacts;
+    }
 
     /**
-     * @return the custom description for this workflow
-     */
-    Optional<String> getCustomDescription();
-
-    /**
-     * @return a list of workflow annotations
-     */
-    Optional<List<String>> getAnnotations();
-
-    /**
-     * @return a list of node connections
+     * @return {@link WorkflowSetMeta} containing fields from workflowset file, if the file existed
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
-    List<NodeConnection> getConnections();
+    public Optional<WorkflowSetMeta> getWorkflowSetMetadata() {
+        if (m_workflowSetMeta == null) {
+            throw new UnsupportedOperationException("getWorkflowSetMetadata() is unsupported, field was not read");
+        }
+        return m_workflowSetMeta;
+    }
 
-    /**
-     * @return a list of nodes used in this workflow
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
-     */
-    List<NodeMetadata> getNodes();
-
-    /**
-     * @return a {@code Collection} of unexpected file names
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
-     */
-    Collection<String> getUnexpectedFileNames();
 }

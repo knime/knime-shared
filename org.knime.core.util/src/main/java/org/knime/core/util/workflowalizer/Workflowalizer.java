@@ -150,7 +150,7 @@ public class Workflowalizer {
      * @throws ParserConfigurationException
      * @throws XPathExpressionException
      */
-    public static TopLevelWorkflowMetadata readWorkflow(final Path path)
+    public static WorkflowMetadata readWorkflow(final Path path)
         throws FileNotFoundException, IOException, InvalidSettingsException, ParseException, URISyntaxException,
         XPathExpressionException, ParserConfigurationException, SAXException {
         return readWorkflow(path, WorkflowalizerConfiguration.builder().readAll().build());
@@ -171,7 +171,7 @@ public class Workflowalizer {
      * @throws ParserConfigurationException
      * @throws XPathExpressionException
      */
-    public static TopLevelWorkflowMetadata readWorkflow(final Path path, final WorkflowalizerConfiguration config)
+    public static WorkflowMetadata readWorkflow(final Path path, final WorkflowalizerConfiguration config)
         throws IOException, InvalidSettingsException, ParseException, URISyntaxException, XPathExpressionException,
         ParserConfigurationException, SAXException {
         if (config == null) {
@@ -301,7 +301,7 @@ public class Workflowalizer {
         return parser;
     }
 
-    private static TopLevelWorkflowMetadata readTopLevelWorkflow(final String path, final ZipFile zip,
+    private static WorkflowMetadata readTopLevelWorkflow(final String path, final ZipFile zip,
         final WorkflowalizerConfiguration wc) throws FileNotFoundException, IOException, InvalidSettingsException,
         ParseException, XPathExpressionException, ParserConfigurationException, SAXException {
         // Reading workflow.knime
@@ -317,7 +317,7 @@ public class Workflowalizer {
         final WorkflowParser parser = getParser(readVersion);
 
         // Read workflow
-        final TopLevelWorkflowMetadataBuilder builder = new TopLevelWorkflowMetadataBuilder();
+        final WorkflowMetadataBuilder builder = new WorkflowMetadataBuilder();
 
         final WorkflowFields wf = wc.createWorkflowFields();
         builder.setWorkflowFields(wf);

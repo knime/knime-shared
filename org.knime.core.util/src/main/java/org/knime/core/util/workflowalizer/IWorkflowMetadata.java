@@ -44,100 +44,63 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Oct 4, 2018 (awalter): created
+ *   Sep 12, 2018 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
 import java.util.Collection;
-import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
+import org.knime.core.util.Version;
+
 /**
- * Builder for {@link TopLevelWorkflowMetadata}.
+ * POJO for KNIME workflow meta-data.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-class TopLevelWorkflowMetadataBuilder extends AbstractWorkflowBuilder<TopLevelWorkflowMetadata> {
-
-    private Optional<String> m_svg;
-    private Optional<Collection<String>> m_artifacts;
-    private String m_author;
-    private Date m_authorDate;
-    private Optional<String> m_lastEditor;
-    private Optional<Date> m_lastEditDate;
-    private Optional<WorkflowSetMeta> m_workflowSetMeta;
-
-    void setWorkflowSVGFile(final Optional<String> workflowSVGFile) {
-        m_svg = workflowSVGFile;
-    }
-
-    void setArtifactsFileNames(final Optional<Collection<String>> artifactsFileNames) {
-        m_artifacts = artifactsFileNames;
-    }
-
-    void setAuthor(final String author) {
-        m_author = author;
-    }
-
-    void setAuthorDate(final Date authorDate) {
-        m_authorDate = authorDate;
-    }
-
-    void setLastEditor(final Optional<String> lastEditor) {
-        m_lastEditor = lastEditor;
-    }
-
-    void setLastEditDate(final Optional<Date> lastEditDate) {
-        m_lastEditDate = lastEditDate;
-    }
-
-    void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
-        m_workflowSetMeta = workflowSetMeta;
-    }
-
-    Optional<String> getWorkflowSVGFile() {
-        return m_svg;
-    }
-
-    Optional<Collection<String>> getArtifactsFileNames() {
-        return m_artifacts;
-    }
-
-    String getAuthor() {
-        return m_author;
-    }
-
-    Date getAuthorDate() {
-        return m_authorDate;
-    }
-
-    Optional<String> getLastEditor() {
-        return m_lastEditor;
-    }
-
-    Optional<Date> getLastEditDate() {
-        return m_lastEditDate;
-    }
-
-    Optional<WorkflowSetMeta> getWorkflowSetMeta() {
-        return m_workflowSetMeta;
-    }
+public interface IWorkflowMetadata {
 
     /**
-     * {@inheritDoc}
+     * @return the workflow version
      */
-    @Override
-    TopLevelWorkflowMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
-        checkPopulated(m_author, "author");
-        checkPopulated(m_authorDate, "authored date");
-        checkPopulated(m_lastEditDate, "last edited date");
-        checkPopulated(m_lastEditor, "last editor");
-        checkPopulated(m_svg, "workflow SVG file");
-        checkPopulated(m_artifacts, "artifacts directory");
-        if (wc.parseWorkflowMeta()) {
-            checkPopulated(m_workflowSetMeta, "workflowset.meta");
-        }
-        return new TopLevelWorkflowMetadata(this);
-    }
+    Version getVersion();
 
+    /**
+     * @return the KNIME version used to create this workflow
+     */
+    Version getCreatedBy();
+
+    /**
+     * @return the name of this workflow
+     */
+    Optional<String> getName();
+
+    /**
+     * @return the custom description for this workflow
+     */
+    Optional<String> getCustomDescription();
+
+    /**
+     * @return a list of workflow annotations
+     */
+    Optional<List<String>> getAnnotations();
+
+    /**
+     * @return a list of node connections
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    List<NodeConnection> getConnections();
+
+    /**
+     * @return a list of nodes used in this workflow
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    List<NodeMetadata> getNodes();
+
+    /**
+     * @return a {@code Collection} of unexpected file names
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    Collection<String> getUnexpectedFileNames();
 }

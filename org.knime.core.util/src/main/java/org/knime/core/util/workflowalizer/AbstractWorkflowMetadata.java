@@ -55,11 +55,11 @@ import java.util.Optional;
 import org.knime.core.util.Version;
 
 /**
- * Abstract base class for {@link WorkflowMetadata}.
+ * Abstract base class for {@link IWorkflowMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> implements WorkflowMetadata {
+abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> implements IWorkflowMetadata {
 
     private final Version m_version;
     private final Version m_createdBy;
