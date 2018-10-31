@@ -61,14 +61,8 @@ class NodeFields {
     private String m_type;
     private Optional<String> m_annotationText;
 
-    private final boolean m_readId;
-    private final boolean m_readType;
-    private final boolean m_readAnnotationText;
-
-    NodeFields(final boolean readId, final boolean readType, final boolean readAnnotationText) {
-        m_readId = readId;
-        m_readType = readType;
-        m_readAnnotationText = readAnnotationText;
+    NodeFields() {
+        // Do nothing
     }
 
     // -- Getters --
@@ -102,17 +96,9 @@ class NodeFields {
     // -- Validate --
 
     void validate() {
-        if (m_readId) {
-            if (m_id == null) {
-                throw new IllegalArgumentException("Requested field, id, should not be null");
-            }
-        }
-        if (m_readType) {
-            checkPopulated(m_type, "type");
-        }
-        if (m_readAnnotationText) {
-            checkPopulated(m_annotationText, "annotation text");
-        }
+        checkPopulated(m_id, "id");
+        checkPopulated(m_type, "type");
+        checkPopulated(m_annotationText, "annotation text");
     }
 
     protected static void checkPopulated(final Object field, final String name) {

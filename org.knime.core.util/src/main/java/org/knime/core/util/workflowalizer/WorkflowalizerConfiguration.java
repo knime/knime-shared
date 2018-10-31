@@ -55,72 +55,14 @@ package org.knime.core.util.workflowalizer;
  */
 public class WorkflowalizerConfiguration {
 
-    private boolean m_readVersion;
-    private boolean m_readCreatedBy;
-    private boolean m_readName;
-    private boolean m_readCustomDescription;
-    private boolean m_readAnnotations;
     private boolean m_readNodes;
     private boolean m_readConnections;
     private boolean m_readUnexpectedFiles;
-
-    private boolean m_readId;
-    private boolean m_readType;
-
     private boolean m_readModelParameters;
-    private boolean m_readAnnotationText;
-    private boolean m_readNodeCustomDescription;
-
-    private boolean m_readAuthor;
-    private boolean m_readAuthorDate;
-    private boolean m_readLastEditor;
-    private boolean m_readLastEditedDate;
-
-    private boolean m_readWorkflowSetAuthor;
-    private boolean m_readWorkflowSetComments;
-    private boolean m_readSVG;
-    private boolean m_readArtifacts;
-
-    private boolean m_readRole;
-    private boolean m_readTimeStamp;
-    private boolean m_readSourceURI;
-    private boolean m_readTemplateType;
-
-    private boolean m_readTemplateLink;
-
-    private boolean m_readNodeName;
-    private boolean m_readFactoryClass;
-    private boolean m_readBundleName;
-    private boolean m_readBundleSymbolicName;
-    private boolean m_readBundleVendor;
-    private boolean m_readBundleVersion;
-    private boolean m_readFeatureName;
-    private boolean m_readFeatureSymbolicName;
-    private boolean m_readFeatureVendor;
-    private boolean m_readFeatureVersion;
+    private boolean m_readWorkflowMeta;
 
     private WorkflowalizerConfiguration() {
         // Do nothing
-    }
-
-    boolean parseVersion() {
-        return m_readVersion;
-    }
-
-    boolean parseCreatedBy() {
-        return m_readCreatedBy;
-    }
-
-    boolean parseName() {
-        return m_readName;
-    }
-
-    boolean parseCustomDescription() {
-        return m_readCustomDescription;
-    }
-
-    boolean parseAnnotations() {
-        return m_readAnnotations;
     }
 
     boolean parseNodes() {
@@ -135,130 +77,24 @@ public class WorkflowalizerConfiguration {
         return m_readUnexpectedFiles;
     }
 
-    boolean parseId() {
-        return m_readId;
-    }
-
-    boolean parseType() {
-        return m_readType;
-    }
-
     boolean parseModelParameters() {
         return m_readModelParameters;
     }
 
-    boolean parseAnnotationText() {
-        return m_readAnnotationText;
-    }
-
-    boolean parseNodeCustomDescription() {
-        return m_readNodeCustomDescription;
-    }
-
-    boolean parseAuthor() {
-        return m_readAuthor;
-    }
-
-    boolean parseAuthorDate() {
-        return m_readAuthorDate;
-    }
-
-    boolean parseLastEditor() {
-        return m_readLastEditor;
-    }
-
-    boolean parseLastEditedDate() {
-        return m_readLastEditedDate;
-    }
-
-    boolean parseWorkflowSetAuthor() {
-        return m_readWorkflowSetAuthor;
-    }
-
-    boolean parseWorkflowSetComments() {
-        return m_readWorkflowSetComments;
-    }
-
-    boolean parseSVG() {
-        return m_readSVG;
-    }
-
-    boolean parseArtifacts() {
-        return m_readArtifacts;
-    }
-
-    boolean parseRole() {
-        return m_readRole;
-    }
-
-    boolean parseTimeStamp() {
-        return m_readTimeStamp;
-    }
-
-    boolean parseSourceURI() {
-        return m_readSourceURI;
-    }
-
-    boolean parseTemplateType() {
-        return m_readTemplateType;
-    }
-
-    boolean parseTemplateLink() {
-        return m_readTemplateLink;
-    }
-
-    boolean parseNodeName() {
-        return m_readNodeName;
-    }
-
-    boolean parseFactoryClass() {
-        return m_readFactoryClass;
-    }
-
-    boolean parseBundleName() {
-        return m_readBundleName;
-    }
-
-    boolean parseBundleSymbolicName() {
-        return m_readBundleSymbolicName;
-    }
-
-    boolean parseBundleVendor() {
-        return m_readBundleVendor;
-    }
-
-    boolean parseBundleVersion() {
-        return m_readBundleVersion;
-    }
-
-    boolean parseFeatureName() {
-        return m_readFeatureName;
-    }
-
-    boolean parseFeatureSymbolicName() {
-        return m_readFeatureSymbolicName;
-    }
-
-    boolean parseFeatureVendor() {
-        return m_readFeatureVendor;
-    }
-
-    boolean parseFeatureVersion() {
-        return m_readFeatureVersion;
+    boolean parseWorkflowMeta() {
+        return m_readWorkflowMeta;
     }
 
     WorkflowFields createWorkflowFields() {
-        return new WorkflowFields(m_readVersion, m_readCreatedBy, m_readName, m_readCustomDescription,
-            m_readAnnotations, m_readConnections, m_readNodes, m_readUnexpectedFiles);
+        return new WorkflowFields(m_readConnections, m_readNodes, m_readUnexpectedFiles);
     }
 
     NodeFields createNodeFields() {
-        return new NodeFields(m_readId, m_readType, m_readAnnotationText);
+        return new NodeFields();
     }
 
     SingleNodeFields createSingleNodeFields() {
-        return new SingleNodeFields(m_readId, m_readType, m_readModelParameters, m_readAnnotationText,
-            m_readNodeCustomDescription);
+        return new SingleNodeFields(m_readModelParameters);
     }
 
     /**
@@ -273,112 +109,11 @@ public class WorkflowalizerConfiguration {
      */
     public static final class Builder {
 
-        private boolean m_version;
-        private boolean m_createdBy;
-        private boolean m_name;
-        private boolean m_customDescription;
-        private boolean m_annotations;
         private boolean m_nodes;
         private boolean m_connections;
         private boolean m_unexpectedFiles;
-        private boolean m_id;
-        private boolean m_type;
         private boolean m_modelParameters;
-        private boolean m_annotationText;
-        private boolean m_nodeCustomDescription;
-        private boolean m_author;
-        private boolean m_authorDate;
-        private boolean m_lastEditor;
-        private boolean m_lastEditedDate;
-        private boolean m_workflowSetAuthor;
-        private boolean m_workflowSetComments;
-        private boolean m_svg;
-        private boolean m_artifacts;
-        private boolean m_role;
-        private boolean m_timeStamp;
-        private boolean m_sourceURI;
-        private boolean m_templateType;
-        private boolean m_templateLink;
-        private boolean m_nodeName;
-        private boolean m_factoryClass;
-        private boolean m_bundleName;
-        private boolean m_bundleSymbolicName;
-        private boolean m_bundleVendor;
-        private boolean m_bundleVersion;
-        private boolean m_featureName;
-        private boolean m_featureSymbolicName;
-        private boolean m_featureVendor;
-        private boolean m_featureVersion;
-
-        /**
-         * Sets the configuration to read the workflow version.
-         *
-         * <p>
-         * This field will be read for: workflows, metanodes, subnodes, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readVersion() {
-            m_version = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the created by version
-         *
-         * <p>
-         * This field will be read for: workflows, metanodes, subnodes, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readCreatedBy() {
-            m_createdBy = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the workflow name
-         *
-         * <p>
-         * This field will be read for: workflows, metanodes, subnodes, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readName() {
-            m_name = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the custom workflow description
-         *
-         * <p>
-         * This field will be read for: workflows, metanodes, subnodes, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readCustomDescription() {
-            m_customDescription = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the workflow annotations
-         *
-         * <p>
-         * This field will be read for: workflows, metanodes, subnodes, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readAnnotations() {
-            m_annotations = true;
-            return this;
-        }
+        private boolean m_workflowMeta;
 
         /**
          * Sets the configuration to read the nodes
@@ -424,77 +159,6 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read all {@link WorkflowMetadata} fields
-         *
-         * @return the builder
-         */
-        public Builder readWorkflowFields() {
-            m_version = true;
-            m_createdBy = true;
-            m_name = true;
-            m_customDescription = true;
-            m_annotations = true;
-            m_nodes = true;
-            m_connections = true;
-            m_unexpectedFiles = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the node ID
-         *
-         * <p>
-         * This field will be read for: metanodes, subnodes, and native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readId() {
-            m_id = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the the node type
-         *
-         * <p>
-         * This field will be read for: metanodes, subnodes, and native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readType() {
-            m_type = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the node annotation text
-         *
-         * <p>
-         * This field will be read for: metanodes, subnodes, and native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readAnnotationText() {
-            m_annotationText = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read all the {@link NodeMetadata} fields
-         *
-         * @return the builder
-         */
-        public Builder readNodeFields() {
-            m_id = true;
-            m_type = true;
-            m_annotationText = true;
-            return this;
-        }
-
-        /**
          * Sets the configuration to read the node model parameters
          *
          * <p>
@@ -509,105 +173,7 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read the custom node description
-         *
-         * <p>
-         * This field will be read for: subnodes, and native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readNodeCustomDescription() {
-            m_nodeCustomDescription = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read all the {@link SingleNodeMetadata} fields
-         *
-         * @return the builder
-         */
-        public Builder readSingleNodeFields() {
-            m_modelParameters = true;
-            m_nodeCustomDescription = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the workflow author
-         *
-         * <p>
-         * This field will be read for: workflows, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readAuthor() {
-            m_author = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the the workflow creation date
-         *
-         * <p>
-         * This field will be read for: workflows, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readAuthorDate() {
-            m_authorDate = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the last workflow editor
-         *
-         * <p>
-         * This field will be read for: workflows, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readLastEditor() {
-            m_lastEditor = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the last edited date
-         *
-         * <p>
-         * This field will be read for: workflows, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readLastEditedDate() {
-            m_lastEditedDate = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read all {@link AuthorInformation} fields
-         *
-         * <p>
-         * This field will be read for: workflows, and templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readAuthorInformation() {
-            m_author = true;
-            m_authorDate = true;
-            m_lastEditor = true;
-            m_lastEditedDate = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the Author field in workflowset.meta
+         * Sets the configuration to read the author and comments workflowset.meta
          *
          * <p>
          * This field will be read for: workflows
@@ -615,315 +181,8 @@ public class WorkflowalizerConfiguration {
          *
          * @return the builder
          */
-        public Builder readWorkflowSetAuthor() {
-            m_workflowSetAuthor = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the Comments field in workflowset.meta
-         *
-         * <p>
-         * This field will be read for: workflows
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readWorkflowSetComments() {
-            m_workflowSetComments = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read all fields in {@link WorkflowSetMeta}
-         *
-         * <p>
-         * This field will be read for: workflows
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readWorkflowSetMeta() {
-            m_workflowSetAuthor = true;
-            m_workflowSetComments = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the workflow SVG file path
-         *
-         * <p>
-         * This field will be read for: workflows
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readSvg() {
-            m_svg = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the file paths in the artifacts directory
-         *
-         * <p>
-         * This field will be read for: workflows
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readArtifacts() {
-            m_artifacts = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the template's role.
-         *
-         * <p>
-         * This field will be read for: templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readRole() {
-            m_role = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the template's timestamp.
-         *
-         * <p>
-         * This field will be read for: templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readTimeStamp() {
-            m_timeStamp = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the template's source URI.
-         *
-         * <p>
-         * This field will be read for: templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readSourceURI() {
-            m_sourceURI = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the template's type.
-         *
-         * <p>
-         * This field will be read for: templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readTemplateType() {
-            m_templateType = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read all fields in {@link TemplateInformation}.
-         *
-         * <p>
-         * This field will be read for: templates
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readTemplateInformation() {
-            m_role = true;
-            m_timeStamp = true;
-            m_sourceURI = true;
-            m_templateType = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the template links for metanodes
-         *
-         * <p>
-         * This field will be read for: metanodes, and subnodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readTemplateLink() {
-            m_templateLink = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the node name
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readNodeName() {
-            m_nodeName = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the node factory class
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readFactoryClass() {
-            m_factoryClass = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the bundle name
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readBundleName() {
-            m_bundleName = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the bundle symbolic name
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readBundleSymbolicName() {
-            m_bundleSymbolicName = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the bundle vendor
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readBundleVendor() {
-            m_bundleVendor = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the bundle version
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readBundleVersion() {
-            m_bundleVersion = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the feature name
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readFeatureName() {
-            m_featureName = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the feature symbolic name
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readFeatureSymbolicName() {
-            m_featureSymbolicName = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the feature vendor
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readFeatureVendor() {
-            m_featureVendor = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read the feature version
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readFeatureVersion() {
-            m_featureVersion = true;
-            return this;
-        }
-
-        /**
-         * Sets the configuration to read all the {@link NodeAndBundleInformation} fields
-         *
-         * <p>
-         * This field will be read for: native nodes
-         * </p>
-         *
-         * @return the builder
-         */
-        public Builder readNodeAndBundleInformation() {
-            m_nodeName = true;
-            m_factoryClass = true;
-            m_bundleName = true;
-            m_bundleSymbolicName = true;
-            m_bundleVendor = true;
-            m_bundleVersion = true;
-            m_featureName = true;
-            m_featureSymbolicName = true;
-            m_featureVendor = true;
-            m_featureVersion = true;
+        public Builder readWorkflowMeta() {
+            m_workflowMeta = true;
             return this;
         }
 
@@ -933,42 +192,11 @@ public class WorkflowalizerConfiguration {
          * @return the builder
          */
         public Builder readAll() {
-            m_version = true;
-            m_createdBy = true;
-            m_name = true;
-            m_customDescription = true;
-            m_annotations = true;
             m_nodes = true;
             m_connections = true;
             m_unexpectedFiles = true;
-            m_id = true;
-            m_type = true;
             m_modelParameters = true;
-            m_annotationText = true;
-            m_nodeCustomDescription = true;
-            m_author = true;
-            m_authorDate = true;
-            m_lastEditor = true;
-            m_lastEditedDate = true;
-            m_workflowSetAuthor = true;
-            m_workflowSetComments = true;
-            m_svg = true;
-            m_artifacts = true;
-            m_role = true;
-            m_timeStamp = true;
-            m_sourceURI = true;
-            m_templateType = true;
-            m_templateLink = true;
-            m_nodeName = true;
-            m_factoryClass = true;
-            m_bundleName = true;
-            m_bundleSymbolicName = true;
-            m_bundleVendor = true;
-            m_bundleVersion = true;
-            m_featureName = true;
-            m_featureSymbolicName = true;
-            m_featureVendor = true;
-            m_featureVersion = true;
+            m_workflowMeta = true;
             return this;
         }
 
@@ -979,42 +207,11 @@ public class WorkflowalizerConfiguration {
          */
         public WorkflowalizerConfiguration build() {
             final WorkflowalizerConfiguration config = new WorkflowalizerConfiguration();
-            config.m_readVersion = m_version;
-            config.m_readCreatedBy = m_createdBy;
-            config.m_readName = m_name;
-            config.m_readCustomDescription = m_customDescription;
-            config.m_readAnnotations = m_annotations;
             config.m_readNodes = m_nodes;
             config.m_readConnections = m_connections;
             config.m_readUnexpectedFiles = m_unexpectedFiles;
-            config.m_readId = m_id;
-            config.m_readType = m_type;
             config.m_readModelParameters = m_modelParameters;
-            config.m_readAnnotationText = m_annotationText;
-            config.m_readNodeCustomDescription = m_nodeCustomDescription;
-            config.m_readAuthor = m_author;
-            config.m_readAuthorDate = m_authorDate;
-            config.m_readLastEditor = m_lastEditor;
-            config.m_readLastEditedDate = m_lastEditedDate;
-            config.m_readWorkflowSetAuthor = m_workflowSetAuthor;
-            config.m_readWorkflowSetComments = m_workflowSetComments;
-            config.m_readSVG = m_svg;
-            config.m_readArtifacts = m_artifacts;
-            config.m_readRole = m_role;
-            config.m_readTimeStamp = m_timeStamp;
-            config.m_readSourceURI = m_sourceURI;
-            config.m_readTemplateType = m_templateType;
-            config.m_readTemplateLink = m_templateLink;
-            config.m_readNodeName = m_nodeName;
-            config.m_readFactoryClass = m_factoryClass;
-            config.m_readBundleName = m_bundleName;
-            config.m_readBundleSymbolicName = m_bundleSymbolicName;
-            config.m_readBundleVendor = m_bundleVendor;
-            config.m_readBundleVersion = m_bundleVersion;
-            config.m_readFeatureName = m_featureName;
-            config.m_readFeatureSymbolicName = m_featureSymbolicName;
-            config.m_readFeatureVendor = m_featureVendor;
-            config.m_readFeatureVersion = m_featureVersion;
+            config.m_readWorkflowMeta = m_workflowMeta;
             return config;
         }
     }

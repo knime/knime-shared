@@ -82,9 +82,7 @@ class SubnodeMetadataBuilder extends AbstractWorkflowBuilder<SubnodeMetadata> {
     @Override
     SubnodeMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
         m_singleNodeFields.validate();
-        if (wc.parseTemplateLink()) {
-            checkPopulated(m_templateLink, "template link");
-        }
+        checkPopulated(m_templateLink, "template link");
         return new SubnodeMetadata(this);
     }
 

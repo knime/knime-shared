@@ -75,9 +75,6 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      */
     @Override
     public int getNodeId() {
-        if (m_nodeId == null) {
-            throw new UnsupportedOperationException("getNodeId() is unsupported, field was not read");
-        }
         return m_nodeId;
     }
 
@@ -86,9 +83,6 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      */
     @Override
     public String getType() {
-        if (m_type == null) {
-            throw new UnsupportedOperationException("getType() is unsupported, field was not read");
-        }
         return m_type;
     }
 
@@ -97,9 +91,6 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      */
     @Override
     public Optional<String> getAnnotationText() {
-        if (m_annotationText == null) {
-            throw new UnsupportedOperationException("getAnnotationText() is unsupported, field was not read");
-        }
         return m_annotationText;
     }
 
@@ -108,9 +99,6 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     public Optional<String> getTemplateLink() {
-        if (m_template == null) {
-            throw new UnsupportedOperationException("getTemplateLink() is unsupported, field was not read");
-        }
         return m_template;
     }
 

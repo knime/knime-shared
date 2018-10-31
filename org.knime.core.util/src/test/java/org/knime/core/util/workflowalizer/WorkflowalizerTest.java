@@ -210,21 +210,14 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingSVG() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readSvg().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final File test = new File(m_workflowDir.toFile(), "workflow.svg");
         assertTrue(wkfMd.getWorkflowSvg().isPresent());
         assertEquals(test.getAbsolutePath(), wkfMd.getWorkflowSvg().get());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -236,22 +229,15 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingArtifactsDirectory() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readArtifacts().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final File test = new File(m_workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
         assertEquals(1, wkfMd.getArtifacts().get().size());
         assertEquals(test.getAbsolutePath(), wkfMd.getArtifacts().get().iterator().next());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -289,16 +275,8 @@ public class WorkflowalizerTest {
             assertEquals(subDataFile.getAbsolutePath(), itr.next());
             assertEquals(dataFile.getAbsolutePath(), itr.next());
 
-            assertUOEThrown(wkfMd::getAnnotations);
-            assertUOEThrown(wkfMd::getAuthorInformation);
             assertUOEThrown(wkfMd::getConnections);
-            assertUOEThrown(wkfMd::getCreatedBy);
-            assertUOEThrown(wkfMd::getCustomDescription);
-            assertUOEThrown(wkfMd::getName);
             assertUOEThrown(wkfMd::getNodes);
-            assertUOEThrown(wkfMd::getVersion);
-            assertUOEThrown(wkfMd::getArtifacts);
-            assertUOEThrown(wkfMd::getWorkflowSvg);
             assertUOEThrown(wkfMd::getWorkflowSetMetadata);
 
         } finally {
@@ -328,19 +306,12 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingAnnotations() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAnnotations().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquivalentAnnotations(readAnnotations(m_readWorkflowLines), wkfMd.getAnnotations());
 
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -352,19 +323,12 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingAuthorInformation() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAuthorInformation().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquals(readAuthorInformation(m_readWorkflowLines), wkfMd.getAuthorInformation());
 
-        assertUOEThrown(wkfMd::getAnnotations);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -381,14 +345,6 @@ public class WorkflowalizerTest {
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), wkfMd.getConnections());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -400,19 +356,12 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingCreatedBy() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readCreatedBy().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquals(readCreatedBy(m_readWorkflowLines), wkfMd.getCreatedBy());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -424,19 +373,12 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingCustomDescription() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readCustomDescription().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquals(readCustomDescription(m_readWorkflowLines), wkfMd.getCustomDescription());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -448,19 +390,12 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingName() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readName().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquals(readName(m_readWorkflowLines), wkfMd.getName());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -473,7 +408,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodes() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().readId().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final List<NodeMetadata> nodes = wkfMd.getNodes();
         final List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
@@ -482,15 +417,7 @@ public class WorkflowalizerTest {
             assertTrue(nodeIds.contains(node.getNodeId()));
         }
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
-        assertUOEThrown(wkfMd::getVersion);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -502,19 +429,12 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingVersion() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readVersion().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertEquals(readVersion(m_readWorkflowLines), wkfMd.getVersion());
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
@@ -526,7 +446,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWorkflowWorkflowSetMeta() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowSetMeta().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
         assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowSetLines),
@@ -534,16 +454,8 @@ public class WorkflowalizerTest {
         assertEquals(parseWorkflowSetMeta("Comments", m_readWorkflowSetLines),
             wkfMd.getWorkflowSetMetadata().get().getComments().orElse(null));
 
-        assertUOEThrown(wkfMd::getAnnotations);
-        assertUOEThrown(wkfMd::getAuthorInformation);
         assertUOEThrown(wkfMd::getConnections);
-        assertUOEThrown(wkfMd::getCreatedBy);
-        assertUOEThrown(wkfMd::getCustomDescription);
-        assertUOEThrown(wkfMd::getName);
-        assertUOEThrown(wkfMd::getVersion);
         assertUOEThrown(wkfMd::getNodes);
-        assertUOEThrown(wkfMd::getArtifacts);
-        assertUOEThrown(wkfMd::getWorkflowSvg);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
     }
 
@@ -554,11 +466,15 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWorkflowSetNotPresent() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowSetMeta().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final Path workflowPath = m_workspaceDir.resolve("workflowalizer-test/test_group/test1");
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowPath, wc);
         assertTrue(wkfMd.getWorkflowSetMetadata() != null);
         assertFalse(wkfMd.getWorkflowSetMetadata().isPresent());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
     }
 
     // -- Test reading NativeNode --
@@ -570,9 +486,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodeInWorkflow() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().readNodeFields()
-            .readSingleNodeFields().readNodeAndBundleInformation().build();
-        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
@@ -593,9 +507,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodeInMetanode() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowFields()
-            .readNodeFields().readSingleNodeFields().readNodeAndBundleInformation().build();
-        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final MetanodeMetadata mtnMd =
             (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("MetaNode")).findFirst().get();
         final NativeNodeMetadata node =
@@ -622,7 +534,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingAnnotationText() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readAnnotationText().readId().build();
+            WorkflowalizerConfiguration.builder().readNodes().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
@@ -630,11 +542,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(readAnnotationText(m_readNodeLines), nativeNode.getAnnotationText());
-
-        assertUOEThrown(nativeNode::getCustomNodeDescription);
         assertUOEThrown(nativeNode::getModelParameters);
-        assertUOEThrown(nativeNode::getNodeAndBundleInformation);
-        assertUOEThrown(nativeNode::getType);
     }
 
     /**
@@ -645,7 +553,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingCustomNodeDescription() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readNodeCustomDescription().readId().build();
+            WorkflowalizerConfiguration.builder().readNodes().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
@@ -653,11 +561,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(readCustomNodeDescription(m_readNodeLines), nativeNode.getCustomNodeDescription());
-
-        assertUOEThrown(nativeNode::getAnnotationText);
         assertUOEThrown(nativeNode::getModelParameters);
-        assertUOEThrown(nativeNode::getNodeAndBundleInformation);
-        assertUOEThrown(nativeNode::getType);
     }
 
     /**
@@ -668,7 +572,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingModelParameters() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readId().readModelParameters().build();
+            WorkflowalizerConfiguration.builder().readNodes().readModelParameters().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
@@ -677,11 +581,6 @@ public class WorkflowalizerTest {
 
         assertTrue(readModelParameters(new File(m_nodeDir.toFile(), "settings.xml")).get()
             .isIdentical(nativeNode.getModelParameters().get()));
-
-        assertUOEThrown(nativeNode::getAnnotationText);
-        assertUOEThrown(nativeNode::getCustomNodeDescription);
-        assertUOEThrown(nativeNode::getNodeAndBundleInformation);
-        assertUOEThrown(nativeNode::getType);
     }
 
     /**
@@ -692,7 +591,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingNodeAndBundleInformation() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readId().readNodeAndBundleInformation().build();
+            WorkflowalizerConfiguration.builder().readNodes().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
@@ -700,11 +599,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(readNodeAndBundleInformation(false, m_readNodeLines), nativeNode.getNodeAndBundleInformation());
-
-        assertUOEThrown(nativeNode::getAnnotationText);
-        assertUOEThrown(nativeNode::getCustomNodeDescription);
         assertUOEThrown(nativeNode::getModelParameters);
-        assertUOEThrown(nativeNode::getType);
     }
 
     /**
@@ -715,7 +610,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingNodeId() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readId().readNodeName().build();
+            WorkflowalizerConfiguration.builder().readNodes().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
 
         // Filter on something that isn't ID, so the ID check actual tests something
@@ -728,21 +623,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(10, nativeNode.getNodeId());
-
-        assertUOEThrown(nativeNode::getAnnotationText);
-        assertUOEThrown(nativeNode::getCustomNodeDescription);
         assertUOEThrown(nativeNode::getModelParameters);
-        assertUOEThrown(nativeNode::getType);
-
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getBundleName);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getBundleSymbolicName);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getBundleVendor);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getBundleVersion);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getFeatureName);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getFeatureSymbolicName);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getFeatureVendor);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getFeatureVersion);
-        assertUOEThrown(nativeNode.getNodeAndBundleInformation()::getFactoryClass);
     }
 
     /**
@@ -753,7 +634,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingType() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readId().readType().build();
+            WorkflowalizerConfiguration.builder().readNodes().build();
         final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
@@ -761,11 +642,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals("NativeNode", nativeNode.getType());
-
-        assertUOEThrown(nativeNode::getAnnotationText);
-        assertUOEThrown(nativeNode::getCustomNodeDescription);
         assertUOEThrown(nativeNode::getModelParameters);
-        assertUOEThrown(nativeNode::getNodeAndBundleInformation);
     }
 
     // -- Test reading (Wrapped)MetaNodes
@@ -777,9 +654,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingMetaNode() throws Exception {
-        final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readWorkflowFields().readNodeFields().readTemplateLink().build();
-        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final MetanodeMetadata mtnMtd =
             (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("MetaNode")).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
@@ -814,9 +689,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWrappedMetaNode() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowFields()
-            .readNodeFields().readSingleNodeFields().readTemplateLink().build();
-        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final TopLevelWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final SubnodeMetadata mtnMtd =
             (SubnodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("SubNode")).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
@@ -1003,20 +876,14 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingTemplateMetadataAuthorInformation() throws Exception {
         final WorkflowalizerConfiguration config =
-            WorkflowalizerConfiguration.builder().readAuthorInformation().build();
+            WorkflowalizerConfiguration.builder().build();
         final TemplateMetadata tm = Workflowalizer.readTemplate(m_templateDir, config);
 
         assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), tm.getAuthorInformation());
 
-        assertUOEThrown(tm::getAnnotations);
         assertUOEThrown(tm::getConnections);
-        assertUOEThrown(tm::getCreatedBy);
-        assertUOEThrown(tm::getCustomDescription);
-        assertUOEThrown(tm::getName);
         assertUOEThrown(tm::getNodes);
-        assertUOEThrown(tm::getTemplateInformation);
         assertUOEThrown(tm::getUnexpectedFileNames);
-        assertUOEThrown(tm::getVersion);
     }
 
     /**
@@ -1027,20 +894,14 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingTemplateMetadataTemplateInformation() throws Exception {
         final WorkflowalizerConfiguration config =
-            WorkflowalizerConfiguration.builder().readTemplateInformation().build();
+            WorkflowalizerConfiguration.builder().build();
         final TemplateMetadata tm = Workflowalizer.readTemplate(m_templateDir, config);
 
         assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), tm.getTemplateInformation());
 
-        assertUOEThrown(tm::getAnnotations);
-        assertUOEThrown(tm::getAuthorInformation);
         assertUOEThrown(tm::getConnections);
-        assertUOEThrown(tm::getCreatedBy);
-        assertUOEThrown(tm::getCustomDescription);
-        assertUOEThrown(tm::getName);
         assertUOEThrown(tm::getNodes);
         assertUOEThrown(tm::getUnexpectedFileNames);
-        assertUOEThrown(tm::getVersion);
     }
 
     /**
@@ -1108,32 +969,6 @@ public class WorkflowalizerTest {
         final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile);
         assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
         assertEquals(parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines), wsm.getComments().orElse(null));
-    }
-
-    /**
-     * Tests reading a workflow group author field
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testReadingWorkflowGroupAuthor() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowSetAuthor().build();
-        final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile, wc);
-        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
-        assertUOEThrown(wsm::getComments);
-    }
-
-    /**
-     * Tests reading a workflow group comments field
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testReadingWorkflowGroupComments() throws Exception {
-        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowSetComments().build();
-        final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile, wc);
-        assertEquals(parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines), wsm.getComments().orElse(null));
-        assertUOEThrown(wsm::getAuthor);
     }
 
     // -- Helper methods --

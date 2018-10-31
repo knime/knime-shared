@@ -71,61 +71,48 @@ class NativeNodeMetadataBuilder {
     private Optional<String> m_featureVendor;
     private Optional<Version> m_featureVersion;
 
-    private NodeAndBundleInformation m_nabi;
-    private boolean m_NodeAndBundleInfoIsDirty;
-
     void setSingleNodeFields(final SingleNodeFields singleNodeFields) {
         m_singleNodeFields = singleNodeFields;
     }
 
     void setNodeName(final Optional<String> nodeName) {
         m_nodeName = nodeName;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setFactoryClass(final Optional<String> factoryClass) {
         m_factoryClass = factoryClass;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setBundleName(final Optional<String> bundleName) {
         m_bundleName = bundleName;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setBundleSymbolicName(final Optional<String> bundleSymbolicName) {
         m_bundleSymbolicName = bundleSymbolicName;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setBundleVendor(final Optional<String> bundleVendor) {
         m_bundleVendor = bundleVendor;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setBundleVersion(final Optional<Version> bundleVersion) {
         m_bundleVersion = bundleVersion;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setFeatureName(final Optional<String> featureName) {
         m_featureName = featureName;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setFeatureSymbolicName(final Optional<String> featureSymbolicName) {
         m_featureSymbolicName = featureSymbolicName;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setFeatureVendor(final Optional<String> featureVendor) {
         m_featureVendor = featureVendor;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     void setFeatureVersion(final Optional<Version> featureVersion) {
         m_featureVersion = featureVersion;
-        m_NodeAndBundleInfoIsDirty = true;
     }
 
     SingleNodeFields getSingleNodeFields() {
@@ -172,48 +159,18 @@ class NativeNodeMetadataBuilder {
         return m_featureVersion;
     }
 
-    NodeAndBundleInformation buildNodeAndBundleInformation() {
-        if (m_NodeAndBundleInfoIsDirty) {
-            m_nabi = new NodeAndBundleInformation(m_factoryClass, m_bundleSymbolicName, m_bundleName,
-                m_bundleVendor, m_nodeName, m_bundleVersion, m_featureSymbolicName, m_featureName, m_featureVendor,
-                m_featureVersion);
-            m_NodeAndBundleInfoIsDirty = false;
-        }
-        return m_nabi;
-    }
-
-    NativeNodeMetadata build(final WorkflowalizerConfiguration wc) {
+    NativeNodeMetadata build() {
         m_singleNodeFields.validate();
-        if (wc.parseNodeName()) {
-            checkPopulated(m_nodeName, "node name");
-        }
-        if (wc.parseFactoryClass()) {
-            checkPopulated(m_factoryClass, "factory class");
-        }
-        if (wc.parseBundleName()) {
-            checkPopulated(m_bundleName, "bundle name");
-        }
-        if (wc.parseBundleSymbolicName()) {
-            checkPopulated(m_bundleSymbolicName, "bundle symbolic name");
-        }
-        if (wc.parseBundleVendor()) {
-            checkPopulated(m_bundleVendor, "bundle vendor");
-        }
-        if (wc.parseBundleVersion()) {
-            checkPopulated(m_bundleVersion, "bundle version");
-        }
-        if (wc.parseFeatureName()) {
-            checkPopulated(m_featureName, "feature name");
-        }
-        if (wc.parseFeatureSymbolicName()) {
-            checkPopulated(m_featureSymbolicName, "feature symbolic name");
-        }
-        if (wc.parseFeatureVendor()) {
-            checkPopulated(m_featureVendor, "feature vendor");
-        }
-        if (wc.parseFeatureVersion()) {
-            checkPopulated(m_featureVersion, "feature version");
-        }
+        checkPopulated(m_nodeName, "node name");
+        checkPopulated(m_factoryClass, "factory class");
+        checkPopulated(m_bundleName, "bundle name");
+        checkPopulated(m_bundleSymbolicName, "bundle symbolic name");
+        checkPopulated(m_bundleVendor, "bundle vendor");
+        checkPopulated(m_bundleVersion, "bundle version");
+        checkPopulated(m_featureName, "feature name");
+        checkPopulated(m_featureSymbolicName, "feature symbolic name");
+        checkPopulated(m_featureVendor, "feature vendor");
+        checkPopulated(m_featureVersion, "feature version");
         return new NativeNodeMetadata(this);
     }
 

@@ -60,41 +60,23 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
 
     TemplateMetadata(final TemplateMetadataBuilder builder) {
         super(builder);
-        if (builder.getAuthor() != null && builder.getAuthorDate() != null && builder.getLastEditor() != null
-            && builder.getLastEditDate() != null) {
-            m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
-                builder.getLastEditDate());
-        } else {
-            m_authorInfo = null;
-        }
-        if (builder.getRole() != null && builder.getTimeStamp() != null && builder.getSourceURI() != null
-            && builder.getType() != null) {
-            m_templateInfo = new TemplateInformation(builder.getRole(), builder.getTimeStamp(), builder.getSourceURI(),
-                builder.getType());
-        } else {
-            m_templateInfo = null;
-        }
+        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
+            builder.getLastEditDate());
+        m_templateInfo = new TemplateInformation(builder.getRole(), builder.getTimeStamp(), builder.getSourceURI(),
+            builder.getType());
     }
 
     /**
      * @return the {@link AuthorInformation} associated with this template
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     public AuthorInformation getAuthorInformation() {
-        if (m_authorInfo == null) {
-            throw new UnsupportedOperationException("getAuthorInformation() is unsupported, field was not read");
-        }
         return m_authorInfo;
     }
 
     /**
      * @return the {@link TemplateInformation} associated with this template
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     public TemplateInformation getTemplateInformation() {
-        if (m_templateInfo == null) {
-            throw new UnsupportedOperationException("getTemplateInformation() is unsupported, field was not read");
-        }
         return m_templateInfo;
     }
 }

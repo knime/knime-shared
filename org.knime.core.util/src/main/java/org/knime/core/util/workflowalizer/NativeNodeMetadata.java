@@ -72,7 +72,10 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
         m_modelParams = builder.getSingleNodeFields().getModelParameters();
         m_annotationText = builder.getSingleNodeFields().getAnnotationText();
         m_customNodeDescription = builder.getSingleNodeFields().getCustomDescription();
-        m_nodeAndBundleInfo = builder.buildNodeAndBundleInformation();
+        m_nodeAndBundleInfo = new NodeAndBundleInformation(builder.getFactoryClass(), builder.getBundleSymbolicName(),
+            builder.getBundleName(), builder.getBundleVendor(), builder.getNodeName(), builder.getBundleVersion(),
+            builder.getFeatureSymbolicName(), builder.getFeatureName(), builder.getFeatureVendor(),
+            builder.getFeatureVersion());
     }
 
     /**
@@ -80,9 +83,6 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      */
     @Override
     public int getNodeId() {
-        if (m_nodeId == null) {
-            throw new UnsupportedOperationException("getNodeId() is unsupported, field was not read");
-        }
         return m_nodeId;
     }
 
@@ -91,9 +91,6 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      */
     @Override
     public String getType() {
-        if (m_type == null) {
-            throw new UnsupportedOperationException("getType() is unsupported, field was not read");
-        }
         return m_type;
     }
 
@@ -113,9 +110,6 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      */
     @Override
     public Optional<String> getAnnotationText() {
-        if (m_annotationText == null) {
-            throw new UnsupportedOperationException("getAnnotationText() is unsupported, field was not read");
-        }
         return m_annotationText;
     }
 
@@ -124,9 +118,6 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      */
     @Override
     public Optional<String> getCustomNodeDescription() {
-        if (m_customNodeDescription == null) {
-            throw new UnsupportedOperationException("getCustomNodeDescription() is unsupported, field was not read");
-        }
         return m_customNodeDescription;
     }
 
@@ -135,9 +126,6 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     public NodeAndBundleInformation getNodeAndBundleInformation() {
-        if (m_nodeAndBundleInfo == null) {
-            throw new UnsupportedOperationException("getNodeAndBundleInformation() is unsupported, field was not read");
-        }
         return m_nodeAndBundleInfo;
     }
 

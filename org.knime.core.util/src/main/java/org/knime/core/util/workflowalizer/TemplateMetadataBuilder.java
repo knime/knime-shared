@@ -136,30 +136,14 @@ class TemplateMetadataBuilder extends AbstractWorkflowBuilder<TemplateMetadata> 
      */
     @Override
     TemplateMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
-        if (wc.parseAuthor()) {
-            checkPopulated(m_author, "author");
-        }
-        if (wc.parseAuthorDate()) {
-            checkPopulated(m_authorDate, "authored date");
-        }
-        if (wc.parseLastEditedDate()) {
-            checkPopulated(m_lastEditDate, "last edited date");
-        }
-        if (wc.parseLastEditor()) {
-            checkPopulated(m_lastEditor, "last editor");
-        }
-        if (wc.parseRole()) {
-            checkPopulated(m_role, "template role");
-        }
-        if (wc.parseTimeStamp()) {
-            checkPopulated(m_timeStamp, "template timestamp");
-        }
-        if (wc.parseSourceURI()) {
-            checkPopulated(m_sourceURI, "template source URI");
-        }
-        if (wc.parseTemplateType()) {
-            checkPopulated(m_type, "template type");
-        }
+        checkPopulated(m_author, "author");
+        checkPopulated(m_authorDate, "authored date");
+        checkPopulated(m_lastEditDate, "last edited date");
+        checkPopulated(m_lastEditor, "last editor");
+        checkPopulated(m_role, "template role");
+        checkPopulated(m_timeStamp, "template timestamp");
+        checkPopulated(m_sourceURI, "template source URI");
+        checkPopulated(m_type, "template type");
         return new TemplateMetadata(this);
     }
 }

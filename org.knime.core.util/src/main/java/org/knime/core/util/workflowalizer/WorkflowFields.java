@@ -70,23 +70,11 @@ final class WorkflowFields {
     private List<NodeMetadata> m_nodes;
     private Collection<String> m_unexpectedFileNames;
 
-    private final boolean m_readVersion;
-    private final boolean m_readCreatedBy;
-    private final boolean m_readName;
-    private final boolean m_readCustomDescription;
-    private final boolean m_readAnnotations;
     private final boolean m_readConnections;
     private final boolean m_readNodes;
     private final boolean m_readUnexpectedFileNames;
 
-    WorkflowFields(final boolean readVersion, final boolean readCreatedBy, final boolean readName,
-        final boolean readCustomDescription, final boolean readAnnotations, final boolean readConnections,
-        final boolean readNodes, final boolean readUnexpectedFileNames) {
-        m_readVersion = readVersion;
-        m_readCreatedBy = readCreatedBy;
-        m_readName = readName;
-        m_readCustomDescription = readCustomDescription;
-        m_readAnnotations = readAnnotations;
+    WorkflowFields(final boolean readConnections, final boolean readNodes, final boolean readUnexpectedFileNames) {
         m_readConnections = readConnections;
         m_readNodes = readNodes;
         m_readUnexpectedFileNames = readUnexpectedFileNames;
@@ -163,21 +151,11 @@ final class WorkflowFields {
     // -- Other --
 
     void validate() {
-        if (m_readVersion) {
-            checkPopulated(m_version, "version");
-        }
-        if (m_readCreatedBy) {
-            checkPopulated(m_createdBy, "created by");
-        }
-        if (m_readName) {
-            checkPopulated(m_name, "workflow name");
-        }
-        if (m_readCustomDescription) {
-            checkPopulated(m_customDescription, "workflow custom description");
-        }
-        if (m_readAnnotations) {
-            checkPopulated(m_annotations, "annotations");
-        }
+        checkPopulated(m_version, "version");
+        checkPopulated(m_createdBy, "created by");
+        checkPopulated(m_name, "workflow name");
+        checkPopulated(m_customDescription, "workflow custom description");
+        checkPopulated(m_annotations, "annotations");
         if (m_readNodes) {
             checkPopulated(m_nodes, "nodes");
         }

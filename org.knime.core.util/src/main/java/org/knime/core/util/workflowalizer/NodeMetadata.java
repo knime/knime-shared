@@ -59,19 +59,16 @@ public interface NodeMetadata {
 
     /**
      * @return the node ID
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     int getNodeId();
 
     /**
      * @return the node type
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     String getType();
 
     /**
      * @return the node's annotation text
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Optional<String> getAnnotationText();
 

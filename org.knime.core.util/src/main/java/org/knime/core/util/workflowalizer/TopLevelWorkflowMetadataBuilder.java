@@ -128,47 +128,14 @@ class TopLevelWorkflowMetadataBuilder extends AbstractWorkflowBuilder<TopLevelWo
      */
     @Override
     TopLevelWorkflowMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
-        if (wc.parseAuthor()) {
-            checkPopulated(m_author, "author");
-        }
-        if (wc.parseAuthorDate()) {
-            checkPopulated(m_authorDate, "authored date");
-        }
-        if (wc.parseLastEditedDate()) {
-            checkPopulated(m_lastEditDate, "last edited date");
-        }
-        if (wc.parseLastEditor()) {
-            checkPopulated(m_lastEditor, "last editor");
-        }
-        if (wc.parseSVG()) {
-            checkPopulated(m_svg, "workflow SVG file");
-        }
-        if (wc.parseArtifacts()) {
-            checkPopulated(m_artifacts, "artifacts directory");
-        }
-        if (wc.parseWorkflowSetAuthor()) {
-            if (m_workflowSetMeta == null) {
-                throw new IllegalArgumentException("Requested field, workflowset Author, should not be null");
-            }
-            if (m_workflowSetMeta.isPresent()) {
-                try {
-                    m_workflowSetMeta.get().getAuthor();
-                } catch (final UnsupportedOperationException ex) {
-                    throw new IllegalArgumentException("Requested field, workflowset Author, should not be null");
-                }
-            }
-        }
-        if (wc.parseWorkflowSetComments()) {
-            if (m_workflowSetMeta == null) {
-                throw new IllegalArgumentException("Requested field, workflowset Comments, should not be null");
-            }
-            if (m_workflowSetMeta.isPresent()) {
-                try {
-                    m_workflowSetMeta.get().getComments();
-                } catch (final UnsupportedOperationException ex) {
-                    throw new IllegalArgumentException("Requested field, workflowset Comments, should not be null");
-                }
-            }
+        checkPopulated(m_author, "author");
+        checkPopulated(m_authorDate, "authored date");
+        checkPopulated(m_lastEditDate, "last edited date");
+        checkPopulated(m_lastEditor, "last editor");
+        checkPopulated(m_svg, "workflow SVG file");
+        checkPopulated(m_artifacts, "artifacts directory");
+        if (wc.parseWorkflowMeta()) {
+            checkPopulated(m_workflowSetMeta, "workflowset.meta");
         }
         return new TopLevelWorkflowMetadata(this);
     }

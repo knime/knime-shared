@@ -63,13 +63,10 @@ final class SingleNodeFields extends NodeFields {
     private Optional<String> m_customDescription;
 
     private final boolean m_readModelParameters;
-    private final boolean m_readCustomDescription;
 
-    SingleNodeFields(final boolean readId, final boolean readType, final boolean readModelParameters,
-        final boolean readAnnotationText, final boolean readCustomDescription) {
-        super(readId, readType, readAnnotationText);
+    SingleNodeFields(final boolean readModelParameters) {
+        super();
         m_readModelParameters = readModelParameters;
-        m_readCustomDescription = readCustomDescription;
     }
 
     // -- Getters --
@@ -100,8 +97,6 @@ final class SingleNodeFields extends NodeFields {
         if (m_readModelParameters) {
             checkPopulated(m_modelParameters, "model parameters");
         }
-        if (m_readCustomDescription) {
-            checkPopulated(m_customDescription, "custom node description");
-        }
+        checkPopulated(m_customDescription, "custom node description");
     }
 }

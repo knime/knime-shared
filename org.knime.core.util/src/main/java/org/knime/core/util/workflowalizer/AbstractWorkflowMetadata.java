@@ -89,9 +89,6 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      */
     @Override
     public Version getVersion() {
-        if (m_version == null) {
-            throw new UnsupportedOperationException("getVersion() is unsupported, field was not read");
-        }
         return m_version;
     }
 
@@ -100,9 +97,6 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      */
     @Override
     public Version getCreatedBy() {
-        if (m_createdBy == null) {
-            throw new UnsupportedOperationException("getCreatedBy() is unsupported, field was not read");
-        }
         return m_createdBy;
     }
 
@@ -111,9 +105,6 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      */
     @Override
     public Optional<List<String>> getAnnotations() {
-        if (m_annotations == null) {
-            throw new UnsupportedOperationException("getAnnotations() is unsupported, field was not read");
-        }
         return m_annotations;
     }
 
@@ -144,9 +135,6 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      */
     @Override
     public Optional<String> getName() {
-        if (m_name == null) {
-            throw new UnsupportedOperationException("getName() is unsupported, field was not read");
-        }
         return m_name;
     }
 
@@ -155,9 +143,6 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      */
     @Override
     public Optional<String> getCustomDescription() {
-        if (m_customDescription == null) {
-            throw new UnsupportedOperationException("getCustomDescription() is unsupported, field was not read");
-        }
         return m_customDescription;
     }
 

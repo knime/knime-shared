@@ -82,9 +82,7 @@ class MetanodeMetadataBuilder extends AbstractWorkflowBuilder<MetanodeMetadata> 
     @Override
     MetanodeMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
         m_nodeFields.validate();
-        if (wc.parseTemplateLink()) {
-            checkPopulated(m_templateLink, "template link");
-        }
+        checkPopulated(m_templateLink, "template link");
         return new MetanodeMetadata(this);
     }
 

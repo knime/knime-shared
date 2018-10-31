@@ -67,7 +67,6 @@ public interface SingleNodeMetadata extends NodeMetadata {
 
     /**
      * @return the node's custom description
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Optional<String> getCustomNodeDescription();
 

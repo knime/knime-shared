@@ -63,31 +63,26 @@ public interface WorkflowMetadata {
 
     /**
      * @return the workflow version
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Version getVersion();
 
     /**
      * @return the KNIME version used to create this workflow
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Version getCreatedBy();
 
     /**
      * @return the name of this workflow
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Optional<String> getName();
 
     /**
      * @return the custom description for this workflow
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Optional<String> getCustomDescription();
 
     /**
      * @return a list of workflow annotations
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Optional<List<String>> getAnnotations();
 

@@ -112,28 +112,6 @@ public class Workflowalizer {
      */
     public static WorkflowSetMeta readWorkflowGroup(final Path workflowsetMetaFile)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        return readWorkflowGroup(workflowsetMetaFile,
-            WorkflowalizerConfiguration.builder().readWorkflowSetMeta().build());
-    }
-
-    /**
-     * Reads the workflowset meta file, but only the requested fields
-     *
-     * @param workflowsetMetaFile path to "workflowset.meta" file
-     * @param config the {@link WorkflowalizerConfiguration}, this cannot be {@code null}
-     * @return the metadata contained within the file as {@link WorkflowSetMeta}
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     * @throws XPathExpressionException
-     */
-    public static WorkflowSetMeta readWorkflowGroup(final Path workflowsetMetaFile,
-        final WorkflowalizerConfiguration config)
-        throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        if (config == null) {
-            throw new IllegalArgumentException("Configuration cannot be null");
-        }
-
         if (isZip(workflowsetMetaFile)) {
             try (final ZipFile zip = new ZipFile(workflowsetMetaFile.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflowGroup(zip);
@@ -142,7 +120,7 @@ public class Workflowalizer {
                         "Zip file does not contain a workflow group: " + workflowsetMetaFile);
                 }
                 try (final InputStream is = zip.getInputStream(zip.getEntry(workflowPath))) {
-                    return readWorkflowSetMeta(is, config);
+                    return readWorkflowSetMeta(is);
                 }
             }
         }
@@ -154,7 +132,7 @@ public class Workflowalizer {
             throw new IllegalArgumentException(workflowsetMetaFile + " is a directory");
         }
         try (final InputStream is = Files.newInputStream(workflowsetMetaFile)) {
-            return readWorkflowSetMeta(is, config);
+            return readWorkflowSetMeta(is);
         }
     }
 
@@ -288,7 +266,7 @@ public class Workflowalizer {
 
     // -- Helper methods --
 
-    private static WorkflowSetMeta readWorkflowSetMeta(final InputStream is, final WorkflowalizerConfiguration config)
+    private static WorkflowSetMeta readWorkflowSetMeta(final InputStream is)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -297,17 +275,13 @@ public class Workflowalizer {
         final XPath xpath = xPathfactory.newXPath();
 
         Optional<String> optionalAuthor = null;
-        if (config.parseWorkflowSetAuthor()) {
-            final XPathExpression authorExpr = xpath.compile("//KNIMEMetaInfo/element[@name='Author']");
-            final String author = (String)authorExpr.evaluate(doc, XPathConstants.STRING);
-            optionalAuthor = author.isEmpty() ? Optional.empty() : Optional.of(author);
-        }
+        final XPathExpression authorExpr = xpath.compile("//KNIMEMetaInfo/element[@name='Author']");
+        final String author = (String)authorExpr.evaluate(doc, XPathConstants.STRING);
+        optionalAuthor = author.isEmpty() ? Optional.empty() : Optional.of(author);
         Optional<String> optionalComments = null;
-        if (config.parseWorkflowSetComments()) {
-            final XPathExpression commentsExpr = xpath.compile("//KNIMEMetaInfo/element[@name='Comments']");
-            final String comments = (String)commentsExpr.evaluate(doc, XPathConstants.STRING);
-            optionalComments = comments.isEmpty() ? Optional.empty() : Optional.of(comments);
-        }
+        final XPathExpression commentsExpr = xpath.compile("//KNIMEMetaInfo/element[@name='Comments']");
+        final String comments = (String)commentsExpr.evaluate(doc, XPathConstants.STRING);
+        optionalComments = comments.isEmpty() ? Optional.empty() : Optional.of(comments);
         return new WorkflowSetMeta(optionalAuthor, optionalComments);
     }
 
@@ -349,41 +323,35 @@ public class Workflowalizer {
         builder.setWorkflowFields(wf);
         populateWorkflowFields(wf, wc, parser, workflowKnime, null, path, zip);
 
-        if (wc.parseAuthor()) {
-            final String author = parser.getAuthorName(workflowKnime);
-            builder.setAuthor(author);
+        final String author = parser.getAuthorName(workflowKnime);
+        builder.setAuthor(author);
+
+        final Date authoredDate = parser.getAuthoredDate(workflowKnime);
+        builder.setAuthorDate(authoredDate);
+
+        final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
+        builder.setLastEditDate(lastEditedDate);
+
+        final Optional<String> lastEditor = parser.getEditorName(workflowKnime);
+        builder.setLastEditor(lastEditor);
+
+        Optional<Collection<String>> artifactsFiles = null;
+        if (zip == null) {
+            artifactsFiles = artifactsFiles(parser, Paths.get(path));
+        } else {
+            artifactsFiles = artifactsFiles(parser, path, zip);
         }
-        if (wc.parseAuthorDate()) {
-            final Date authoredDate = parser.getAuthoredDate(workflowKnime);
-            builder.setAuthorDate(authoredDate);
+        builder.setArtifactsFileNames(artifactsFiles);
+
+        Optional<String> svg = null;
+        if (zip == null) {
+            svg = svgFile(parser, Paths.get(path));
+        } else {
+            svg = svgFile(parser, path, zip);
         }
-        if (wc.parseLastEditedDate()) {
-            final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
-            builder.setLastEditDate(lastEditedDate);
-        }
-        if (wc.parseLastEditor()) {
-            final Optional<String> lastEditor = parser.getEditorName(workflowKnime);
-            builder.setLastEditor(lastEditor);
-        }
-        if (wc.parseArtifacts()) {
-            Optional<Collection<String>> artifactsFiles = null;
-            if (zip == null) {
-                artifactsFiles = artifactsFiles(parser, Paths.get(path));
-            } else {
-                artifactsFiles = artifactsFiles(parser, path, zip);
-            }
-            builder.setArtifactsFileNames(artifactsFiles);
-        }
-        if (wc.parseSVG()) {
-            Optional<String> svg = null;
-            if (zip == null) {
-                svg = svgFile(parser, Paths.get(path));
-            } else {
-                svg = svgFile(parser, path, zip);
-            }
-            builder.setWorkflowSVGFile(svg);
-        }
-        if ((wc.parseWorkflowSetAuthor() || wc.parseWorkflowSetComments())) {
+        builder.setWorkflowSVGFile(svg);
+
+        if (wc.parseWorkflowMeta()) {
             Optional<WorkflowSetMeta> wsa = null;
             if (zip == null) {
                 final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
@@ -391,7 +359,7 @@ public class Workflowalizer {
                     wsa = Optional.empty();
                 } else {
                     try (final InputStream is = Files.newInputStream(workflowsetPath)) {
-                        wsa = Optional.ofNullable(readWorkflowSetMeta(is, wc));
+                        wsa = Optional.ofNullable(readWorkflowSetMeta(is));
                     }
                 }
             } else {
@@ -400,7 +368,7 @@ public class Workflowalizer {
                     wsa = Optional.empty();
                 } else {
                     try (final InputStream is = zip.getInputStream(entry)) {
-                        wsa = Optional.ofNullable(readWorkflowSetMeta(is, wc));
+                        wsa = Optional.ofNullable(readWorkflowSetMeta(is));
                     }
                 }
             }
@@ -436,38 +404,29 @@ public class Workflowalizer {
         builder.setWorkflowFields(wf);
         populateWorkflowFields(wf, wc, parser, workflowKnime, templateKnime, path, zip);
 
-        if (wc.parseAuthor()) {
-            final String author = parser.getAuthorName(workflowKnime);
-            builder.setAuthor(author);
-        }
-        if (wc.parseAuthorDate()) {
-            final Date authoredDate = parser.getAuthoredDate(workflowKnime);
-            builder.setAuthorDate(authoredDate);
-        }
-        if (wc.parseLastEditedDate()) {
-            final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
-            builder.setLastEditDate(lastEditedDate);
-        }
-        if (wc.parseLastEditor()) {
-            final Optional<String> lastEditor = parser.getEditorName(workflowKnime);
-            builder.setLastEditor(lastEditor);
-        }
-        if (wc.parseRole()) {
-            final String role = parser.getRole(templateKnime);
-            builder.setRole(role);
-        }
-        if (wc.parseTimeStamp()) {
-            final Date timeStamp = parser.getTimeStamp(templateKnime);
-            builder.setTimeStamp(timeStamp);
-        }
-        if (wc.parseSourceURI()) {
-            final Optional<String> sourceURI = parser.getSourceURI(templateKnime);
-            builder.setSourceURI(sourceURI);
-        }
-        if (wc.parseTemplateType()) {
-            final String templateType = parser.getTemplateType(templateKnime);
-            builder.setType(templateType);
-        }
+        final String author = parser.getAuthorName(workflowKnime);
+        builder.setAuthor(author);
+
+        final Date authoredDate = parser.getAuthoredDate(workflowKnime);
+        builder.setAuthorDate(authoredDate);
+
+        final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
+        builder.setLastEditDate(lastEditedDate);
+
+        final Optional<String> lastEditor = parser.getEditorName(workflowKnime);
+        builder.setLastEditor(lastEditor);
+
+        final String role = parser.getRole(templateKnime);
+        builder.setRole(role);
+
+        final Date timeStamp = parser.getTimeStamp(templateKnime);
+        builder.setTimeStamp(timeStamp);
+
+        final Optional<String> sourceURI = parser.getSourceURI(templateKnime);
+        builder.setSourceURI(sourceURI);
+
+        final String templateType = parser.getTemplateType(templateKnime);
+        builder.setType(templateType);
 
         return builder.build(wc);
     }
@@ -479,21 +438,17 @@ public class Workflowalizer {
         for (final ConfigBase config : configs) {
             final String type = parser.getType(config);
             NodeMetadata n = null;
-            int id = -1;
             if (type.equals("NativeNode")) {
                 n = readNativeNode(currentWorkflowDirectory, zip, config, wc, parser);
-                id = wc.parseId() ? n.getNodeId() : parser.getId(config);
             } else if (type.equals("SubNode")) {
                 n = readWrappedMetanode(currentWorkflowDirectory, zip, config, wc, parser);
-                id = wc.parseId() ? n.getNodeId() : parser.getId(config);
             } else if (type.equals("MetaNode")) {
                 n = readMetanode(currentWorkflowDirectory, zip, wc, config, parser);
-                id = wc.parseId() ? n.getNodeId() : parser.getId(config);
             } else {
                 throw new IllegalArgumentException("Unknown node type: " + type);
             }
 
-            map.put(id, n);
+            map.put(n.getNodeId(), n);
         }
         return map;
     }
@@ -521,17 +476,14 @@ public class Workflowalizer {
         builder.setWorkflowFields(wf);
 
         final NodeFields nf = wc.createNodeFields();
-        populateNodeFields(nf, wc, parser, configBase);
-        if (wc.parseAnnotationText()) {
-            final Optional<String> annotationText = parser.getAnnotationText(workflowKnime, null);
-            nf.setAnnotationText(annotationText);
-        }
+        populateNodeFields(nf, parser, configBase);
+
+        final Optional<String> annotationText = parser.getAnnotationText(workflowKnime, null);
+        nf.setAnnotationText(annotationText);
         builder.setNodeFields(nf);
 
-        if (wc.parseTemplateLink()) {
-            final Optional<String> templateLink = parser.getTemplateLink(workflowKnime);
-            builder.setTemplateLink(templateLink);
-        }
+        final Optional<String> templateLink = parser.getTemplateLink(workflowKnime);
+        builder.setTemplateLink(templateLink);
 
         return builder.build(wc);
     }
@@ -567,10 +519,8 @@ public class Workflowalizer {
         populateSingleNodeFields(snf, wc, parser, settingsXml, configBase);
         builder.setSingleNodeFields(snf);
 
-        if (wc.parseTemplateLink()) {
-            final Optional<String> templateLink = parser.getTemplateLink(settingsXml);
-            builder.setTemplateLink(templateLink);
-        }
+        final Optional<String> templateLink = parser.getTemplateLink(settingsXml);
+        builder.setTemplateLink(templateLink);
 
         return builder.build(wc);
     }
@@ -593,49 +543,37 @@ public class Workflowalizer {
         populateSingleNodeFields(snf, wc, parser, settingsXml, configBase);
         builder.setSingleNodeFields(snf);
 
-        // read other fields
-        if (wc.parseNodeName()) {
-            final Optional<String> name = parser.getNodeName(settingsXml);
-            builder.setNodeName(name);
-        }
-        if (wc.parseFactoryClass()) {
-            final Optional<String> factoryClass = parser.getFactoryClass(settingsXml);
-            builder.setFactoryClass(factoryClass);
-        }
-        if (wc.parseBundleName()) {
-            final Optional<String> bundleName = parser.getBundleName(settingsXml);
-            builder.setBundleName(bundleName);
-        }
-        if (wc.parseBundleSymbolicName()) {
-            final Optional<String> bundleSymbolicName = parser.getBundleSymbolicName(settingsXml);
-            builder.setBundleSymbolicName(bundleSymbolicName);
-        }
-        if (wc.parseBundleVendor()) {
-            final Optional<String> bundleVendor = parser.getBundleVendor(settingsXml);
-            builder.setBundleVendor(bundleVendor);
-        }
-        if (wc.parseBundleVersion()) {
-            final Optional<Version> bundleVersion = parser.getBundleVersion(settingsXml);
-            builder.setBundleVersion(bundleVersion);
-        }
-        if (wc.parseFeatureName()) {
-            final Optional<String> featureName = parser.getFeatureName(settingsXml);
-            builder.setFeatureName(featureName);
-        }
-        if (wc.parseFeatureSymbolicName()) {
-            final Optional<String> featureSymbolicName = parser.getFeatureSymbolicName(settingsXml);
-            builder.setFeatureSymbolicName(featureSymbolicName);
-        }
-        if (wc.parseFeatureVendor()) {
-            final Optional<String> featureVendor = parser.getFeatureVendor(settingsXml);
-            builder.setFeatureVendor(featureVendor);
-        }
-        if (wc.parseFeatureVersion()) {
-            final Optional<Version> featureVersion = parser.getFeatureVersion(settingsXml);
-            builder.setFeatureVersion(featureVersion);
-        }
+        final Optional<String> name = parser.getNodeName(settingsXml);
+        builder.setNodeName(name);
 
-        return builder.build(wc);
+        final Optional<String> factoryClass = parser.getFactoryClass(settingsXml);
+        builder.setFactoryClass(factoryClass);
+
+        final Optional<String> bundleName = parser.getBundleName(settingsXml);
+        builder.setBundleName(bundleName);
+
+        final Optional<String> bundleSymbolicName = parser.getBundleSymbolicName(settingsXml);
+        builder.setBundleSymbolicName(bundleSymbolicName);
+
+        final Optional<String> bundleVendor = parser.getBundleVendor(settingsXml);
+        builder.setBundleVendor(bundleVendor);
+
+        final Optional<Version> bundleVersion = parser.getBundleVersion(settingsXml);
+        builder.setBundleVersion(bundleVersion);
+
+        final Optional<String> featureName = parser.getFeatureName(settingsXml);
+        builder.setFeatureName(featureName);
+
+        final Optional<String> featureSymbolicName = parser.getFeatureSymbolicName(settingsXml);
+        builder.setFeatureSymbolicName(featureSymbolicName);
+
+        final Optional<String> featureVendor = parser.getFeatureVendor(settingsXml);
+        builder.setFeatureVendor(featureVendor);
+
+        final Optional<Version> featureVersion = parser.getFeatureVersion(settingsXml);
+        builder.setFeatureVersion(featureVersion);
+
+        return builder.build();
     }
 
     // -- Populate methods --
@@ -643,26 +581,20 @@ public class Workflowalizer {
     private static void populateWorkflowFields(final WorkflowFields wf, final WorkflowalizerConfiguration wc,
         final WorkflowParser parser, final ConfigBase workflowKnime, final ConfigBase templateKnime, final String path,
         final ZipFile zip) throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
-        if (wc.parseVersion()) {
-            final Version version = parser.getVersion(workflowKnime, templateKnime);
-            wf.setVersion(version);
-        }
-        if (wc.parseCreatedBy()) {
-            final Version createdBy = parser.getCreatedBy(workflowKnime, templateKnime);
-            wf.setCreatedBy(createdBy);
-        }
-        if (wc.parseName()) {
-            final Optional<String> name = parser.getName(workflowKnime);
-            wf.setName(name);
-        }
-        if (wc.parseCustomDescription()) {
-            final Optional<String> customDescription = parser.getCustomDescription(workflowKnime);
-            wf.setCustomDescription(customDescription);
-        }
-        if (wc.parseAnnotations()) {
-            final Optional<List<String>> annotations = parser.getAnnotations(workflowKnime);
-            wf.setAnnotations(annotations);
-        }
+        final Version version = parser.getVersion(workflowKnime, templateKnime);
+        wf.setVersion(version);
+
+        final Version createdBy = parser.getCreatedBy(workflowKnime, templateKnime);
+        wf.setCreatedBy(createdBy);
+
+        final Optional<String> name = parser.getName(workflowKnime);
+        wf.setName(name);
+
+        final Optional<String> customDescription = parser.getCustomDescription(workflowKnime);
+        wf.setCustomDescription(customDescription);
+
+        final Optional<List<String>> annotations = parser.getAnnotations(workflowKnime);
+        wf.setAnnotations(annotations);
         if (wc.parseNodes()) {
             final Map<Integer, NodeMetadata> nodes =
                 readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser);
@@ -683,22 +615,19 @@ public class Workflowalizer {
         }
     }
 
-    private static void populateNodeFields(final NodeFields nf, final WorkflowalizerConfiguration wc,
-        final WorkflowParser parser, final ConfigBase nodeConfig) throws InvalidSettingsException {
-        if (wc.parseId()) {
-            final int id = parser.getId(nodeConfig);
-            nf.setId(id);
-        }
-        if (wc.parseType()) {
-            final String type = parser.getType(nodeConfig);
-            nf.setType(type);
-        }
+    private static void populateNodeFields(final NodeFields nf, final WorkflowParser parser,
+        final ConfigBase nodeConfig) throws InvalidSettingsException {
+        final int id = parser.getId(nodeConfig);
+        nf.setId(id);
+
+        final String type = parser.getType(nodeConfig);
+        nf.setType(type);
     }
 
     private static void populateSingleNodeFields(final SingleNodeFields snf, final WorkflowalizerConfiguration wc,
         final WorkflowParser parser, final ConfigBase settingsXml, final ConfigBase nodeConfig)
         throws InvalidSettingsException {
-        populateNodeFields(snf, wc, parser, nodeConfig);
+        populateNodeFields(snf, parser, nodeConfig);
         if (wc.parseModelParameters()) {
             final Optional<ConfigBase> modelParameters = parser.getModelParameters(settingsXml);
             if (modelParameters.isPresent()) {
@@ -707,14 +636,12 @@ public class Workflowalizer {
             }
             snf.setModelParameters(modelParameters);
         }
-        if (wc.parseNodeCustomDescription()) {
-            final Optional<String> customDescription = parser.getCustomNodeDescription(settingsXml);
-            snf.setCustomDescription(customDescription);
-        }
-        if (wc.parseAnnotationText()) {
-            final Optional<String> annotationText = parser.getAnnotationText(null, settingsXml);
-            snf.setAnnotationText(annotationText);
-        }
+
+        final Optional<String> customDescription = parser.getCustomNodeDescription(settingsXml);
+        snf.setCustomDescription(customDescription);
+
+        final Optional<String> annotationText = parser.getAnnotationText(null, settingsXml);
+        snf.setAnnotationText(annotationText);
     }
 
     // -- File methods --
