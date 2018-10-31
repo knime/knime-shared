@@ -57,6 +57,7 @@ import java.util.Optional;
  * <p>
  * Extracted from FileWorkflowPersistor in knime-core.
  * </p>
+ * @since 5.10
  */
 public enum LoadVersion {
         // Don't modify order, ordinal number are important.

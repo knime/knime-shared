@@ -58,6 +58,7 @@ import org.knime.core.util.Version;
  * POJO containing information about a KNIME node and bundle information.
  *
  * <p>Adapted from NodeAndBundleInformation class in knime-core.</p>
+ * @since 5.10
  */
 public class NodeAndBundleInformation {
 

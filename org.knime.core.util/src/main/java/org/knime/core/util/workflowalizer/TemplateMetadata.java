@@ -52,6 +52,7 @@ package org.knime.core.util.workflowalizer;
  * Metadata pertaining to KNIME templates.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> {
 

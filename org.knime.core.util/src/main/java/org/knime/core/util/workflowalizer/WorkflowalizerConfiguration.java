@@ -52,6 +52,7 @@ package org.knime.core.util.workflowalizer;
  * Configuration to specify which fields should be read by the {@link Workflowalizer}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public class WorkflowalizerConfiguration {
 

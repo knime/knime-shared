@@ -54,6 +54,7 @@ import java.util.Optional;
  * Represents the metadata for a KNIME Metanode.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMetadataBuilder> implements NodeMetadata {
 

@@ -92,6 +92,7 @@ import org.knime.core.util.XMLUtils;
  * Tests for {@link Workflowalizer}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public class WorkflowalizerTest {
 

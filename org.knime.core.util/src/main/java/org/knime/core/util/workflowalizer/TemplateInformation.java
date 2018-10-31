@@ -58,6 +58,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * Represents metadata specific to KNIME templates, such as role, type etc.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class TemplateInformation {
 

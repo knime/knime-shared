@@ -97,6 +97,7 @@ import org.xml.sax.SAXException;
  * Reader for workflow metadata.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public class Workflowalizer {
 

@@ -59,7 +59,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  *
  * <p>Extracted from KNIME core WorkflowManager.</p>
  *
- * @since 2.8
+ * @since 5.10
  */
 public final class AuthorInformation {
 

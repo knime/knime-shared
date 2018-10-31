@@ -62,7 +62,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public final class Version implements Comparable<Version>, Serializable {
 
-    /** Empty version 0.0.0 */
+    /** Empty version 0.0.0
+     * @since 5.10*/
     public static final Version EMPTY_VERSION = new Version(0, 0, 0);
 
     private final int m_major;
@@ -96,6 +97,7 @@ public final class Version implements Comparable<Version>, Serializable {
      * @param minor the minor version
      * @param revision the revision
      * @param qualifier the qualifier String
+     * @since 5.10
      */
     @JsonCreator
     public Version(@JsonProperty("major") final int major, @JsonProperty("minor") final int minor,
@@ -190,6 +192,7 @@ public final class Version implements Comparable<Version>, Serializable {
 
     /**
      * @return the qualifier String
+     * @since 5.10
      */
     @JsonProperty("qualifier")
     public String getQualifier() {

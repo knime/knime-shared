@@ -55,6 +55,7 @@ import java.util.Optional;
  * Represents the metadata of a top level KNIME workflow (i.e. not a metanode).
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> {
 

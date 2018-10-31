@@ -56,6 +56,7 @@ import org.knime.core.node.config.base.ConfigBase;
  * Represents the metadata for a KNIME native node.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 

@@ -56,6 +56,7 @@ import org.knime.core.node.config.base.ConfigBase;
  * Represents metadata for a KNIME subnode.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetadataBuilder> implements SingleNodeMetadata {
 

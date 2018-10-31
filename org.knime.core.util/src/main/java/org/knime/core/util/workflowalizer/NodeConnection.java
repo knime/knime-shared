@@ -54,6 +54,7 @@ import java.util.Optional;
  * The connection between two nodes.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class NodeConnection {
 

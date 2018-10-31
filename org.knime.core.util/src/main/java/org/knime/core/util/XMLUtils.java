@@ -52,6 +52,7 @@ package org.knime.core.util;
  * Utility class for reading, writing, parsing, etc. XML files.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public final class XMLUtils {
 

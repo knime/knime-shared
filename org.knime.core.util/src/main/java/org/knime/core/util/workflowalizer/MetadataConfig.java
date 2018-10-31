@@ -54,6 +54,7 @@ import org.knime.core.node.config.base.ConfigBase;
  * {@link ConfigBase} for Workflowalizer.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public class MetadataConfig extends ConfigBase {
 

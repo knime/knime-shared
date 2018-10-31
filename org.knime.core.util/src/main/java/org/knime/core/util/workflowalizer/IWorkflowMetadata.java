@@ -58,6 +58,7 @@ import org.knime.core.util.Version;
  * POJO for KNIME workflow meta-data.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public interface IWorkflowMetadata {
 

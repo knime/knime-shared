@@ -54,6 +54,7 @@ import java.util.Optional;
  * Represents the metadata for nodes. This includes metanodes, subnodes, and native nodes.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.10
  */
 public interface NodeMetadata {
 
