@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Oct 12, 2018 (awalter): created
+ *   Oct 29, 2018 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
@@ -65,11 +65,11 @@ import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.Version;
 
 /**
- * {@code WorkflowParser} for parsing v3.6.0Pre files
+ * Abstract base class for {@code WorkflowParser}s.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-class WorkflowParserV3060Pre implements WorkflowParser {
+abstract class AbstractWorkflowParser implements WorkflowParser {
 
     // -- Workflow --
 
@@ -218,22 +218,16 @@ class WorkflowParserV3060Pre implements WorkflowParser {
         return config.getInt("id");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getType(final ConfigBase config) throws InvalidSettingsException {
-        return config.getString("node_type");
-    }
-
     // -- Single Nodes --
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<ConfigBase> getModelParameters(final ConfigBase config) throws InvalidSettingsException {
-        return config.containsKey("model") ? Optional.ofNullable(config.getConfigBase("model")) : Optional.empty();
+    public Optional<ConfigBase> getModelParameters(final ConfigBase settingsXml, final ConfigBase nodeXml)
+        throws InvalidSettingsException {
+        return settingsXml.containsKey("model") ? Optional.ofNullable(settingsXml.getConfigBase("model"))
+            : Optional.empty();
     }
 
     /**
@@ -257,7 +251,8 @@ class WorkflowParserV3060Pre implements WorkflowParser {
      */
     @Override
     public Optional<String> getCustomNodeDescription(final ConfigBase config) throws InvalidSettingsException {
-        return Optional.ofNullable(config.getString("customDescription"));
+        final String desc = config.getString("customDescription");
+        return desc == null || desc.isEmpty() ? Optional.empty() : Optional.ofNullable(desc);
     }
 
     // -- "Top-level" workflows --
@@ -267,6 +262,9 @@ class WorkflowParserV3060Pre implements WorkflowParser {
      */
     @Override
     public String getAuthorName(final ConfigBase config) throws InvalidSettingsException {
+        if (!config.containsKey("authorInformation")) {
+            return "<unknown>";
+        }
         return config.getConfigBase("authorInformation").getString("authored-by");
     }
 
@@ -275,6 +273,9 @@ class WorkflowParserV3060Pre implements WorkflowParser {
      */
     @Override
     public Date getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
+        if (!config.containsKey("authorInformation")) {
+            return new Date(0);
+        }
         final String s = config.getConfigBase("authorInformation").getString("authored-when");
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
         return df.parse(s);
@@ -285,6 +286,9 @@ class WorkflowParserV3060Pre implements WorkflowParser {
      */
     @Override
     public Optional<String> getEditorName(final ConfigBase config) throws InvalidSettingsException {
+        if (!config.containsKey("authorInformation")) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(config.getConfigBase("authorInformation").getString("lastEdited-by"));
     }
 
@@ -293,6 +297,9 @@ class WorkflowParserV3060Pre implements WorkflowParser {
      */
     @Override
     public Optional<Date> getEditedDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
+        if (!config.containsKey("authorInformation")) {
+            return Optional.empty();
+        }
         final String s = config.getConfigBase("authorInformation").getString("lastEdited-when");
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
         return s == null || s.isEmpty() ? Optional.empty() : Optional.ofNullable(df.parse(s));
@@ -310,7 +317,6 @@ class WorkflowParserV3060Pre implements WorkflowParser {
 
     /**
      * {@inheritDoc}
-     * @throws InvalidSettingsException
      */
     @Override
     public List<String> getWorkflowCredentialName(final ConfigBase config) throws InvalidSettingsException {
@@ -471,8 +477,8 @@ class WorkflowParserV3060Pre implements WorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Optional<String> getNodeName(final ConfigBase config) throws InvalidSettingsException {
-        return config.containsKey("node-name") ? Optional.ofNullable(config.getString("node-name")) : Optional.empty();
+    public Optional<String> getNodeName(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException {
+        return settingsXml.containsKey("node-name") ? Optional.ofNullable(settingsXml.getString("node-name")) : Optional.empty();
     }
 
     /**
@@ -494,4 +500,5 @@ class WorkflowParserV3060Pre implements WorkflowParser {
         final String v = config.getString("node-bundle-version");
         return v == null || v.isEmpty() ? Optional.empty() : Optional.ofNullable(new Version(v));
     }
+
 }

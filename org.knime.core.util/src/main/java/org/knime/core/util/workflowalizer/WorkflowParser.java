@@ -176,11 +176,12 @@ interface WorkflowParser {
     // -- Single Node --
 
     /**
-     * @param config a pre-loaded {@link ConfigBase} to be parsed
+     * @param settingsXml {@link ConfigBase} "settings.xml" was read into
+     * @param nodeXml {@link ConfigBase} "node.xml" was read into
      * @return the node's model parameters
      * @throws InvalidSettingsException
      */
-    Optional<ConfigBase> getModelParameters(final ConfigBase config) throws InvalidSettingsException;
+    Optional<ConfigBase> getModelParameters(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException;
 
     /**
      *
@@ -343,12 +344,12 @@ interface WorkflowParser {
     Optional<String> getBundleVendor(final ConfigBase config) throws InvalidSettingsException;
 
     /**
-     *
-     * @param config a pre-loaded {@link ConfigBase} to be parsed
+     * @param settingsXml {@link ConfigBase} "settings.xml" was read into
+     * @param nodeXml {@link ConfigBase} "node.xml" was read into
      * @return the node's name
      * @throws InvalidSettingsException
      */
-    Optional<String> getNodeName(final ConfigBase config) throws InvalidSettingsException;
+    Optional<String> getNodeName(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException;
 
     /**
      *

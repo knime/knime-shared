@@ -293,8 +293,15 @@ public final class Workflowalizer {
         final LoadVersion loadVersion = versionOptional.get();
 
         WorkflowParser parser = null;
-        if (loadVersion.equals(LoadVersion.V3060Pre)) {
-            parser = new WorkflowParserV3060Pre();
+        if (loadVersion.equals(LoadVersion.V3070) || loadVersion.equals(LoadVersion.V3060Pre)
+            || loadVersion.equals(LoadVersion.V3010) || loadVersion.equals(LoadVersion.V2100)
+            || loadVersion.equals(LoadVersion.V2100Pre)) {
+            parser = new WorkflowParserV2100Pre();
+        } else if (loadVersion.equals(LoadVersion.V280)) {
+            parser = new WorkflowParserV280();
+        } else if (loadVersion.equals(LoadVersion.V260) || loadVersion.equals(LoadVersion.V250)
+            || loadVersion.equals(LoadVersion.V240) || loadVersion.equals(LoadVersion.V230)) {
+            parser = new WorkflowParserV230();
         } else {
             throw new IllegalArgumentException("Unsupported workflow version: " + loadVersion.getVersionString());
         }
@@ -522,7 +529,8 @@ public final class Workflowalizer {
         builder.setWorkflowFields(wf);
 
         final SingleNodeFields snf = wc.createSingleNodeFields();
-        populateSingleNodeFields(snf, wc, parser, settingsXml, configBase);
+        // Subnodes were not supported when node.xml files were used
+        populateSingleNodeFields(snf, wc, parser, settingsXml, null, configBase);
         builder.setSingleNodeFields(snf);
 
         final Optional<String> templateLink = parser.getTemplateLink(settingsXml);
@@ -538,18 +546,34 @@ public final class Workflowalizer {
         final NativeNodeMetadataBuilder builder = new NativeNodeMetadataBuilder();
 
         MetadataConfig settingsXml = null;
+        MetadataConfig nodeXml = null;
         if (zip == null) {
             final Path nodeFile = Paths.get(parentDirectory, settings);
             settingsXml = readFile(nodeFile);
+            if (settingsXml.containsKey("node_file")) {
+                final String fileName = settingsXml.getString("node_file");
+                if (!fileName.equals("settings.xml")) {
+                    final Path p = Paths.get(nodeFile.getParent().toAbsolutePath().toString(), fileName);
+                    nodeXml = readFile(p);
+                }
+            }
         } else {
-            settingsXml = readFile(parentDirectory + settings, zip);
+            final String node = parentDirectory + settings;
+            settingsXml = readFile(node, zip);
+            if (settingsXml.containsKey("node_file")) {
+                final String fileName = settingsXml.getString("node_file");
+                if (!fileName.equals("settings.xml")) {
+                    final String dir = node.substring(0, node.lastIndexOf("/") + 1);
+                    nodeXml = readFile(dir + fileName, zip);
+                }
+            }
         }
 
         final SingleNodeFields snf = wc.createSingleNodeFields();
-        populateSingleNodeFields(snf, wc, parser, settingsXml, configBase);
+        populateSingleNodeFields(snf, wc, parser, settingsXml, nodeXml, configBase);
         builder.setSingleNodeFields(snf);
 
-        final Optional<String> name = parser.getNodeName(settingsXml);
+        final Optional<String> name = parser.getNodeName(settingsXml, nodeXml);
         builder.setNodeName(name);
 
         final Optional<String> factoryClass = parser.getFactoryClass(settingsXml);
@@ -631,11 +655,11 @@ public final class Workflowalizer {
     }
 
     private static void populateSingleNodeFields(final SingleNodeFields snf, final WorkflowalizerConfiguration wc,
-        final WorkflowParser parser, final ConfigBase settingsXml, final ConfigBase nodeConfig)
+        final WorkflowParser parser, final ConfigBase settingsXml, final ConfigBase nodeXml, final ConfigBase nodeConfig)
         throws InvalidSettingsException {
         populateNodeFields(snf, parser, nodeConfig);
         if (wc.parseModelParameters()) {
-            final Optional<ConfigBase> modelParameters = parser.getModelParameters(settingsXml);
+            final Optional<ConfigBase> modelParameters = parser.getModelParameters(settingsXml, nodeXml);
             if (modelParameters.isPresent()) {
                 // Remove link to parent (memory optimization)
                 modelParameters.get().setParent(null);
