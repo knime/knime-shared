@@ -66,8 +66,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -271,10 +271,10 @@ public class WorkflowalizerTest {
 
             final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readUnexpectedFiles().build();
             final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-            assertEquals(2, wkfMd.getUnexpectedFileNames().size());
-            final Iterator<String> itr = wkfMd.getUnexpectedFileNames().iterator();
-            assertEquals(subDataFile.getAbsolutePath(), itr.next());
-            assertEquals(dataFile.getAbsolutePath(), itr.next());
+            final Collection<String> unexpectedFiles = wkfMd.getUnexpectedFileNames();
+            assertEquals(2, unexpectedFiles.size());
+            assertTrue(unexpectedFiles.contains(dataFile.getAbsolutePath()));
+            assertTrue(unexpectedFiles.contains(subDataFile.getAbsolutePath()));
 
             assertUOEThrown(wkfMd::getConnections);
             assertUOEThrown(wkfMd::getNodes);
