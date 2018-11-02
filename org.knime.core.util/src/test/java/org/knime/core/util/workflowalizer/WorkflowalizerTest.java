@@ -469,7 +469,9 @@ public class WorkflowalizerTest {
     public void testReadingWorkflowCredentials() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertTrue(wkfMd.getWorkflowCredentialsNames().isEmpty());
+        final List<String> cred = wkfMd.getWorkflowCredentialsNames();
+        assertEquals(1, cred.size());
+        assertEquals("Credential", cred.get(0));
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -486,7 +488,11 @@ public class WorkflowalizerTest {
     public void testReadingWorkflowVariables() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertTrue(wkfMd.getWorkflowVariables().isEmpty());
+        final List<String> vars = wkfMd.getWorkflowVariables();
+        assertEquals(3, vars.size());
+        assertTrue(vars.contains("TestDouble"));
+        assertTrue(vars.contains("TestInteger"));
+        assertTrue(vars.contains("TestString"));
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
