@@ -49,6 +49,7 @@
 package org.knime.core.util.workflowalizer;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -63,6 +64,8 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     private final Optional<String> m_svg;
     private final Optional<Collection<String>> m_artifacts;
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
+    private final List<String> m_credentials;
+    private final List<String> m_variables;
 
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {
         super(builder);
@@ -71,6 +74,8 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         m_svg = builder.getWorkflowSVGFile();
         m_artifacts = builder.getArtifactsFileNames();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
+        m_credentials = builder.getWorkflowCredentialsNames();
+        m_variables = builder.getWorkflowVariables();
     }
 
     /**
@@ -105,4 +110,17 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         return m_workflowSetMeta;
     }
 
+    /**
+     * @return a list of workflow credentials' names
+     */
+    public List<String> getWorkflowCredentialsNames() {
+        return m_credentials;
+    }
+
+    /**
+     * @return a list of workflow variable names
+     */
+    public List<String> getWorkflowVariables() {
+        return m_variables;
+    }
 }

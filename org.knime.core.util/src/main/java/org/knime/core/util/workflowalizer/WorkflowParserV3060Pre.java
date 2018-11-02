@@ -308,6 +308,42 @@ class WorkflowParserV3060Pre implements WorkflowParser {
         return ".artifacts";
     }
 
+    /**
+     * {@inheritDoc}
+     * @throws InvalidSettingsException
+     */
+    @Override
+    public List<String> getWorkflowCredentialName(final ConfigBase config) throws InvalidSettingsException {
+        if (!config.containsKey("workflow_credentials")) {
+            return Collections.emptyList();
+        }
+        final ConfigBase credentials = config.getConfigBase("workflow_credentials");
+        final List<String> keys = new ArrayList<>();
+        for (final String key : credentials.keySet()) {
+            // key and name fields are equal
+            keys.add(key);
+        }
+        return keys;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getWorkflowVariables(final ConfigBase config) throws InvalidSettingsException {
+        if (!config.containsKey("workflow_variables")) {
+            return Collections.emptyList();
+        }
+        final ConfigBase variables = config.getConfigBase("workflow_variables");
+        final List<String> varNames = new ArrayList<>();
+        for (final String key : variables.keySet()) {
+            final ConfigBase var = variables.getConfigBase(key);
+            varNames.add(var.getString("name"));
+
+        }
+        return varNames;
+    }
+
     // -- Templates --
 
     /**

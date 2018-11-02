@@ -461,6 +461,40 @@ public class WorkflowalizerTest {
     }
 
     /**
+     * Test reading workflow credentials
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowCredentials() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        assertTrue(wkfMd.getWorkflowCredentialsNames().isEmpty());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+    /**
+     * Test reading workflow variables
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowVariables() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        assertTrue(wkfMd.getWorkflowVariables().isEmpty());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+    /**
      * Tests attempting to read a workflowset.meta file, for a workflow which doesn't have such a file
      *
      * @throws Exception

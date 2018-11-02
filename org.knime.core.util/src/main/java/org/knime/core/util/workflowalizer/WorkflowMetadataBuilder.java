@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -66,6 +67,8 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
     private Optional<String> m_lastEditor;
     private Optional<Date> m_lastEditDate;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
+    private List<String> m_credentials;
+    private List<String> m_variables;
 
     void setWorkflowSVGFile(final Optional<String> workflowSVGFile) {
         m_svg = workflowSVGFile;
@@ -93,6 +96,14 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
 
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
         m_workflowSetMeta = workflowSetMeta;
+    }
+
+    void setWorkflowCredentialsNames(final List<String> credentials) {
+        m_credentials = credentials;
+    }
+
+    void setWorkflowVariables(final List<String> variables) {
+        m_variables = variables;
     }
 
     Optional<String> getWorkflowSVGFile() {
@@ -123,6 +134,14 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         return m_workflowSetMeta;
     }
 
+    List<String> getWorkflowCredentialsNames() {
+        return m_credentials;
+    }
+
+    List<String> getWorkflowVariables() {
+        return m_variables;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -134,6 +153,8 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         checkPopulated(m_lastEditor, "last editor");
         checkPopulated(m_svg, "workflow SVG file");
         checkPopulated(m_artifacts, "artifacts directory");
+        checkPopulated(m_credentials, "workflow credentials");
+        checkPopulated(m_variables, "workflow variables");
         if (wc.parseWorkflowMeta()) {
             checkPopulated(m_workflowSetMeta, "workflowset.meta");
         }

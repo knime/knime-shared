@@ -232,6 +232,20 @@ interface WorkflowParser {
      */
     String getArtifactsDirectoryName();
 
+    /**
+     * @param config the {@link ConfigBase} the xml was read into
+     * @return the workflow credentials' names
+     * @throws InvalidSettingsException
+     */
+    List<String> getWorkflowCredentialName(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * @param config the {@link ConfigBase} the xml was read into
+     * @return the workflow's variable names
+     * @throws InvalidSettingsException
+     */
+    List<String> getWorkflowVariables(final ConfigBase config) throws InvalidSettingsException;
+
     // -- Template --
 
     /**

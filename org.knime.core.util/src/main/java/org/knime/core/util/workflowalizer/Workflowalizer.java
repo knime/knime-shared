@@ -376,6 +376,12 @@ public class Workflowalizer {
             builder.setWorkflowSetMeta(wsa);
         }
 
+        final List<String> credentials = parser.getWorkflowCredentialName(workflowKnime);
+        builder.setWorkflowCredentialsNames(credentials);
+
+        final List<String> variables = parser.getWorkflowVariables(workflowKnime);
+        builder.setWorkflowVariables(variables);
+
         return builder.build(wc);
     }
 
