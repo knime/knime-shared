@@ -59,7 +59,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-public class WorkflowSetMeta {
+public final class WorkflowSetMeta {
 
     private final Optional<String> m_author;
     private final Optional<String> m_comments;

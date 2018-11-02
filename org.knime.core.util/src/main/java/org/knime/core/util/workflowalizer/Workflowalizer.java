@@ -99,7 +99,7 @@ import org.xml.sax.SAXException;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-public class Workflowalizer {
+public final class Workflowalizer {
 
     /**
      * Reads the workflowset meta file.
@@ -308,9 +308,9 @@ public class Workflowalizer {
         // Reading workflow.knime
         MetadataConfig workflowKnime = null;
         if (zip == null) {
-            workflowKnime = readFile(Paths.get(path, "workflow.knime"), "workflow.knime");
+            workflowKnime = readFile(Paths.get(path, "workflow.knime"));
         } else {
-            workflowKnime = readFile(path + "workflow.knime", zip, "workflow.knime");
+            workflowKnime = readFile(path + "workflow.knime", zip);
         }
 
         // Version checking
@@ -393,11 +393,11 @@ public class Workflowalizer {
         MetadataConfig workflowKnime = null;
         MetadataConfig templateKnime = null;
         if (zip == null) {
-            workflowKnime = readFile(Paths.get(path, "workflow.knime"), "workflow.knime");
-            templateKnime = readFile(Paths.get(path, "template.knime"), "template.knime");
+            workflowKnime = readFile(Paths.get(path, "workflow.knime"));
+            templateKnime = readFile(Paths.get(path, "template.knime"));
         } else {
-            workflowKnime = readFile(path + "workflow.knime", zip, "workflow.knime");
-            templateKnime = readFile(path + "template.knime", zip, "template.knime");
+            workflowKnime = readFile(path + "workflow.knime", zip);
+            templateKnime = readFile(path + "template.knime", zip);
         }
 
         // Version checking
@@ -471,10 +471,10 @@ public class Workflowalizer {
         if (zip == null) {
             final Path metaNodeFile = Paths.get(parentDirectory, settings);
             metaNodeDirectory = metaNodeFile.getParent().toAbsolutePath().toString();
-            workflowKnime = readFile(metaNodeFile, metaNodeFile.getFileName().toString());
+            workflowKnime = readFile(metaNodeFile);
         } else {
             final String nodePath = parentDirectory + settings;
-            workflowKnime = readFile(nodePath, zip, "workflow.knime");
+            workflowKnime = readFile(nodePath, zip);
             metaNodeDirectory = nodePath.substring(0, nodePath.lastIndexOf("/") + 1);
         }
 
@@ -508,14 +508,14 @@ public class Workflowalizer {
             final Path subnodeFile = Paths.get(parentDirectory, settings);
             final Path subnodeDirectoryPath = subnodeFile.getParent();
             subnodeDirectory = subnodeDirectoryPath.toAbsolutePath().toString();
-            settingsXml = readFile(subnodeFile, subnodeFile.getFileName().toString());
+            settingsXml = readFile(subnodeFile);
             workflowKnime =
-                readFile(subnodeDirectoryPath.resolve(parser.getWorkflowFileName()), parser.getWorkflowFileName());
+                readFile(subnodeDirectoryPath.resolve(parser.getWorkflowFileName()));
         } else {
             final String nodePath = parentDirectory + settings;
             subnodeDirectory = nodePath.substring(0, nodePath.lastIndexOf("/") + 1);
-            settingsXml = readFile(nodePath, zip, "settings.xml");
-            workflowKnime = readFile(subnodeDirectory + parser.getWorkflowFileName(), zip, "workflow.knime");
+            settingsXml = readFile(nodePath, zip);
+            workflowKnime = readFile(subnodeDirectory + parser.getWorkflowFileName(), zip);
         }
 
         final WorkflowFields wf = wc.createWorkflowFields();
@@ -541,9 +541,9 @@ public class Workflowalizer {
         MetadataConfig settingsXml = null;
         if (zip == null) {
             final Path nodeFile = Paths.get(parentDirectory, settings);
-            settingsXml = readFile(nodeFile, nodeFile.getFileName().toString());
+            settingsXml = readFile(nodeFile);
         } else {
-            settingsXml = readFile(parentDirectory + settings, zip, "settings.xml");
+            settingsXml = readFile(parentDirectory + settings, zip);
         }
 
         final SingleNodeFields snf = wc.createSingleNodeFields();
@@ -638,7 +638,7 @@ public class Workflowalizer {
         if (wc.parseModelParameters()) {
             final Optional<ConfigBase> modelParameters = parser.getModelParameters(settingsXml);
             if (modelParameters.isPresent()) {
-                // Remove link to parent
+                // Remove link to parent (memory optimization)
                 modelParameters.get().setParent(null);
             }
             snf.setModelParameters(modelParameters);
@@ -653,21 +653,21 @@ public class Workflowalizer {
 
     // -- File methods --
 
-    private static MetadataConfig readFile(final Path f, final String key) throws FileNotFoundException, IOException {
+    private static MetadataConfig readFile(final Path f) throws FileNotFoundException, IOException {
         try (final InputStream s = Files.newInputStream(f)) {
-            final MetadataConfig c = new MetadataConfig(key);
+            final MetadataConfig c = new MetadataConfig("ignored");
             c.load(s);
             return c;
         }
     }
 
-    private static MetadataConfig readFile(final String entry, final ZipFile zip, final String key) throws IOException {
+    private static MetadataConfig readFile(final String entry, final ZipFile zip) throws IOException {
         final ZipEntry e = zip.getEntry(entry);
         if (e == null) {
             throw new FileNotFoundException("Zip entry does not exist: " + entry);
         }
         try (final InputStream s = zip.getInputStream(e)) {
-            final MetadataConfig c = new MetadataConfig(key);
+            final MetadataConfig c = new MetadataConfig("ignored");
             c.load(s);
             return c;
         }
