@@ -50,12 +50,23 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 /**
  * Represents the metadata for nodes. This includes metanodes, subnodes, and native nodes.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value=MetanodeMetadata.class),
+    @JsonSubTypes.Type(value=SubnodeMetadata.class),
+    @JsonSubTypes.Type(value=NativeNodeMetadata.class)
+})
 public interface NodeMetadata {
 
     /**

@@ -54,20 +54,40 @@ import java.util.Optional;
 
 import org.knime.core.util.Version;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Abstract base class for {@link IWorkflowMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> implements IWorkflowMetadata {
 
+    @JsonProperty("version")
     private final Version m_version;
+
+    @JsonProperty("created_by")
     private final Version m_createdBy;
+
+    @JsonProperty("annotations")
     private final Optional<List<String>> m_annotations;
+
+    @JsonProperty("connections")
     private final List<NodeConnection> m_connections;
+
+    @JsonProperty("nodes")
     private final List<NodeMetadata> m_nodes;
+
+    @JsonProperty("name")
     private final Optional<String> m_name;
+
+    @JsonProperty("custom_workflow_description")
     private final Optional<String> m_customDescription;
+
+    @JsonProperty("unexpected_files")
     private final Collection<String> m_unexpectedFiles;
 
     /**

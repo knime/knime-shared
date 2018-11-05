@@ -52,19 +52,39 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 /**
  * Represents the metadata of a top level KNIME workflow (i.e. not a metanode).
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonTypeInfo(include = As.PROPERTY, use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> {
 
+    @JsonProperty("author_information")
     private final AuthorInformation m_authorInfo;
+
+    @JsonProperty("workflow_svg")
     private final Optional<String> m_svg;
+
+    @JsonProperty("artifacts_files")
     private final Optional<Collection<String>> m_artifacts;
+
+    @JsonProperty("workflow_meta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
+
+    @JsonProperty("workflow_credentials")
     private final List<String> m_credentials;
+
+    @JsonProperty("workflow_variables")
     private final List<String> m_variables;
 
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {

@@ -50,17 +50,29 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Represents the metadata for a KNIME Metanode.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMetadataBuilder> implements NodeMetadata {
 
+    @JsonProperty("node_ID")
     private final Integer m_nodeId;
+
+    @JsonProperty("type")
     private final String m_type;
+
+    @JsonProperty("annotation_text")
     private final Optional<String> m_annotationText;
+
+    @JsonProperty("template_link")
     private final Optional<String> m_template;
 
     MetanodeMetadata(final MetanodeMetadataBuilder builder) {
@@ -106,6 +118,7 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
     /**
      * {@inheritDoc}
      */
+    @JsonProperty("is_metaNode")
     @Override
     public boolean isMetaNode() {
         return true;

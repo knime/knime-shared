@@ -52,19 +52,35 @@ import java.util.Optional;
 
 import org.knime.core.node.config.base.ConfigBase;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Represents the metadata for a KNIME native node.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 
+    @JsonProperty("node_ID")
     private final Integer m_nodeId;
+
+    @JsonProperty("type")
     private final String m_type;
+
+    @JsonProperty("model_parameters")
     private final Optional<ConfigBase> m_modelParams;
+
+    @JsonProperty("annotation_text")
     private final Optional<String> m_annotationText;
+
+    @JsonProperty("custom_node_description")
     private final Optional<String> m_customNodeDescription;
+
+    @JsonProperty("node_and_bundle_information")
     private final NodeAndBundleInformation m_nodeAndBundleInfo;
 
     NativeNodeMetadata(final NativeNodeMetadataBuilder builder) {
@@ -133,6 +149,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
     /**
      * {@inheritDoc}
      */
+    @JsonProperty("is_metaNode")
     @Override
     public boolean isMetaNode() {
         return false;

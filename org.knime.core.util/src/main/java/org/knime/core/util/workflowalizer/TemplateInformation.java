@@ -54,17 +54,29 @@ import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Represents metadata specific to KNIME templates, such as role, type etc.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class TemplateInformation {
 
+    @JsonProperty("role")
     private final String m_role;
+
+    @JsonProperty("time_stamp")
     private final Date m_timeStamp;
+
+    @JsonProperty("source_URI")
     private final Optional<String> m_sourceURI;
+
+    @JsonProperty("template_type")
     private final String m_type;
 
     TemplateInformation(final String role, final Date timeStamp, final Optional<String> sourceURI, final String type) {

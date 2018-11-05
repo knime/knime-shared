@@ -50,19 +50,36 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * The connection between two nodes.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class NodeConnection {
 
+    @JsonIgnore
     private final Optional<NodeMetadata> m_source;
+
+    @JsonIgnore
     private final Optional<NodeMetadata> m_dest;
+
+    @JsonProperty("source_ID")
     private final int m_sourceId;
+
+    @JsonProperty("destination_ID")
     private final int m_destId;
+
+    @JsonProperty("source_port")
     private final int m_sourcePort;
+
+    @JsonProperty("destination_port")
     private final int m_destPort;
 
     /**

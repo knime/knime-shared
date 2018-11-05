@@ -48,15 +48,27 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 /**
  * Metadata pertaining to KNIME templates.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonTypeInfo(include = As.PROPERTY, use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> {
 
+    @JsonProperty("author_information")
     private final AuthorInformation m_authorInfo;
+
+    @JsonProperty("template_information")
     private final TemplateInformation m_templateInfo;
 
     TemplateMetadata(final TemplateMetadataBuilder builder) {

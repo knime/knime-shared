@@ -53,15 +53,23 @@ import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Metadata extracted from "workflowset.meta".
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class WorkflowSetMeta {
 
+    @JsonProperty("workflow_meta_author")
     private final Optional<String> m_author;
+
+    @JsonProperty("workflow_meta_comments")
     private final Optional<String> m_comments;
 
     WorkflowSetMeta(final Optional<String> author, final Optional<String> comments) {

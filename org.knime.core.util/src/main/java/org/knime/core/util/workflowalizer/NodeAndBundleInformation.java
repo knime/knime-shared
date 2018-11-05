@@ -54,23 +54,47 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.knime.core.util.Version;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * POJO containing information about a KNIME node and bundle information.
  *
  * <p>Adapted from NodeAndBundleInformation class in knime-core.</p>
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class NodeAndBundleInformation {
 
+    @JsonProperty("feature_symbolic_name")
     private final Optional<String> m_featureSymbolicName;
+
+    @JsonProperty("feature_name")
     private final Optional<String> m_featureName;
+
+    @JsonProperty("feature_vendor")
     private final Optional<String> m_featureVendor;
+
+    @JsonProperty("feature_version")
     private final Optional<Version> m_featureVersion;
+
+    @JsonProperty("bundle_symbolic_name")
     private final Optional<String> m_bundleSymbolicName;
+
+    @JsonProperty("bundle_name")
     private final Optional<String> m_bundleName;
+
+    @JsonProperty("bundle_vendor")
     private final Optional<String> m_bundleVendor;
+
+    @JsonProperty("node_name")
     private final Optional<String> m_nodeName;
+
+    @JsonProperty("factory_class")
     private final Optional<String> m_factoryClass;
+
+    @JsonProperty("bundle_version")
     private final Optional<Version> m_bundleVersion;
 
     /**

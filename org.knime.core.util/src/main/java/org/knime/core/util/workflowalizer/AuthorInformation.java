@@ -54,6 +54,10 @@ import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Meta data such as who create the workflow and who edited it last and when.
  *
@@ -61,17 +65,22 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  *
  * @since 5.10
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class AuthorInformation {
 
     /** Info for workflows created prior 2.8. */
     public static final AuthorInformation UNKNOWN = new AuthorInformation("<unknown>", new Date(0), Optional.empty(), Optional.empty());
 
+    @JsonProperty("author")
     private final String m_author;
 
+    @JsonProperty("authored_date")
     private final Date m_authoredDate;
 
+    @JsonProperty("last_editor")
     private final Optional<String> m_lastEditor;
 
+    @JsonProperty("last_edited_date")
     private final Optional<Date> m_lastEditDate;
 
     /**
