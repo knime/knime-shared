@@ -705,7 +705,8 @@ public final class Workflowalizer {
         }
 
         final File file = path.toFile();
-        if (!FilenameUtils.getExtension(file.getName()).equals("zip")) {
+        final String ext = FilenameUtils.getExtension(file.getName());
+        if (!ext.equals("zip") && !ext.equals("knar") && !ext.equals("knwf")) {
             return false;
         }
         int fileSignature = 0;
