@@ -48,12 +48,19 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 /**
  * Metadata pertaining to KNIME templates.
@@ -91,5 +98,31 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
      */
     public TemplateInformation getTemplateInformation() {
         return m_templateInfo;
+    }
+
+    /**
+     * @return an {@link ObjectMapper} configured to read TemplateMetadata
+     */
+    public static ObjectMapper getConfiguredObjectMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+
+        // don't write null fields
+        mapper.setSerializationInclusion(Include.NON_NULL);
+
+        // Jdk8Module will serialize Optional fields as their value or null
+        mapper.registerModule(new Jdk8Module());
+
+        // Add custom serializers for Version and ConfigBase fields
+        final SimpleModule sm = new SimpleModule();
+        sm.addSerializer(new VersionSerializer());
+        sm.addSerializer(new ConfigBaseEntrySerializer());
+        mapper.registerModule(sm);
+
+        // Add format for serializing Date fields
+        // @JsonFormat isn't used because it converts Date objects to UTC time
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        mapper.setDateFormat(df);
+
+        return mapper;
     }
 }
