@@ -150,6 +150,31 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         return m_variables;
     }
 
+    @Override
+    public String toString() {
+        String artifacts = null;
+        if (m_artifacts != null) {
+            artifacts = "[";
+            if (m_artifacts.isPresent()) {
+                artifacts += String.join(", ", m_artifacts.get());
+            }
+            artifacts += "]";
+        }
+
+        String wsm = null;
+        if (m_workflowSetMeta != null) {
+            wsm = m_workflowSetMeta.isPresent() ? m_workflowSetMeta.toString() : null;
+        }
+
+        return super.toString() +
+                ", " + m_authorInfo +
+                ", workflow_svg: " + m_svg.orElse(null) +
+                ", artifacts_files: " + artifacts +
+                ", workflow_meta: " + wsm +
+                ", workflow_credentials: [" + String.join(", ", m_credentials) + "]" +
+                ", workflow_variables: [" + String.join(", ", m_variables) + "]";
+    }
+
     /**
      * @return an {@link ObjectMapper} configured to read WorkflowMetadata
      */

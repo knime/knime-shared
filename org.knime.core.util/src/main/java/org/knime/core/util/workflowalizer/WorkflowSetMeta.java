@@ -124,4 +124,10 @@ public final class WorkflowSetMeta {
                 .append(m_comments)
                 .toHashCode();
     }
+
+    @Override
+    public String toString() {
+        return "workflow_meta_author: " + m_author.orElse(null) +
+        ", workflow_meta_comments: " + m_comments.orElse(null);
+    }
 }

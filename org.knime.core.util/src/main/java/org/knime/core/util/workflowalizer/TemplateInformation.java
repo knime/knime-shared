@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
@@ -154,5 +156,14 @@ public final class TemplateInformation {
                 .append(m_sourceURI)
                 .append(m_type)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        return "role: " + m_role +
+        ", time_stamp: " + df.format(m_timeStamp) +
+        ", source_URI: " +  m_sourceURI.orElse(null) +
+        ", template_type: " + m_type;
     }
 }

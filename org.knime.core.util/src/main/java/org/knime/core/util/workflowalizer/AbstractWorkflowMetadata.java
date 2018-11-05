@@ -176,4 +176,37 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         }
         return m_unexpectedFiles;
     }
+
+    @Override
+    public String toString() {
+        String annotations = "[";
+        if (m_annotations.isPresent()) {
+            annotations += String.join(", ", m_annotations.get());
+        }
+        annotations += "]";
+
+        String numConnections = null;
+        if (m_connections != null) {
+            numConnections = m_connections.size() + "";
+        }
+
+        String numNodes = null;
+        if (m_nodes != null) {
+           numNodes = m_nodes.size() + "";
+        }
+
+        String uf = null;
+        if (m_unexpectedFiles != null) {
+            uf = "[" + String.join(", ", m_unexpectedFiles) + "]";
+        }
+
+        return "version: " + m_version +
+        ", created_by: " + m_createdBy +
+        ", annotations: " + annotations +
+        ", num_connections: " + numConnections +
+        ", num_nodes: " + numNodes +
+        ", name: " + m_name.orElse(null) +
+        ", custom_workflow_description: " + m_customDescription.orElse(null) +
+        ", unexpected_files: " + uf;
+    }
 }

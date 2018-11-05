@@ -100,6 +100,13 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
         return m_templateInfo;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() +
+                ", " + m_authorInfo +
+                ", " + m_templateInfo;
+    }
+
     /**
      * @return an {@link ObjectMapper} configured to read TemplateMetadata
      */

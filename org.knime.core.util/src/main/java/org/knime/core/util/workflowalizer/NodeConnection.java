@@ -146,4 +146,12 @@ public final class NodeConnection {
     public int getDestinationPort() {
         return m_destPort;
     }
+
+    @Override
+    public String toString() {
+        return "source_ID: " + m_sourceId +
+        ", destination_ID: " + m_destId +
+        ", source_port: " + m_sourcePort +
+        ", destination_port: " + m_destPort;
+    }
 }

@@ -292,5 +292,19 @@ public class NodeAndBundleInformation {
                 .append(m_bundleVersion)
                 .toHashCode();
     }
+
+    @Override
+    public String toString() {
+        return "node_name: " + m_nodeName.orElse(null) +
+        ", factory_class: " + m_factoryClass.orElse(null) +
+        ", bundle_symbolic_name: " + m_bundleSymbolicName.orElse(null) +
+        ", bundle_name: " + m_bundleName.orElse(null) +
+        ", bundle_vendor: " + m_bundleVendor.orElse(null) +
+        ", bundle_version: " + m_bundleVersion.orElse(null) +
+        ", feature_symbolic_name: " + m_featureSymbolicName.orElse(null) +
+        ", feature_name: " + m_featureName.orElse(null) +
+        ", feature_vendor: " + m_featureVendor.orElse(null) +
+        ", feature_version: " + m_featureVersion.orElse(null);
+    }
 }
 

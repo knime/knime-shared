@@ -66,7 +66,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 
     @JsonProperty("node_ID")
-    private final Integer m_nodeId;
+    private final int m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
@@ -155,4 +155,18 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
         return false;
     }
 
+    @Override
+    public String toString() {
+        String numModelParams = null;
+        if (m_modelParams != null && m_modelParams.isPresent()) {
+            numModelParams = m_modelParams.get().keySet().size() + "";
+        }
+
+        return "node_ID: " + m_nodeId +
+                ", type: " + m_type +
+                ", num_model_parameters: " + numModelParams +
+                ", annotation_text: " + m_annotationText.orElse(null) +
+                ", custom_node_description: " + m_customNodeDescription.orElse(null) +
+                ", " + m_nodeAndBundleInfo;
+    }
 }

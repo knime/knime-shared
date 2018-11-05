@@ -66,7 +66,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetadataBuilder> implements SingleNodeMetadata {
 
     @JsonProperty("node_ID")
-    private final Integer m_nodeId;
+    private final int m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
@@ -138,7 +138,6 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
 
     /**
      * @return link information for the template
-     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     public Optional<String> getTemplateLink() {
         return m_template;
@@ -151,5 +150,21 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
     @Override
     public boolean isMetaNode() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        String numModelParams = null;
+        if (m_modelParams != null && m_modelParams.isPresent()) {
+            numModelParams = m_modelParams.get().keySet().size() + "";
+        }
+
+        return super.toString() +
+                ", node_ID: " + m_nodeId +
+                ", type: " + m_type +
+                ", num_model_parameters: " + numModelParams +
+                ", annotation_text: " + m_annotationText.orElse(null) +
+                ", custom_node_description: " + m_customNodeDescription.orElse(null) +
+                ", template_link: " + m_template;
     }
 }

@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
@@ -171,5 +173,15 @@ public final class AuthorInformation {
                 .append(m_lastEditor)
                 .append(m_lastEditDate)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        final String ed = m_lastEditDate.isPresent() ? df.format(m_lastEditDate.get()) : null;
+        return "author: " + m_author +
+        ", authored_date: " + df.format(m_authoredDate) +
+        ", last_editor: " + m_lastEditor.orElse(null) +
+        ", last_edited_date: " + ed;
     }
 }
