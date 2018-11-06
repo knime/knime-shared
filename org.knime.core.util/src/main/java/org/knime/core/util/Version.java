@@ -81,9 +81,7 @@ public final class Version implements Comparable<Version>, Serializable {
      * @param minor the minor version
      * @param revision the revision
      */
-    @JsonCreator
-    public Version(@JsonProperty("major") final int major, @JsonProperty("minor") final int minor,
-        @JsonProperty("revision") final int revision) {
+    public Version(final int major, final int minor, final int revision) {
         m_major = major;
         m_minor = minor;
         m_revision = revision;
