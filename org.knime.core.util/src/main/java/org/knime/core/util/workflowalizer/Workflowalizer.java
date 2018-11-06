@@ -765,12 +765,12 @@ public final class Workflowalizer {
 
     private static Optional<Collection<String>> artifactsFiles(final WorkflowParser parser, final String path,
         final ZipFile zip) {
-        String entryName = path + parser.getArtifactsDirectoryName();
-        ZipEntry entry = zip.getEntry(entryName);
-        if (entry == null) {
-            entryName = entryName + "/";
-            entry = zip.getEntry(entryName);
+        String end = "";
+        if (!parser.getArtifactsDirectoryName().endsWith("/")) {
+            end = "/";
         }
+        final String entryName = path + parser.getArtifactsDirectoryName() + end;
+        final ZipEntry entry = zip.getEntry(entryName);
         if (entry == null) {
             return Optional.empty();
         }
