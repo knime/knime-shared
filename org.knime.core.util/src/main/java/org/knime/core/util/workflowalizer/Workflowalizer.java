@@ -779,7 +779,7 @@ public final class Workflowalizer {
             return Optional.empty();
         }
         if (!entry.isDirectory()) {
-            throw new IllegalArgumentException(parser.getArtifactsDirectoryName() + " is not a directory");
+            throw new IllegalArgumentException(entryName + " is not a directory");
         }
         final Collection<String> files = new ArrayList<>();
         final Enumeration<? extends ZipEntry> entries = zip.entries();
