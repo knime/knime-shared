@@ -62,6 +62,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public final class Version implements Comparable<Version>, Serializable {
 
+    private static final long serialVersionUID = 3417680398417612451L;
+
     /** Empty version 0.0.0
      * @since 5.10*/
     public static final Version EMPTY_VERSION = new Version(0, 0, 0);
