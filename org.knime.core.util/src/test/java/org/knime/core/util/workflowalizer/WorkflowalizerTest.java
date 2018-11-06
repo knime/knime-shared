@@ -77,7 +77,6 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -141,14 +140,6 @@ public class WorkflowalizerTest {
 
         m_workflowGroupFile = m_workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta");
         m_readWorkflowGroupLines = Files.readAllLines(m_workflowGroupFile);
-    }
-
-    /**
-     * @throws Exception
-     */
-    @AfterClass
-    public static void tearDown() throws Exception {
-        PathUtils.deleteDirectoryIfExists(m_workspaceDir);
     }
 
     // -- Test reading workflow --

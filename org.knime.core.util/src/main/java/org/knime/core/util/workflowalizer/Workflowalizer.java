@@ -65,7 +65,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -751,9 +750,6 @@ public final class Workflowalizer {
         }
         if (!Files.isDirectory(artifactsDir)) {
             throw new IllegalArgumentException(parser.getArtifactsDirectoryName() + " is not a directory");
-        }
-        if (Files.list(artifactsDir).count() <= 0) {
-            return Optional.of(Collections.emptyList());
         }
         final Collection<String> files = new ArrayList<>();
         final FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
