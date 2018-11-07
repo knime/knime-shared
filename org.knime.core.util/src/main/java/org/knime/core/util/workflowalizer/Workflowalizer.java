@@ -87,6 +87,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.Version;
 import org.w3c.dom.Document;
@@ -115,22 +116,16 @@ public final class Workflowalizer {
         if (isZip(workflowsetMetaFile)) {
             try (final ZipFile zip = new ZipFile(workflowsetMetaFile.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflowGroup(zip);
-                if (workflowPath == null) {
-                    throw new IllegalArgumentException(
-                        "Zip file does not contain a workflow group: " + workflowsetMetaFile);
-                }
+                CheckUtils.checkArgumentNotNull(workflowPath,
+                    "Zip file does not contain a workflow group: " + workflowsetMetaFile);
                 try (final InputStream is = zip.getInputStream(zip.getEntry(workflowPath))) {
                     return readWorkflowSetMeta(is);
                 }
             }
         }
 
-        if (!Files.exists(workflowsetMetaFile)) {
-            throw new FileNotFoundException(workflowsetMetaFile + " does not exist");
-        }
-        if (Files.isDirectory(workflowsetMetaFile)) {
-            throw new IllegalArgumentException(workflowsetMetaFile + " is a directory");
-        }
+        CheckUtils.checkArgument(Files.exists(workflowsetMetaFile), workflowsetMetaFile + " does not exist");
+        CheckUtils.checkArgument(!Files.isDirectory(workflowsetMetaFile), workflowsetMetaFile + " is a directory");
         try (final InputStream is = Files.newInputStream(workflowsetMetaFile)) {
             return readWorkflowSetMeta(is);
         }
@@ -174,33 +169,23 @@ public final class Workflowalizer {
     public static WorkflowMetadata readWorkflow(final Path path, final WorkflowalizerConfiguration config)
         throws IOException, InvalidSettingsException, ParseException, URISyntaxException, XPathExpressionException,
         ParserConfigurationException, SAXException {
-        if (config == null) {
-            throw new IllegalArgumentException("Configuration cannot be null");
-        }
-
-        if (!Files.exists(path)) {
-            throw new FileNotFoundException("File does not exist at path " + path);
-        }
+        CheckUtils.checkArgumentNotNull(config, "Configuration cannot be null");
+        CheckUtils.checkArgument(Files.exists(path), "File does not exist at path " + path);
         if (isZip(path)) {
             try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflow(zip);
-                if (workflowPath == null) {
-                    throw new IllegalArgumentException("Zip file does not contain a workflow: " + path);
-                }
+                CheckUtils.checkArgumentNotNull(workflowPath, "Zip file does not contain a workflow: " + path);
                 return readTopLevelWorkflow(workflowPath, zip, config);
             }
         }
-        if (!Files.isDirectory(path)) {
-            throw new IllegalArgumentException("Path is not a directory: " + path);
-        }
+
+        CheckUtils.checkArgument(Files.isDirectory(path), "Path is not a directory: " + path);
+
         // Validate if it is a workflow
         final Path workflowPath = path.resolve("workflow.knime");
-        if (Files.exists(path.resolve("template.knime"))) {
-            throw new IllegalArgumentException(path + " is a template, not a workflow");
-        }
-        if (!Files.exists(workflowPath)) {
-            throw new IllegalArgumentException(path + " is not a workflow");
-        }
+        CheckUtils.checkArgument(!Files.exists(path.resolve("template.knime")), path + " is a template, not a workflow");
+        CheckUtils.checkArgument(Files.exists(workflowPath), path + " is not a workflow");
+
         return readTopLevelWorkflow(path.toAbsolutePath().toString(), null, config);
     }
 
@@ -234,33 +219,23 @@ public final class Workflowalizer {
      */
     public static TemplateMetadata readTemplate(final Path path, final WorkflowalizerConfiguration config)
         throws IOException, URISyntaxException, InvalidSettingsException, ParseException {
-        if (config == null) {
-            throw new IllegalArgumentException("Configuration cannot be null");
-        }
-        if (!Files.exists(path)) {
-            throw new FileNotFoundException("File does not exist at path " + path);
-        }
+        CheckUtils.checkArgumentNotNull(config, "Configuration cannot be null");
+        CheckUtils.checkArgument(Files.exists(path), "File does not exist at path " + path);
         if (isZip(path)) {
             try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
                 final String zipPath = findFirstTemplate(zip);
-                if (zipPath == null) {
-                    throw new IllegalArgumentException("Zip file does not contain a template: " + path);
-                }
+                CheckUtils.checkArgumentNotNull(zipPath, "Zip file does not contain a template: " + path);
                 return readTemplateMetadata(zipPath, zip, config);
             }
         }
-        if (!Files.isDirectory(path)) {
-            throw new IllegalArgumentException("Path is not a directory: " + path);
-        }
+
+        CheckUtils.checkArgument(Files.isDirectory(path), "Path is not a directory: " + path);
+
         // validate it is a template
         final Path workflowPath = path.resolve("workflow.knime");
         final Path templatePath = path.resolve("template.knime");
-        if (!Files.exists(templatePath) && Files.exists(workflowPath)) {
-            throw new IllegalArgumentException(path + " is a workflow, not a template");
-        }
-        if (!Files.exists(templatePath) || !Files.exists(workflowPath)) {
-            throw new IllegalArgumentException(path + " is not a template");
-        }
+        CheckUtils.checkArgument(Files.exists(workflowPath), "workflow.knime was not found at " + path);
+        CheckUtils.checkArgument(Files.exists(templatePath), path + " is a workflow, not a template");
         return readTemplateMetadata(path.toAbsolutePath().toString(), null, config);
     }
 
@@ -287,9 +262,7 @@ public final class Workflowalizer {
 
     private static WorkflowParser getParser(final String version) {
         final Optional<LoadVersion> versionOptional = LoadVersion.get(version);
-        if (!versionOptional.isPresent()) {
-            throw new IllegalArgumentException("Unknown version: " + version);
-        }
+        CheckUtils.checkArgument(versionOptional.isPresent(), "Unknown version: " + version);
         final LoadVersion loadVersion = versionOptional.get();
 
         WorkflowParser parser = null;
@@ -686,9 +659,7 @@ public final class Workflowalizer {
 
     private static MetadataConfig readFile(final String entry, final ZipFile zip) throws IOException {
         final ZipEntry e = zip.getEntry(entry);
-        if (e == null) {
-            throw new FileNotFoundException("Zip entry does not exist: " + entry);
-        }
+        CheckUtils.checkArgumentNotNull(e, "Zip entry does not exist: " + entry);
         try (final InputStream s = zip.getInputStream(e)) {
             final MetadataConfig c = new MetadataConfig("ignored");
             c.load(s);
@@ -773,9 +744,9 @@ public final class Workflowalizer {
         if (!Files.exists(artifactsDir)) {
             return Optional.empty();
         }
-        if (!Files.isDirectory(artifactsDir)) {
-            throw new IllegalArgumentException(parser.getArtifactsDirectoryName() + " is not a directory");
-        }
+        CheckUtils.checkArgument(Files.isDirectory(artifactsDir),
+            parser.getArtifactsDirectoryName() + " is not a directory");
+
         final Collection<String> files = new ArrayList<>();
         final FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
             @Override
@@ -799,9 +770,8 @@ public final class Workflowalizer {
         if (entry == null) {
             return Optional.empty();
         }
-        if (!entry.isDirectory()) {
-            throw new IllegalArgumentException(entryName + " is not a directory");
-        }
+        CheckUtils.checkArgument(entry.isDirectory(), entryName + " is not a directory");
+
         final Collection<String> files = new ArrayList<>();
         final Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
@@ -820,9 +790,8 @@ public final class Workflowalizer {
         if (!Files.exists(svg, LinkOption.NOFOLLOW_LINKS)) {
             return Optional.empty();
         }
-        if (!Files.probeContentType(svg).toLowerCase().contains("svg")) {
-            throw new IllegalArgumentException(parser.getWorkflowSVGFileName() + " is not an SVG");
-        }
+        CheckUtils.checkArgument(Files.probeContentType(svg).toLowerCase().contains("svg"),
+            parser.getWorkflowSVGFileName() + " is not an SVG");
         return Optional.of(svg.toAbsolutePath().toString());
     }
 
