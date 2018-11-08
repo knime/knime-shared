@@ -75,7 +75,7 @@ public interface IWorkflowMetadata {
     /**
      * @return the name of this workflow
      */
-    Optional<String> getName();
+    String getName();
 
     /**
      * @return the custom description for this workflow

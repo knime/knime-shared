@@ -63,7 +63,7 @@ final class WorkflowFields {
 
     private Version m_version;
     private Version m_createdBy;
-    private Optional<String> m_name;
+    private String m_name;
     private Optional<String> m_customDescription;
     private Optional<List<String>> m_annotations;
     private List<NodeConnection> m_connections;
@@ -90,7 +90,7 @@ final class WorkflowFields {
         return m_createdBy;
     }
 
-    Optional<String> getName() {
+    String getName() {
         return m_name;
     }
 
@@ -124,7 +124,7 @@ final class WorkflowFields {
         m_createdBy = createdBy;
     }
 
-    void setName(final Optional<String> name) {
+    void setName(final String name) {
         m_name = name;
     }
 

@@ -82,7 +82,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
     private final List<NodeMetadata> m_nodes;
 
     @JsonProperty("name")
-    private final Optional<String> m_name;
+    private final String m_name;
 
     @JsonProperty("custom_workflow_description")
     private final Optional<String> m_customDescription;
@@ -154,7 +154,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      * {@inheritDoc}
      */
     @Override
-    public Optional<String> getName() {
+    public String getName() {
         return m_name;
     }
 
@@ -205,7 +205,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         ", annotations: " + annotations +
         ", num_connections: " + numConnections +
         ", num_nodes: " + numNodes +
-        ", name: " + m_name.orElse(null) +
+        ", name: " + m_name +
         ", custom_workflow_description: " + m_customDescription.orElse(null) +
         ", unexpected_files: " + uf;
     }

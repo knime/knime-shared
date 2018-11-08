@@ -302,6 +302,10 @@ public final class Workflowalizer {
         final WorkflowFields wf = wc.createWorkflowFields();
         builder.setWorkflowFields(wf);
         populateWorkflowFields(wf, wc, parser, workflowKnime, null, path, zip);
+        if (wf.getName() == null || wf.getName().isEmpty()) {
+            final String name = new File(path).getName();
+            wf.setName(name);
+        }
 
         final String author = parser.getAuthorName(workflowKnime);
         builder.setAuthor(author);
@@ -389,6 +393,10 @@ public final class Workflowalizer {
         final WorkflowFields wf = wc.createWorkflowFields();
         builder.setWorkflowFields(wf);
         populateWorkflowFields(wf, wc, parser, workflowKnime, templateKnime, path, zip);
+        if (wf.getName() == null || wf.getName().isEmpty()) {
+            final String name = new File(path).getName();
+            wf.setName(name);
+        }
 
         final String author = parser.getAuthorName(workflowKnime);
         builder.setAuthor(author);
@@ -590,7 +598,7 @@ public final class Workflowalizer {
         final Version createdBy = parser.getCreatedBy(workflowKnime, templateKnime);
         wf.setCreatedBy(createdBy);
 
-        final Optional<String> name = parser.getName(workflowKnime);
+        final String name = parser.getName(workflowKnime);
         wf.setName(name);
 
         final Optional<String> customDescription = parser.getCustomDescription(workflowKnime);

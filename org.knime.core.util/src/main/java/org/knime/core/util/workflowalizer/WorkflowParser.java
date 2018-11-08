@@ -109,7 +109,7 @@ interface WorkflowParser {
      * @return the name
      * @throws InvalidSettingsException
      */
-    Optional<String> getName(final ConfigBase config) throws InvalidSettingsException;
+    String getName(final ConfigBase config) throws InvalidSettingsException;
 
     /**
      * @param config the {@link ConfigBase} the xml was read into

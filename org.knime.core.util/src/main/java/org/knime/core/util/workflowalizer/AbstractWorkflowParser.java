@@ -140,8 +140,8 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Optional<String> getName(final ConfigBase config) throws InvalidSettingsException {
-        return Optional.ofNullable(config.getString("name"));
+    public String getName(final ConfigBase config) throws InvalidSettingsException {
+        return config.getString("name");
     }
 
     /**

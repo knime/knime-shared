@@ -172,7 +172,7 @@ public class WorkflowalizerTest {
         assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), wkfMd.getConnections());
         assertEquals(readCreatedBy(m_readWorkflowLines), wkfMd.getCreatedBy());
         assertEquals(readCustomDescription(m_readWorkflowLines), wkfMd.getCustomDescription());
-        assertEquals(readName(m_readWorkflowLines), wkfMd.getName());
+        assertEquals(m_workflowDir.getFileName().toString(), wkfMd.getName());
 
         final List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
         final List<NodeMetadata> nodes = wkfMd.getNodes();
@@ -384,7 +384,7 @@ public class WorkflowalizerTest {
     public void testReadingName() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquals(readName(m_readWorkflowLines), wkfMd.getName());
+        assertEquals(m_workflowDir.getFileName().toString(), wkfMd.getName());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -774,7 +774,7 @@ public class WorkflowalizerTest {
         assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), twm.getConnections());
         assertEquals(readCreatedBy(m_readWorkflowLines), twm.getCreatedBy());
         assertEquals(readCustomDescription(m_readWorkflowLines), twm.getCustomDescription());
-        assertEquals(readName(m_readWorkflowLines), twm.getName());
+        assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
         assertEquals(readVersion(m_readWorkflowLines), twm.getVersion());
         assertEquals("workflowalizer-test/Testing_Workflowalizer_360Pre/workflow.svg", twm.getWorkflowSvg().get());
         assertEquals("workflowalizer-test/Testing_Workflowalizer_360Pre/.artifacts/openapi-input-parameters.json",
@@ -887,7 +887,7 @@ public class WorkflowalizerTest {
         assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), template.getConnections());
         assertEquals(readCreatedBy(m_readTemplateTemplateKnime), template.getCreatedBy());
         assertEquals(readCustomDescription(m_readTemplateWorkflowKnime), template.getCustomDescription());
-        assertEquals(readName(m_readTemplateWorkflowKnime), template.getName());
+        assertEquals(m_templateDir.getFileName().toString(), template.getName());
 
         final List<Integer> nodeIds = readNodeIds(m_readTemplateWorkflowKnime);
         final List<NodeMetadata> nodes = template.getNodes();
@@ -951,7 +951,7 @@ public class WorkflowalizerTest {
         assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), tm.getConnections());
         assertEquals(readCreatedBy(m_readTemplateTemplateKnime), tm.getCreatedBy());
         assertEquals(readCustomDescription(m_readTemplateWorkflowKnime), tm.getCustomDescription());
-        assertEquals(readName(m_readTemplateWorkflowKnime), tm.getName());
+        assertEquals("Hierarchical Cluster Assignment", tm.getName());
 
         final List<Integer> nodeIds = readNodeIds(m_readTemplateWorkflowKnime);
         final List<NodeMetadata> nodes = tm.getNodes();
@@ -1079,8 +1079,8 @@ public class WorkflowalizerTest {
         return ids;
     }
 
-    private static Optional<String> readName(final List<String> readLines) {
-        return Optional.ofNullable(parseValue(readLines, "key=\"name\""));
+    private static String readName(final List<String> readLines) {
+        return parseValue(readLines, "key=\"name\"");
     }
 
     private static Optional<String> readCustomDescription(final List<String> readLines) {
