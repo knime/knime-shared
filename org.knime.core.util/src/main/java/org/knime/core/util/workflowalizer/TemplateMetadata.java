@@ -87,6 +87,18 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
     }
 
     /**
+     * For internal use only! This constructor creates a copy of the given {@code TemplateMetadata}, but sets the
+     * connections to {@code null} and flattens the node tree
+     *
+     * @param template the {@code TemplateMetadata} to copy
+     */
+    private TemplateMetadata(final TemplateMetadata template) {
+        super(template);
+        m_authorInfo = template.m_authorInfo;
+        m_templateInfo = template.m_templateInfo;
+    }
+
+    /**
      * @return the {@link AuthorInformation} associated with this template
      */
     public AuthorInformation getAuthorInformation() {
@@ -131,5 +143,15 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
         mapper.setDateFormat(df);
 
         return mapper;
+    }
+
+    /**
+     * Creates a {@code TemplateMetadata} with a flattened node list for writing to JSON.
+     *
+     * @return a {@code TemplateMetadata} whose node list is flat (i.e. depth = 1), and whose connections have been set
+     *         to {@code null}
+     */
+    public TemplateMetadata flatten() {
+        return new TemplateMetadata(this);
     }
 }

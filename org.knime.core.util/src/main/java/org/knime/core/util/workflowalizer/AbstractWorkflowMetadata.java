@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +103,33 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         m_name = builder.getWorkflowFields().getName();
         m_customDescription = builder.getWorkflowFields().getCustomDescription();
         m_unexpectedFiles = builder.getWorkflowFields().getUnexpectedFileNames();
+    }
+
+    /**
+     * For internal use only! If the given {@code AbstractWorkflowMetadata<?>} is not a {@code NodeMetadata} then the
+     * node list will be flattened, otherwise the node list will be set to {@code null}. Connections will always be set
+     * to {@code null}.
+     *
+     * @param workflow
+     */
+    protected AbstractWorkflowMetadata(final AbstractWorkflowMetadata<?> workflow) {
+        m_version = workflow.m_version;
+        m_createdBy = workflow.m_createdBy;
+        m_annotations = workflow.m_annotations;
+        m_name = workflow.m_name;
+        m_customDescription = workflow.m_customDescription;
+        m_unexpectedFiles = workflow.m_unexpectedFiles;
+
+        m_connections = null;
+
+        List<NodeMetadata> nodes = null;
+        if (!(workflow instanceof NodeMetadata) && workflow.m_nodes != null) {
+            nodes = new ArrayList<>();
+            for (final NodeMetadata node : workflow.m_nodes) {
+                addNodes(node, nodes);
+            }
+        }
+        m_nodes = nodes;
     }
 
     /**
@@ -208,5 +236,22 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         ", name: " + m_name +
         ", custom_workflow_description: " + m_customDescription.orElse(null) +
         ", unexpected_files: " + uf;
+    }
+
+    private void addNodes(final NodeMetadata nm, final List<NodeMetadata> nodes) {
+        if (!nm.isMetaNode()) {
+            nodes.add(nm);
+            return;
+        }
+        final IWorkflowMetadata wm = (IWorkflowMetadata) nm;
+        for (final NodeMetadata node : wm.getNodes()) {
+            addNodes(node, nodes);
+        }
+        if (wm instanceof SubnodeMetadata) {
+            nodes.add(((SubnodeMetadata)nm).dropNodes());
+        }
+        else {
+            nodes.add(((MetanodeMetadata)nm).dropNodes());
+        }
     }
 }

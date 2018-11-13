@@ -94,6 +94,22 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
     }
 
     /**
+     * For internal use only! This constructor creates a copy of the given {@code SubnodeMetadata} but sets
+     * nodes/connections to {@code null}.
+     *
+     * @param subnode {@code SubnodeMetadata} to copy
+     */
+    private SubnodeMetadata(final SubnodeMetadata subnode) {
+        super(subnode);
+        m_nodeId = subnode.m_nodeId;
+        m_type = subnode.m_type;
+        m_modelParams = subnode.m_modelParams;
+        m_annotationText = subnode.m_annotationText;
+        m_customNodeDescription = subnode.m_customNodeDescription;
+        m_template = subnode.m_template;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -166,5 +182,13 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
                 ", annotation_text: " + m_annotationText.orElse(null) +
                 ", custom_node_description: " + m_customNodeDescription.orElse(null) +
                 ", template_link: " + m_template;
+    }
+
+    /**
+     * @return a copy of this {@code SubnodeMetadata}, except the nodes and connections fields have been set to
+     *         {@code null}
+     */
+    SubnodeMetadata dropNodes() {
+        return new SubnodeMetadata(this);
     }
 }

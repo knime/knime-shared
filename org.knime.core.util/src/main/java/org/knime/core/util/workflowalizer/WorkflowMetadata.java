@@ -105,6 +105,22 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     }
 
     /**
+     * For internal use only! This constructor creates a copy of the given {@code WorkflowMetadata}, but sets the
+     * connections to {@code null} and flattens the node tree
+     *
+     * @param workflow the {@code WorkflowMetadata} to copy
+     */
+    private WorkflowMetadata(final WorkflowMetadata workflow) {
+        super(workflow);
+        m_authorInfo = workflow.m_authorInfo;
+        m_svg = workflow.m_svg;
+        m_artifacts = workflow.m_artifacts;
+        m_workflowSetMeta = workflow.m_workflowSetMeta;
+        m_credentials = workflow.m_credentials;
+        m_variables = workflow.m_variables;
+    }
+
+    /**
      * @return the {@link AuthorInformation} associated with this workflow
      */
     public AuthorInformation getAuthorInformation() {
@@ -199,5 +215,15 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         mapper.setDateFormat(df);
 
         return mapper;
+    }
+
+    /**
+     * Creates a {@code WorkflowMetadata} with a flattened node list for writing to JSON.
+     *
+     * @return a {@code WorkflowMetadata} whose node list is flat (i.e. depth = 1), and whose connections have been set
+     *         to {@code null}
+     */
+    public WorkflowMetadata flatten() {
+        return new WorkflowMetadata(this);
     }
 }

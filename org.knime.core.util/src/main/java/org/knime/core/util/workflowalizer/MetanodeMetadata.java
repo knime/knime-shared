@@ -84,6 +84,20 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
     }
 
     /**
+     * For internal use only! This constructor creates a copy of the given {@code MetanodeMetadata}, but sets the
+     * nodes/connections to {@code null}
+     *
+     * @param metanode the {@code MetanodeMetadata} to copy
+     */
+    private MetanodeMetadata(final MetanodeMetadata metanode) {
+        super(metanode);
+        m_nodeId = metanode.m_nodeId;
+        m_type = metanode.m_type;
+        m_annotationText = metanode.m_annotationText;
+        m_template = metanode.m_template;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -131,5 +145,12 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
         ", type: " + m_type +
         ", annotation_text: " + m_annotationText.orElse(null) +
         ", template_link: " + m_template.orElse(null);
+    }
+
+    /**
+     * @return a copy of this {@code MetanodeMetadata}, except the nodes/connections have been set to {@code null}.
+     */
+    MetanodeMetadata dropNodes() {
+        return new MetanodeMetadata(this);
     }
 }
