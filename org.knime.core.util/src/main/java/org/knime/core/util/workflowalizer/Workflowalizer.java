@@ -713,7 +713,8 @@ public final class Workflowalizer {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                 if (!expectedFiles.contains(file.getFileName().toString())) {
-                    unexpectedFiles.add(file.toAbsolutePath().toString());
+                    final Path relativePath = path.getParent().relativize(file);
+                    unexpectedFiles.add(relativePath.toString());
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -759,7 +760,8 @@ public final class Workflowalizer {
         final FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                files.add(file.toAbsolutePath().toString());
+                final Path relativePath = workflowDirectory.getParent().relativize(file);
+                files.add(relativePath.toString());
                 return FileVisitResult.CONTINUE;
             }
         };
@@ -800,7 +802,7 @@ public final class Workflowalizer {
         }
         CheckUtils.checkArgument(Files.probeContentType(svg).toLowerCase().contains("svg"),
             parser.getWorkflowSVGFileName() + " is not an SVG");
-        return Optional.of(svg.toAbsolutePath().toString());
+        return Optional.of(workflowDirectory.getParent().relativize(svg).toString());
     }
 
     private static Optional<String> svgFile(final WorkflowParser parser, final String path, final ZipFile zip) {
