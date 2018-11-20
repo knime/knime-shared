@@ -55,6 +55,8 @@ import org.knime.core.node.config.base.ConfigBase;
 /**
  * Represents single node metadata. This includes subnodes and native nodes.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */

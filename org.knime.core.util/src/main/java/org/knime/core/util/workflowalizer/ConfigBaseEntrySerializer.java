@@ -72,6 +72,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 /**
  * JSON serializer for {@code ConfigBase} objects used in pojos produced by the {@link Workflowalizer}.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */

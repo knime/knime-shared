@@ -96,6 +96,8 @@ import org.xml.sax.SAXException;
 /**
  * Reader for workflow metadata.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */

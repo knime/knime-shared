@@ -58,6 +58,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 /**
  * Represents the metadata for nodes. This includes metanodes, subnodes, and native nodes.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */

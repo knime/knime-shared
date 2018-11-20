@@ -51,6 +51,8 @@ package org.knime.core.util.workflowalizer;
 /**
  * Configuration to specify which fields should be read by the {@link Workflowalizer}.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */

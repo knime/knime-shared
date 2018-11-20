@@ -57,6 +57,8 @@ import org.knime.core.util.Version;
 /**
  * POJO for KNIME workflow meta-data.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */

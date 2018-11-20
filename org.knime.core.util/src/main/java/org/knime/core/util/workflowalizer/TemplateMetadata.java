@@ -65,6 +65,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 /**
  * Metadata pertaining to KNIME templates.
  *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
