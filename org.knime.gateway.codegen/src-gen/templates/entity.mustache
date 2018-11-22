@@ -68,6 +68,9 @@ public interface {{classname}} extends {{#parent}}{{{parent}}}{{/parent}}{{^pare
          {{#description}}
          * {{description}}
          {{/description}} 
+         {{^description}}
+   		 * Set {{name}}
+  	     {{/description}}
          * 
          * @param {{name}} the property value, {{#required}}NOT <code>null</code>!{{/required}} 
          * @return this entity builder for chaining

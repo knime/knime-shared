@@ -46,6 +46,7 @@
  */
 package org.knime.gateway.codegen;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,20 +57,19 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.openapitools.codegen.CodegenModelFactory;
+import org.openapitools.codegen.CodegenModelType;
+import org.openapitools.codegen.CodegenOperation;
+import org.openapitools.codegen.CodegenProperty;
+import org.openapitools.codegen.CodegenType;
+import org.openapitools.codegen.SupportingFile;
+import org.openapitools.codegen.languages.AbstractJavaCodegen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.codegen.CodegenModelFactory;
-import io.swagger.codegen.CodegenModelType;
-import io.swagger.codegen.CodegenOperation;
-import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.CodegenType;
-import io.swagger.codegen.SupportingFile;
-import io.swagger.codegen.languages.AbstractJavaCodegen;
-import io.swagger.models.Operation;
-import io.swagger.models.Swagger;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.RefProperty;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.Schema;
 
 /**
  * Service and entity-class/interface generation for the KNIME gateway based on
@@ -79,7 +79,11 @@ import io.swagger.models.properties.RefProperty;
  */
 public class GatewayCodegen extends AbstractJavaCodegen {
 
-	static Logger LOGGER = LoggerFactory.getLogger(GatewayCodegen.class);
+	private static final String NAME_PLACEHOLDER = "##name##";
+
+	private static final String KNIME_GATEWAY_EXCEPTION_EXTENSION = "x-knimegateway-exceptions";
+
+    static Logger LOGGER = LoggerFactory.getLogger(GatewayCodegen.class);
 
 	private final Map<String, String> m_tagDescriptions = new HashMap<String, String>();
 
@@ -96,6 +100,9 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 	@Override
 	public void processOpts() {
 		super.processOpts();
+
+		setBooleanGetterPrefix("is");
+
 		apiTemplateFiles.clear();
 		m_apiTemplateFile = getPropertyAsString("apiTemplateFile").orElse(null);
 		if (m_apiTemplateFile != null) {
@@ -212,7 +219,7 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 			tags.add(name);
 		}
 		if (m_apiNamePattern != null) {
-			return m_apiNamePattern.replace("##name##", camelize(name));
+			return m_apiNamePattern.replace(NAME_PLACEHOLDER, camelize(name));
 		} else {
 			return name;
 		}
@@ -221,7 +228,7 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 	@Override
 	public String toModelName(final String name) {
 		if (m_modelNamePattern != null) {
-			return m_modelNamePattern.replace("##name##", name);
+			return m_modelNamePattern.replace(NAME_PLACEHOLDER, name);
 		} else {
 			return name;
 		}
@@ -237,12 +244,12 @@ public class GatewayCodegen extends AbstractJavaCodegen {
     }
 
 	@Override
-	public CodegenProperty fromProperty(final String name, final Property p) {
+	public CodegenProperty fromProperty(final String name, final Schema p) {
 		// enables properties to have another name then the property they are
 		// part of
 		// e.g. DefaultNodeEnt.getNodeMessage() returns NodeMessageEnt instead
 		// of DefaultNodeMessageEnt
-		if (m_modelPropertyNamePattern != null && p instanceof RefProperty) {
+		if (m_modelPropertyNamePattern != null && p.get$ref() != null) {
 			CodegenProperty property = CodegenModelFactory.newInstance(CodegenModelType.PROPERTY);
 			property.name = toVarName(name);
 			property.baseName = name;
@@ -252,21 +259,25 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 			property.title = p.getTitle();
 			property.getter = toGetter(name);
 			property.setter = toSetter(name);
-			property.baseType = property.datatype = property.datatypeWithEnum = m_modelPropertyNamePattern
-					.replace("##name##", ((RefProperty) p).getSimpleRef());
-			importMapping.put(property.datatype, m_modelPropertyPackage + "." + property.datatype);
+			property.baseType = property.dataType = property.datatypeWithEnum = m_modelPropertyNamePattern
+					.replace(NAME_PLACEHOLDER, extractNameFromRef(p.get$ref()));
+			importMapping.put(property.dataType, m_modelPropertyPackage + "." + property.dataType);
 			return property;
 		} else {
 			return super.fromProperty(name, p);
 		}
 	}
 
+    private String extractNameFromRef(final String ref) {
+        return ref.substring(ref.lastIndexOf("schemas/") + 8);
+    }
+
 	@Override
 	protected void updatePropertyForMap(final CodegenProperty property, final CodegenProperty innerProperty) {
 		if (m_modelPropertyNamePattern != null) {
 			// TODO hacky but works!
 			super.updatePropertyForMap(property, innerProperty);
-			property.datatype = property.datatypeWithEnum = "java.util.Map<String, " + innerProperty.datatype + ">";
+			property.dataType = property.datatypeWithEnum = "java.util.Map<String, " + innerProperty.dataType + ">";
 		} else {
 			super.updatePropertyForMap(property, innerProperty);
 		}
@@ -277,23 +288,21 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 		if (m_modelPropertyNamePattern != null) {
 			// TODO hacky but works!
 			super.updatePropertyForArray(property, innerProperty);
-			property.datatype = property.datatypeWithEnum = "java.util.List<" + innerProperty.datatype + ">";
+			property.dataType = property.datatypeWithEnum = "java.util.List<" + innerProperty.dataType + ">";
 		} else {
 			super.updatePropertyForArray(property, innerProperty);
 		}
 	}
 
 	@Override
-	public void preprocessSwagger(final Swagger swagger) {
-		super.preprocessSwagger(swagger);
+	public void preprocessOpenAPI(final OpenAPI openAPI) {
+		super.preprocessOpenAPI(openAPI);
 
-		// Collect all pre-defined exceptions (x-knimegateway-exceptions section
-		// in the swagger
-		// file) - a 'vendor extension'
-		Map<String, Object> executorExceptions = (Map<String, Object>) ((Map<String, Object>) swagger
-				.getVendorExtensions().get("x-knimegateway-exceptions")).get("executor");
-		Map<String, Object> serverExceptions = (Map<String, Object>) ((Map<String, Object>) swagger
-				.getVendorExtensions().get("x-knimegateway-exceptions")).get("server");
+        // Collect all pre-defined exceptions (#/components/x-knimegateway-exceptions section in the OpenAPI - a 'vendor extension')
+        Map<String, Object> executorExceptions = (Map<String, Object>)((Map<String, Object>)openAPI.getComponents()
+            .getExtensions().get(KNIME_GATEWAY_EXCEPTION_EXTENSION)).get("executor");
+        Map<String, Object> serverExceptions = (Map<String, Object>)((Map<String, Object>)openAPI.getComponents()
+            .getExtensions().get(KNIME_GATEWAY_EXCEPTION_EXTENSION)).get("server");
 
 		// TODO null-check for required properties
 		additionalProperties().put("executorExceptions",
@@ -303,38 +312,44 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 		// 'manually' map x-knimegateway-exceptions cross-references since
 		// swagger doesn't support cross-references for vendor extensions
 		// there might be a more elegant way ...
-		swagger.getPaths().values().stream().flatMap(p -> p.getOperations().stream()).forEach(op -> {
-			resolveExceptionReference("executor", op, executorExceptions);
-			resolveExceptionReference("server", op, serverExceptions);
-		});
-	}
+        openAPI.getPaths().values().stream()
+            .flatMap(p -> Arrays.asList(p.getGet(), p.getPut(), p.getPost(), p.getDelete(), p.getHead()).stream())
+            .forEach(op -> {
+                resolveExceptionReference("executor", op, executorExceptions);
+                resolveExceptionReference("server", op, serverExceptions);
+            });
+    }
 
-	private void resolveExceptionReference(final String location, final Operation operation, final Map<String, Object> exceptions) {
-		Map<String, Object> locations = (Map<String, Object>) operation.getVendorExtensions()
-				.get("x-knimegateway-exceptions");
-		if (locations != null) {
-			List<Object> opExceptions = (List<Object>) locations.get(location);
-			if (opExceptions != null) {
-				// replace reference by predefined objects (in case it's a
-				// reference)
-				for (int i = 0; i < opExceptions.size(); i++) {
-					Map<String, Object> ref = (Map<String, Object>) opExceptions.get(i);
-					Object opException = ref.get("$ref");
-					if (opException != null && opException instanceof String) {
-						String key = (String) opException;
-						String prefix = "#/x-knimegateway-exceptions/" + location + "/";
-						if (key.startsWith(prefix)) {
-							Object o2 = exceptions.get(key.substring(prefix.length()));
-							if (o2 != null) {
-								opExceptions.set(i, o2);
-							} else {
-								throw new RuntimeException("Reference '" + key + "' cannot be resolved.");
-							}
+    private void resolveExceptionReference(final String location, final Operation operation,
+        final Map<String, Object> exceptions) {
+        if (operation == null) {
+            return;
+        }
+        Map<String, Object> locations =
+            (Map<String, Object>)operation.getExtensions().get(KNIME_GATEWAY_EXCEPTION_EXTENSION);
+        if (locations != null) {
+            List<Object> opExceptions = (List<Object>)locations.get(location);
+            if (opExceptions != null) {
+                // replace reference by predefined objects (in case it's a
+                // reference)
+                for (int i = 0; i < opExceptions.size(); i++) {
+                    Map<String, Object> ref = (Map<String, Object>)opExceptions.get(i);
+                    Object opException = ref.get("$ref");
+                    if (opException != null && opException instanceof String) {
+                        String key = (String)opException;
+                        String prefix = "#/components/" + KNIME_GATEWAY_EXCEPTION_EXTENSION + "/" + location + "/";
+                        if (key.startsWith(prefix)) {
+                            Object o2 = exceptions.get(key.substring(prefix.length()));
+                            if (o2 != null) {
+                                opExceptions.set(i, o2);
+                            } else {
+                                throw new RuntimeException("Reference '" + key + "' cannot be resolved.");
+                            }
 
-						}
-					}
-				}
-			}
+                        }
+                    }
+                }
+    		}
 		}
 	}
 }

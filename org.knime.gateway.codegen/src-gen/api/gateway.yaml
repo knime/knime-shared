@@ -1,1211 +1,1183 @@
----
-# This is the Swagger spec, describing the KNIME gateway.  
-swagger: "2.0"
+# This is the OpenAPI spec, describing the KNIME gateway.
+openapi: 3.0.0
 info:
   title: KNIME Gateway API
   version: 1.0.0
   description: Gateway operations on KNIME workflows.
-basePath: /v4/jobs/{job-id}
 
-# not used in gateway code generation so far
-schemes:
-- http
-- https
 
 # E.g. gateway-service interfaces are created from the tags, such as WorkflowService or NodeService
 tags:
-- name: Workflow
-  description: Operations on workflows.
-- name: Node
-  description: Operations on single nodes.
-- name: Annotation
-  description: Operations on single workflow annotations.
-  
-parameters:
- job-id:
-  name: job-id
-  in: path
-  description: ID the job the workflow is requested for
-  required: true
-  type: string
-  format: uuid
+  - name: Workflow
+    description: Operations on workflows.
+  - name: Node
+    description: Operations on single nodes.
+  - name: Annotation
+    description: Operations on single workflow annotations.
 
 # Remark on the responses for the operation: only the 200-response affects the gateway-code generation 
 # by defining the operations return type. The other responses are for documentation purposes.
 # The x-knimegateway-exceptions are meant for the gateway-code-generation.
 paths:
-
-  # the workflow endpoint
   /workflow:
     get:
       tags:
-      - Workflow
-      description: Retrieves the complete structure (nodes, connections, annotations) of the workflow
+        - Workflow
+      description: >-
+        Retrieves the complete structure (nodes, connections, annotations) of
+        the workflow
       operationId: getWorkflow
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
+        - $ref: '#/components/parameters/job-id'
       responses:
-        200:
-          description: Successful response, with a representation of the workflow accompanied by a snapshot id. The snapshot id allows to subsequently retrieve workflow changes only using the workflow-diff endpoints.
-          schema:
-            $ref: "#/definitions/WorkflowSnapshot"
+        '200':
+          description: >-
+            Successful response, with a representation of the workflow
+            accompanied by a snapshot id. The snapshot id allows to subsequently
+            retrieve workflow changes only using the workflow-diff endpoints.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSnapshot'
       x-knimegateway-exceptions:
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  # endpoint actions on workflow parts (nodes, annotations) of a workflow (e.g. deleting and copying).
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
   /workflow/parts:
     post:
       tags:
-      - Workflow
-      description: "Selects and essentially copies the specified part of the workflow.
-        It will still be available even if (sub)parts are deleted. The parts are referenced by a part-id. 
-        Note: connections will be ignored and _not_ copied!"
+        - Workflow
+      description: >-
+        Selects and essentially copies the specified part of the workflow. It
+        will still be available even if (sub)parts are deleted. The parts are
+        referenced by a part-id.  Note: connections will be ignored and _not_
+        copied!
       operationId: createWorkflowCopy
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: parts
-          in: body
-          description: The actual part selection.
-          required: true
-          schema:
-            $ref: "#/definitions/WorkflowParts"
-      produces:
-      - application/json
-      consumes:
-      - application/json
+        - $ref: '#/components/parameters/job-id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowParts'
+        description: The actual part selection.
+        required: true
       responses:
-        201:
+        '201':
           description: Successfully created. Returns the parts-id.
-          schema:
-            type: string
-            format: uuid
-        400:
-            #if the parent id of the parts to be copied doesn't refer to a sub-workflow
-            $ref: "#/responses/NotASubWorkflow"
-        404:
-            #if the parent id of the parts to be copied doesn't refer to a node
-            $ref: "#/responses/NodeNotFound"
-        405:
-            #if parts to be copied don't exist
-            $ref: "#/responses/InvalidRequest"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+        '400':
+          #if the parent id of the parts to be copied doesn't refer to a sub-workflow
+          $ref: '#/components/responses/NotASubWorkflow'
+        '404':
+          #if the parent id of the parts to be copied doesn't refer to a node
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          #if parts to be copied don't exist
+          $ref: '#/components/responses/InvalidRequest'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-            
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
     delete:
       tags:
-      - Workflow
-      description: Deletes the given workflow parts. Cannot be undone unless a copy has been made before.
+        - Workflow
+      description: >-
+        Deletes the given workflow parts. Cannot be undone unless a copy has
+        been made before.
       operationId: deleteWorkflowParts
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: parts
-          in: body
-          description: The parts to be deleted.
-          required: true
-          schema:
-            $ref: "#/definitions/WorkflowParts"
+        - $ref: '#/components/parameters/job-id'
         - name: copy
           in: query
-          description: If a copy should be created before removal. False by default.
-            Please note that the copy will _only_ include the connections that are entirely enclosed by the parts to be removed
-            (i.e. connections that are connecting two removed nodes - all others won't be kept)
+          description: >-
+            If a copy should be created before removal. False by default. Please
+            note that the copy will _only_ include the connections that are
+            entirely enclosed by the parts to be removed (i.e. connections that
+            are connecting two removed nodes - all others won't be kept)
           required: false
-          type: boolean
-          default: false
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        200:
-          description: Parts have been deleted successfully. Parts that don't exist in the workflow will be ignored.
-            If a copy has been chosen to be created, the respective part-id of the copy will be returned otherwise null. 
           schema:
-            type: string
-            format: uuid
-        400:
-            #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
-            $ref: "#/responses/NotASubWorkflow"
-        404:
-            #if the parent id of the parts to be deleted doesn't refer to a node
-            $ref: "#/responses/NodeNotFound"
-        405:
-            #if a part exists but couldn't be removed
-            $ref: "#/responses/ActionNotAllowed"
+            type: boolean
+            default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowParts'
+        description: The parts to be deleted.
+        required: true
+      responses:
+        '200':
+          description: >-
+            Parts have been deleted successfully. Parts that don't exist in the
+            workflow will be ignored. If a copy has been chosen to be created,
+            the respective part-id of the copy will be returned otherwise null.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+        '400':
+          #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
+          $ref: '#/components/responses/NotASubWorkflow'
+        '404':
+          #if the parent id of the parts to be deleted doesn't refer to a node
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          #if a part exists but couldn't be removed
+          $ref: '#/components/responses/ActionNotAllowed'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/ActionNotAllowed"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/ActionNotAllowed"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  /workflow/parts/{parts-id}:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/parts/{parts-id}':
     put:
       tags:
-      - Workflow
+        - Workflow
       description: Pastes the referenced parts into the referenced (sub-)workflow.
       operationId: pasteWorkflowParts
       parameters:
-        - $ref: "#/parameters/job-id"
+        - $ref: '#/components/parameters/job-id'
         - name: parts-id
           in: path
           description: The id referencing the parts to paste.
           required: true
-          type: string
-          format: uuid
+          schema:
+            type: string
+            format: uuid
         - name: x
           in: query
           description: The x position to paste the parts.
-          type: integer
           required: true
-        - name: y
+          schema:
+            type: integer
+        - name: 'y'
           in: query
           description: The y position to paste the parts.
-          type: integer
           required: true
+          schema:
+            type: integer
         - name: node-id
           in: query
-          description: The ID of the node referencing a sub-workflow to paste the parts into.
-            If none is given it will be pasted into the root workflow.
-            For nested sub-workflows the node id's are concatenated with an ':' (e.g. 6:4:3).
-          type: string
+          description: >-
+            The ID of the node referencing a sub-workflow to paste the parts
+            into. If none is given it will be pasted into the root workflow. For
+            nested sub-workflows the node id's are concatenated with an ':'
+            (e.g. 6:4:3).
           required: false
-      produces:
-      - application/json
-      responses:
-        200:
-          description: Parts have been successfully pasted. Returns the pasted workflow parts.
           schema:
-            $ref: "#/definitions/WorkflowParts"
-        400:
-            #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
-            $ref: "#/responses/NotASubWorkflow"
-        404:
-            #if the parent id of the parts to be deleted doesn't refere to a node
-            #OR: if there is no copy for the given part-id
-            $ref: "#/responses/NotFound"
-        #TODO add other responses (timeout, no-permission) etc. here!
+            type: string
+      responses:
+        '200':
+          description: >-
+            Parts have been successfully pasted. Returns the pasted workflow
+            parts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowParts'
+        '400':
+          $ref: '#/components/responses/NotASubWorkflow'
+        '404':
+          #if the parent id of the parts to be deleted doesn't refere to a node
+          #OR: if there is no copy for the given part-id
+          $ref: '#/components/responses/NotFound'
+      #TODO add other responses (timeout, no-permission) etc. here!
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  # endpoint for workflow changes (i.e. diff)
   /workflowdiff:
     get:
       tags:
-      - Workflow
-      description: Gives the changes of the workflow as patch. Please note that there is not always a snapshot available for the provided snapshot id, either because the snapshot never existed or has expired.
+        - Workflow
+      description: >-
+        Gives the changes of the workflow as patch. Please note that there is
+        not always a snapshot available for the provided snapshot id, either
+        because the snapshot never existed or has expired.
       operationId: getWorkflowDiff
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
+        - $ref: '#/components/parameters/job-id'
         - name: snapshot-id
           in: query
           description: The id of the workflow snapshot already retrieved.
           required: true
-          type: string
-          format: uuid
-      responses:
-        200:
-          description: Successful response, with a patch containing all the changes.
           schema:
-            $ref: "#/definitions/Patch"
-        404:
-          $ref: "#/responses/NotFound"
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Successful response, with a patch containing all the changes.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patch'
+        '404':
+          $ref: '#/components/responses/NotFound'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  # the sub-workflow endpoint
-  /workflow/{node-id}:
+  '/workflow/{node-id}':
     get:
       tags:
-      - Workflow
-      description: Retrieves the complete structure (nodes, connections, annotations) of sub-workflows.
+        - Workflow
+      description: >-
+        Retrieves the complete structure (nodes, connections, annotations) of
+        sub-workflows.
       operationId: getSubWorkflow
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node this sub-workflow is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
       responses:
-        200:
-          description: Successful response, with a representation of the sub-workflow.
-          schema:
-            $ref: "#/definitions/WorkflowSnapshot"
-        400:
-            $ref: "#/responses/NotASubWorkflow"
-        404:
-            $ref: "#/responses/NodeNotFound"
+        '200':
+          description: 'Successful response, with a representation of the sub-workflow.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSnapshot'
+        '400':
+          $ref: '#/components/responses/NotASubWorkflow'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  # endpoint for SUB-workflow changes (i.e. diff)
-  /workflowdiff/{node-id}:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflowdiff/{node-id}':
     get:
       tags:
-      - Workflow
-      description: Gives the changes of the sub-workflow as a patch. 
+        - Workflow
+      description: Gives the changes of the sub-workflow as a patch.
       operationId: getSubWorkflowDiff
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node this sub-workflow is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
         - name: snapshot-id
           in: query
           description: The id of the workflow snapshot already retrieved.
           required: true
-          type: string
-          format: uuid
-      responses:
-        200:
-          description: Successful response, with a patch containing all the changes.
           schema:
-            $ref: "#/definitions/Patch"
-        400:
-            $ref: "#/responses/NotASubWorkflow"
-        404:
-            $ref: "#/responses/NotFound"
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Successful response, with a patch containing all the changes.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patch'
+        '400':
+          $ref: '#/components/responses/NotASubWorkflow'
+        '404':
+          $ref: '#/components/responses/NotFound'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-   
-  # the root node endpoint
   /workflow/node:
-     get:
+    get:
       tags:
-      - Node
+        - Node
       description: Retrieves the root node referencing the workflow
       operationId: getRootNode
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
+        - $ref: '#/components/parameters/job-id'
       responses:
-        200:
-          description: Successful response, with a representation of the Node.
-          schema:
-            $ref: "#/definitions/Node"
-        403:
-          $ref: "#/responses/NoPermission"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '200':
+          description: 'Successful response, with a representation of the Node.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-     post:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+    post:
       tags:
-      - Node
+        - Node
       description: Creates and adds a new native node to the workflow.
       operationId: createNode
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
+        - $ref: '#/components/parameters/job-id'
         - name: x
-          description: the x coordinate to place the new node 
+          description: the x coordinate to place the new node
           in: query
           required: true
-          type: integer
-        - name: y
+          schema:
+            type: integer
+        - name: 'y'
           description: the y coordinate to place the new node
           in: query
           required: true
-          type: integer
+          schema:
+            type: integer
         - name: parent-node-id
-          description: "Optional id of the parent node if the new node should be added to a sub-workflow.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
+          description: >-
+            Optional id of the parent node if the new node should be added to a
+            sub-workflow. The node-id format: For nested nodes the node ids are
+            concatenated with an ':', e.g. 3:6:4. Nodes within wrapped metanodes
+            required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a
+            wrapped metanode).
           in: query
           required: false
-          type: string
-        - name: node-factory-key
-          description: The key representing the native node to be added to the workflow.
-          in: body
-          required: true
-          schema:
-            $ref: "#/definitions/NodeFactoryKey"
-      responses:
-        201:
-          description: New node has been successfully created. Returns the new node id. 
           schema:
             type: string
-        400:
-          $ref: "#/responses/NotASubWorkflow"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeFactoryKey'
+        description: The key representing the native node to be added to the workflow.
+        required: true
+      responses:
+        '201':
+          description: New node has been successfully created. Returns the new node id.
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/InvalidRequest'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
           # if the parent node is not a metanode (i.e. a sub-workflow) 
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
           # if the parent node couldn't be found or the node factory key is unknown
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
           # if the node factory key's settings are required but missing or not readable
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest" 
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  # endpoint for wrapped metanodes' dialog representations        
-  /workflow/wmetanode/{node-id}/dialog:
+  '/workflow/wmetanode/{node-id}/dialog':
     get:
       tags:
-      - Node
-      description: Gives access to the dialog representations, values and configs of a wrapped metanode.
+        - Node
+      description: >-
+        Gives access to the dialog representations, values and configs of a
+        wrapped metanode.
       operationId: getWMetaNodeDialog
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
       responses:
-        200:
-          description: Successful response with a representation of the metanode dialog. 
-          schema:
-            $ref: "#/definitions/MetaNodeDialog"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '200':
+          description: Successful response with a representation of the metanode dialog.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetaNodeDialog'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/InvalidRequest'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest" 
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-  
-  #the node endpoint
-  /workflow/node/{node-id}:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}':
     get:
       tags:
-      - Node
+        - Node
       description: Retrieves the node for the given node-id.
       operationId: getNode
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
       responses:
-        200:
-          description: Successful response, with a representation of the Node.
-          schema:
-            $ref: "#/definitions/Node"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '200':
+          description: 'Successful response, with a representation of the Node.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  # endpoint for node bounds
-  /workflow/node/{node-id}/bounds:
+  '/workflow/node/{node-id}/bounds':
     put:
       tags:
-      - Node
+        - Node
       description: Sets the node's bounds for the given node-id.
       operationId: setNodeBounds
-      consumes:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
-        - name: bounds
-          in: body
-          description: The node bounds to set.
-          required: true
-          schema:
-            $ref: "#/definitions/Bounds"
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bounds'
+        description: The node bounds to set.
+        required: true          
       responses:
-        200:
+        '200':
           description: Settings successfully set.
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  # endpoint for node settings        
-  /workflow/node/{node-id}/settings:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}/settings':
     get:
       tags:
-      - Node
+        - Node
       description: Retrieves the node's settings for the given node-id.
       operationId: getNodeSettings
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
       responses:
-        200:
-          description: Successful response, with a json-representation of the settings
-          schema:
-            $ref: "#/definitions/NodeSettings"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '200':
+          description: 'Successful response, with a json-representation of the settings'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeSettings'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
     put:
       tags:
-      - Node
+        - Node
       description: Sets the node's settings for the given node-id.
       operationId: setNodeSettings
-      consumes:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
-        - name: node-settings
-          in: body
-          description: The node settings to set.
-          schema:
-            $ref: "#/definitions/NodeSettings"
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeSettings'
+        description: The node settings to set.          
       responses:
-        200:
+        '200':
           description: Settings successfully set.
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidSettings"
-        409:
-          $ref: "#/responses/IllegalState"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/InvalidSettings'
+        '409':
+          $ref: '#/components/responses/IllegalState'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidSettings"
-          - $ref: "#/x-knimegateway-exceptions/executor/IllegalState"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidSettings"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/IllegalState"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-          
-  # endpoint for node's state and actions to change it (e.g. execute, cancel, reset)      
-  /workflow/node/{node-id}/state:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}/state':
     post:
       tags:
-      - Node
+        - Node
       description: Retrieves and manipulates the node's state for the given node-id.
       operationId: changeAndGetNodeState
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
         - name: action
-          description: The action (reset, cancel, execute) to be performed in order to change the node's state.
+          description: >-
+            The action (reset, cancel, execute) to be performed in order to
+            change the node's state.
           in: query
-          type: string
-          enum: [reset, cancel, execute]
-      responses:
-        200:
-          description: Successful response, with the current node's state.
           schema:
             type: string
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/ActionNotAllowed"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+            enum:
+              - reset
+              - cancel
+              - execute
+      responses:
+        '200':
+          description: 'Successful response, with the current node''s state.'
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/ActionNotAllowed'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/ActionNotAllowed"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/ActionNotAllowed"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  # endpoint for node port specification        
-  /workflow/node/{node-id}/output/specs:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}/output/specs':
     get:
       tags:
-      - Node
+        - Node
       description: Provides the node's output port specifications for the given node-id.
       operationId: getOutputPortSpecs
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
       responses:
-        200:
-          description: Successful response, with a list of json-representations of the port object specs.
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/PortObjectSpec"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '200':
+          description: >-
+            Successful response, with a list of json-representations of the port
+            object specs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortObjectSpec'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  # endpoint for node port specification        
-  /workflow/node/{node-id}/output/{port-idx}/table:
+  '/workflow/node/{node-id}/output/{port-idx}/table':
     get:
       tags:
-      - Node
-      description: Gives access to the table at the a certain port index (if it's a table). Otherwise will return 'not supported'.
+        - Node
+      description: >-
+        Gives access to the table at the a certain port index (if it's a table).
+        Otherwise will return 'not supported'.
       operationId: getOutputDataTable
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
         - name: port-idx
           in: path
           description: The port index to get the table for.
           required: true
-          type: integer
+          schema:
+            type: integer
         - name: from
           in: query
-          description: Row index to start returning the rows. Rows from the beginning (i.e. index 0) will be returned.
+          description: >-
+            Row index to start returning the rows. Rows from the beginning (i.e.
+            index 0) will be returned.
           required: false
-          type: integer
-          format: int64
+          schema:
+            type: integer
+            format: int64
         - name: size
           in: query
-          description: Number of rows to retrieve. If not given, all rows to the end of the table are returned.
+          description: >-
+            Number of rows to retrieve. If not given, all rows to the end of the
+            table are returned.
           required: false
-          type: integer
-      responses:
-        200:
-          description: Successful response, with the specified range of rows.
           schema:
-            $ref: "#/definitions/DataTable"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+            type: integer
+      responses:
+        '200':
+          description: 'Successful response, with the specified range of rows.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataTable'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/InvalidRequest'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  # endpoint for flow variables of a node        
-  /workflow/node/{node-id}/output/flowvariables:
+  '/workflow/node/{node-id}/output/flowvariables':
     get:
       tags:
-      - Node
-      description: Provides the node's flow variables available for the node's output with the given node-id. For metanodes (not wrapped metanodes) the same variables are returned as with '... For metanodes (not wrapped metanodes) the same variables are returned as with '.../input/flowvariables'.
+        - Node
+      description: >-
+        Provides the node's flow variables available for the node's output with
+        the given node-id. For metanodes (not wrapped metanodes) the same
+        variables are returned as with '... For metanodes (not wrapped
+        metanodes) the same variables are returned as with
+        '.../input/flowvariables'.
       operationId: getOutputFlowVariables
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
       responses:
-        200:
-          description: Successful response, with a all flow variables available
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/FlowVariable"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '200':
+          description: 'Successful response, with a all flow variables available'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlowVariable'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
-          
-  # endpoint for node port specification        
-  /workflow/node/{node-id}/input/specs:
-    get:
-      tags:
-      - Node
-      description: Provides the node's input port specifications for the given node-id. I.e. all output port specs of the output ports connected to the input ports of this node.
-      operationId: getInputPortSpecs
-      produces:
-      - application/json
-      parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successful response, with a list of json-representations of the port object specs.
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/PortObjectSpec"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  # endpoint for flow variables of a node        
-  /workflow/node/{node-id}/input/flowvariables:
-    get:
-      tags:
-      - Node
-      description: Provides the node's flow variables available for the node with the given node-id.
-      operationId: getInputFlowVariables
-      produces:
-      - application/json
-      parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successful response, with a all flow variables available
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/FlowVariable"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
-          
-  # endpoint for web views of a node
-  /workflow/node/{node-id}/view/data:
-    get:
-      tags:
-      - Node
-      description: Provides the data for the node's view, iff the node supports views. The data includes the view's and the representation.
-      operationId: getViewData
-      produces:
-      - application/json
-      parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successful response with requested the web view.
-          schema: 
-            $ref: "#/definitions/ViewData"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout" 
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-  /workflow/node/{node-id}/view/data/value:
+  '/workflow/node/{node-id}/input/specs':
+    get:
+      tags:
+        - Node
+      description: >-
+        Provides the node's input port specifications for the given node-id.
+        I.e. all output port specs of the output ports connected to the input
+        ports of this node.
+      operationId: getInputPortSpecs
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+      responses:
+        '200':
+          description: >-
+            Successful response, with a list of json-representations of the port
+            object specs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortObjectSpec'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}/input/flowvariables':
+    get:
+      tags:
+        - Node
+      description: >-
+        Provides the node's flow variables available for the node with the given
+        node-id.
+      operationId: getInputFlowVariables
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+      responses:
+        '200':
+          description: 'Successful response, with a all flow variables available'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlowVariable'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+        server:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}/view/data':
+    get:
+      tags:
+        - Node
+      description: >-
+        Provides the data for the node's view, iff the node supports views. The
+        data includes the view's and the representation.
+      operationId: getViewData
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+      responses:
+        '200':
+          description: Successful response with requested the web view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewData'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/InvalidRequest'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
+        server:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/node/{node-id}/view/data/value':
     put:
       tags:
-      - Node
+        - Node
       description: Saves back the view's value (e.g. title etc.) to the server.
       operationId: setViewValue
-      consumes:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the node the information is requested for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
         - name: use-as-default
           in: query
           description: True if node settings are to be updated by view content.
-          type: boolean
-        - name: view-value
-          in: body
-          description: The view value to set.
           schema:
-            $ref: "#/definitions/JavaObject"
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JavaObject'
+        description: The view value to set.          
       responses:
-        200:
+        '200':
           description: The new view value has been set successfully.
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-          $ref: "#/responses/NodeNotFound"
-        405:
-          $ref: "#/responses/InvalidRequest"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NodeNotFound'
+        '405':
+          $ref: '#/components/responses/InvalidRequest'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/x-knimegateway-exceptions/executor/InvalidRequest"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
   /workflow/connection:
     post:
       tags:
-      - Workflow 
-      description: "Creates a new connection between two nodes.
-        Note: replaces/removes existing connections if destination port is already in use."
+        - Workflow
+      description: >-
+        Creates a new connection between two nodes. Note: replaces/removes
+        existing connections if destination port is already in use.
       operationId: createConnection
-      produces:
-      - application/json
       parameters:
-        - $ref: "#/parameters/job-id"
-        - name: connection
-          in: body
-          description: The connection.
-          required: true
-          schema:
-            $ref: "#/definitions/Connection"
+        - $ref: '#/components/parameters/job-id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Connection'
+        description: The connection.
+        required: true          
       responses:
-        201:
+        '201':
           description: Connection has been created.
-          schema:
-            description: The connection id. Connection is identified by its destination node id and destination port index and build as '<dest-node-id>_<dest-ports-index>'
-            type: string
-        405:
+          content:
+            application/json:
+              schema:
+                description: >-
+                  The connection id. Connection is identified by its destination
+                  node id and destination port index and build as
+                  '<dest-node-id>_<dest-ports-index>'
+                type: string
+        '405':
           #if connection could be added, e.g. because node is executing or a node for a given node id doesn't exist
-          $ref: "#/responses/ActionNotAllowed"
+          $ref: '#/components/responses/ActionNotAllowed'
       x-knimegateway-exceptions:
         executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/ActionNotAllowed"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/ActionNotAllowed"
         server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-         
-  /workflow/annotation/{anno-id}/bounds:
-    put:
-      tags:
-      - Annotation
-      description: Changes the bounds (x,y,width,height) of a workflow annotation
-      operationId: setAnnotationBounds
-      consumes:
-      - application/json
-      parameters:
-        - $ref: "#/parameters/job-id"
-        - name: anno-id
-          in: path
-          required: true
-          type: string
-        - name: bounds
-          in: body
-          required: true
-          schema:
-            $ref: "#/definitions/Bounds"
-      responses:
-        200:
-          description: Bounds successfully changed
-        404:
-            # if either the node or the annotation couldn't be found
-            $ref: "#/responses/NotFound"
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-  /workflow/{node-id}/annotation/{anno-id}/bounds:
-    put:
-      tags:
-      - Annotation
-      description: Changes the bounds (x,y,width,height) of a workflow annotation in a sub-workflow.
-      operationId: setAnnotationBoundsInSubWorkflow
-      consumes:
-      - application/json
-      parameters:
-        - $ref: "#/parameters/job-id"
-        - name: node-id
-          in: path
-          description: "The ID of the sub-workflow to change the annotation for.
-            The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-            Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-          required: true
-          type: string
-        
-        - name: anno-id
-          in: path
-          required: true
-          type: string
-        - name: bounds
-          in: body
-          required: true
-          schema:
-            $ref: "#/definitions/Bounds"
-      responses:
-        200:
-          description: Bounds successfully changed
-        400:
-            $ref: "#/responses/NotASubWorkflow"
-        403:
-          $ref: "#/responses/NoPermission"
-        404:
-            # if either the node or the annotation couldn't be found
-            $ref: "#/responses/NotFound"
-        504:
-          $ref: "#/responses/Timeout"
-        505:
-          $ref: "#/responses/InternalServerError"
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/x-knimegateway-exceptions/server/Timeout"
-          
-        
-# Collection of java-exceptions for the gateway code generation.
-# For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
-# The exception fall into the following categories:
-#   executor: exceptions that are thrown at the executor
-#   server: exceptions that are thrown at the server
-# and have the following properties:
-#   status-code: the corresponding http-status-code for the exception
-#   description: a description for the exception, should be the same description as for the corresponding http-response
-#   fullname: the name including the package (java-notation)
-#    if specified, the exception is assumed to existent already,
-#    if not specified the exception will be explicitly generated (using the exception name/key)
-# TODO: another useful property: whether an exception is a runtime exception
-x-knimegateway-exceptions:
-  executor:
-    NodeNotFound:
-      name: NodeNotFoundException
-      description: The requested node was not found.
-      status-code: 404
-    NotASubWorkflow:
-      name: NotASubWorkflowException
-      description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
-      status-code: 400
-    # more general not found exception (as opposed to the NodeNotFound exception)
-    # - the actual cause can be found in the exception message 
-    NotFound:
-      name: NotFoundException
-      description: A resource couldn't be found. Please refer to the exception message for more details.
-      status-code: 404
-    ActionNotAllowed:
-      # TODO maybe rename to 'OperationNotAllowed'
-      name: ActionNotAllowedException
-      description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.
-      status-code: 405
-    InvalidRequest:
-      name: InvalidRequestException
-      description: If the request is invalid for a reason. Please refer to the exception message for more details.
-      status-code: 405
-    InvalidSettings:
-      name: InvalidSettingsException
-      description: If settings couldn't be applied.
-      status-code: 405
-    IllegalState:
-      name: IllegalStateException
-      description: If node is not in the right state to apply the settings.
-      status-code: 409
-  server:
-    NoPermission:
-      fullname: com.knime.enterprise.utility.PermissionException
-      description: if the current user does not have access permissions for the job
-      status-code: 403
-    ExecutorException:
-      fullname: com.knime.enterprise.utility.ExecutorException
-      description: if an error occurs while fetching job information from the RMI instance
-      status-code: 500
-    IOException:
-      fullname: java.io.IOException
-      description: IO error
-      status-code: 500
-    Timeout:
-      fullname: java.util.concurrent.TimeoutException
-      description: thrown when time to contact the executor has been exceeded
-      status-code: 504
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
-# For every http-response there should be a corresponding knimegateway-exception (see section above).
-# These responses are mainly for documentation purposes and don't affect the code-generation.
-responses:
-  NodeNotFound:
-    # should be the same description as for the corresponding knime-gateway exception (such that the generated documentation fits)
-    description: The requested node was not found.
-  NotFound:
-    description: A resource couldn't be found.
-  NotASubWorkflow:
-    description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
-  NoPermission:
-    description: If the current user does not have access permissions for the job.
-  InternalServerError:
-    description: Internal server error, e.g. if an error occurs while fetching job information from the RMI.
-  Timeout:
-    description: When time to contact the executor has been exceeded.
-  ActionNotAllowed:
-    description: If the an action is not allowed because it's not applicable or it doesn't exist.
-  InvalidRequest:
-    description: If the request is invalid for a reason.
-  InvalidSettings:
-    description: If settings couldn't be applied.
-  IllegalState:
-    description: If node is not in the right state to apply the settings.
+  '/workflow/annotation/{anno-id}/bounds':
+    put:
+      tags:
+        - Annotation
+      description: 'Changes the bounds (x,y,width,height) of a workflow annotation'
+      operationId: setAnnotationBounds
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - name: anno-id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Bounds'          
+      responses:
+        '200':
+          description: Bounds successfully changed
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
+        server:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+  '/workflow/{node-id}/annotation/{anno-id}/bounds':
+    put:
+      tags:
+        - Annotation
+      description: >-
+        Changes the bounds (x,y,width,height) of a workflow annotation in a
+        sub-workflow.
+      operationId: setAnnotationBoundsInSubWorkflow
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+        - name: anno-id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Bounds'          
+      responses:
+        '200':
+          description: Bounds successfully changed
+        '400':
+          $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+      x-knimegateway-exceptions:
+        executor:
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
+          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
+        server:
+          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
+          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
+          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+
+
+
+
+servers:
+  - url: '/v4/jobs/{job-id}'
+    variables:
+      job-id:
+        default: "{job-id}"
+
+components:
   
+  # Collection of java-exceptions for the gateway code generation.
+  # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
+  # The exception fall into the following categories:
+  #   executor: exceptions that are thrown at the executor
+  #   server: exceptions that are thrown at the server
+  # and have the following properties:
+  #   status-code: the corresponding http-status-code for the exception
+  #   description: a description for the exception, should be the same description as for the corresponding http-response
+  #   fullname: the name including the package (java-notation)
+  #    if specified, the exception is assumed to existent already,
+  #    if not specified the exception will be explicitly generated (using the exception name/key)
+  # TODO: another useful property: whether an exception is a runtime exception
+  x-knimegateway-exceptions:
+    executor:
+      NodeNotFound:
+        name: NodeNotFoundException
+        description: The requested node was not found.
+        status-code: 404
+      NotASubWorkflow:
+        name: NotASubWorkflowException
+        description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
+        status-code: 400
+      # more general not found exception (as opposed to the NodeNotFound exception)
+      # - the actual cause can be found in the exception message 
+      NotFound:
+        name: NotFoundException
+        description: A resource couldn't be found. Please refer to the exception message for more details.
+        status-code: 404
+      ActionNotAllowed:
+        # TODO maybe rename to 'OperationNotAllowed'
+        name: ActionNotAllowedException
+        description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.
+        status-code: 405
+      InvalidRequest:
+        name: InvalidRequestException
+        description: If the request is invalid for a reason. Please refer to the exception message for more details.
+        status-code: 405
+      InvalidSettings:
+        name: InvalidSettingsException
+        description: If settings couldn't be applied.
+        status-code: 405
+      IllegalState:
+        name: IllegalStateException
+        description: If node is not in the right state to apply the settings.
+        status-code: 409
+    server:
+      NoPermission:
+        fullname: com.knime.enterprise.utility.PermissionException
+        description: if the current user does not have access permissions for the job
+        status-code: 403
+      ExecutorException:
+        fullname: com.knime.enterprise.utility.ExecutorException
+        description: if an error occurs while fetching job information from the RMI instance
+        status-code: 500
+      IOException:
+        fullname: java.io.IOException
+        description: IO error
+        status-code: 500
+      Timeout:
+        fullname: java.util.concurrent.TimeoutException
+        description: thrown when time to contact the executor has been exceeded
+        status-code: 504
+
+  parameters:
+    job-id:
+      name: job-id
+      in: path
+      description: ID the job the workflow is requested for
+      required: true
+      schema:
+        type: string
+        format: uuid
+    node-id:
+      name: node-id
+      in: path
+      description: >-
+        The ID of a node.
+        The node-id format: For nested nodes the node ids are concatenated with an ':',
+        e.g. 3:6:4. Nodes within wrapped metanodes require an additional
+        trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode).
+      required: true
+      schema:
+        type: string
+  
+  # For every http-response there should be a corresponding knimegateway-exception (see section above).
+  # These responses are mainly for documentation purposes and don't affect the code-generation.
+  responses:
+    NodeNotFound:
+      # should be the same description as for the corresponding knime-gateway exception (such that the generated documentation fits)
+      description: The requested node was not found.
+    NotFound:
+      description: A resource couldn't be found.
+    NotASubWorkflow:
+      description: >-
+        The requested node is not a sub-workflow (i.e. a meta- or sub-node), but
+        is required to be.
+    NoPermission:
+      description: If the current user does not have access permissions for the job.
+    InternalServerError:
+      description: >-
+        Internal server error, e.g. if an error occurs while fetching job
+        information from the RMI.
+    Timeout:
+      description: When time to contact the executor has been exceeded.
+    ActionNotAllowed:
+      description: >-
+        If the an action is not allowed because it's not applicable or it
+        doesn't exist.
+    InvalidRequest:
+      description: If the request is invalid for a reason.
+    InvalidSettings:
+      description: If settings couldn't be applied.
+    IllegalState:
+      description: If node is not in the right state to apply the settings.
+
+  requestBodies:
+    Bounds:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Bounds'
+      required: true
 
 # A comment on object/schema/model inheritance: polymorphism/subtyping in swagger is achieved by the 'allOf'-property
 # and the specification of a 'dicriminator'-property to be able to tell them apart (see, e.g., Node).
@@ -1213,787 +1185,857 @@ responses:
 # discriminator-values to the respective schemas). Here, one could at least set the 'discriminator'-property
 # to "read-only" and provide the respective default values in the spec already.
 # But I chose to not clutter the API-spec too much at the expense of few actually unnecessary method calls within the
-# generated java-code (the 'discriminator'-property has to be explicitly set every time an object is created). 
-definitions:
-
-  Annotation:
-    description: A text annotation.
-    type: object
-    discriminator: type
-    required:
-     - type
-    properties:
-      type:
-        description: Discriminator for inheritance. Must be the base name of this type/schema.
-        type: string
-      text:
-        type: string
-      backgroundColor:
-        type: integer
-      bounds:
-        $ref: "#/definitions/Bounds"
-      textAlignment:
-        type: string
-      borderSize:
-        type: integer
-      borderColor:
-        type: integer
-      defaultFontSize:
-        type: integer
-      version:
-        type: integer
-      styleRanges:
-        description: Defines ranges of different styles within the annotation.
-        type: array
-        items:
-          $ref: "#/definitions/StyleRange"
-        
-  Bounds:
-    description: Node dimensions - position and size.
-    type: object
-    required: [x, "y", width, height]
-    properties:
-      x:
-        type: integer
-      y:
-        type: integer
-      width:
-        type: integer
-      height:
-        type: integer
-    x-knimegateway-isUsedAsParameter: true   
-        
-  Connection:
-    description: A single connection between two nodes.
-    type: object
-    required:
-      - dest
-      - destPort
-      - source
-      - sourcePort
-      - type
-    properties:
-      dest:
-        type: string
-        description: "The destination node.
-          The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-          Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-      destPort:
-        type: integer
-        description: The destination port, starting at 0.
-      source:
-        type: string
-        description: "The source node.
-          The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-          Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-      sourcePort:
-        type: integer
-        description: The source port, starting at 0.
-      deletable:
-        type: boolean
-        description: Whether the connection can currently be deleted.
-      flowVariablePortConnection:
-        type: boolean
-        description: Whether it's a connection between two flow variable ports.
-      bendPoints:
-        type: array
-        items:
-           $ref: '#/definitions/XY'
-      type:
-        type: string
-        enum: [STD, WFMIN, WFMOUT, WFMTHROUGH]
-        description: The type of the connection (standard, workflow input / output /through).
-    x-knimegateway-isUsedAsParameter: true   
-        
-  DataCell:
-    description: A cell of a data table.
-    type: object
-    properties:
-      type:
-        description: "The type of the data cell
-         represented by the implementing java-class name.
-         If not given, it is assumed that the type can
-         be infered from the data table spec."
-        type: string
-      valueAsString:
-        description: The cell value as a string.
-        type: string
-      missing:
-        description: "If it's a missing cell -
-          The error message is passed via the 'valueAsString'-prop."
-        type: boolean
-      binary:
-        description: "Whether the 'valueAsString'-prop contains a serialized binary string, 
-          that is base64-encoded."
-        type: boolean
-      problem:
-        description: "Indicates whether there was a problem creating this cell.
-          The details are given via the 'valueAsString'-prop."
-        type: boolean
-
-  DataRow:
-    description: A data row.
-    type: object
-    properties:
-      rowID:
-        description: The row id.
-        type: string
-      columns:
-        description: The column list.
-        type: array
-        items:
-          $ref: "#/definitions/DataCell"
-
-  DataTable:
-    description: A data table. Might not contain all rows but only a chunk of rows.
-    type: object
-    properties:
-      columnNames:
-        description: The column names.
-        type: array
-        items:
+# generated java-code (the 'discriminator'-property has to be explicitly set every time an object is created).
+  
+  schemas:
+    Annotation:
+      description: A text annotation.
+      type: object
+      discriminator:
+        propertyName: type
+      required:
+        - type
+      properties:
+        type:
+          description: >-
+            Discriminator for inheritance. Must be the base name of this
+            type/schema.
           type: string
-      numTotalRows:
-        description: The total number of rows. Might be larger then the number of rows contained here.
-        type: integer
-        format: int64
-      rows:
-        description: The actual rows.
-        type: array
-        items:
-          $ref: "#/definitions/DataRow"
-  
-  MetaNodeDialog:
-    description: A representation of a metanode dialog.
-    type: object
-    properties:
-      components:
-        description: List of contributing dialog components.
-        type: array
-        items:
-          $ref: "#/definitions/MetaNodeDialogComp"
-
-  MetaNodeDialogComp:
-    description: A component that is part of a metanode dialog.
-    type: object
-    properties:
-      paramName:
-        description: Parameter name for external parametrization.
-        type: string
-      nodeID:
-        description: The id of the node contributing to this dialog.
-        type: string
-      isHideInDialog:
-        description: Whether the component should be hid in the subnode's dialog.
-        type: boolean
-      representation:
-        description: Dialog component representation. 
-        type: object
-        $ref: "#/definitions/JavaObject"
-  
-  FlowVariable:
-    description: Local variable of basic type which is passed along connections in a workflow.
-    type: object
-    properties:
-      name:
-        description: The flow variable's name.
-        type: string
-      type:
-        description: The flow variables's type.
-        type: string
-        enum: [DOUBLE, INTEGER, STRING]
-      value:
-        description: The actual value.
-        type: string
-        
-  JavaObject:
-    description: A java object/class that can be deserialized from a string.
-    type: object
-    properties:
-      classname: 
-        description: The fully qualified class name of the java object.
-        type: string
-      jsonContent:
-        description: The actual content as a (json) string.
-        type: string
-    x-knimegateway-isUsedAsParameter: true   
-              
-  JobManager:
-    description: node's job manager
-    type: object
-    required:
-      - id
-    properties:
-      id:
-        type: string 
-
-  MetaPortInfo:
-    description: The port of a metanode.
-    type: object
-    required:
-      - portType
-    properties:
-      portType:
-        description: The type.
-        $ref: "#/definitions/PortType"
-      connected:
-        description: Whether it is connected.
-        type: boolean
-      message:
-        description: The message (summary of upstream node port).
-        type: string
-      oldIndex:
-        description: The old index.
-        type: integer
-      newIndex:
-        description: The new index.
-        type: integer        
-        
-  NativeNode:
-    description: Native node extension of a node.
-    #inheritance
-    allOf:
-      - $ref: '#/definitions/Node'
-      - type: object
-        required:
-          - nodeFactoryKey
-        properties:
-          nodeFactoryKey:
-            description: The key/ID of the node factory defining all details.
-            $ref: "#/definitions/NodeFactoryKey"
-          inactive:
-            description: Whether this node is inactive, e.g. due to inactive connections
-            type: boolean
-            
-  NodeAnnotation:
-    description: The annotation to a node.
-    allOf:
-      - $ref: "#/definitions/Annotation"
-      - type: object
-        properties:
-          default:
-            description: Default node annotation.
-            type: boolean
-    
-  Node:
-    description: A node.
-    type: object
-    required:
-      - name
-      - nodeID
-      - nodeType
-      - nodeState
-      - type
-      - rootWorkflowID
-    discriminator: type
-    properties:
-      type:
-        type: string
-        description: Discriminator for inheritance. Must be the base name of this type/schema.
-      name:
-        description: The node's name.
-        type: string
-      nodeID:
-        description: The ID of the node.
-        type: string
-      nodeType:
-        description: The type of the node.
-        type: string
-        enum: [
-                Source,
-                Sink,
-                Learner,
-                Predictor,
-                Manipulator,
-                Visualizer,
-                Meta,
-                LoopStart,
-                LoopEnd,
-                ScopeStart,
-                ScopeEnd,
-                QuickForm,
-                Other,
-                Missing,
-                Unknown,
-                Subnode,
-                VirtualIn,
-                VirtualOut
-              ]
-      parentNodeID:
-        description: The parent node id of the node or "root" if it's the root node/workflow.
-        type: string
-      rootWorkflowID:
-        description: The id of the root workflow this node is contained in or represents.
-        type: string
-        format: uuid
-      nodeMessage:
-        description: The current node message (warning, error, none).
-        $ref: '#/definitions/NodeMessage'
-      nodeState:
-        description: The state of the node.
-        $ref: "#/definitions/NodeState"
-      progress:
-        description: The node's progress.
-        $ref: "#/definitions/NodeProgress"
-      inPorts:
-        description: The list of inputs.
-        type: array
-        items:
-          $ref: "#/definitions/NodeInPort"
-      outPorts:
-        description: The list of outputs.
-        type: array
-        items:
-          $ref: "#/definitions/NodeOutPort"
-      deletable:
-        description: Whether the node is deletable.
-        type: boolean
-        default: false
-      resetable:
-        description: Whether the node is resetable. Please note that it only represents the 'local' reset-state but doesn't take the whole workflow into account (e.g. executing successors).
-        type: boolean
-        default: false
-      hasDialog:
-        description: Whether the node has a configuration dialog / user settings.
-        type: boolean
-      nodeAnnotation:
-        description: The annotation below the node.
-        $ref: "#/definitions/NodeAnnotation"
-      webViewNames:
-        description: The names of the available web views. Can be an empty list.
-        type: array
-        items:
+        text:
           type: string
-      jobManager:
-        description: The job manager (e.g. cluster or streaming).
-        $ref: '#/definitions/JobManager'
-      uIInfo:
-        $ref: "#/definitions/NodeUIInfo"
-        
-  NodeFactoryKey:
-    description: Object to identify a node-specific node implementation.
-    type: object
-    required:
-      - className
-    properties:
-      className:
-        description: The fully qualified java classname.
-        type: string
-      settings:
-        description: Additional settings in order to be able to re-create nodes. Only required in case of 'dynamic' node factories.
-        type: string
-      
-  NodeInPort:
-    description: An input port of a node.
-    allOf:
-      - $ref: "#/definitions/NodePort"
-        
-  NodeMessage:
-    description: node message
-    type: object
-    required:
-     - message
-    properties:
-      type:
-        type: string
-      message:
-        type: string
-        
-  NodeOutPort:
-    description: The output port of a node.
-    allOf:
-      - $ref: "#/definitions/NodePort"
-      - type: object
-        properties:
-          summary:
-            description: The port summary, e.g. num of rows and cols in case of a table.
+        backgroundColor:
+          type: integer
+        bounds:
+          $ref: '#/components/schemas/Bounds'
+        textAlignment:
+          type: string
+        borderSize:
+          type: integer
+        borderColor:
+          type: integer
+        defaultFontSize:
+          type: integer
+        version:
+          type: integer
+        styleRanges:
+          description: Defines ranges of different styles within the annotation.
+          type: array
+          items:
+            $ref: '#/components/schemas/StyleRange'
+
+    Bounds:
+      description: Node dimensions - position and size.
+      type: object
+      required:
+        - x
+        - 'y'
+        - width
+        - height
+      properties:
+        x:
+          type: integer
+        'y':
+          type: integer
+        width:
+          type: integer
+        height:
+          type: integer
+      x-knimegateway-isUsedAsParameter: true
+
+    Connection:
+      description: A single connection between two nodes.
+      type: object
+      required:
+        - dest
+        - destPort
+        - source
+        - sourcePort
+        - type
+      properties:
+        dest:
+          type: string
+          description: >-
+            The destination node. The node-id format: For nested nodes the node
+            ids are concatenated with an ':', e.g. 3:6:4. Nodes within wrapped
+            metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6
+            is a wrapped metanode).
+        destPort:
+          type: integer
+          description: 'The destination port, starting at 0.'
+        source:
+          type: string
+          description: >-
+            The source node. The node-id format: For nested nodes the node ids
+            are concatenated with an ':', e.g. 3:6:4. Nodes within wrapped
+            metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6
+            is a wrapped metanode).
+        sourcePort:
+          type: integer
+          description: 'The source port, starting at 0.'
+        deletable:
+          type: boolean
+          description: Whether the connection can currently be deleted.
+        flowVariablePortConnection:
+          type: boolean
+          description: Whether it's a connection between two flow variable ports.
+        bendPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/XY'
+        type:
+          type: string
+          enum:
+            - STD
+            - WFMIN
+            - WFMOUT
+            - WFMTHROUGH
+          description: >-
+            The type of the connection (standard, workflow input / output
+            /through).
+      x-knimegateway-isUsedAsParameter: true
+
+    DataCell:
+      description: A cell of a data table.
+      type: object
+      properties:
+        type:
+          description: >-
+            The type of the data cell represented by the implementing java-class
+            name. If not given, it is assumed that the type can be infered from
+            the data table spec.
+          type: string
+        valueAsString:
+          description: The cell value as a string.
+          type: string
+        missing:
+          description: >-
+            If it's a missing cell - The error message is passed via the
+            'valueAsString'-prop.
+          type: boolean
+        binary:
+          description: >-
+            Whether the 'valueAsString'-prop contains a serialized binary
+            string, that is base64-encoded.
+          type: boolean
+        problem:
+          description: >-
+            Indicates whether there was a problem creating this cell. The
+            details are given via the 'valueAsString'-prop.
+          type: boolean
+
+    DataRow:
+      description: A data row.
+      type: object
+      properties:
+        rowID:
+          description: The row id.
+          type: string
+        columns:
+          description: The column list.
+          type: array
+          items:
+            $ref: '#/components/schemas/DataCell'
+
+    DataTable:
+      description: A data table. Might not contain all rows but only a chunk of rows.
+      type: object
+      properties:
+        columnNames:
+          description: The column names.
+          type: array
+          items:
             type: string
-          inactive:
-            description: Determines whether the output is inactive.  
-            type: boolean
-        
-  NodePort:
-    description: A single port of a node.
-    type: object
-    discriminator: type
-    required:
-    - type
-    - portIndex
-    - portType
-    properties:
-      type:
-        description: Discriminator for inheritance. Must be the base name of this type/schema.
-        type: string
-      portIndex:
-        description: The index starting at 0.
-        type: integer
-      portType:
-        description: The type of the port.
-        $ref: "#/definitions/PortType"
-      portName:
-        description: The name of the port.
-        type: string
-  
-  NodeProgress:
-    description: Represents the node's progress.
-    type: object
-    properties:
-      progress:
-        description: The actual progress, a value between 0 and 1.
-        type: number
-      message:
-        description: A progress message.
-        type: string
+        numTotalRows:
+          description: >-
+            The total number of rows. Might be larger then the number of rows
+            contained here.
+          type: integer
+          format: int64
+        rows:
+          description: The actual rows.
+          type: array
+          items:
+            $ref: '#/components/schemas/DataRow'
 
-  NodeState:
-    type: object
-    required:
-      - state
-    properties:
-      state:
-        type: string
-        enum: [
-                IDLE,
-                CONFIGURED,
-                UNCONFIGURED_MARKEDFOREXEC,
-                CONFIGURED_MARKEDFOREXEC,
-                EXECUTED_MARKEDFOREXEC,
-                CONFIGURED_QUEUED,
-                EXECUTED_QUEUED,
-                PREEXECUTE,
-                EXECUTING,
-                EXECUTINGREMOTELY,
-                POSTEXECUTE,
-                EXECUTED
-              ]
+    MetaNodeDialog:
+      description: A representation of a metanode dialog.
+      type: object
+      properties:
+        components:
+          description: List of contributing dialog components.
+          type: array
+          items:
+            $ref: '#/components/schemas/MetaNodeDialogComp'
 
-      
-  NodeUIInfo:
-    description: Essentially the position of a node including some
-      flags indicating a necessary correction of that given position.
-    type: object
-    required:
-    - bounds
-    properties:
-      bounds:
-        description: The absolute node coordinates.
-        $ref: "#/definitions/Bounds"
-      symbolRelative:
-        type: boolean
-        default: false
-      dropLocation:
-        type: boolean
-        default: false
-      snapToGrid:
-        type: boolean 
-        default: false
-    x-knimegateway-isUsedAsParameter: true
+    MetaNodeDialogComp:
+      description: A component that is part of a metanode dialog.
+      type: object
+      properties:
+        paramName:
+          description: Parameter name for external parametrization.
+          type: string
+        nodeID:
+          description: The id of the node contributing to this dialog.
+          type: string
+        isHideInDialog:
+          description: Whether the component should be hid in the subnode's dialog.
+          type: boolean
+        representation:
+          #Dialog component representation.
+          $ref: '#/components/schemas/JavaObject'
+          
+    FlowVariable:
+      description: >-
+        Local variable of basic type which is passed along connections in a
+        workflow.
+      type: object
+      properties:
+        name:
+          description: The flow variable's name.
+          type: string
+        type:
+          description: The flow variables's type.
+          type: string
+          enum:
+            - DOUBLE
+            - INTEGER
+            - STRING
+        value:
+          description: The actual value.
+          type: string
 
-  Patch:
-    description: A list of patch operations.
-    type: object
-    properties:
-      ops:
-        description: The operations that make up this patch.
-        type: array
-        items:
-          $ref: "#/definitions/PatchOp" 
-      snapshotID:
-        description: A unique identifier for the version of the object this patch is applied to. Should only be missing if the patch is empty!
-        type: string
-        format: uuid
-      targetTypeID:
-        description: ID of the entity this patch can exclusively be applied to. Should only be missing, if the patch is empty!
-        type: string
+    JavaObject:
+      description: A java object/class that can be deserialized from a string.
+      type: object
+      properties:
+        classname:
+          description: The fully qualified class name of the java object.
+          type: string
+        jsonContent:
+          description: The actual content as a (json) string.
+          type: string
+      x-knimegateway-isUsedAsParameter: true
 
-  PatchOp: 
-    description: A JSONPatch document as defined by RFC 6902 
-    type: object
-    required:
-     - "op"
-     - "path"
-    properties: 
-     op: 
-      type: string 
-      description: The operation to be performed 
-      enum:
-       - "add"
-       - "remove"
-       - "replace"
-       - "move"
-       - "copy"
-       - "test"
-     path: 
-      type: string 
-      description: A JSON-Pointer 
-     value: 
-      type: object 
-      description: The value to be used within the operations.
-     from: 
-      type: string 
-      description: A string containing a JSON Pointer value.      
-  
-  PortObjectSpec:
-    description: Specification of a port object.
-    type: object
-    required:
-      - type
-      - inactive
-    properties:
-      type:
-        description: The port type the specification refers to.
-        $ref: "#/definitions/PortType"
-      representation:
-        description: The actual port object spec representation or "not supported" if not supported.
-        type: string
-      inactive:
-        description: Flag indicating whether the port is inactive. If true, there will be no representation available.
-        type: boolean
+    JobManager:
+      description: node's job manager
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
 
-  PortType:
-    description: The type of a port.
-    type: object
-    required:
-     - portObjectClassName
-     - optional
-    properties:
-      portObjectClassName:
-        description: Port type class name (for coloring, connection checks).
-        type: string
-      optional:
-        description: Whether the port is optional, only applies to input ports.
-        type: boolean
-  
-  NodeSettings:
-    description: Settings of a node.
-    type: object
-    properties:
-      jsonContent:
-        description: The actual settings as a json-string.
-        type: string
-    # marks entities that are also used as parameters
-    # necessary for the code-generation to not generate all entities
-    # but only the ones used as parameters (in server-projects)
-    x-knimegateway-isUsedAsParameter: true
-    
-  ViewData:
-    description: The data for a node's view encompasing the view representation and value.
-    type: object
-    properties:
-      javascriptObjectID:
-        description: The object id used in the javascript implementation of the view.
-        type: string
-      viewRepresentation:
-        description: The view representation.
-        type: object
-        $ref: "#/definitions/JavaObject"
-      viewValue:
-        description: The view value.
-        type: object
-        $ref: "#/definitions/JavaObject"
-      hideInWizard:
-        description: Property set in the configuration dialog to the node to skip this node in the wizard execution.
-        type: boolean
-        
-  StyleRange:
-    description: Defines the style of a range (e.g. within a workflow annotation).
-    type: object
-    properties:
-      start:
-        description: Style range start.
-        type: integer
-      length:
-        description: Style range length.
-        type: integer
-      fontName:
-        description: Style range font name.
-        type: string
-      fontStyle:
-        description: The font style, e.g. normal, bold or italic.
-        type: string
-        enum: [normal, bold, italic]
-      fontSize:
-        description: Style range font size.
-        type: integer
-      foregroundColor:
-        description: Style range foreground color.
-        type: integer
-  
-  WorkflowAnnotation:
-    description: A workflow annotation.
-    allOf:
-      - $ref: "#/definitions/Annotation"
-      - type: object
-        required:
-          - annotationID
-        properties:
-          annotationID:
-            description: Identifier for the workflow annotations.
+    MetaPortInfo:
+      description: The port of a metanode.
+      type: object
+      required:
+        - portType
+      properties:
+        portType:
+          #The type.
+          $ref: '#/components/schemas/PortType'
+        connected:
+          description: Whether it is connected.
+          type: boolean
+        message:
+          description: The message (summary of upstream node port).
+          type: string
+        oldIndex:
+          description: The old index.
+          type: integer
+        newIndex:
+          description: The new index.
+          type: integer
+
+    NativeNode:
+      description: Native node extension of a node.
+      #inheritance
+      allOf:
+        - $ref: '#/components/schemas/Node'
+        - type: object
+          required:
+            - nodeFactoryKey
+          properties:
+            nodeFactoryKey:
+              #The key/ID of the node factory defining all details.
+              $ref: '#/components/schemas/NodeFactoryKey'
+            inactive:
+              description: 'Whether this node is inactive, e.g. due to inactive connections'
+              type: boolean
+
+    NodeAnnotation:
+      description: The annotation to a node.
+      allOf:
+        - $ref: '#/components/schemas/Annotation'
+        - type: object
+          properties:
+            default:
+              description: Default node annotation.
+              type: boolean
+
+    Node:
+      description: A node.
+      type: object
+      required:
+        - name
+        - nodeID
+        - nodeType
+        - nodeState
+        - type
+        - rootWorkflowID
+      discriminator:
+        propertyName: type
+      properties:
+        type:
+          type: string
+          description: >-
+            Discriminator for inheritance. Must be the base name of this
+            type/schema.
+        name:
+          description: The node's name.
+          type: string
+        nodeID:
+          description: The ID of the node.
+          type: string
+        nodeType:
+          description: The type of the node.
+          type: string
+          enum:
+            - Source
+            - Sink
+            - Learner
+            - Predictor
+            - Manipulator
+            - Visualizer
+            - Meta
+            - LoopStart
+            - LoopEnd
+            - ScopeStart
+            - ScopeEnd
+            - QuickForm
+            - Other
+            - Missing
+            - Unknown
+            - Subnode
+            - VirtualIn
+            - VirtualOut
+        parentNodeID:
+          description: >-
+            The parent node id of the node or "root" if it's the root
+            node/workflow.
+          type: string
+        rootWorkflowID:
+          description: The id of the root workflow this node is contained in or represents.
+          type: string
+          format: uuid
+        nodeMessage:
+          # 'The current node message (warning, error, none).'
+          $ref: '#/components/schemas/NodeMessage'
+        nodeState:
+          # The state of the node.
+          $ref: '#/components/schemas/NodeState'
+        progress:
+          # The node's progress.
+          $ref: '#/components/schemas/NodeProgress'
+        inPorts:
+          description: The list of inputs.
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeInPort'
+        outPorts:
+          description: The list of outputs.
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeOutPort'
+        deletable:
+          description: Whether the node is deletable.
+          type: boolean
+          default: false
+        resetable:
+          description: >-
+            Whether the node is resetable. Please note that it only represents
+            the 'local' reset-state but doesn't take the whole workflow into
+            account (e.g. executing successors).
+          type: boolean
+          default: false
+        hasDialog:
+          description: Whether the node has a configuration dialog / user settings.
+          type: boolean
+        nodeAnnotation:
+          # The annotation below the node.
+          $ref: '#/components/schemas/NodeAnnotation'
+        webViewNames:
+          description: The names of the available web views. Can be an empty list.
+          type: array
+          items:
             type: string
-        
-  Workflow:
-    type: object
-    description: The structure of a workflow.
-    properties:
-      nodes:
-        description: The node map.
-        #string to Node map
-        type: object
-        additionalProperties:
+        jobManager:
+          # The job manager (e.g. cluster or streaming).
+          $ref: '#/components/schemas/JobManager'
+        uIInfo:
+          $ref: '#/components/schemas/NodeUIInfo'
+
+    NodeFactoryKey:
+      description: Object to identify a node-specific node implementation.
+      type: object
+      required:
+        - className
+      properties:
+        className:
+          description: The fully qualified java classname.
+          type: string
+        settings:
+          description: >-
+            Additional settings in order to be able to re-create nodes. Only
+            required in case of 'dynamic' node factories.
+          type: string
+
+    NodeInPort:
+      description: An input port of a node.
+      allOf:
+        - $ref: '#/components/schemas/NodePort'
+
+    NodeMessage:
+      description: node message
+      type: object
+      required:
+        - message
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+
+    NodeOutPort:
+      description: The output port of a node.
+      allOf:
+        - $ref: '#/components/schemas/NodePort'
+        - type: object
+          properties:
+            summary:
+              description: 'The port summary, e.g. num of rows and cols in case of a table.'
+              type: string
+            inactive:
+              description: Determines whether the output is inactive.
+              type: boolean
+
+    NodePort:
+      description: A single port of a node.
+      type: object
+      discriminator:
+        propertyName: type
+      required:
+        - type
+        - portIndex
+        - portType
+      properties:
+        type:
+          description: >-
+            Discriminator for inheritance. Must be the base name of this
+            type/schema.
+          type: string
+        portIndex:
+          description: The index starting at 0.
+          type: integer
+        portType:
+          # The type of the port.
+          $ref: '#/components/schemas/PortType'
+        portName:
+          description: The name of the port.
+          type: string
+
+    NodeProgress:
+      description: Represents the node's progress.
+      type: object
+      properties:
+        progress:
+          description: 'The actual progress, a value between 0 and 1.'
+          type: number
+        message:
+          description: A progress message.
+          type: string
+
+    NodeState:
+      type: object
+      required:
+        - state
+      properties:
+        state:
+          type: string
+          enum:
+            - IDLE
+            - CONFIGURED
+            - UNCONFIGURED_MARKEDFOREXEC
+            - CONFIGURED_MARKEDFOREXEC
+            - EXECUTED_MARKEDFOREXEC
+            - CONFIGURED_QUEUED
+            - EXECUTED_QUEUED
+            - PREEXECUTE
+            - EXECUTING
+            - EXECUTINGREMOTELY
+            - POSTEXECUTE
+            - EXECUTED
+
+    NodeUIInfo:
+      description: >-
+        Essentially the position of a node including some flags indicating a
+        necessary correction of that given position.
+      type: object
+      required:
+        - bounds
+      properties:
+        bounds:
+          # The absolute node coordinates.
+          $ref: '#/components/schemas/Bounds'
+        symbolRelative:
+          type: boolean
+          default: false
+        dropLocation:
+          type: boolean
+          default: false
+        snapToGrid:
+          type: boolean
+          default: false
+      x-knimegateway-isUsedAsParameter: true
+
+    Patch:
+      description: A list of patch operations.
+      type: object
+      properties:
+        ops:
+          description: The operations that make up this patch.
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchOp'
+        snapshotID:
+          description: >-
+            A unique identifier for the version of the object this patch is
+            applied to. Should only be missing if the patch is empty!
+          type: string
+          format: uuid
+        targetTypeID:
+          description: >-
+            ID of the entity this patch can exclusively be applied to. Should
+            only be missing, if the patch is empty!
+          type: string
+
+    PatchOp:
+      description: A JSONPatch document as defined by RFC 6902
+      type: object
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          description: The operation to be performed
+          enum:
+            - add
+            - remove
+            - replace
+            - move
+            - copy
+            - test
+        path:
+          type: string
+          description: A JSON-Pointer
+        value:
           type: object
-          $ref: '#/definitions/Node'
-      connections:
-        description: The list of connections.
-        #string to Connection map
-        type: object
-        additionalProperties:
-          type: object
-          $ref: '#/definitions/Connection'
-      metaInPortInfos:
-        description: The inputs of a metanode (if this workflow is one).
-        type: array
-        items:
-          $ref: "#/definitions/MetaPortInfo"
-      metaOutPortInfos:
-        description: The outputs of a metanode (if this workflow is one).
-        type: array
-        items:
-          $ref: "#/definitions/MetaPortInfo"
-      workflowAnnotations:
-        description: List of all workflow annotations. TODO could be moved to an extra UI service in order to not polute the WorkflowEnt too much and separate UI logics.
-        #string to WorkflowAnnotation map
-        type: object
-        additionalProperties:
-          type: object
-          $ref: "#/definitions/WorkflowAnnotation"
-      workflowUIInfo:
-        description: Additional workflow UI information such as grid settings, connection appearance etc. TODO could be moved to an extra UI service in order to not polute the WorkflowEnt too much and separate UI logics.
-        $ref: "#/definitions/WorkflowUIInfo"
-      hasCredentials:
-        description: Flag indicating whether the workflow has credentials stored.
-        type: boolean
-      inWizardExecution:
-        description: If the workflow is executed step by step, i.e. in wizard execution mode.
-        type: boolean
-  
-  WorkflowNode:
-    description: A node containing (referencing) a workflow (also referred to it as metanode)
-    allOf:
-      - $ref: "#/definitions/Node"
-      - type: object
-        properties:
-          workflowIncomingPorts:
-            description: List of all incoming workflow ports.
-            type: array
-            items:
-              $ref: "#/definitions/NodeOutPort"
-          workflowOutgoingPorts:
-            description: List of all outgoing workflow ports.
-            type: array
-            items:
-              $ref: "#/definitions/NodeInPort"
-          encrypted:
-            description: Whether the referenced workflow is encrypted is required to be unlocked before it can be accessed.
-            type: boolean
-          workflowOutgoingPortNodeStates:
-            description: The state of the inner node connected to a particular outport. TODO Should actually be part of a specialization of NodeOutPort (i.e. WorkflowOutPort) but doesn't work with inheritance and generics in Java.
-            type: array
-            items:
-              $ref: "#/definitions/NodeState"
-              
-  WorkflowParts:
-    description: Represents a selection of parts of a workflow (i.e collections of nodes, connection, annotations etc.), e.g. to be copied or deleted.
-    type: object
-    required:
-      - parentNodeID
-    properties:
-      parentNodeID:
-        description: "The parent node id of parts or 'root' if it's the root node/workflow.
-          The node-id format: For nested nodes the node ids are concatenated with an ':', e.g. 3:6:4.
-          Nodes within wrapped metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode)."
-        type: string
-      nodeIDs:
-        description: The ids of the nodes referenced.
-        type: array
-        items:
+          description: The value to be used within the operations.
+        from:
           type: string
-      connectionIDs:
-        description: "The ids of the connections referenced. 
-          The id has the following format: <dest-node-id>_<dest-port-idx>"
-        type: array
-        items:
-          type: string
-      annotationIDs:
-        description: The ids of the workflow annotations referenced.
-        type: array
-        items:
-          type: string
-    x-knimegateway-isUsedAsParameter: true   
+          description: A string containing a JSON Pointer value.
 
-  WorkflowSnapshot:
-    description: A workflow with an additional snapshot id.
-    type: object
-    required:
-      - workflow
-      - snapshotID
-    properties:
-      workflow:
-        description: The actual workflow.
-        $ref: "#/definitions/Workflow"
-      snapshotID:
-        description: A unique identifier for the snapshot.
-        type: string
-        format: uuid
-  
-  WorkflowUIInfo:
-    description: Contains workflow UI-related properties such as grid settings, connection appearance etc. 
-    type: object
-    properties:
-      gridX:
-        description: Grid size in X direction.
-        type: integer
-      gridY:
-        description: Grid size in Y direction.
-        type: integer
-      snapToGrid:
-        description: Whether to snap to the grid.
-        type: boolean
-      showGrid:
-        description: Whether to show the grid lines.
-        type: boolean
-      zoomLevel:
-        description: Workflow zoom leve, i.e. its magnification.
-        type: number
-      hasCurvedConnection:
-        description: Whether connections are rendered as curves.
-        type: boolean
-      connectionLineWidth:
-        description: Width of the line connecting two nodes.
-        type: integer
-        
-  WrappedWorkflowNode:
-    description: A node wrapping (referencing) a workflow (also referred to it as wrapped metanode or subnode) that almost behaves as a ordinary node.
-    allOf:
-      - $ref: "#/definitions/WorkflowNode"
-      - type: object
-        properties:
-          virtualInNodeID:
-            description: Node ID of the virtual in-node (i.e. source).
+    PortObjectSpec:
+      description: Specification of a port object.
+      type: object
+      required:
+        - type
+        - inactive
+      properties:
+        type:
+          # The port type the specification refers to.
+          $ref: '#/components/schemas/PortType'
+        representation:
+          description: >-
+            The actual port object spec representation or "not supported" if not
+            supported.
+          type: string
+        inactive:
+          description: >-
+            Flag indicating whether the port is inactive. If true, there will be
+            no representation available.
+          type: boolean
+
+    PortType:
+      description: The type of a port.
+      type: object
+      required:
+        - portObjectClassName
+        - optional
+      properties:
+        portObjectClassName:
+          description: 'Port type class name (for coloring, connection checks).'
+          type: string
+        optional:
+          description: 'Whether the port is optional, only applies to input ports.'
+          type: boolean
+
+    NodeSettings:
+      description: Settings of a node.
+      type: object
+      properties:
+        jsonContent:
+          description: The actual settings as a json-string.
+          type: string
+      # marks entities that are also used as parameters
+      # necessary for the code-generation to not generate all entities
+      # but only the ones used as parameters (in server-projects)
+      x-knimegateway-isUsedAsParameter: true
+
+    ViewData:
+      description: >-
+        The data for a node's view encompasing the view representation and
+        value.
+      type: object
+      properties:
+        javascriptObjectID:
+          description: The object id used in the javascript implementation of the view.
+          type: string
+        viewRepresentation:
+          # The view representation.
+          $ref: '#/components/schemas/JavaObject'
+        viewValue:
+          # The view value.
+          $ref: '#/components/schemas/JavaObject'
+        hideInWizard:
+          description: >-
+            Property set in the configuration dialog to the node to skip this
+            node in the wizard execution.
+          type: boolean
+
+    StyleRange:
+      description: Defines the style of a range (e.g. within a workflow annotation).
+      type: object
+      properties:
+        start:
+          description: Style range start.
+          type: integer
+        length:
+          description: Style range length.
+          type: integer
+        fontName:
+          description: Style range font name.
+          type: string
+        fontStyle:
+          description: 'The font style, e.g. normal, bold or italic.'
+          type: string
+          enum:
+            - normal
+            - bold
+            - italic
+        fontSize:
+          description: Style range font size.
+          type: integer
+        foregroundColor:
+          description: Style range foreground color.
+          type: integer
+
+    WorkflowAnnotation:
+      description: A workflow annotation.
+      allOf:
+        - $ref: '#/components/schemas/Annotation'
+        - type: object
+          required:
+            - annotationID
+          properties:
+            annotationID:
+              description: Identifier for the workflow annotations.
+              type: string
+
+    Workflow:
+      type: object
+      description: The structure of a workflow.
+      properties:
+        nodes:
+          description: The node map.
+          #string to Node map -> #TODO other way?
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Node'
+        connections:
+          #string to Connectoin map
+          description: The list of connections.
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Connection'
+        metaInPortInfos:
+          description: The inputs of a metanode (if this workflow is one).
+          type: array
+          items:
+            $ref: '#/components/schemas/MetaPortInfo'
+        metaOutPortInfos:
+          description: The outputs of a metanode (if this workflow is one).
+          type: array
+          items:
+            $ref: '#/components/schemas/MetaPortInfo'
+        workflowAnnotations:
+          description: >-
+            List of all workflow annotations. TODO could be moved to an extra UI
+            service in order to not polute the WorkflowEnt too much and separate
+            UI logics.
+          type: object
+          #string to WorkflowAnnotation map
+          additionalProperties:
+            $ref: '#/components/schemas/WorkflowAnnotation'
+        workflowUIInfo:
+            # Additional workflow UI information such as grid settings, connection
+            # appearance etc. TODO could be moved to an extra UI service in order
+            # to not polute the WorkflowEnt too much and separate UI logics.
+          $ref: '#/components/schemas/WorkflowUIInfo'
+        hasCredentials:
+          description: Flag indicating whether the workflow has credentials stored.
+          type: boolean
+        inWizardExecution:
+          description: >-
+            If the workflow is executed step by step, i.e. in wizard execution
+            mode.
+          type: boolean
+
+    WorkflowNode:
+      description: >-
+        A node containing (referencing) a workflow (also referred to it as
+        metanode)
+      allOf:
+        - $ref: '#/components/schemas/Node'
+        - type: object
+          properties:
+            workflowIncomingPorts:
+              description: List of all incoming workflow ports.
+              type: array
+              items:
+                $ref: '#/components/schemas/NodeOutPort'
+            workflowOutgoingPorts:
+              description: List of all outgoing workflow ports.
+              type: array
+              items:
+                $ref: '#/components/schemas/NodeInPort'
+            encrypted:
+              description: >-
+                Whether the referenced workflow is encrypted is required to be
+                unlocked before it can be accessed.
+              type: boolean
+            workflowOutgoingPortNodeStates:
+              description: >-
+                The state of the inner node connected to a particular outport.
+                TODO Should actually be part of a specialization of NodeOutPort
+                (i.e. WorkflowOutPort) but doesn't work with inheritance and
+                generics in Java.
+              type: array
+              items:
+                $ref: '#/components/schemas/NodeState'
+
+    WorkflowParts:
+      description: >-
+        Represents a selection of parts of a workflow (i.e collections of nodes,
+        connection, annotations etc.), e.g. to be copied or deleted.
+      type: object
+      required:
+        - parentNodeID
+      properties:
+        parentNodeID:
+          description: >-
+            The parent node id of parts or 'root' if it's the root
+            node/workflow. The node-id format: For nested nodes the node ids are
+            concatenated with an ':', e.g. 3:6:4. Nodes within wrapped metanodes
+            required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a
+            wrapped metanode).
+          type: string
+        nodeIDs:
+          description: The ids of the nodes referenced.
+          type: array
+          items:
             type: string
-          virtualOutNodeID:
-            description: Node ID of the virtual out-node (i.e. sink).
+        connectionIDs:
+          description: >-
+            The ids of the connections referenced. The id has the following
+            format: <dest-node-id>_<dest-port-idx>
+          type: array
+          items:
             type: string
-          inactive:
-            description: Whether this node is inactive, e.g. due to inactive connections
-            type: boolean
-                    
-  XY:
-    type: object
-    description: XY coordinate
-    properties:
-      x:
-        type: integer
-      y:
-        type: integer
-    
-        
+        annotationIDs:
+          description: The ids of the workflow annotations referenced.
+          type: array
+          items:
+            type: string
+      x-knimegateway-isUsedAsParameter: true
+
+    WorkflowSnapshot:
+      description: A workflow with an additional snapshot id.
+      type: object
+      required:
+        - workflow
+        - snapshotID
+      properties:
+        workflow:
+          # The actual workflow.
+          $ref: '#/components/schemas/Workflow'
+        snapshotID:
+          description: A unique identifier for the snapshot.
+          type: string
+          format: uuid
+
+    WorkflowUIInfo:
+      description: >-
+        Contains workflow UI-related properties such as grid settings,
+        connection appearance etc.
+      type: object
+      properties:
+        gridX:
+          description: Grid size in X direction.
+          type: integer
+        gridY:
+          description: Grid size in Y direction.
+          type: integer
+        snapToGrid:
+          description: Whether to snap to the grid.
+          type: boolean
+        showGrid:
+          description: Whether to show the grid lines.
+          type: boolean
+        zoomLevel:
+          description: 'Workflow zoom leve, i.e. its magnification.'
+          type: number
+        hasCurvedConnection:
+          description: Whether connections are rendered as curves.
+          type: boolean
+        connectionLineWidth:
+          description: Width of the line connecting two nodes.
+          type: integer
+
+    WrappedWorkflowNode:
+      description: >-
+        A node wrapping (referencing) a workflow (also referred to it as wrapped
+        metanode or subnode) that almost behaves as a ordinary node.
+      allOf:
+        - $ref: '#/components/schemas/WorkflowNode'
+        - type: object
+          properties:
+            virtualInNodeID:
+              description: Node ID of the virtual in-node (i.e. source).
+              type: string
+            virtualOutNodeID:
+              description: Node ID of the virtual out-node (i.e. sink).
+              type: string
+            inactive:
+              description: 'Whether this node is inactive, e.g. due to inactive connections'
+              type: boolean
+
+    XY:
+      type: object
+      description: XY coordinate
+      properties:
+        x:
+          type: integer
+        'y':
+          type: integer

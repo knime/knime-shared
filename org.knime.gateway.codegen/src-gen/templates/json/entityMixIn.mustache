@@ -5,9 +5,6 @@ package {{package}};
 import {{import}};
 {{/imports}}
 
-
-import com.knime.gateway.json.JsonUtil;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -33,7 +30,7 @@ import com.knime.gateway.v0.entity.impl.Default{{name}}Ent;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    property = "{{discriminator}}",
+    property = "{{discriminator.propertyName}}",
     visible = true,
     defaultImpl = Default{{name}}Ent.class)
 @JsonSubTypes({
@@ -70,7 +67,7 @@ public interface {{classname}} extends {{name}}Ent {
     @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "{{discriminator}}",
+        property = "{{discriminator.propertyName}}",
         defaultImpl = Default{{name}}EntBuilder.class)
     @JsonSubTypes({
         @Type(value = Default{{name}}Ent.Default{{name}}EntBuilder.class, name="{{name}}")
