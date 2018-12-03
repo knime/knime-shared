@@ -15,9 +15,6 @@ tags:
   - name: Annotation
     description: Operations on single workflow annotations.
 
-# Remark on the responses for the operation: only the 200-response affects the gateway-code generation 
-# by defining the operations return type. The other responses are for documentation purposes.
-# The x-knimegateway-exceptions are meant for the gateway-code-generation.
 paths:
   /workflow:
     get:
@@ -39,12 +36,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkflowSnapshot'
-      x-knimegateway-exceptions:
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '403':
+          $ref: "#/components/responses/NoPermission"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
 
   /workflow/parts:
     post:
@@ -76,22 +73,18 @@ paths:
         '400':
           #if the parent id of the parts to be copied doesn't refer to a sub-workflow
           $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: "#/components/responses/NoPermission"
         '404':
           #if the parent id of the parts to be copied doesn't refer to a node
           $ref: '#/components/responses/NodeNotFound'
         '405':
           #if parts to be copied don't exist
           $ref: '#/components/responses/InvalidRequest'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
     delete:
       tags:
         - Workflow
@@ -133,23 +126,19 @@ paths:
         '400':
           #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
           $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: "#/components/responses/NoPermission"
         '404':
           #if the parent id of the parts to be deleted doesn't refer to a node
           $ref: '#/components/responses/NodeNotFound'
         '405':
           #if a part exists but couldn't be removed
           $ref: '#/components/responses/ActionNotAllowed'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/ActionNotAllowed"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
-
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
+          
   '/workflow/parts/{parts-id}':
     put:
       tags:
@@ -198,20 +187,16 @@ paths:
                 $ref: '#/components/schemas/WorkflowParts'
         '400':
           $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: "#/components/responses/NoPermission"
         '404':
           #if the parent id of the parts to be deleted doesn't refere to a node
           #OR: if there is no copy for the given part-id
           $ref: '#/components/responses/NotFound'
-      #TODO add other responses (timeout, no-permission) etc. here!
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
 
   /workflowdiff:
     get:
@@ -238,16 +223,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Patch'
+        '403':
+          $ref: "#/components/responses/NoPermission"
         '404':
           $ref: '#/components/responses/NotFound'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
 
   '/workflow/{node-id}':
     get:
@@ -269,17 +252,14 @@ paths:
                 $ref: '#/components/schemas/WorkflowSnapshot'
         '400':
           $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: "#/components/responses/NoPermission"
         '404':
           $ref: '#/components/responses/NodeNotFound'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
 
   '/workflowdiff/{node-id}':
     get:
@@ -306,17 +286,14 @@ paths:
                 $ref: '#/components/schemas/Patch'
         '400':
           $ref: '#/components/responses/NotASubWorkflow'
+        '403':
+          $ref: "#/components/responses/NoPermission"
         '404':
           $ref: '#/components/responses/NotFound'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
 
   /workflow/node:
     get:
@@ -334,17 +311,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Node'
         '403':
-          $ref: '#/components/responses/NoPermission'
+          $ref: "#/components/responses/NoPermission"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
         '504':
-          $ref: '#/components/responses/Timeout'
-        '505':
-          $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+          $ref: "#/components/responses/Timeout"
     post:
       tags:
         - Node
@@ -394,26 +365,15 @@ paths:
         '403':
           $ref: '#/components/responses/NoPermission'
         '404':
+          # if the parent node couldn't be found or the node factory key is unknown
           $ref: '#/components/responses/NodeNotFound'
         '405':
+          # if the node factory key's settings are required but missing or not readable
           $ref: '#/components/responses/InvalidRequest'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          # if the parent node is not a metanode (i.e. a sub-workflow) 
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          # if the parent node couldn't be found or the node factory key is unknown
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          # if the node factory key's settings are required but missing or not readable
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/wmetanode/{node-id}/dialog':
     get:
@@ -443,15 +403,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}':
     get:
@@ -477,14 +428,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/bounds':
     put:
@@ -511,14 +454,8 @@ paths:
           $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '505':
+          $ref: '#/components/responses/InternalServerError'
 
   '/workflow/node/{node-id}/settings':
     get:
@@ -544,14 +481,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
     put:
       tags:
         - Node
@@ -581,16 +510,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidSettings"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/IllegalState"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/state':
     post:
@@ -629,15 +548,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/ActionNotAllowed"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/output/specs':
     get:
@@ -667,14 +577,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/output/{port-idx}/table':
     get:
@@ -727,15 +629,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/output/flowvariables':
     get:
@@ -768,14 +661,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/input/specs':
     get:
@@ -808,14 +693,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/input/flowvariables':
     get:
@@ -845,14 +722,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/view/data':
     get:
@@ -882,15 +751,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   '/workflow/node/{node-id}/view/data/value':
     put:
@@ -925,15 +785,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NodeNotFound"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/InvalidRequest"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
 
   /workflow/connection:
     post:
@@ -963,17 +814,15 @@ paths:
                   node id and destination port index and built as
                   '<dest-node-id>_<dest-ports-index>'
                 type: string
+        '403':
+          $ref: '#/components/responses/NoPermission'
         '405':
           #if connection couldn't be added, e.g. because node is executing or a node for a given node id doesn't exist
           $ref: '#/components/responses/ActionNotAllowed'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/ActionNotAllowed"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
 
   '/workflow/annotation/{anno-id}/bounds':
     put:
@@ -995,14 +844,12 @@ paths:
           description: Bounds successfully changed
         '404':
           $ref: '#/components/responses/NotFound'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
 
   '/workflow/{node-id}/annotation/{anno-id}/bounds':
     put:
@@ -1035,18 +882,6 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-      x-knimegateway-exceptions:
-        executor:
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotASubWorkflow"
-          - $ref: "#/components/x-knimegateway-exceptions/executor/NotFound"
-        server:
-          - $ref: "#/components/x-knimegateway-exceptions/server/NoPermission"
-          - $ref: "#/components/x-knimegateway-exceptions/server/ExecutorException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/IOException"
-          - $ref: "#/components/x-knimegateway-exceptions/server/Timeout"
-
-
-
 
 servers:
   - url: '/v4/jobs/{job-id}'
@@ -1055,70 +890,6 @@ servers:
         default: "{job-id}"
 
 components:
-  
-  # Collection of java-exceptions for the gateway code generation.
-  # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
-  # The exceptions fall into the following categories:
-  #   executor: exceptions that are thrown by the executor
-  #   server: exceptions that are thrown by the server
-  # and have the following properties:
-  #   status-code: the corresponding http-status-code for the exception
-  #   description: a description for the exception, should be the same description as for the corresponding http-response
-  #   fullname: the name including the package (java-notation)
-  #    if specified, the exception is assumed to exist already,
-  #    if not specified the exception will be explicitly generated (using the exception name/key)
-  # TODO: another useful property: whether an exception is a runtime exception
-  x-knimegateway-exceptions:
-    executor:
-      NodeNotFound:
-        name: NodeNotFoundException
-        description: The requested node was not found.
-        status-code: 404
-      NotASubWorkflow:
-        name: NotASubWorkflowException
-        description: The requested node is not a sub-workflow (i.e. a meta- or sub-node), but is required to be.
-        status-code: 400
-      # more general not found exception (as opposed to the NodeNotFound exception)
-      # - the actual cause can be found in the exception message 
-      NotFound:
-        name: NotFoundException
-        description: A resource couldn't be found. Please refer to the exception message for more details.
-        status-code: 404
-      ActionNotAllowed:
-        # TODO maybe rename to 'OperationNotAllowed'
-        name: ActionNotAllowedException
-        description: If an action is not allowed because it's not applicable or it doesn't exist. Please refer to the exception message for more details.
-        status-code: 405
-      InvalidRequest:
-        name: InvalidRequestException
-        description: If the request is invalid for a reason. Please refer to the exception message for more details.
-        status-code: 405
-      InvalidSettings:
-        name: InvalidSettingsException
-        description: If settings couldn't be applied.
-        status-code: 405
-      IllegalState:
-        name: IllegalStateException
-        description: If node is not in the right state to apply the settings.
-        status-code: 409
-    server:
-      NoPermission:
-        fullname: com.knime.enterprise.utility.PermissionException
-        description: If the current user does not have access permissions for the job.
-        status-code: 403
-      ExecutorException:
-        fullname: com.knime.enterprise.utility.ExecutorException
-        description: If an error occurs while fetching job information from the RMI instance.
-        status-code: 500
-      IOException:
-        fullname: java.io.IOException
-        description: I/O error.
-        status-code: 500
-      Timeout:
-        fullname: java.util.concurrent.TimeoutException
-        description: Thrown when time to contact the executor has been exceeded.
-        status-code: 504
-
   parameters:
     job-id:
       name: job-id
@@ -1140,37 +911,75 @@ components:
       schema:
         type: string
   
-  # For every http-response there should be a corresponding knimegateway-exception (see section above).
-  # These responses are mainly for documentation purposes and don't affect the code-generation.
+  # Some notes on responses and code-generation:
+  # In the generated java-code responses (except 200 and 201 responses) are mapped to one or more exceptions
+  # that are thrown respectively.
+  # The expected exceptions for a response are defined by the response's 'x-knime-gateway-[executor/server]-exceptions'-extension (see below).
+  # There are two classes of exceptions:
+  # - Exceptions thrown by the server:
+  #   Here a fully qualified class name must be specified ('fullname'-property) and a respective exception mapper
+  #   (http-code to exception) must be provided (TODO: could probably be auto-generated).
+  # - Exceptions thrown by the executor:
+  #   Only the name is specified and their actual classes are auto-generated from that name.
+  #   NOTE: the code generation so far only supports a 1:1 response-exception mapping for executor exceptions.
+  #   I.e. although the exceptions are specified as an array, only one element is supported so far (TODO).
   responses:
+    #executor responses/exceptions 
     NodeNotFound:
-      # should be the same description as for the corresponding knime-gateway exception (such that the generated documentation fits)
       description: The requested node was not found.
+      x-knime-gateway-executor-exceptions:
+        - name: NodeNotFoundException
     NotFound:
       description: A resource couldn't be found.
+      # more general not found exception (as opposed to the NodeNotFound exception)
+      # - the actual cause can be found in the exception message 
+      x-knime-gateway-executor-exceptions:
+        - name: NotFoundException
     NotASubWorkflow:
       description: >-
         The requested node is not a sub-workflow (i.e. a meta- or sub-node), but
         is required to be.
-    NoPermission:
-      description: If the current user does not have access permissions for the job.
-    InternalServerError:
-      description: >-
-        Internal server error, e.g. if an error occurs while fetching job
-        information from the RMI.
-    Timeout:
-      description: When time to contact the executor has been exceeded.
+      x-knime-gateway-executor-exceptions:
+        - name: NotASubWorkflowException
     ActionNotAllowed:
       description: >-
         If the an action is not allowed because it's not applicable or it
         doesn't exist.
+      x-knime-gateway-executor-exceptions: 
+      # TODO maybe rename to 'OperationNotAllowed'
+        - name: ActionNotAllowedException
     InvalidRequest:
       description: If the request is invalid for a reason.
+      x-knime-gateway-executor-exceptions:  
+        - name: InvalidRequestException 
     InvalidSettings:
       description: If settings couldn't be applied.
+      x-knime-gateway-executor-exceptions:
+        - name: InvalidSettingsException
     IllegalState:
       description: If node is not in the right state to apply the settings.
-
+      x-knime-gateway-executor-exceptions:
+        - name: IllegalStateException
+    
+    # server responses/exceptions
+    InternalServerError:
+      description: >-
+        Internal server error, e.g. if an error occurs while fetching job
+        information from the RMI.
+      x-knime-gateway-server-exceptions:
+        - fullname: com.knime.enterprise.utility.ExecutorException
+          description: if an error occurs while fetching job information from the RMI instance
+        - fullname: java.io.IOException
+          description: IO error
+    Timeout:
+      description: When time to contact the executor has been exceeded.
+      x-knime-gateway-server-exceptions:
+        - fullname: java.util.concurrent.TimeoutException
+    NoPermission:
+      description: If the current user does not have access permissions for the job.
+      x-knime-gateway-server-exceptions:
+        - fullname: com.knime.enterprise.utility.PermissionException
+  
   requestBodies:
     Bounds:
       content:
@@ -1186,7 +995,6 @@ components:
 # to "read-only" and provide the respective default values in the spec already.
 # But I chose to not clutter the API-spec too much at the expense of few actually unnecessary method calls within the
 # generated java-code (the 'discriminator'-property has to be explicitly set every time an object is created).
-  
   schemas:
     Annotation:
       description: A text annotation.

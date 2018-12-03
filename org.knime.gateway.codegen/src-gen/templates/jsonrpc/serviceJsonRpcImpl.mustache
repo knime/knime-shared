@@ -37,14 +37,14 @@ public class {{classname}} implements {{baseName}}Service {
      */
     @Override
     @JsonRpcMethod(value = "{{nickname}}")
-    {{#vendorExtensions.x-knimegateway-exceptions.executor.0}}
+    {{#vendorExtensions.x-knime-gateway-codegen-executor-exceptions.0}}
     @JsonRpcErrors(value = {
-    {{#vendorExtensions.x-knimegateway-exceptions.executor}}
+    {{#vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
         @JsonRpcError(exception = {{>exceptionName}}.class, code = -32600,
-            data = "{{status-code}}" /*per convention the data property contains the status code*/){{^-last}},{{/-last}}
-    {{/vendorExtensions.x-knimegateway-exceptions.executor}}
+            data = "{{code}}" /*per convention the data property contains the status code*/){{^-last}},{{/-last}}
+    {{/vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
     })
-    {{/vendorExtensions.x-knimegateway-exceptions.executor.0}}
+    {{/vendorExtensions.x-knime-gateway-codegen-executor-exceptions.0}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>jsonrpc/servicePathParamsJsonRpc}}{{>jsonrpc/serviceHeaderParamsJsonRpc}}{{>jsonrpc/serviceBodyParamsJsonRpc}}{{>jsonrpc/serviceFormParamsJsonRpc}}{{^-last}}, {{/-last}}{{/allParams}}){{>throwsExecutorExceptions}} {
         {{#returnType}}return {{/returnType}}m_service.{{nickname}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});    
     }

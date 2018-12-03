@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
  * <p>{{{appDescription}}}
  {{/appDescription}}
  *
- * <p> {{tagDescription}}
+ * <p> {{x-knime-gateway-codegen-tagDescription}}
  *
  {{>authors}}
  */
@@ -36,9 +36,9 @@ public interface {{classname}} {
      * @param {{paramName}} {{description}}
      {{/allParams}}
      * @return the response
-{{#vendorExtensions.x-knimegateway-exceptions.server}}
+{{#vendorExtensions.x-knime-gateway-codegen-server-exceptions}}
      * @throws {{>exceptionName}} {{description}}
-{{/vendorExtensions.x-knimegateway-exceptions.server}}
+{{/vendorExtensions.x-knime-gateway-codegen-server-exceptions}}
      */
     @{{httpMethod}}
     @Path("{{{path}}}")

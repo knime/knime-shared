@@ -9,7 +9,7 @@ import com.knime.gateway.v0.service.util.ServiceExceptions;
 
 {{#operations}}
 /**
- * {{tagDescription}}
+ * {{x-knime-gateway-codegen-tagDescription}}
  *
  {{>authors}}
  */
@@ -25,9 +25,11 @@ public interface {{classname}} extends GatewayService {
      {{/allParams}}
      *
      * {{#returnType}}@return the result{{/returnType}}
-     {{#vendorExtensions.x-knimegateway-exceptions.executor}}
+     {{#responses}}
+     {{#vendorExtensions.x-knime-gateway-executor-exceptions}}
      * @throws {{>exceptionName}} {{description}}
-     {{/vendorExtensions.x-knimegateway-exceptions.executor}}
+     {{/vendorExtensions.x-knime-gateway-executor-exceptions}}
+     {{/responses}}
      */
     {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}){{>throwsExecutorExceptions}};
         

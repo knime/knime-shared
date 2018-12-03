@@ -64,11 +64,11 @@ public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implement
             }{{>rest-cli/returnType}});
         } catch (WebApplicationException ex) {
             //executor errors
-        {{#vendorExtensions.x-knimegateway-exceptions.executor}}
-            if (ex.getResponse().getStatus() == {{status-code}}) {
+        {{#vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
+            if (ex.getResponse().getStatus() == {{code}}) {
                 throw new {{>exceptionName}}(readExceptionMessage(ex));
             }
-        {{/vendorExtensions.x-knimegateway-exceptions.executor}}
+        {{/vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
             throw new ServiceException(
                 "Error response with status code '" + ex.getResponse().getStatus() + "' and message: " + readExceptionMessage(ex));
         }
