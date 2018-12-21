@@ -15,4 +15,4 @@ The logic (java) to perform the actual code generation can be found in **/src/ma
 ### Code Generation
 
 In order to trigger the code-generation the **org.knime.gateway.codegen.Generate**-class needs to be run as a java-app. It reads all _/src-gen/*-config.json_-files and generates (and potentially overrides) the respective source files.
-The source files will only be generated iff the defined output-directory (outputDir-property) relative to this project exists. Otherwise the code-generation for the particular config-file will be skipped (see log output).
+The source files will only be generated if the defined output-directory (outputDir-property) relative to this project exists. Otherwise the code-generation for the particular config-file will be skipped (see log output).

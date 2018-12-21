@@ -830,7 +830,7 @@ paths:
         - $ref: "#/components/parameters/node-id"
       responses:
         '200':
-          description: 'Successful response, with a all flow variables available'
+          description: 'Successful response, with a list of all flow variables available'
           content:
             application/json:
               schema:
@@ -859,7 +859,7 @@ paths:
       tags:
         - Node
       description: >-
-        Provides the data for the node's view, iff the node supports views. The
+        Provides the data for the node's view, if the node supports views. The
         data includes the view's and the representation.
       operationId: getViewData
       parameters:
@@ -960,11 +960,11 @@ paths:
               schema:
                 description: >-
                   The connection id. Connection is identified by its destination
-                  node id and destination port index and build as
+                  node id and destination port index and built as
                   '<dest-node-id>_<dest-ports-index>'
                 type: string
         '405':
-          #if connection could be added, e.g. because node is executing or a node for a given node id doesn't exist
+          #if connection couldn't be added, e.g. because node is executing or a node for a given node id doesn't exist
           $ref: '#/components/responses/ActionNotAllowed'
       x-knimegateway-exceptions:
         executor:
@@ -1058,14 +1058,14 @@ components:
   
   # Collection of java-exceptions for the gateway code generation.
   # For every server-exception a respective exception mapper must be provided (TODO: could probably be auto-generated).
-  # The exception fall into the following categories:
-  #   executor: exceptions that are thrown at the executor
-  #   server: exceptions that are thrown at the server
+  # The exceptions fall into the following categories:
+  #   executor: exceptions that are thrown by the executor
+  #   server: exceptions that are thrown by the server
   # and have the following properties:
   #   status-code: the corresponding http-status-code for the exception
   #   description: a description for the exception, should be the same description as for the corresponding http-response
   #   fullname: the name including the package (java-notation)
-  #    if specified, the exception is assumed to existent already,
+  #    if specified, the exception is assumed to exist already,
   #    if not specified the exception will be explicitly generated (using the exception name/key)
   # TODO: another useful property: whether an exception is a runtime exception
   x-knimegateway-exceptions:
@@ -1104,26 +1104,26 @@ components:
     server:
       NoPermission:
         fullname: com.knime.enterprise.utility.PermissionException
-        description: if the current user does not have access permissions for the job
+        description: If the current user does not have access permissions for the job.
         status-code: 403
       ExecutorException:
         fullname: com.knime.enterprise.utility.ExecutorException
-        description: if an error occurs while fetching job information from the RMI instance
+        description: If an error occurs while fetching job information from the RMI instance.
         status-code: 500
       IOException:
         fullname: java.io.IOException
-        description: IO error
+        description: I/O error.
         status-code: 500
       Timeout:
         fullname: java.util.concurrent.TimeoutException
-        description: thrown when time to contact the executor has been exceeded
+        description: Thrown when time to contact the executor has been exceeded.
         status-code: 504
 
   parameters:
     job-id:
       name: job-id
       in: path
-      description: ID the job the workflow is requested for
+      description: ID of the job the workflow is requested for.
       required: true
       schema:
         type: string
@@ -1347,7 +1347,7 @@ components:
             type: string
         numTotalRows:
           description: >-
-            The total number of rows. Might be larger then the number of rows
+            The total number of rows. Might be larger than the number of rows
             contained here.
           type: integer
           format: int64
@@ -1378,7 +1378,7 @@ components:
           description: The id of the node contributing to this dialog.
           type: string
         isHideInDialog:
-          description: Whether the component should be hid in the subnode's dialog.
+          description: Whether the component should be hidden in the subnode's dialog.
           type: boolean
         representation:
           #Dialog component representation.
@@ -1882,7 +1882,7 @@ components:
         workflowAnnotations:
           description: >-
             List of all workflow annotations. TODO could be moved to an extra UI
-            service in order to not polute the WorkflowEnt too much and separate
+            service in order to not pollute the WorkflowEnt too much and separate
             UI logics.
           type: object
           #string to WorkflowAnnotation map
@@ -1891,7 +1891,7 @@ components:
         workflowUIInfo:
             # Additional workflow UI information such as grid settings, connection
             # appearance etc. TODO could be moved to an extra UI service in order
-            # to not polute the WorkflowEnt too much and separate UI logics.
+            # to not pollute the WorkflowEnt too much and separate UI logics.
           $ref: '#/components/schemas/WorkflowUIInfo'
         hasCredentials:
           description: Flag indicating whether the workflow has credentials stored.
@@ -1922,7 +1922,7 @@ components:
                 $ref: '#/components/schemas/NodeInPort'
             encrypted:
               description: >-
-                Whether the referenced workflow is encrypted is required to be
+                Whether the referenced workflow is encrypted and is required to be
                 unlocked before it can be accessed.
               type: boolean
             workflowOutgoingPortNodeStates:
