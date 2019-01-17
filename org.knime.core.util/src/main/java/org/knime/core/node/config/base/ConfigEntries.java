@@ -65,7 +65,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigStringEntry createEntry(final String key, final String value) {
+        public ConfigStringEntry createEntry(final String key, final String value) {
             return new ConfigStringEntry(key, value);
         }
     },
@@ -81,7 +81,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigIntEntry createEntry(final String key, final String value) {
+        public ConfigIntEntry createEntry(final String key, final String value) {
             return new ConfigIntEntry(key, value);
         }
     },
@@ -97,7 +97,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigDoubleEntry createEntry(final String key, final String value) {
+        public ConfigDoubleEntry createEntry(final String key, final String value) {
             return new ConfigDoubleEntry(key, value);
         }
     },
@@ -113,7 +113,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigFloatEntry createEntry(final String key, final String value) {
+        public ConfigFloatEntry createEntry(final String key, final String value) {
             return new ConfigFloatEntry(key, value);
         }
     },
@@ -129,7 +129,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigLongEntry createEntry(final String key, final String value) {
+        public ConfigLongEntry createEntry(final String key, final String value) {
             return new ConfigLongEntry(key, value);
         }
     },
@@ -145,7 +145,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigShortEntry createEntry(final String key, final String value) {
+        public ConfigShortEntry createEntry(final String key, final String value) {
             return new ConfigShortEntry(key, value);
         }
     },
@@ -161,7 +161,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigByteEntry createEntry(final String key, final String value) {
+        public ConfigByteEntry createEntry(final String key, final String value) {
             return new ConfigByteEntry(key, value);
         }
     },
@@ -177,7 +177,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigCharEntry createEntry(final String key, final String value) {
+        public ConfigCharEntry createEntry(final String key, final String value) {
             return new ConfigCharEntry(key, value);
         }
     },
@@ -193,7 +193,7 @@ public enum ConfigEntries {
          * @return A new Config entry.
          */
         @Override
-        ConfigBooleanEntry createEntry(final String key, final String value) {
+        public ConfigBooleanEntry createEntry(final String key, final String value) {
             return new ConfigBooleanEntry(key, value);
         }
     },
@@ -212,7 +212,7 @@ public enum ConfigEntries {
          * @throws UnsupportedOperationException always.
          */
         @Override
-        ConfigBase createEntry(final String key, final String value) {
+        public ConfigBase createEntry(final String key, final String value) {
             throw new UnsupportedOperationException("Do not call this method"
                     + " on sub config entries");
         }
@@ -230,7 +230,7 @@ public enum ConfigEntries {
          * @return a new config entry
          */
         @Override
-        ConfigPasswordEntry createEntry(final String key, final String value) {
+        public ConfigPasswordEntry createEntry(final String key, final String value) {
             return new ConfigPasswordEntry(key, value);
         }
     },
@@ -242,7 +242,7 @@ public enum ConfigEntries {
     xtransientstring {
         /** Fails as transient strings are never saved. */
         @Override
-        ConfigBase createEntry(final String key, final String value) {
+        public ConfigBase createEntry(final String key, final String value) {
             throw new IllegalStateException("Transient string not supposed to be saved");
         }
     };
@@ -253,5 +253,5 @@ public enum ConfigEntries {
      * @param value The value.
      * @return A new Config entry.
      */
-    abstract AbstractConfigEntry createEntry(String key, String value);
+    public abstract AbstractConfigEntry createEntry(String key, String value);
 }
