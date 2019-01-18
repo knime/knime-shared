@@ -252,6 +252,7 @@ public enum ConfigEntries {
      * @param key The key for this value.
      * @param value The value.
      * @return A new Config entry.
+     * @since 5.11
      */
     public abstract AbstractConfigEntry createEntry(String key, String value);
 }
