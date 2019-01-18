@@ -59,6 +59,7 @@ import org.knime.core.util.Version;
  */
 class NativeNodeMetadataBuilder {
 
+    private String m_factorySettings;
     private SingleNodeFields m_singleNodeFields;
     private Optional<String> m_nodeName;
     private Optional<String> m_factoryClass;
@@ -70,6 +71,10 @@ class NativeNodeMetadataBuilder {
     private Optional<String> m_featureSymbolicName;
     private Optional<String> m_featureVendor;
     private Optional<Version> m_featureVersion;
+
+    void setFactorySettings(final String factorySettings) {
+        m_factorySettings = factorySettings;
+    }
 
     void setSingleNodeFields(final SingleNodeFields singleNodeFields) {
         m_singleNodeFields = singleNodeFields;
@@ -113,6 +118,10 @@ class NativeNodeMetadataBuilder {
 
     void setFeatureVersion(final Optional<Version> featureVersion) {
         m_featureVersion = featureVersion;
+    }
+
+    String getFactorySettings() {
+        return m_factorySettings;
     }
 
     SingleNodeFields getSingleNodeFields() {
@@ -161,6 +170,7 @@ class NativeNodeMetadataBuilder {
 
     NativeNodeMetadata build() {
         m_singleNodeFields.validate();
+        checkPopulated(m_factorySettings, "factory settings");
         checkPopulated(m_nodeName, "node name");
         checkPopulated(m_factoryClass, "factory class");
         checkPopulated(m_bundleName, "bundle name");

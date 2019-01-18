@@ -210,6 +210,17 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return config.getString("node_settings_file");
     }
 
+    @Override
+    public String getFactorySettings(final ConfigBase config) throws InvalidSettingsException {
+        if (config.containsKey("factory_settings")) {
+            final ConfigBase facSettings = config.getConfigBase("factory_settings");
+            final StringBuffer buf = new StringBuffer();
+            facSettings.toString(buf);
+            return buf.toString();
+        }
+        return "";
+    }
+
     /**
      * {@inheritDoc}
      */

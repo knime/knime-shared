@@ -145,6 +145,13 @@ interface WorkflowParser {
 
     /**
      * @param config a pre-loaded {@link ConfigBase} to be parsed
+     * @return the factory_settings after {@link ConfigBase#toString(StringBuffer)} has been called
+     * @throws InvalidSettingsException
+     */
+    String getFactorySettings(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * @param config a pre-loaded {@link ConfigBase} to be parsed
      * @return the node id
      * @throws InvalidSettingsException
      */

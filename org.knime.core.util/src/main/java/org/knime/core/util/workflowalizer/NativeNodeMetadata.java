@@ -67,6 +67,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 
+    @JsonProperty("global_node_ID")
+    private final String m_globalNodeId;
+
     @JsonProperty("node_ID")
     private final int m_nodeId;
 
@@ -86,6 +89,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
     private final NodeAndBundleInformation m_nodeAndBundleInfo;
 
     NativeNodeMetadata(final NativeNodeMetadataBuilder builder) {
+        m_globalNodeId = builder.getFactoryClass().orElse("") + builder.getFactorySettings();
         m_nodeId = builder.getSingleNodeFields().getId();
         m_type = builder.getSingleNodeFields().getType();
         m_modelParams = builder.getSingleNodeFields().getModelParameters();
@@ -149,6 +153,15 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
     }
 
     /**
+     * Returns the unique node identifier, which can be used to lookup nodes in the node catalog.
+     *
+     * @return the unique node identifier
+     */
+    public String getGlobalNodeID() {
+        return m_globalNodeId;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @JsonProperty("is_metaNode")
@@ -164,7 +177,8 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
             numModelParams = m_modelParams.get().keySet().size() + "";
         }
 
-        return "node_ID: " + m_nodeId +
+        return "global_node_id: " + m_globalNodeId +
+                ", node_ID: " + m_nodeId +
                 ", type: " + m_type +
                 ", num_model_parameters: " + numModelParams +
                 ", annotation_text: " + m_annotationText.orElse(null) +

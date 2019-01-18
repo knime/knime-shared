@@ -556,6 +556,9 @@ public final class Workflowalizer {
         populateSingleNodeFields(snf, wc, parser, settingsXml, nodeXml, configBase);
         builder.setSingleNodeFields(snf);
 
+        final String factorySettings = parser.getFactorySettings(settingsXml);
+        builder.setFactorySettings(factorySettings);
+
         final Optional<String> name = parser.getNodeName(settingsXml, nodeXml);
         builder.setNodeName(name);
 
