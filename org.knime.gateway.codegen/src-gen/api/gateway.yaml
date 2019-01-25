@@ -1566,13 +1566,17 @@ components:
           $ref: '#/components/schemas/PortType'
         representation:
           description: >-
-            The actual port object spec representation or "not supported" if not
-            supported.
+            The actual port object spec representation or a description of the problem if 'problem' is true.
           type: string
         inactive:
           description: >-
             Flag indicating whether the port is inactive. If true, there will be
             no representation available.
+          type: boolean
+        problem:
+          description: >-
+            Flag that indicates that a problem occured while providing the port objects spec 
+            (e.g. de-/serialization problem). The representation-field will contain more details.
           type: boolean
 
     PortType:
