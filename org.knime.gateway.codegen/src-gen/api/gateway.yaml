@@ -1558,10 +1558,15 @@ components:
       description: Specification of a port object.
       type: object
       required:
-        - type
+        - className
+        - portType
         - inactive
       properties:
-        type:
+        className:
+          description: >-
+            The fully-qualified class name of the port object spec. 
+          type: string
+        portType:
           # The port type the specification refers to.
           $ref: '#/components/schemas/PortType'
         representation:
