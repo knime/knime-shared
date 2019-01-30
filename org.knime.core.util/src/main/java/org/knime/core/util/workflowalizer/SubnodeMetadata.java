@@ -67,14 +67,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetadataBuilder> implements SingleNodeMetadata {
 
-    @JsonProperty("nodeId")
+    @JsonProperty("nodeInstanceId")
     private final int m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
 
-    @JsonProperty("modelParameters")
-    private final Optional<ConfigBase> m_modelParams;
+    @JsonProperty("nodeConfiguration")
+    private final Optional<ConfigBase> m_nodeConfiguration;
 
     @JsonProperty("annotationText")
     private final Optional<String> m_annotationText;
@@ -89,7 +89,7 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
         super(builder);
         m_nodeId = builder.getSingleNodeFields().getId();
         m_type = builder.getSingleNodeFields().getType();
-        m_modelParams = builder.getSingleNodeFields().getModelParameters();
+        m_nodeConfiguration = builder.getSingleNodeFields().getNodeConfiguration();
         m_annotationText = builder.getSingleNodeFields().getAnnotationText();
         m_customNodeDescription = builder.getSingleNodeFields().getCustomDescription();
         m_template = builder.getTemplateLink();
@@ -105,7 +105,7 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
         super(subnode);
         m_nodeId = subnode.m_nodeId;
         m_type = subnode.m_type;
-        m_modelParams = subnode.m_modelParams;
+        m_nodeConfiguration = subnode.m_nodeConfiguration;
         m_annotationText = subnode.m_annotationText;
         m_customNodeDescription = subnode.m_customNodeDescription;
         m_template = subnode.m_template;
@@ -131,11 +131,11 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
      * {@inheritDoc}
      */
     @Override
-    public Optional<ConfigBase> getModelParameters() {
-        if (m_modelParams == null) {
-            throw new UnsupportedOperationException("getModelParameters() is unsupported, field was not read");
+    public Optional<ConfigBase> getNodeConfiguration() {
+        if (m_nodeConfiguration == null) {
+            throw new UnsupportedOperationException("getNodeConfiguration() is unsupported, field was not read");
         }
-        return m_modelParams;
+        return m_nodeConfiguration;
     }
 
     /**
@@ -163,15 +163,15 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
 
     @Override
     public String toString() {
-        String numModelParams = null;
-        if (m_modelParams != null && m_modelParams.isPresent()) {
-            numModelParams = m_modelParams.get().keySet().size() + "";
+        String numNodeConfigParams = null;
+        if (m_nodeConfiguration != null && m_nodeConfiguration.isPresent()) {
+            numNodeConfigParams = m_nodeConfiguration.get().keySet().size() + "";
         }
 
         return super.toString() +
                 ", node_ID: " + m_nodeId +
                 ", type: " + m_type +
-                ", num_model_parameters: " + numModelParams +
+                ", num_m_node_configurations: " + numNodeConfigParams +
                 ", annotation_text: " + m_annotationText.orElse(null) +
                 ", custom_node_description: " + m_customNodeDescription.orElse(null) +
                 ", template_link: " + m_template;

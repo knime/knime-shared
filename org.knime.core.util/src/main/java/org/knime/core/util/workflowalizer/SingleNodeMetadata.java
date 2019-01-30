@@ -63,10 +63,10 @@ import org.knime.core.node.config.base.ConfigBase;
 public interface SingleNodeMetadata extends NodeMetadata {
 
     /**
-     * @return the model parameters for this node
+     * @return the node configuration for this node
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
-    Optional<ConfigBase> getModelParameters();
+    Optional<ConfigBase> getNodeConfiguration();
 
     /**
      * @return the node's custom description

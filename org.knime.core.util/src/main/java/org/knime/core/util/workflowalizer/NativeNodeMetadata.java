@@ -67,17 +67,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 
-    @JsonProperty("globalNodeId")
+    @JsonProperty("uniqueNodeId")
     private final String m_globalNodeId;
 
-    @JsonProperty("nodeId")
+    @JsonProperty("nodeInstanceId")
     private final int m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
 
-    @JsonProperty("modelParameters")
-    private final Optional<ConfigBase> m_modelParams;
+    @JsonProperty("nodeConfiguration")
+    private final Optional<ConfigBase> m_nodeConfiguration;
 
     @JsonProperty("annotationText")
     private final Optional<String> m_annotationText;
@@ -92,7 +92,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
         m_globalNodeId = builder.getFactoryClass().orElse("") + builder.getFactorySettings();
         m_nodeId = builder.getSingleNodeFields().getId();
         m_type = builder.getSingleNodeFields().getType();
-        m_modelParams = builder.getSingleNodeFields().getModelParameters();
+        m_nodeConfiguration = builder.getSingleNodeFields().getNodeConfiguration();
         m_annotationText = builder.getSingleNodeFields().getAnnotationText();
         m_customNodeDescription = builder.getSingleNodeFields().getCustomDescription();
         m_nodeAndBundleInfo = new NodeAndBundleInformation(builder.getFactoryClass(), builder.getBundleSymbolicName(),
@@ -121,11 +121,11 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      * {@inheritDoc}
      */
     @Override
-    public Optional<ConfigBase> getModelParameters() {
-        if (m_modelParams == null) {
-            throw new UnsupportedOperationException("getModelParameters() is unsupported, field was not read");
+    public Optional<ConfigBase> getNodeConfiguration() {
+        if (m_nodeConfiguration == null) {
+            throw new UnsupportedOperationException("getNodeConfiguration() is unsupported, field was not read");
         }
-        return m_modelParams;
+        return m_nodeConfiguration;
     }
 
     /**
@@ -163,15 +163,15 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
 
     @Override
     public String toString() {
-        String numModelParams = null;
-        if (m_modelParams != null && m_modelParams.isPresent()) {
-            numModelParams = m_modelParams.get().keySet().size() + "";
+        String numNodeConfig = null;
+        if (m_nodeConfiguration != null && m_nodeConfiguration.isPresent()) {
+            numNodeConfig = m_nodeConfiguration.get().keySet().size() + "";
         }
 
         return "global_node_id: " + m_globalNodeId +
                 ", node_ID: " + m_nodeId +
                 ", type: " + m_type +
-                ", num_model_parameters: " + numModelParams +
+                ", num_node_config: " + numNodeConfig +
                 ", annotation_text: " + m_annotationText.orElse(null) +
                 ", custom_node_description: " + m_customNodeDescription.orElse(null) +
                 ", " + m_nodeAndBundleInfo;

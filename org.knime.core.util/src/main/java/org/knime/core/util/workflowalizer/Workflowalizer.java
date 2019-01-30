@@ -644,13 +644,13 @@ public final class Workflowalizer {
         final WorkflowParser parser, final ConfigBase settingsXml, final ConfigBase nodeXml, final ConfigBase nodeConfig)
         throws InvalidSettingsException {
         populateNodeFields(snf, parser, nodeConfig);
-        if (wc.parseModelParameters()) {
-            final Optional<ConfigBase> modelParameters = parser.getModelParameters(settingsXml, nodeXml);
-            if (modelParameters.isPresent()) {
+        if (wc.parseNodeConfiguration()) {
+            final Optional<ConfigBase> nodeConfiguration = parser.getNodeConfiguration(settingsXml, nodeXml);
+            if (nodeConfiguration.isPresent()) {
                 // Remove link to parent (memory optimization)
-                modelParameters.get().setParent(null);
+                nodeConfiguration.get().setParent(null);
             }
-            snf.setModelParameters(modelParameters);
+            snf.setNodeConfiguration(nodeConfiguration);
         }
 
         final Optional<String> customDescription = parser.getCustomNodeDescription(settingsXml);

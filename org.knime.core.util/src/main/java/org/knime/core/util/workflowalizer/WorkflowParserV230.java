@@ -107,7 +107,7 @@ final class WorkflowParserV230 extends AbstractWorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Optional<ConfigBase> getModelParameters(final ConfigBase settingsXml, final ConfigBase nodeXml)
+    public Optional<ConfigBase> getNodeConfiguration(final ConfigBase settingsXml, final ConfigBase nodeXml)
         throws InvalidSettingsException {
         return nodeXml.containsKey("model") ? Optional.ofNullable(nodeXml.getConfigBase("model"))
             : Optional.empty();

@@ -59,20 +59,20 @@ import org.knime.core.node.config.base.ConfigBase;
  */
 final class SingleNodeFields extends NodeFields {
 
-    private Optional<ConfigBase> m_modelParameters;
+    private Optional<ConfigBase> m_nodeConfiguration;
     private Optional<String> m_customDescription;
 
-    private final boolean m_readModelParameters;
+    private final boolean m_readNodeConfiguration;
 
-    SingleNodeFields(final boolean readModelParameters) {
+    SingleNodeFields(final boolean readNodeConfiguration) {
         super();
-        m_readModelParameters = readModelParameters;
+        m_readNodeConfiguration = readNodeConfiguration;
     }
 
     // -- Getters --
 
-    Optional<ConfigBase> getModelParameters() {
-        return m_modelParameters;
+    Optional<ConfigBase> getNodeConfiguration() {
+        return m_nodeConfiguration;
     }
 
     Optional<String> getCustomDescription() {
@@ -81,8 +81,8 @@ final class SingleNodeFields extends NodeFields {
 
     // -- Setters --
 
-    void setModelParameters(final Optional<ConfigBase> modelParameters) {
-        m_modelParameters = modelParameters;
+    void setNodeConfiguration(final Optional<ConfigBase> nodeConfiguration) {
+        m_nodeConfiguration = nodeConfiguration;
     }
 
     void setCustomDescription(final Optional<String> customDescription) {
@@ -94,8 +94,8 @@ final class SingleNodeFields extends NodeFields {
     @Override
     void validate() {
         super.validate();
-        if (m_readModelParameters) {
-            checkPopulated(m_modelParameters, "model parameters");
+        if (m_readNodeConfiguration) {
+            checkPopulated(m_nodeConfiguration, "node configuration");
         }
         checkPopulated(m_customDescription, "custom node description");
     }

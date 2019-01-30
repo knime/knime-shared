@@ -188,7 +188,7 @@ interface WorkflowParser {
      * @return the node's model parameters
      * @throws InvalidSettingsException
      */
-    Optional<ConfigBase> getModelParameters(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException;
+    Optional<ConfigBase> getNodeConfiguration(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException;
 
     /**
      *

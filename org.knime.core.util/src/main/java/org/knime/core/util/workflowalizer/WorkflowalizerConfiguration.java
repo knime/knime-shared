@@ -61,7 +61,7 @@ public class WorkflowalizerConfiguration {
     private boolean m_readNodes;
     private boolean m_readConnections;
     private boolean m_readUnexpectedFiles;
-    private boolean m_readModelParameters;
+    private boolean m_readNodeConfiguration;
     private boolean m_readWorkflowMeta;
 
     private WorkflowalizerConfiguration() {
@@ -80,8 +80,8 @@ public class WorkflowalizerConfiguration {
         return m_readUnexpectedFiles;
     }
 
-    boolean parseModelParameters() {
-        return m_readModelParameters;
+    boolean parseNodeConfiguration() {
+        return m_readNodeConfiguration;
     }
 
     boolean parseWorkflowMeta() {
@@ -97,7 +97,7 @@ public class WorkflowalizerConfiguration {
     }
 
     SingleNodeFields createSingleNodeFields() {
-        return new SingleNodeFields(m_readModelParameters);
+        return new SingleNodeFields(m_readNodeConfiguration);
     }
 
     /**
@@ -115,7 +115,7 @@ public class WorkflowalizerConfiguration {
         private boolean m_nodes;
         private boolean m_connections;
         private boolean m_unexpectedFiles;
-        private boolean m_modelParameters;
+        private boolean m_nodeConfiguration;
         private boolean m_workflowMeta;
 
         /**
@@ -162,7 +162,7 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read the node model parameters
+         * Sets the configuration to read the node configuration
          *
          * <p>
          * This field will be read for: subnodes, and native nodes
@@ -170,8 +170,8 @@ public class WorkflowalizerConfiguration {
          *
          * @return the builder
          */
-        public Builder readModelParameters() {
-            m_modelParameters = true;
+        public Builder readNodeConfiguration() {
+            m_nodeConfiguration = true;
             return this;
         }
 
@@ -198,7 +198,7 @@ public class WorkflowalizerConfiguration {
             m_nodes = true;
             m_connections = true;
             m_unexpectedFiles = true;
-            m_modelParameters = true;
+            m_nodeConfiguration = true;
             m_workflowMeta = true;
             return this;
         }
@@ -213,7 +213,7 @@ public class WorkflowalizerConfiguration {
             config.m_readNodes = m_nodes;
             config.m_readConnections = m_connections;
             config.m_readUnexpectedFiles = m_unexpectedFiles;
-            config.m_readModelParameters = m_modelParameters;
+            config.m_readNodeConfiguration = m_nodeConfiguration;
             config.m_readWorkflowMeta = m_workflowMeta;
             return config;
         }

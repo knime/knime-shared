@@ -530,8 +530,8 @@ public class WorkflowalizerTest {
 
         assertEquals(readAnnotationText(m_readNodeLines), nativeNode.getAnnotationText());
         assertEquals(readCustomNodeDescription(m_readNodeLines), nativeNode.getCustomNodeDescription());
-        assertTrue(readModelParameters(new File(m_nodeDir.toFile(), "settings.xml")).get()
-            .isIdentical(nativeNode.getModelParameters().get()));
+        assertTrue(readNodeConfiguration(new File(m_nodeDir.toFile(), "settings.xml")).get()
+            .isIdentical(nativeNode.getNodeConfiguration().get()));
         assertEquals(readNodeAndBundleInformation(false, m_readNodeLines), nativeNode.getNodeAndBundleInformation());
         assertEquals("NativeNode", node.getType());
     }
@@ -555,7 +555,7 @@ public class WorkflowalizerTest {
         // No need to test ID, since the list was filtered on that
         assertEquals(readAnnotationText(readLines), node.getAnnotationText());
         assertEquals(readCustomNodeDescription(readLines), node.getCustomNodeDescription());
-        assertTrue(readModelParameters(nodePath.toFile()).get().isIdentical(node.getModelParameters().get()));
+        assertTrue(readNodeConfiguration(nodePath.toFile()).get().isIdentical(node.getNodeConfiguration().get()));
         assertEquals(readNodeAndBundleInformation(false, readLines), node.getNodeAndBundleInformation());
         assertEquals("NativeNode", node.getType());
     }
@@ -578,7 +578,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(readAnnotationText(m_readNodeLines), nativeNode.getAnnotationText());
-        assertUOEThrown(nativeNode::getModelParameters);
+        assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
     /**
@@ -597,26 +597,26 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(readCustomNodeDescription(m_readNodeLines), nativeNode.getCustomNodeDescription());
-        assertUOEThrown(nativeNode::getModelParameters);
+        assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
     /**
-     * Test that the node's model parameters are read correctly.
+     * Test that the node's configuration are read correctly.
      *
      * @throws Exception
      */
     @Test
-    public void testReadingModelParameters() throws Exception {
+    public void testReadingNodeConfiguration() throws Exception {
         final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().readModelParameters().build();
+            WorkflowalizerConfiguration.builder().readNodes().readNodeConfiguration().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertTrue(readModelParameters(new File(m_nodeDir.toFile(), "settings.xml")).get()
-            .isIdentical(nativeNode.getModelParameters().get()));
+        assertTrue(readNodeConfiguration(new File(m_nodeDir.toFile(), "settings.xml")).get()
+            .isIdentical(nativeNode.getNodeConfiguration().get()));
     }
 
     /**
@@ -635,7 +635,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(readNodeAndBundleInformation(false, m_readNodeLines), nativeNode.getNodeAndBundleInformation());
-        assertUOEThrown(nativeNode::getModelParameters);
+        assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
     /**
@@ -659,7 +659,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals(10, nativeNode.getNodeId());
-        assertUOEThrown(nativeNode::getModelParameters);
+        assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
     /**
@@ -678,7 +678,7 @@ public class WorkflowalizerTest {
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         assertEquals("NativeNode", nativeNode.getType());
-        assertUOEThrown(nativeNode::getModelParameters);
+        assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
     // -- Test reading (Wrapped)MetaNodes
@@ -752,8 +752,8 @@ public class WorkflowalizerTest {
         // Read node fields
         assertEquals(readAnnotationText(readMetaNodeNodeLines), mtnMtd.getAnnotationText());
         assertEquals(readCustomNodeDescription(readMetaNodeNodeLines), mtnMtd.getCustomNodeDescription());
-        assertTrue(readModelParameters(new File(m_workflowDir.toFile(), "Format Outpu (#16)/settings.xml")).get()
-            .isIdentical(mtnMtd.getModelParameters().get()));
+        assertTrue(readNodeConfiguration(new File(m_workflowDir.toFile(), "Format Outpu (#16)/settings.xml")).get()
+            .isIdentical(mtnMtd.getNodeConfiguration().get()));
         assertEquals(16, mtnMtd.getNodeId());
         assertEquals(readTemplateLink(readMetaNodeNodeLines), mtnMtd.getTemplateLink());
     }
@@ -1025,7 +1025,7 @@ public class WorkflowalizerTest {
         return Optional.ofNullable(XMLUtils.unescape(parseValue(readLines, "customDescription")));
     }
 
-    private static Optional<ConfigBase> readModelParameters(final File f) throws Exception {
+    private static Optional<ConfigBase> readNodeConfiguration(final File f) throws Exception {
         final ConfigBase params = new MetadataConfig("settings.xml");
         try (final FileInputStream in = new FileInputStream(f)) {
             XMLConfig.load(params, in);
