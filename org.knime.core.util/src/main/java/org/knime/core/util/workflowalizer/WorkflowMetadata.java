@@ -77,22 +77,22 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> {
 
-    @JsonProperty("author_information")
+    @JsonProperty("authorInformation")
     private final AuthorInformation m_authorInfo;
 
-    @JsonProperty("workflow_svg")
+    @JsonProperty("workflowSvg")
     private final Optional<String> m_svg;
 
-    @JsonProperty("artifacts_files")
+    @JsonProperty("artifactsFiles")
     private final Optional<Collection<String>> m_artifacts;
 
-    @JsonProperty("workflow_meta")
+    @JsonProperty("workflowMeta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
-    @JsonProperty("workflow_credentials")
+    @JsonProperty("workflowCredentials")
     private final List<String> m_credentials;
 
-    @JsonProperty("workflow_variables")
+    @JsonProperty("workflowVariables")
     private final List<String> m_variables;
 
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {

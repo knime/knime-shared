@@ -70,7 +70,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
     @JsonProperty("version")
     private final Version m_version;
 
-    @JsonProperty("created_by")
+    @JsonProperty("createdBy")
     private final Version m_createdBy;
 
     @JsonProperty("annotations")
@@ -85,10 +85,10 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
     @JsonProperty("name")
     private final String m_name;
 
-    @JsonProperty("custom_workflow_description")
+    @JsonProperty("customWorkflowDescription")
     private final Optional<String> m_customDescription;
 
-    @JsonProperty("unexpected_files")
+    @JsonProperty("unexpectedFiles")
     private final Collection<String> m_unexpectedFiles;
 
     /**

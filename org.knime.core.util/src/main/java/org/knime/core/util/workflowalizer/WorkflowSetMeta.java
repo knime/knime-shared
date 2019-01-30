@@ -68,10 +68,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class WorkflowSetMeta {
 
-    @JsonProperty("workflow_meta_author")
+    @JsonProperty("workflowMetaAuthor")
     private final Optional<String> m_author;
 
-    @JsonProperty("workflow_meta_comments")
+    @JsonProperty("workflowMetaComments")
     private final Optional<String> m_comments;
 
     WorkflowSetMeta(final Optional<String> author, final Optional<String> comments) {

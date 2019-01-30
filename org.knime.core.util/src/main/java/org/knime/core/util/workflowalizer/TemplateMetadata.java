@@ -74,10 +74,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> {
 
-    @JsonProperty("author_information")
+    @JsonProperty("authorInformation")
     private final AuthorInformation m_authorInfo;
 
-    @JsonProperty("template_information")
+    @JsonProperty("templateInformation")
     private final TemplateInformation m_templateInfo;
 
     TemplateMetadata(final TemplateMetadataBuilder builder) {

@@ -76,13 +76,13 @@ public final class AuthorInformation {
     @JsonProperty("author")
     private final String m_author;
 
-    @JsonProperty("authored_date")
+    @JsonProperty("authoredDate")
     private final Date m_authoredDate;
 
-    @JsonProperty("last_editor")
+    @JsonProperty("lastDditor")
     private final Optional<String> m_lastEditor;
 
-    @JsonProperty("last_edited_date")
+    @JsonProperty("lastEditedDate")
     private final Optional<Date> m_lastEditDate;
 
     /**

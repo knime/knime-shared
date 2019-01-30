@@ -67,25 +67,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 
-    @JsonProperty("global_node_ID")
+    @JsonProperty("globalNodeId")
     private final String m_globalNodeId;
 
-    @JsonProperty("node_ID")
+    @JsonProperty("nodeId")
     private final int m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
 
-    @JsonProperty("model_parameters")
+    @JsonProperty("modelParameters")
     private final Optional<ConfigBase> m_modelParams;
 
-    @JsonProperty("annotation_text")
+    @JsonProperty("annotationText")
     private final Optional<String> m_annotationText;
 
-    @JsonProperty("custom_node_description")
+    @JsonProperty("customNodeDescription")
     private final Optional<String> m_customNodeDescription;
 
-    @JsonProperty("node_and_bundle_information")
+    @JsonProperty("nodeAndBundleInformation")
     private final NodeAndBundleInformation m_nodeAndBundleInfo;
 
     NativeNodeMetadata(final NativeNodeMetadataBuilder builder) {

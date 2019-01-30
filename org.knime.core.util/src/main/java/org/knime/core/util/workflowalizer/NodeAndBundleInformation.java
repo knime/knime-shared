@@ -67,34 +67,34 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class NodeAndBundleInformation {
 
-    @JsonProperty("feature_symbolic_name")
+    @JsonProperty("featureSymbolicName")
     private final Optional<String> m_featureSymbolicName;
 
-    @JsonProperty("feature_name")
+    @JsonProperty("featureName")
     private final Optional<String> m_featureName;
 
-    @JsonProperty("feature_vendor")
+    @JsonProperty("featureVendor")
     private final Optional<String> m_featureVendor;
 
-    @JsonProperty("feature_version")
+    @JsonProperty("featureVersion")
     private final Optional<Version> m_featureVersion;
 
-    @JsonProperty("bundle_symbolic_name")
+    @JsonProperty("bundleSymbolicName")
     private final Optional<String> m_bundleSymbolicName;
 
-    @JsonProperty("bundle_name")
+    @JsonProperty("bundleName")
     private final Optional<String> m_bundleName;
 
-    @JsonProperty("bundle_vendor")
+    @JsonProperty("bundleVendor")
     private final Optional<String> m_bundleVendor;
 
-    @JsonProperty("node_name")
+    @JsonProperty("nodeName")
     private final Optional<String> m_nodeName;
 
-    @JsonProperty("factory_class")
+    @JsonProperty("factoryClass")
     private final Optional<String> m_factoryClass;
 
-    @JsonProperty("bundle_version")
+    @JsonProperty("bundleVersion")
     private final Optional<Version> m_bundleVersion;
 
     /**

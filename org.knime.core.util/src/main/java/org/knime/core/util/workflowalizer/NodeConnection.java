@@ -72,16 +72,16 @@ public final class NodeConnection {
     @JsonIgnore
     private final Optional<NodeMetadata> m_dest;
 
-    @JsonProperty("source_ID")
+    @JsonProperty("sourceId")
     private final int m_sourceId;
 
-    @JsonProperty("destination_ID")
+    @JsonProperty("destinationId")
     private final int m_destId;
 
-    @JsonProperty("source_port")
+    @JsonProperty("sourcePort")
     private final int m_sourcePort;
 
-    @JsonProperty("destination_port")
+    @JsonProperty("destinationPort")
     private final int m_destPort;
 
     /**

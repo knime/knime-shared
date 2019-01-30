@@ -65,16 +65,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMetadataBuilder> implements NodeMetadata {
 
-    @JsonProperty("node_ID")
+    @JsonProperty("nodeId")
     private final int m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
 
-    @JsonProperty("annotation_text")
+    @JsonProperty("annotationText")
     private final Optional<String> m_annotationText;
 
-    @JsonProperty("template_link")
+    @JsonProperty("templateLink")
     private final Optional<String> m_template;
 
     MetanodeMetadata(final MetanodeMetadataBuilder builder) {

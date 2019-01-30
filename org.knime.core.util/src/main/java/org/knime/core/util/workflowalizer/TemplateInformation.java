@@ -74,13 +74,13 @@ public final class TemplateInformation {
     @JsonProperty("role")
     private final String m_role;
 
-    @JsonProperty("time_stamp")
+    @JsonProperty("timeStamp")
     private final Date m_timeStamp;
 
-    @JsonProperty("source_URI")
+    @JsonProperty("sourceURI")
     private final Optional<String> m_sourceURI;
 
-    @JsonProperty("template_type")
+    @JsonProperty("templateType")
     private final String m_type;
 
     TemplateInformation(final String role, final Date timeStamp, final Optional<String> sourceURI, final String type) {
