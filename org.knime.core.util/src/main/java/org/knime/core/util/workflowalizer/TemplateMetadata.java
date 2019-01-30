@@ -55,9 +55,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -70,7 +67,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-@JsonTypeInfo(include = As.PROPERTY, use = Id.CLASS)
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> {
 

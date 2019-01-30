@@ -161,15 +161,6 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
         return m_globalNodeId;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @JsonProperty("is_metaNode")
-    @Override
-    public boolean isMetaNode() {
-        return false;
-    }
-
     @Override
     public String toString() {
         String numModelParams = null;

@@ -131,15 +131,6 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
         return m_template;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @JsonProperty("is_metaNode")
-    @Override
-    public boolean isMetaNode() {
-        return true;
-    }
-
     @Override
     public String toString() {
         return super.toString() +

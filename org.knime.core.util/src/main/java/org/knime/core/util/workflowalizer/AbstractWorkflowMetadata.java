@@ -239,7 +239,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
     }
 
     private void addNodes(final NodeMetadata nm, final List<NodeMetadata> nodes) {
-        if (!nm.isMetaNode()) {
+        if (nm.getType().equalsIgnoreCase("nativenode")) {
             nodes.add(nm);
             return;
         }
