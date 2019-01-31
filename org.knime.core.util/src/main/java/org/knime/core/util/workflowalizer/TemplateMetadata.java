@@ -110,6 +110,14 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
         return m_templateInfo;
     }
 
+    /**
+     * @return {@code true} if the workflow is a template
+     */
+    @JsonProperty("template")
+    public boolean isTemplate() {
+        return true;
+    }
+
     @Override
     public String toString() {
         return super.toString() +

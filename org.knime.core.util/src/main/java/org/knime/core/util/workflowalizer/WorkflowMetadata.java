@@ -164,6 +164,14 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         return m_variables;
     }
 
+    /**
+     * @return {@code true} if the workflow is a template
+     */
+    @JsonProperty("template")
+    public boolean isTemplate() {
+        return false;
+    }
+
     @Override
     public String toString() {
         String artifacts = null;
