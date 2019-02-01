@@ -59,7 +59,6 @@ import java.util.Optional;
  * @since 5.10
  */
 public interface NodeMetadata {
-
     /**
      * @return the node ID
      */

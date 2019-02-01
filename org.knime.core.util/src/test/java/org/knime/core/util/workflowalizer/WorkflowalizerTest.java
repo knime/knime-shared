@@ -94,7 +94,6 @@ import org.knime.core.util.XMLUtils;
  * @since 5.10
  */
 public class WorkflowalizerTest {
-
     private static Path m_workspaceDir;
     private static Path m_workflowDir;
     private static Path m_nodeDir;

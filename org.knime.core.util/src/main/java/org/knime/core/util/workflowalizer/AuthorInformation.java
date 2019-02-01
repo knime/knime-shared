@@ -69,9 +69,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class AuthorInformation {
-
     /** Info for workflows created prior 2.8. */
-    public static final AuthorInformation UNKNOWN = new AuthorInformation("<unknown>", new Date(0), Optional.empty(), Optional.empty());
+    public static final AuthorInformation UNKNOWN =
+        new AuthorInformation("<unknown>", new Date(0), Optional.empty(), Optional.empty());
 
     @JsonProperty("author")
     private final String m_author;
@@ -79,7 +79,7 @@ public final class AuthorInformation {
     @JsonProperty("authoredDate")
     private final Date m_authoredDate;
 
-    @JsonProperty("lastDditor")
+    @JsonProperty("lastEditor")
     private final Optional<String> m_lastEditor;
 
     @JsonProperty("lastEditedDate")

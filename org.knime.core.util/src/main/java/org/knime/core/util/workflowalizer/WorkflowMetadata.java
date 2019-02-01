@@ -165,6 +165,8 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     }
 
     /**
+     * Returns whether this "workflow" is a metanode template or not.
+     *
      * @return {@code true} if the workflow is a template
      */
     @JsonProperty("template")

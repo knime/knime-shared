@@ -108,10 +108,9 @@ public class WorkflowalizerConfiguration {
     }
 
     /**
-     * A builder for {@link WorkflowalizerConfiguration}
+     * A builder for {@link WorkflowalizerConfiguration}.
      */
     public static final class Builder {
-
         private boolean m_nodes;
         private boolean m_connections;
         private boolean m_unexpectedFiles;
@@ -119,7 +118,7 @@ public class WorkflowalizerConfiguration {
         private boolean m_workflowMeta;
 
         /**
-         * Sets the configuration to read the nodes
+         * Sets the configuration to read the nodes.
          *
          * <p>
          * This field will be read for: workflows, metanodes, subnodes, and templates
@@ -133,7 +132,7 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read the nodes and the connections
+         * Sets the configuration to read the nodes and the connections.
          *
          * <p>
          * This field will be read for: workflows, metanodes, subnodes, and templates
@@ -162,13 +161,14 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read the node configuration
+         * Sets the configuration to read the node configuration.
          *
          * <p>
          * This field will be read for: subnodes, and native nodes
          * </p>
          *
          * @return the builder
+         * @since 5.11
          */
         public Builder readNodeConfiguration() {
             m_nodeConfiguration = true;
@@ -176,7 +176,7 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read the author and comments workflowset.meta
+         * Sets the configuration to read the author and comments workflowset.meta.
          *
          * <p>
          * This field will be read for: workflows
@@ -190,7 +190,7 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Sets the configuration to read all the fields
+         * Sets the configuration to read all the fields.
          *
          * @return the builder
          */
@@ -204,7 +204,7 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
-         * Builds the configured {@link WorkflowalizerConfiguration}
+         * Builds the configured {@link WorkflowalizerConfiguration}.
          *
          * @return the configured {@link WorkflowalizerConfiguration}
          */

@@ -58,14 +58,12 @@ import org.knime.core.node.config.base.ConfigBase;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
 final class SingleNodeFields extends NodeFields {
-
     private Optional<ConfigBase> m_nodeConfiguration;
     private Optional<String> m_customDescription;
 
     private final boolean m_readNodeConfiguration;
 
     SingleNodeFields(final boolean readNodeConfiguration) {
-        super();
         m_readNodeConfiguration = readNodeConfiguration;
     }
 

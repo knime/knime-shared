@@ -1,5 +1,71 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.knime.core.util" version="2">
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/MetanodeMetadata.java" type="org.knime.core.util.workflowalizer.MetanodeMetadata">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.MetanodeMetadata"/>
+                <message_argument value="isMetaNode()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/NativeNodeMetadata.java" type="org.knime.core.util.workflowalizer.NativeNodeMetadata">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NativeNodeMetadata"/>
+                <message_argument value="getModelParameters()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NativeNodeMetadata"/>
+                <message_argument value="isMetaNode()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/NodeMetadata.java" type="org.knime.core.util.workflowalizer.NodeMetadata">
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="isMetaNode()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/SingleNodeMetadata.java" type="org.knime.core.util.workflowalizer.SingleNodeMetadata">
+        <filter id="403804204">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.SingleNodeMetadata"/>
+                <message_argument value="getNodeConfiguration()"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.SingleNodeMetadata"/>
+                <message_argument value="getModelParameters()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/SubnodeMetadata.java" type="org.knime.core.util.workflowalizer.SubnodeMetadata">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
+                <message_argument value="getModelParameters()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
+                <message_argument value="isMetaNode()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/WorkflowalizerConfiguration.java" type="org.knime.core.util.workflowalizer.WorkflowalizerConfiguration$Builder">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.WorkflowalizerConfiguration.Builder"/>
+                <message_argument value="readModelParameters()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/test/java/org/knime/core/node/dialog/ExternalNodeDataTest.java" type="org.knime.core.node.dialog.ExternalNodeDataTest">
         <filter id="305324134">
             <message_arguments>
@@ -25,6 +91,19 @@
             <message_arguments>
                 <message_argument value="org.knime.core.util.PathUtilsTest"/>
                 <message_argument value="org.knime.quickform.nodes.legacy_3.6.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/test/java/org/knime/core/util/workflowalizer/WorkflowalizerTest.java" type="org.knime.core.util.workflowalizer.WorkflowalizerTest">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.WorkflowalizerTest"/>
+                <message_argument value="testReadingModelParameters()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1143996420">
+            <message_arguments>
+                <message_argument value="testReadingNodeConfiguration()"/>
             </message_arguments>
         </filter>
     </resource>
