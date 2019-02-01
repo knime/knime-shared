@@ -53,7 +53,8 @@ import org.knime.core.node.config.base.ConfigBase;
 /**
  * A utility class for working with {@link ConfigBase} objects.
  *
- * @author awalter
+ * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.11
  */
 public class ConfigUtils {
 
