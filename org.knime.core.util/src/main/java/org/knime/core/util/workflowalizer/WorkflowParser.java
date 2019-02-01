@@ -145,10 +145,10 @@ interface WorkflowParser {
 
     /**
      * @param config a pre-loaded {@link ConfigBase} to be parsed
-     * @return the factory_settings after {@link ConfigBase#toString(StringBuffer)} has been called
+     * @return the content based hash code of the factory_settings as a {@code String}
      * @throws InvalidSettingsException
      */
-    String getFactorySettings(final ConfigBase config) throws InvalidSettingsException;
+    String getFactorySettingsHashCode(final ConfigBase config) throws InvalidSettingsException;
 
     /**
      * @param config a pre-loaded {@link ConfigBase} to be parsed

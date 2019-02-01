@@ -62,6 +62,7 @@ import java.util.Optional;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.util.ConfigUtils;
 import org.knime.core.util.Version;
 
 /**
@@ -211,12 +212,10 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     }
 
     @Override
-    public String getFactorySettings(final ConfigBase config) throws InvalidSettingsException {
+    public String getFactorySettingsHashCode(final ConfigBase config) throws InvalidSettingsException {
         if (config.containsKey("factory_settings")) {
             final ConfigBase facSettings = config.getConfigBase("factory_settings");
-            final StringBuffer buf = new StringBuffer();
-            facSettings.toString(buf);
-            return buf.toString();
+            return ConfigUtils.contentBasedHash(facSettings) + "";
         }
         return "";
     }
