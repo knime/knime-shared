@@ -1838,6 +1838,9 @@ components:
             inactive:
               description: 'Whether this node is inactive, e.g. due to inactive connections'
               type: boolean
+            hasWizardPage:
+              description: Whether the node has a wizard page (i.e. a composite web view)
+              type: boolean
 
     XY:
       type: object
