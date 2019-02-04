@@ -207,7 +207,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         final ObjectMapper mapper = new ObjectMapper();
 
         // don't write null fields
-        mapper.setSerializationInclusion(Include.NON_NULL);
+        mapper.setSerializationInclusion(Include.NON_ABSENT);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         // Jdk8Module will serialize Optional fields as their value or null
