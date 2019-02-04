@@ -95,6 +95,8 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         files.add(".project");
         files.add(".savedWithData");
         files.add("workflow.svg");
+        files.add("default_report.rptconfig");
+        files.add("default_report.rptdesign");
         return Collections.unmodifiableCollection(files);
     }
 

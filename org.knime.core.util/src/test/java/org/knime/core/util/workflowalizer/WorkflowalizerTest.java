@@ -181,10 +181,9 @@ public class WorkflowalizerTest {
         }
         assertEquals(readVersion(m_readWorkflowLines), wkfMd.getVersion());
 
-        assertEquals(
-            m_workflowDir.getParent().relativize(new File(m_workflowDir.toFile(), "workflow.svg").toPath()).toString(),
+        assertEquals(m_workflowDir.relativize(new File(m_workflowDir.toFile(), "workflow.svg").toPath()).toString(),
             wkfMd.getWorkflowSvg().get());
-        assertEquals(m_workflowDir.getParent()
+        assertEquals(m_workflowDir
             .relativize(new File(m_workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
             .toString(), wkfMd.getArtifacts().get().iterator().next());
         assertTrue(wkfMd.getUnexpectedFileNames().isEmpty());
@@ -208,7 +207,7 @@ public class WorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
         final File test = new File(m_workflowDir.toFile(), "workflow.svg");
         assertTrue(wkfMd.getWorkflowSvg().isPresent());
-        assertEquals(m_workflowDir.getParent().relativize(test.toPath()).toString(), wkfMd.getWorkflowSvg().get());
+        assertEquals(m_workflowDir.relativize(test.toPath()).toString(), wkfMd.getWorkflowSvg().get());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -228,8 +227,7 @@ public class WorkflowalizerTest {
         final File test = new File(m_workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
         assertEquals(1, wkfMd.getArtifacts().get().size());
-        assertEquals(m_workflowDir.getParent().relativize(test.toPath()).toString(),
-            wkfMd.getArtifacts().get().iterator().next());
+        assertEquals(m_workflowDir.relativize(test.toPath()).toString(), wkfMd.getArtifacts().get().iterator().next());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -267,8 +265,8 @@ public class WorkflowalizerTest {
             final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
             final Collection<String> unexpectedFiles = wkfMd.getUnexpectedFileNames();
             assertEquals(2, unexpectedFiles.size());
-            assertTrue(unexpectedFiles.contains(m_workflowDir.getParent().relativize(dataFile.toPath()).toString()));
-            assertTrue(unexpectedFiles.contains(m_workflowDir.getParent().relativize(subDataFile.toPath()).toString()));
+            assertTrue(unexpectedFiles.contains(m_workflowDir.relativize(dataFile.toPath()).toString()));
+            assertTrue(unexpectedFiles.contains(m_workflowDir.relativize(subDataFile.toPath()).toString()));
 
             assertUOEThrown(wkfMd::getConnections);
             assertUOEThrown(wkfMd::getNodes);
@@ -779,8 +777,8 @@ public class WorkflowalizerTest {
         assertEquals(readCustomDescription(m_readWorkflowLines), twm.getCustomDescription());
         assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
         assertEquals(readVersion(m_readWorkflowLines), twm.getVersion());
-        assertEquals("workflowalizer-test/Testing_Workflowalizer_360Pre/workflow.svg", twm.getWorkflowSvg().get());
-        assertEquals("workflowalizer-test/Testing_Workflowalizer_360Pre/.artifacts/openapi-input-parameters.json",
+        assertEquals("workflow.svg", twm.getWorkflowSvg().get());
+        assertEquals(".artifacts/openapi-input-parameters.json",
             twm.getArtifacts().get().iterator().next());
         assertTrue(twm.getUnexpectedFileNames().isEmpty());
 

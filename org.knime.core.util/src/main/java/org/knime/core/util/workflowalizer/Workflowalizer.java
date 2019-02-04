@@ -714,7 +714,7 @@ public final class Workflowalizer {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                 if (!expectedFiles.contains(file.getFileName().toString())) {
-                    final Path relativePath = path.getParent().relativize(file);
+                    final Path relativePath = path.relativize(file);
                     unexpectedFiles.add(relativePath.toString());
                 }
                 return FileVisitResult.CONTINUE;
@@ -741,7 +741,7 @@ public final class Workflowalizer {
                     }
                 }
                 if (!match) {
-                    files.add(name);
+                    files.add(relativePath);
                 }
             }
         }
@@ -761,7 +761,7 @@ public final class Workflowalizer {
         final FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                final Path relativePath = workflowDirectory.getParent().relativize(file);
+                final Path relativePath = workflowDirectory.relativize(file);
                 files.add(relativePath.toString());
                 return FileVisitResult.CONTINUE;
             }
@@ -789,7 +789,7 @@ public final class Workflowalizer {
             final ZipEntry e = entries.nextElement();
             final String name = e.getName();
             if (name.startsWith(entryName) && !e.isDirectory()) {
-                files.add(name);
+                files.add(name.substring(path.length()));
             }
         }
         return Optional.of(files);
@@ -803,7 +803,7 @@ public final class Workflowalizer {
         }
         CheckUtils.checkArgument(Files.probeContentType(svg).toLowerCase().contains("svg"),
             parser.getWorkflowSVGFileName() + " is not an SVG");
-        return Optional.of(workflowDirectory.getParent().relativize(svg).toString());
+        return Optional.of(workflowDirectory.relativize(svg).toString());
     }
 
     private static Optional<String> svgFile(final WorkflowParser parser, final String path, final ZipFile zip) {
@@ -811,7 +811,7 @@ public final class Workflowalizer {
         if (svg == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(svg.getName());
+        return Optional.ofNullable(svg.getName().substring(path.length()));
     }
 
     private static String findFirstWorkflow(final ZipFile zipFile) {
