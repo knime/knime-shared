@@ -215,7 +215,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     public String getFactorySettingsHashCode(final ConfigBase config) throws InvalidSettingsException {
         if (config.containsKey("factory_settings")) {
             final ConfigBase facSettings = config.getConfigBase("factory_settings");
-            return ConfigUtils.contentBasedHash(facSettings) + "";
+            return ConfigUtils.contentBasedHashString(facSettings);
         }
         return "";
     }

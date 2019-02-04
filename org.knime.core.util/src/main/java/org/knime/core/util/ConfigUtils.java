@@ -73,4 +73,20 @@ public class ConfigUtils {
         }
         return hash;
     }
+
+    /**
+     * Creates a content based hash code for the given {@link ConfigBase} as a String.
+     *
+     * @param config the {@link ConfigBase} to create a hash code for
+     * @return the content based hash code
+     */
+    public static String contentBasedHashString(final ConfigBase config) {
+        final StringBuffer buf = new StringBuffer();
+        config.toString(buf);
+        if (buf.length() == 0) {
+            return "";
+        }
+        return contentBasedHash(config) + "";
+    }
+
 }
