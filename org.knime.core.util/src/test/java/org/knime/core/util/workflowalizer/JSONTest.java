@@ -96,8 +96,9 @@ public class JSONTest {
         workflowMapper = WorkflowMetadata.getConfiguredObjectMapper();
         templateMapper = TemplateMetadata.getConfiguredObjectMapper();
 
-        final Path p = Paths.get("/path/to/dir"); // TODO: Change to path to directory containing workflows
-        dest = "/tmp"; // TODO: Change to desired write location
+        final Path p = Paths.get(args[0]); // TODO: Change to path to directory containing workflows
+        dest = args[1]; // TODO: Change to desired write location
+        Files.createDirectories(Paths.get(dest));
         Files.walkFileTree(p, new Walker());
         System.out.println("count: " + count);
     }

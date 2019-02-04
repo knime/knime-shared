@@ -59,6 +59,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
@@ -207,6 +208,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
 
         // don't write null fields
         mapper.setSerializationInclusion(Include.NON_NULL);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         // Jdk8Module will serialize Optional fields as their value or null
         mapper.registerModule(new Jdk8Module());

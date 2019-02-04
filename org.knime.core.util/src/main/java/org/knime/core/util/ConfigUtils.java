@@ -69,7 +69,7 @@ public class ConfigUtils {
         config.toString(buf);
         int hash = 0;
         for (int i = 0; i < buf.length(); i++) {
-            hash += (17 * buf.charAt(i));
+            hash = 17 * hash + buf.charAt(i);
         }
         return hash;
     }
@@ -86,7 +86,6 @@ public class ConfigUtils {
         if (buf.length() == 0) {
             return "";
         }
-        return contentBasedHash(config) + "";
+        return "#" + Integer.toHexString(contentBasedHash(config));
     }
-
 }
