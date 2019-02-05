@@ -86,6 +86,6 @@ public class ConfigUtils {
         if (buf.length() == 0) {
             return "";
         }
-        return "#" + Integer.toHexString(contentBasedHash(config));
+        return "*" + Integer.toHexString(contentBasedHash(config));
     }
 }
