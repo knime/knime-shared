@@ -4,6 +4,12 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.MetanodeMetadata"/>
+                <message_argument value="getNodeId()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.MetanodeMetadata"/>
                 <message_argument value="isMetaNode()"/>
             </message_arguments>
         </filter>
@@ -18,11 +24,43 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.NativeNodeMetadata"/>
+                <message_argument value="getNodeId()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NativeNodeMetadata"/>
                 <message_argument value="isMetaNode()"/>
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/NodeConnection.java" type="org.knime.core.util.workflowalizer.NodeConnection">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeConnection"/>
+                <message_argument value="getDestinationId()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeConnection"/>
+                <message_argument value="getSourceId()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/main/java/org/knime/core/util/workflowalizer/NodeMetadata.java" type="org.knime.core.util.workflowalizer.NodeMetadata">
+        <filter id="403804204">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="getNodeId()"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="getNodeId()"/>
+            </message_arguments>
+        </filter>
         <filter id="405901410">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
@@ -49,6 +87,12 @@
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
                 <message_argument value="getModelParameters()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
+                <message_argument value="getNodeId()"/>
             </message_arguments>
         </filter>
         <filter id="338792546">

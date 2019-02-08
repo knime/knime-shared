@@ -57,7 +57,7 @@ import java.util.Optional;
  */
 class NodeFields {
 
-    private Integer m_id;
+    private String m_id;
     private String m_type;
     private Optional<String> m_annotationText;
 
@@ -67,7 +67,7 @@ class NodeFields {
 
     // -- Getters --
 
-    Integer getId() {
+    String getId() {
         return m_id;
     }
 
@@ -81,7 +81,7 @@ class NodeFields {
 
     // -- Setters --
 
-    void setId(final int id) {
+    void setId(final String id) {
         m_id = id;
     }
 

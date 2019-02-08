@@ -66,7 +66,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMetadataBuilder> implements NodeMetadata {
 
     @JsonProperty("nodeInstanceId")
-    private final int m_nodeId;
+    private final String m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
@@ -103,7 +103,7 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      * {@inheritDoc}
      */
     @Override
-    public int getNodeId() {
+    public String getNodeId() {
         return m_nodeId;
     }
 

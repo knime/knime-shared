@@ -177,7 +177,12 @@ public class WorkflowalizerTest {
         final List<NodeMetadata> nodes = wkfMd.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
         assertEquals(readVersion(m_readWorkflowLines), wkfMd.getVersion());
 
@@ -406,7 +411,12 @@ public class WorkflowalizerTest {
         final List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
 
         assertUOEThrown(wkfMd::getConnections);
@@ -519,7 +529,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingNodeInWorkflow() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
-        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
+        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
@@ -543,7 +553,7 @@ public class WorkflowalizerTest {
         final MetanodeMetadata mtnMd =
             (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("MetaNode")).findFirst().get();
         final NativeNodeMetadata node =
-            (NativeNodeMetadata)mtnMd.getNodes().stream().filter(n -> n.getNodeId() == 2).findFirst().get();
+            (NativeNodeMetadata)mtnMd.getNodes().stream().filter(n -> n.getNodeId().equals(mtnMd.getNodeId() + ":2")).findFirst().get();
         final Path nodePath =
             new File(m_workflowDir.toFile(), "Hierarchical (#15)/Numeric Distances (#2)/settings.xml").toPath();
         final List<String> readLines = Files.readAllLines(nodePath);
@@ -568,7 +578,7 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
+        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
@@ -587,7 +597,7 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
+        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
@@ -607,7 +617,7 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().readNodeConfiguration().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
+        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
@@ -626,7 +636,7 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
+        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
@@ -655,7 +665,7 @@ public class WorkflowalizerTest {
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(10, nativeNode.getNodeId());
+        assertEquals("10", nativeNode.getNodeId());
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -669,7 +679,7 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId() == 10).findFirst().get();
+        final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
@@ -704,13 +714,19 @@ public class WorkflowalizerTest {
         final List<NodeMetadata> nodes = mtnMtd.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
+            assertEquals("15" + ":" + id, node.getNodeId());
         }
         assertEquals(readVersion(readMetaNodeWorkflowLines), mtnMtd.getVersion());
         assertTrue(mtnMtd.getUnexpectedFileNames().isEmpty());
 
         // Read node fields
-        assertEquals(15, mtnMtd.getNodeId());
+        assertEquals("15", mtnMtd.getNodeId());
         assertEquals(readTemplateLink(readMetaNodeWorkflowLines), mtnMtd.getTemplateLink());
         assertEquals(readAnnotationText(readMetaNodeWorkflowLines), mtnMtd.getAnnotationText());
     }
@@ -741,7 +757,13 @@ public class WorkflowalizerTest {
         final List<NodeMetadata> nodes = mtnMtd.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
+            assertEquals("16" + ":" + id, node.getNodeId());
         }
         assertEquals(readVersion(readMetaNodeWorkflowLines), mtnMtd.getVersion());
         assertTrue(mtnMtd.getUnexpectedFileNames().isEmpty());
@@ -751,7 +773,7 @@ public class WorkflowalizerTest {
         assertEquals(readCustomNodeDescription(readMetaNodeNodeLines), mtnMtd.getCustomNodeDescription());
         assertTrue(readNodeConfiguration(new File(m_workflowDir.toFile(), "Format Outpu (#16)/settings.xml")).get()
             .isIdentical(mtnMtd.getNodeConfiguration().get()));
-        assertEquals(16, mtnMtd.getNodeId());
+        assertEquals("16", mtnMtd.getNodeId());
         assertEquals(readTemplateLink(readMetaNodeNodeLines), mtnMtd.getTemplateLink());
     }
 
@@ -793,7 +815,12 @@ public class WorkflowalizerTest {
         MetanodeMetadata mm = null;
         SubnodeMetadata sm = null;
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
             if (node.getType().equals("NativeNode")) {
                 nativeNodeCount++;
             }
@@ -820,7 +847,12 @@ public class WorkflowalizerTest {
         subnodeCount = 0;
         metanodeCount = 0;
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
             if (node.getType().equals("NativeNode")) {
                 nativeNodeCount++;
             }
@@ -845,7 +877,12 @@ public class WorkflowalizerTest {
         subnodeCount = 0;
         metanodeCount = 0;
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
             if (node.getType().equals("NativeNode")) {
                 nativeNodeCount++;
             }
@@ -895,7 +932,12 @@ public class WorkflowalizerTest {
         final List<NodeMetadata> nodes = template.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
         assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), template.getTemplateInformation());
         assertEquals(readVersion(m_readTemplateTemplateKnime), template.getVersion());
@@ -959,7 +1001,12 @@ public class WorkflowalizerTest {
         final List<NodeMetadata> nodes = tm.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
-            assertTrue(nodeIds.contains(node.getNodeId()));
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
         assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), tm.getTemplateInformation());
         assertEquals(readVersion(m_readTemplateTemplateKnime), tm.getVersion());
@@ -1100,8 +1147,18 @@ public class WorkflowalizerTest {
         for (int i = 0, j = 0; i < actual.size(); i++, j += 4) {
             final int sourceId = expectedIds.get(j).intValue();
             final int destId = expectedIds.get(j + 1).intValue();
-            assertEquals(sourceId, actual.get(i).getSourceId());
-            assertEquals(expectedIds.get(j + 1).intValue(), actual.get(i).getDestinationId());
+            String parsedSource = actual.get(i).getSourceId();
+            String parsedDest = actual.get(i).getDestinationId();
+            final int indexSource = parsedSource.lastIndexOf(':');
+            final int indexDest = parsedDest.lastIndexOf(':');
+            if (indexSource >= 0) {
+                parsedSource = parsedSource.substring(indexSource + 1, parsedSource.length());
+            }
+            if (indexDest >= 0) {
+                parsedDest = parsedDest.substring(indexDest + 1, parsedDest.length());
+            }
+            assertEquals(sourceId, Integer.parseInt(parsedSource));
+            assertEquals(expectedIds.get(j + 1).intValue(), Integer.parseInt(parsedDest));
             assertEquals(expectedIds.get(j + 2).intValue(), actual.get(i).getSourcePort());
             assertEquals(expectedIds.get(j + 3).intValue(), actual.get(i).getDestinationPort());
             if (sourceId == -1) {

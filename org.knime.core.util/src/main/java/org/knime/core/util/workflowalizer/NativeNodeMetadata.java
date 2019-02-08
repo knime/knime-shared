@@ -71,7 +71,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
     private final String m_globalNodeId;
 
     @JsonProperty("nodeInstanceId")
-    private final int m_nodeId;
+    private final String m_nodeId;
 
     @JsonProperty("type")
     private final String m_type;
@@ -105,7 +105,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      * {@inheritDoc}
      */
     @Override
-    public int getNodeId() {
+    public String getNodeId() {
         return m_nodeId;
     }
 

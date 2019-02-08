@@ -306,7 +306,7 @@ public final class Workflowalizer {
 
         final WorkflowFields wf = wc.createWorkflowFields();
         builder.setWorkflowFields(wf);
-        populateWorkflowFields(wf, wc, parser, workflowKnime, null, path, zip);
+        populateWorkflowFields(wf, wc, parser, workflowKnime, null, path, zip, null);
         final String name = new File(path).getName();
         wf.setName(name);
 
@@ -393,7 +393,7 @@ public final class Workflowalizer {
 
         final WorkflowFields wf = wc.createWorkflowFields();
         builder.setWorkflowFields(wf);
-        populateWorkflowFields(wf, wc, parser, workflowKnime, templateKnime, path, zip);
+        populateWorkflowFields(wf, wc, parser, workflowKnime, templateKnime, path, zip, null);
         final String name = new File(path).getName();
         wf.setName(name);
 
@@ -425,29 +425,33 @@ public final class Workflowalizer {
     }
 
     private static Map<Integer, NodeMetadata> readNodes(final String currentWorkflowDirectory, final ZipFile zip,
-        final List<ConfigBase> configs, final WorkflowalizerConfiguration wc, final WorkflowParser parser)
+        final List<ConfigBase> configs, final WorkflowalizerConfiguration wc, final WorkflowParser parser, final String nodeId)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final Map<Integer, NodeMetadata> map = new HashMap<>();
         for (final ConfigBase config : configs) {
             final String type = parser.getType(config);
             NodeMetadata n = null;
             if (type.equals("NativeNode")) {
-                n = readNativeNode(currentWorkflowDirectory, zip, config, wc, parser);
+                n = readNativeNode(currentWorkflowDirectory, zip, config, wc, parser, nodeId);
             } else if (type.equals("SubNode")) {
-                n = readWrappedMetanode(currentWorkflowDirectory, zip, config, wc, parser);
+                n = readWrappedMetanode(currentWorkflowDirectory, zip, config, wc, parser, nodeId);
             } else if (type.equals("MetaNode")) {
-                n = readMetanode(currentWorkflowDirectory, zip, wc, config, parser);
+                n = readMetanode(currentWorkflowDirectory, zip, wc, config, parser, nodeId);
             } else {
                 throw new IllegalArgumentException("Unknown node type: " + type);
             }
 
-            map.put(n.getNodeId(), n);
+            String nId = n.getNodeId();
+            if (nId.lastIndexOf(':') >= 0) {
+                nId = nId.substring(nId.lastIndexOf(':') + 1, nId.length());
+            }
+            map.put(Integer.parseInt(nId), n);
         }
         return map;
     }
 
     private static MetanodeMetadata readMetanode(final String parentDirectory, final ZipFile zip,
-        final WorkflowalizerConfiguration wc, final ConfigBase configBase, final WorkflowParser parser)
+        final WorkflowalizerConfiguration wc, final ConfigBase configBase, final WorkflowParser parser, final String nodeId)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final MetanodeMetadataBuilder builder = new MetanodeMetadataBuilder();
@@ -464,12 +468,12 @@ public final class Workflowalizer {
             metaNodeDirectory = nodePath.substring(0, nodePath.lastIndexOf("/") + 1);
         }
 
-        final WorkflowFields wf = wc.createWorkflowFields();
-        populateWorkflowFields(wf, wc, parser, workflowKnime, null, metaNodeDirectory, zip);
-        builder.setWorkflowFields(wf);
-
         final NodeFields nf = wc.createNodeFields();
-        populateNodeFields(nf, parser, configBase);
+        populateNodeFields(nf, parser, configBase, nodeId);
+
+        final WorkflowFields wf = wc.createWorkflowFields();
+        populateWorkflowFields(wf, wc, parser, workflowKnime, null, metaNodeDirectory, zip, nf.getId());
+        builder.setWorkflowFields(wf);
 
         final Optional<String> annotationText = parser.getAnnotationText(workflowKnime, null);
         nf.setAnnotationText(annotationText);
@@ -482,8 +486,8 @@ public final class Workflowalizer {
     }
 
     private static SubnodeMetadata readWrappedMetanode(final String parentDirectory, final ZipFile zip,
-        final ConfigBase configBase, final WorkflowalizerConfiguration wc, final WorkflowParser parser)
-        throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
+        final ConfigBase configBase, final WorkflowalizerConfiguration wc, final WorkflowParser parser,
+        final String nodeId) throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final SubnodeMetadataBuilder builder = new SubnodeMetadataBuilder();
 
@@ -495,8 +499,7 @@ public final class Workflowalizer {
             final Path subnodeDirectoryPath = subnodeFile.getParent();
             subnodeDirectory = subnodeDirectoryPath.toAbsolutePath().toString();
             settingsXml = readFile(subnodeFile);
-            workflowKnime =
-                readFile(subnodeDirectoryPath.resolve(parser.getWorkflowFileName()));
+            workflowKnime = readFile(subnodeDirectoryPath.resolve(parser.getWorkflowFileName()));
         } else {
             final String nodePath = parentDirectory + settings;
             subnodeDirectory = nodePath.substring(0, nodePath.lastIndexOf("/") + 1);
@@ -504,14 +507,14 @@ public final class Workflowalizer {
             workflowKnime = readFile(subnodeDirectory + parser.getWorkflowFileName(), zip);
         }
 
-        final WorkflowFields wf = wc.createWorkflowFields();
-        populateWorkflowFields(wf, wc, parser, workflowKnime, null, subnodeDirectory, zip);
-        builder.setWorkflowFields(wf);
-
         final SingleNodeFields snf = wc.createSingleNodeFields();
         // Subnodes were not supported when node.xml files were used
-        populateSingleNodeFields(snf, wc, parser, settingsXml, null, configBase);
+        populateSingleNodeFields(snf, wc, parser, settingsXml, null, configBase, nodeId);
         builder.setSingleNodeFields(snf);
+
+        final WorkflowFields wf = wc.createWorkflowFields();
+        populateWorkflowFields(wf, wc, parser, workflowKnime, null, subnodeDirectory, zip, snf.getId());
+        builder.setWorkflowFields(wf);
 
         final Optional<String> templateLink = parser.getTemplateLink(settingsXml);
         builder.setTemplateLink(templateLink);
@@ -520,8 +523,8 @@ public final class Workflowalizer {
     }
 
     private static NativeNodeMetadata readNativeNode(final String parentDirectory, final ZipFile zip,
-        final ConfigBase configBase, final WorkflowalizerConfiguration wc, final WorkflowParser parser)
-        throws InvalidSettingsException, FileNotFoundException, IOException {
+        final ConfigBase configBase, final WorkflowalizerConfiguration wc, final WorkflowParser parser,
+        final String nodeId) throws InvalidSettingsException, FileNotFoundException, IOException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final NativeNodeMetadataBuilder builder = new NativeNodeMetadataBuilder();
 
@@ -550,7 +553,7 @@ public final class Workflowalizer {
         }
 
         final SingleNodeFields snf = wc.createSingleNodeFields();
-        populateSingleNodeFields(snf, wc, parser, settingsXml, nodeXml, configBase);
+        populateSingleNodeFields(snf, wc, parser, settingsXml, nodeXml, configBase, nodeId);
         builder.setSingleNodeFields(snf);
 
         final String factorySettings = parser.getFactorySettingsHashCode(settingsXml);
@@ -593,7 +596,7 @@ public final class Workflowalizer {
 
     private static void populateWorkflowFields(final WorkflowFields wf, final WorkflowalizerConfiguration wc,
         final WorkflowParser parser, final ConfigBase workflowKnime, final ConfigBase templateKnime, final String path,
-        final ZipFile zip) throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
+        final ZipFile zip, final String nodeId) throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
         final Version version = parser.getVersion(workflowKnime, templateKnime);
         wf.setVersion(version);
 
@@ -610,7 +613,7 @@ public final class Workflowalizer {
         wf.setAnnotations(annotations);
         if (wc.parseNodes()) {
             final Map<Integer, NodeMetadata> nodes =
-                readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser);
+                readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser, nodeId);
             wf.setNodes(new ArrayList<>(nodes.values()));
             if (wc.parseConnections()) {
                 final List<NodeConnection> connections = parser.getConnections(workflowKnime, nodes);
@@ -629,18 +632,24 @@ public final class Workflowalizer {
     }
 
     private static void populateNodeFields(final NodeFields nf, final WorkflowParser parser,
-        final ConfigBase nodeConfig) throws InvalidSettingsException {
+        final ConfigBase nodeConfig, final String nodeId) throws InvalidSettingsException {
         final int id = parser.getId(nodeConfig);
-        nf.setId(id);
+        String nid = nodeId;
+        if (nid == null) {
+            nid = id + "";
+        } else {
+            nid = nid + ":" + id;
+        }
+        nf.setId(nid);
 
         final String type = parser.getType(nodeConfig);
         nf.setType(type);
     }
 
     private static void populateSingleNodeFields(final SingleNodeFields snf, final WorkflowalizerConfiguration wc,
-        final WorkflowParser parser, final ConfigBase settingsXml, final ConfigBase nodeXml, final ConfigBase nodeConfig)
-        throws InvalidSettingsException {
-        populateNodeFields(snf, parser, nodeConfig);
+        final WorkflowParser parser, final ConfigBase settingsXml, final ConfigBase nodeXml,
+        final ConfigBase nodeConfig, final String nodeId) throws InvalidSettingsException {
+        populateNodeFields(snf, parser, nodeConfig, nodeId);
         if (wc.parseNodeConfiguration()) {
             final Optional<ConfigBase> nodeConfiguration = parser.getNodeConfiguration(settingsXml, nodeXml);
             if (nodeConfiguration.isPresent()) {

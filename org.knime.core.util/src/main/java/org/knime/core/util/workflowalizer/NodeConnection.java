@@ -73,10 +73,10 @@ public final class NodeConnection {
     private final Optional<NodeMetadata> m_dest;
 
     @JsonProperty("sourceId")
-    private final int m_sourceId;
+    private final String m_sourceId;
 
     @JsonProperty("destinationId")
-    private final int m_destId;
+    private final String m_destId;
 
     @JsonProperty("sourcePort")
     private final int m_sourcePort;
@@ -99,8 +99,8 @@ public final class NodeConnection {
         if (destId != -1 && (dest == null || !dest.isPresent())) {
             throw new IllegalArgumentException("Missing destination node with ID " + destId);
         }
-        m_sourceId = sourceId;
-        m_destId = destId;
+        m_sourceId = sourceId == -1 ? sourceId + "" : source.get().getNodeId();
+        m_destId = destId == -1 ? destId + "" : dest.get().getNodeId();
         m_source = source;
         m_dest = dest;
         m_sourcePort = sourcePort;
@@ -108,16 +108,20 @@ public final class NodeConnection {
     }
 
     /**
-     * @return the ID of the connection source node
+     * @return the ID of the connection source node with hierarchy, in the form
+     *         {@code ..:grandparent-ID:parent-ID:node-ID} where parent is a metanode. There can be any number of
+     *         predecessors. Nodes in the workflow (i.e. not contained in metanodes) will not contain a ':'.
      */
-    public int getSourceId() {
+    public String getSourceId() {
         return m_sourceId;
     }
 
     /**
-     * @return the ID of the connection destination node
+     * @return the ID of the connection destination node with hierarchy, in the form
+     *         {@code ..:grandparent-ID:parent-ID:node-ID} where parent is a metanode. There can be any number of
+     *         predecessors. Nodes in the workflow (i.e. not contained in metanodes) will not contain a ':'.
      */
-    public int getDestinationId() {
+    public String getDestinationId() {
         return m_destId;
     }
 
