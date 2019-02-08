@@ -7,38 +7,44 @@
 	<parent>
 		<groupId>org.knime.maven</groupId>
 		<artifactId>parent-pom</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>4.1.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.knime</groupId>
 	<artifactId>knime-shared</artifactId>
-	<version>3.8.0-SNAPSHOT</version>
+	<version>4.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<properties>
-		<!--
-			Use Jenkins's project parameterization capabilities to set a string 
-			parameter named KNIME_TP_P2 to the desired P2 update site value. 
-			For building locally you can set KNIME_TP_P2 in the respective 
-			run configuration 'Environment' tab with a file:// or http:// URL value pointing 
-			to the desired P2 update site.
-		-->
-		<knime.tp.p2>${env.KNIME_TP_P2}</knime.tp.p2>
-	</properties>
+	<profiles>
+		<profile>
+			<id>AP</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 
-	<modules>
-		<module>org.apache.xmlbeans</module>
-		<module>org.knime.core.util</module>
-		<module>org.knime.features.util</module>
-		<module>org.knime.gateway.codegen</module>
-		<module>org.knime.update.shared</module>
-	</modules>
+			<modules>
+				<module>org.apache.xmlbeans</module>
+				<module>org.knime.core.util</module>
+				<module>org.knime.features.util</module>
+				<module>org.knime.gateway.codegen</module>
+				<module>org.knime.update.shared</module>
+			</modules>
 
-	<repositories>
-		<repository>
-			<id>org.knime.update.org</id>
-			<layout>p2</layout>
-			<url>${knime.tp.p2}</url>
-		</repository>
-	</repositories>
+			<repositories>
+				<repository>
+					<id>p2-knime-tp</id>
+					<layout>p2</layout>
+					<url>${knime.tp.p2}</url>
+				</repository>
+			</repositories>
+		</profile>
+		<profile>
+			<id>SRV</id>
+			<modules>
+				<module>org.knime.core.util</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>
+
+<!-- vim: set ts=4: -->

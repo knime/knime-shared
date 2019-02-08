@@ -1,80 +1,77 @@
 #!groovy
+def BN = BRANCH_NAME == "master" || BRANCH_NAME.startsWith("releases/") ? BRANCH_NAME : "master"
 
-library "knime-pipeline@$BRANCH_NAME"
+library "knime-pipeline@$BN"
 
 properties([
-  parameters([
-    stringParam(
-      name: 'BRANCH_NAME',
-      defaultValue: 'build/DEVOPS-35_standalone-knime-core-build',
-      description: 'Name of the branch to build.'
-    ),
-    stringParam(
-      name: 'KNIME_TP_P2',
-      defaultValue: '${P2_REPO}/knime-tp/',
-      description: 'KNIME Target Platform P2 update site url.'
-    )
-  ]),
-
-  pipelineTriggers([
-    triggers: [
-      [
-        $class: 'jenkins.triggers.ReverseBuildTrigger',
-        upstreamProjects: "knime-tp/" + env.BRANCH_NAME.replaceAll("/", "%2F"), threshold: hudson.model.Result.SUCCESS
-      ]
-    ]
-  ]),
-
-  buildDiscarder(logRotator(numToKeepStr: '5')),
+	pipelineTriggers([upstream('knime-tp/' + env.BRANCH_NAME.replaceAll('/', '%2F'))]),
+	buildDiscarder(logRotator(numToKeepStr: '5')),
+	disableConcurrentBuilds()
 ])
 
-node {
-  docker.withServer('tcp://proxy1:2375') {
-    docker.image('knime/jenkins-slave-ubuntu:1.0.2').inside {
-      stage('Checkout Sources') {
-        checkout([
-          $class: 'GitSCM',
-          branches: [[name: '${BRANCH_NAME}']],
-          doGenerateSubmoduleConfigurations: false,
-          extensions: [
-            [$class: 'GitLFSPull'],
-            [$class: 'CheckoutOption', timeout: 60],
-	    [$class: 'CleanBeforeCheckout'],
-            [$class: 'PruneStaleBranch']
-          ],
-          submoduleCfg: [],
-          userRemoteConfigs: [[
-            credentialsId: 'bitbucket-jenkins',
-            url: 'https://bitbucket.org/KNIME/knime-shared'
-          ]]
-        ])
-      }
 
-      stage('Maven/Tycho Build') {
-        withMavenJarsignerCredentials {
-          sh '''
-            export TEMP="${WORKSPACE}/tmp"
-            rm -rf "${TEMP}"
-            mkdir "${TEMP}"
-            mvn --settings /var/cache/m2/settings.xml clean install
-            rm -rf "${TEMP}"
-          '''
+node('maven') {
+     stage('Checkout Sources') {
+        checkout scm
 	}
-      }
 
-      stage('Stage Build Artifacts') {
-        sh '''
-          #!/bin/bash -eux
+	try {
+		stage('Tycho Build') {
+			withMavenJarsignerCredentials {
+				sh '''
+					export TEMP="${WORKSPACE}/tmp"
+					rm -rf "${TEMP}"; mkdir "${TEMP}"
+					mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} clean verify
+					rm -rf "${TEMP}"
+				'''
+			}
 
-          if [[ ! -d "/var/cache/build_artifacts/${JOB_NAME}/" ]]; then
-            mkdir -p "/var/cache/build_artifacts/${JOB_NAME}/"
-          else
-            rm -Rf /var/cache/build_artifacts/${JOB_NAME}/*
-          fi
+			// junit '**/target/test-reports/*/TEST-*.xml'
+		}
 
-          cp -a ${WORKSPACE}/org.knime.update.shared/target/repository/ /var/cache/build_artifacts/${JOB_NAME}
-        '''
-      }
-    }
-  }
-}
+
+		if (currentBuild.result != 'UNSTABLE') {
+			stage('Deploy p2') {
+				p2Tools.deploy("${WORKSPACE}/org.knime.update.shared/target/repository/")
+			}
+		} else {
+			echo "==============================================\n" +
+				 "| Build unstable, not deploying p2 artifacts.|\n" +
+				 "=============================================="
+		}
+
+		stage('Maven Build') {
+			withMaven {
+				sh '''
+					export PATH="$MVN_CMD_DIR:$PATH"
+	            	mvn -P SRV -Dmaven.test.failure.ignore=true clean verify
+				'''
+			}
+
+			junit '**/target/surefire-reports/TEST-*.xml'
+		}
+
+		if (BRANCH_NAME == "master" || BRANCH_NAME.startsWith("releases/")) {
+			if (currentBuild.result != 'UNSTABLE') {
+				stage('Deploy') {
+					withMaven {
+						sh '''
+							export PATH="$MVN_CMD_DIR:$PATH"
+							mvn -P SRV -DskipTests=true -DskipITs=true deploy
+						'''
+					}
+				}
+			} else {
+				echo "===========================================\n" +
+					 "| Build unstable, not deploying artifacts.|\n" +
+					 "==========================================="
+			}
+		}
+    } catch (ex) {
+		currentBuild.result = 'FAILED'
+		throw ex
+	} finally {
+		notifications.notifyBuild(currentBuild.result);
+	}
+ }
+/* vim: set ts=4: */
