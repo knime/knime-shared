@@ -60,7 +60,8 @@ import java.util.Optional;
  */
 class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> {
 
-    private Optional<String> m_svg;
+    private Integer m_svgWidth;
+    private Integer m_svgHeight;
     private Optional<Collection<String>> m_artifacts;
     private String m_author;
     private Date m_authorDate;
@@ -70,8 +71,12 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
     private List<String> m_credentials;
     private List<String> m_variables;
 
-    void setWorkflowSVGFile(final Optional<String> workflowSVGFile) {
-        m_svg = workflowSVGFile;
+    void setSvgWidth(final Integer svgWidth) {
+        m_svgWidth = svgWidth;
+    }
+
+    void setSvgHeight(final Integer svgHeight) {
+        m_svgHeight = svgHeight;
     }
 
     void setArtifactsFileNames(final Optional<Collection<String>> artifactsFileNames) {
@@ -106,8 +111,12 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         m_variables = variables;
     }
 
-    Optional<String> getWorkflowSVGFile() {
-        return m_svg;
+    Integer getSvgWidth() {
+        return m_svgWidth;
+    }
+
+    Integer getSvgHeight() {
+        return m_svgHeight;
     }
 
     Optional<Collection<String>> getArtifactsFileNames() {
@@ -151,7 +160,8 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         checkPopulated(m_authorDate, "authored date");
         checkPopulated(m_lastEditDate, "last edited date");
         checkPopulated(m_lastEditor, "last editor");
-        checkPopulated(m_svg, "workflow SVG file");
+        checkPopulated(m_svgWidth, "workflow SVG width");
+        checkPopulated(m_svgHeight, "workflow SVG height");
         checkPopulated(m_artifacts, "artifacts directory");
         checkPopulated(m_credentials, "workflow credentials");
         checkPopulated(m_variables, "workflow variables");

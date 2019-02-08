@@ -78,7 +78,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     private final AuthorInformation m_authorInfo;
 
     @JsonProperty("workflowSvg")
-    private final Optional<String> m_svg;
+    private final WorkflowSVG m_svg;
 
     @JsonProperty("artifactsFiles")
     private final Optional<Collection<String>> m_artifacts;
@@ -96,7 +96,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         super(builder);
         m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
             builder.getLastEditDate());
-        m_svg = builder.getWorkflowSVGFile();
+        m_svg = new WorkflowSVG(builder.getSvgWidth(), builder.getSvgHeight());
         m_artifacts = builder.getArtifactsFileNames();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
@@ -129,7 +129,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     /**
      * @return a file path for the workflow SVG if present
      */
-    public Optional<String> getWorkflowSvg() {
+    public WorkflowSVG getWorkflowSvg() {
         return m_svg;
     }
 
@@ -170,6 +170,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
      *
      * @return {@code true} if the workflow is a template
      */
+    @SuppressWarnings("static-method")
     @JsonProperty("template")
     public boolean isTemplate() {
         return false;
@@ -193,7 +194,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
 
         return super.toString() +
                 ", " + m_authorInfo +
-                ", workflow_svg: " + m_svg.orElse(null) +
+                ", workflow_svg: " + m_svg.toString() +
                 ", artifacts_files: " + artifacts +
                 ", workflow_meta: " + wsm +
                 ", workflow_credentials: [" + String.join(", ", m_credentials) + "]" +
@@ -235,5 +236,45 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
      */
     public WorkflowMetadata flatten() {
         return new WorkflowMetadata(this);
+    }
+
+    // -- Helper classes --
+
+    /**
+     * POJO which represents the SVG of a workflow.
+     */
+    @JsonAutoDetect
+    public static final class WorkflowSVG {
+        private final Integer m_width;
+
+        private final Integer m_height;
+
+        private WorkflowSVG(final Integer width, final Integer height) {
+            m_width = width;
+            m_height = height;
+        }
+
+        /**
+         * Returns the width of this workflow's SVG.
+         *
+         * @return the width of the SVG
+         */
+        public Integer getWidth() {
+            return m_width;
+        }
+
+        /**
+         * Returns the height of this workflow's SVG.
+         *
+         * @return the height of the SVG
+         */
+        public Integer getHeight() {
+            return m_height;
+        }
+
+        @Override
+        public String toString() {
+            return "width: " + m_width + " & height: " + m_height;
+        }
     }
 }

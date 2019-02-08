@@ -58,6 +58,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/WorkflowMetadata.java" type="org.knime.core.util.workflowalizer.WorkflowMetadata">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.WorkflowMetadata"/>
+                <message_argument value="getWorkflowSvg()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/main/java/org/knime/core/util/workflowalizer/WorkflowalizerConfiguration.java" type="org.knime.core.util.workflowalizer.WorkflowalizerConfiguration$Builder">
         <filter id="338792546">
             <message_arguments>
@@ -99,11 +107,6 @@
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.WorkflowalizerTest"/>
                 <message_argument value="testReadingModelParameters()"/>
-            </message_arguments>
-        </filter>
-        <filter id="1143996420">
-            <message_arguments>
-                <message_argument value="testReadingNodeConfiguration()"/>
             </message_arguments>
         </filter>
     </resource>

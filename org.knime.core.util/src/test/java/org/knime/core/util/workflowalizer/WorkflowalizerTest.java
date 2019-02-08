@@ -181,8 +181,8 @@ public class WorkflowalizerTest {
         }
         assertEquals(readVersion(m_readWorkflowLines), wkfMd.getVersion());
 
-        assertEquals(m_workflowDir.relativize(new File(m_workflowDir.toFile(), "workflow.svg").toPath()).toString(),
-            wkfMd.getWorkflowSvg().get());
+        assertEquals(1301, wkfMd.getWorkflowSvg().getWidth().intValue());
+        assertEquals(501, wkfMd.getWorkflowSvg().getHeight().intValue());
         assertEquals(m_workflowDir
             .relativize(new File(m_workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
             .toString(), wkfMd.getArtifacts().get().iterator().next());
@@ -205,9 +205,8 @@ public class WorkflowalizerTest {
     public void testReadingSVG() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final File test = new File(m_workflowDir.toFile(), "workflow.svg");
-        assertTrue(wkfMd.getWorkflowSvg().isPresent());
-        assertEquals(m_workflowDir.relativize(test.toPath()).toString(), wkfMd.getWorkflowSvg().get());
+        assertEquals(1301, wkfMd.getWorkflowSvg().getWidth().intValue());
+        assertEquals(501, wkfMd.getWorkflowSvg().getHeight().intValue());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -601,6 +600,7 @@ public class WorkflowalizerTest {
      * Test that the node's configuration are read correctly.
      *
      * @throws Exception
+     * @since 5.11
      */
     @Test
     public void testReadingNodeConfiguration() throws Exception {
@@ -777,7 +777,8 @@ public class WorkflowalizerTest {
         assertEquals(readCustomDescription(m_readWorkflowLines), twm.getCustomDescription());
         assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
         assertEquals(readVersion(m_readWorkflowLines), twm.getVersion());
-        assertEquals("workflow.svg", twm.getWorkflowSvg().get());
+        assertEquals(1301, twm.getWorkflowSvg().getWidth().intValue());
+        assertEquals(501, twm.getWorkflowSvg().getHeight().intValue());
         assertEquals(".artifacts/openapi-input-parameters.json",
             twm.getArtifacts().get().iterator().next());
         assertTrue(twm.getUnexpectedFileNames().isEmpty());

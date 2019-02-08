@@ -83,6 +83,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.InvalidSettingsException;
@@ -91,6 +93,7 @@ import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.Version;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -327,13 +330,11 @@ public final class Workflowalizer {
         }
         builder.setArtifactsFileNames(artifactsFiles);
 
-        Optional<String> svg = null;
         if (zip == null) {
-            svg = svgFile(parser, Paths.get(path));
+            svgFile(parser, Paths.get(path), builder);
         } else {
-            svg = svgFile(parser, path, zip);
+           svgFile(parser, path, zip, builder);
         }
-        builder.setWorkflowSVGFile(svg);
 
         if (wc.parseWorkflowMeta()) {
             Optional<WorkflowSetMeta> wsa = null;
@@ -795,23 +796,53 @@ public final class Workflowalizer {
         return Optional.of(files);
     }
 
-    private static Optional<String> svgFile(final WorkflowParser parser, final Path workflowDirectory)
-        throws IOException {
+    private static void svgFile(final WorkflowParser parser, final Path workflowDirectory,
+        final WorkflowMetadataBuilder builder) throws IOException {
         final Path svg = workflowDirectory.resolve(parser.getWorkflowSVGFileName());
         if (!Files.exists(svg, LinkOption.NOFOLLOW_LINKS)) {
-            return Optional.empty();
+            return;
         }
         CheckUtils.checkArgument(Files.probeContentType(svg).toLowerCase().contains("svg"),
             parser.getWorkflowSVGFileName() + " is not an SVG");
-        return Optional.of(workflowDirectory.relativize(svg).toString());
+
+        final String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
+        final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
+        final Document doc = f.createDocument(svg.toUri().toString());
+        final Node svgItem = doc.getElementsByTagName("svg").item(0);
+        if (svgItem != null) {
+            final Node widthNode = svgItem.getAttributes().getNamedItem("width");
+            final Node heightNode = svgItem.getAttributes().getNamedItem("height");
+            if (widthNode != null) {
+                builder.setSvgWidth(Integer.parseInt(widthNode.getNodeValue()));
+            }
+            if (heightNode != null) {
+                builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
+            }
+        }
     }
 
-    private static Optional<String> svgFile(final WorkflowParser parser, final String path, final ZipFile zip) {
+    private static void svgFile(final WorkflowParser parser, final String path, final ZipFile zip,
+        final WorkflowMetadataBuilder builder) throws IOException {
         final ZipEntry svg = zip.getEntry(path + parser.getWorkflowSVGFileName());
         if (svg == null) {
-            return Optional.empty();
+            return;
         }
-        return Optional.ofNullable(svg.getName().substring(path.length()));
+        try (final InputStream stream = zip.getInputStream(svg)) {
+            final String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
+            final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
+            final Document doc = f.createDocument(Paths.get(svg.toString()).toUri().toString(), stream);
+            final Node svgItem = doc.getElementsByTagName("svg").item(0);
+            if (svgItem != null) {
+                final Node widthNode = svgItem.getAttributes().getNamedItem("width");
+                final Node heightNode = svgItem.getAttributes().getNamedItem("height");
+                if (widthNode != null) {
+                    builder.setSvgWidth(Integer.parseInt(widthNode.getNodeValue()));
+                }
+                if (heightNode != null) {
+                    builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
+                }
+            }
+        }
     }
 
     private static String findFirstWorkflow(final ZipFile zipFile) {
