@@ -53,12 +53,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Builder for {@link WorkflowMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
 class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> {
+
+    private static final Log LOGGER = LogFactory.getLog(WorkflowMetadataBuilder.class);
 
     private Integer m_svgWidth;
     private Integer m_svgHeight;
@@ -160,13 +165,14 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         checkPopulated(m_authorDate, "authored date");
         checkPopulated(m_lastEditDate, "last edited date");
         checkPopulated(m_lastEditor, "last editor");
-        checkPopulated(m_svgWidth, "workflow SVG width");
-        checkPopulated(m_svgHeight, "workflow SVG height");
         checkPopulated(m_artifacts, "artifacts directory");
         checkPopulated(m_credentials, "workflow credentials");
         checkPopulated(m_variables, "workflow variables");
         if (wc.parseWorkflowMeta()) {
             checkPopulated(m_workflowSetMeta, "workflowset.meta");
+        }
+        if (m_svgWidth == null || m_svgHeight == null) {
+            LOGGER.warn("Could not extract SVG width/height for workflow: " + getWorkflowFields().getName());
         }
         return new WorkflowMetadata(this);
     }

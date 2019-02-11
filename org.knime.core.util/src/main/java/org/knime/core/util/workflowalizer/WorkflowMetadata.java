@@ -78,7 +78,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     private final AuthorInformation m_authorInfo;
 
     @JsonProperty("workflowSvg")
-    private final WorkflowSVG m_svg;
+    private final Optional<WorkflowSVG> m_svg;
 
     @JsonProperty("artifactsFiles")
     private final Optional<Collection<String>> m_artifacts;
@@ -96,7 +96,11 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         super(builder);
         m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
             builder.getLastEditDate());
-        m_svg = new WorkflowSVG(builder.getSvgWidth(), builder.getSvgHeight());
+        if (builder.getSvgHeight() == null || builder.getSvgWidth() == null) {
+            m_svg = Optional.empty();
+        } else {
+            m_svg = Optional.of(new WorkflowSVG(builder.getSvgWidth(), builder.getSvgHeight()));
+        }
         m_artifacts = builder.getArtifactsFileNames();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
@@ -129,7 +133,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     /**
      * @return a file path for the workflow SVG if present
      */
-    public WorkflowSVG getWorkflowSvg() {
+    public Optional<WorkflowSVG> getWorkflowSvg() {
         return m_svg;
     }
 
