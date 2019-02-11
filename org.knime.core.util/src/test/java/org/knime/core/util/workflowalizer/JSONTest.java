@@ -144,6 +144,7 @@ public class JSONTest {
         @Override
         void visitWorkflow(final Path workflowDir) {
             try {
+                System.out.println("Processing " + workflowDir);
                 final WorkflowMetadata tm = Workflowalizer.readWorkflow(workflowDir);
                 final String json = workflowMapper.writeValueAsString(tm.flatten());
                 try (final PrintWriter writer = new PrintWriter(new File(dest + count + ".json"))) {
