@@ -48,8 +48,11 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -68,18 +71,95 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class WorkflowSetMeta {
 
-    @JsonProperty("workflowMetaAuthor")
+    @JsonProperty("author")
     private final Optional<String> m_author;
 
-    @JsonProperty("workflowMetaComments")
-    private final Optional<String> m_comments;
+    @JsonProperty("title")
+    private final Optional<String> m_title;
+
+    @JsonProperty("description")
+    private final Optional<String> m_description;
+
+    @JsonProperty("blogLinks")
+    private final Optional<String[]> m_blogLinks;
+
+    @JsonProperty("videoLinks")
+    private final Optional<String[]> m_videoLinks;
+
+    @JsonProperty("additionalLinks")
+    private final Optional<String[]> m_additionalLinks;
+
+    @JsonProperty("tags")
+    private final Optional<String[]> m_tags;
 
     WorkflowSetMeta(final Optional<String> author, final Optional<String> comments) {
         m_author = author;
-        m_comments = comments;
+
+        if (comments.isPresent()) {
+            final String[] lines = comments.get().split(System.getProperty("line.separator"));
+
+            String title = null;
+            int start = 0;
+            // If the first line is less than 20 words, followed by a blank line, then another line which isn't
+            // one of the special "tags" -> assume the first line is a title
+            if (lines.length > 2 && (!lines[0].isEmpty() && lines[1].isEmpty() && !lines[2].isEmpty())
+                && !(lines[2].startsWith("BLOG:") || lines[2].startsWith("URL:") || lines[2].startsWith("VIDEO:")
+                    || lines[2].startsWith("TAG:") || lines[2].startsWith("TAGS:")) && lines[0].split(" ").length < 20) {
+                title = lines[0];
+                start = 2;
+            }
+            m_title = Optional.ofNullable(title);
+
+            final StringBuilder b = new StringBuilder();
+            int stop = lines.length;
+            for (int i = start; i < lines.length; i++) {
+                if (lines[i].startsWith("BLOG:") || lines[i].startsWith("URL:") || lines[i].startsWith("VIDEO:")
+                    || lines[i].startsWith("TAG:") || lines[i].startsWith("TAGS:")) {
+                    stop = i;
+                    break;
+                } else {
+                    b.append(lines[i] + "\n");
+                }
+            }
+            m_description = Optional.ofNullable(b.toString().trim());
+
+            final List<String> blogs = new ArrayList<>();
+            final List<String> urls = new ArrayList<>();
+            final List<String> videos = new ArrayList<>();
+            final List<String> tags = new ArrayList<>();
+            for (int i = stop; i < lines.length; i++) {
+                if (lines[i].startsWith("BLOG:")) {
+                    blogs.add(createURLTag(lines[i]));
+                } else if (lines[i].startsWith("URL:")) {
+                    urls.add(createURLTag(lines[i]));
+                } else if (lines[i].startsWith("VIDEO:")) {
+                    videos.add(createURLTag(lines[i]));
+                } else if (lines[i].startsWith("TAG:") || lines[i].startsWith("TAGS:")) {
+                    final String[] split = lines[i].split(":");
+                    final String[] ts = split[1].split(",");
+                    for (final String t : ts) {
+                        tags.add(t.trim());
+                    }
+                }
+            }
+
+            m_blogLinks = Optional.ofNullable(blogs.toArray(new String[blogs.size()]));
+            m_additionalLinks = Optional.ofNullable(urls.toArray(new String[urls.size()]));
+            m_videoLinks = Optional.ofNullable(videos.toArray(new String[videos.size()]));
+            m_tags = Optional.ofNullable(tags.toArray(new String[tags.size()]));
+        } else {
+            m_title = Optional.empty();
+            m_description = Optional.empty();
+            m_blogLinks = Optional.empty();
+            m_videoLinks = Optional.empty();
+            m_additionalLinks = Optional.empty();
+            m_tags = Optional.empty();
+        }
     }
 
     /**
+     * Returns the author name as set in the workflowset.meta file.
+     *
      * @return the author name
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
@@ -91,14 +171,83 @@ public final class WorkflowSetMeta {
     }
 
     /**
-     * @return the comments
+     * Returns the workflow's title, as listed in the workflowset.meta file, if present.
+     *
+     * @return workflow's title
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
-    public Optional<String> getComments() {
-        if (m_comments == null) {
-            throw new UnsupportedOperationException("getComments() is not supported, field was not read");
+    public Optional<String> getTitle() {
+        if (m_title == null) {
+            throw new UnsupportedOperationException("getTitle() is not supported, field was not read");
         }
-        return m_comments;
+        return m_title;
+    }
+
+    /**
+     * Returns the workflow's description, as listed in the workflowset.meta file, if present.
+     *
+     * @return workflow's description
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<String> getDescription() {
+        if (m_description == null) {
+            throw new UnsupportedOperationException("getDescription() is not supported, field was not read");
+        }
+        return m_description;
+    }
+
+    /**
+     * Returns the list of blog links associated with this workflow, as listed in the workflowset.meta file, if present.
+     *
+     * @return list of blog links
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<String[]> getBlogLinks() {
+        if (m_blogLinks == null) {
+            throw new UnsupportedOperationException("getBlogLinks() is not supported, field was not read");
+        }
+        return m_blogLinks;
+    }
+
+    /**
+     * Returns the the list of video links associated with this workflow, as listed in the workflowset.meta file, if
+     * present.
+     *
+     * @return list of video links
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<String[]> getVideoLinks() {
+        if (m_videoLinks == null) {
+            throw new UnsupportedOperationException("getVideoLinks() is not supported, field was not read");
+        }
+        return m_videoLinks;
+    }
+
+    /**
+     * Returns the the list of additional information links associated with this workflow, as listed in the
+     * workflowset.meta file, if present.
+     *
+     * @return list of additional information links
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<String[]> getAdditionalLinks() {
+        if (m_additionalLinks == null) {
+            throw new UnsupportedOperationException("getAdditionalLinks() is not supported, field was not read");
+        }
+        return m_additionalLinks;
+    }
+
+    /**
+     * Returns the list of tags associated with this workflow, as listed in the workflowset.meta file, if present.
+     *
+     * @return list of workflow tags
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<String[]> getTags() {
+        if (m_tags == null) {
+            throw new UnsupportedOperationException("getTags() is not supported, field was not read");
+        }
+        return m_tags;
     }
 
     @Override
@@ -115,7 +264,12 @@ public final class WorkflowSetMeta {
         final WorkflowSetMeta other = (WorkflowSetMeta) obj;
         return new EqualsBuilder()
                 .append(m_author, other.m_author)
-                .append(m_comments, other.m_comments)
+                .append(m_title, other.m_title)
+                .append(m_description, other.m_description)
+                .append(m_blogLinks, other.m_blogLinks)
+                .append(m_videoLinks, other.m_videoLinks)
+                .append(m_additionalLinks, other.m_additionalLinks)
+                .append(m_tags, other.m_tags)
                 .isEquals();
     }
 
@@ -123,13 +277,53 @@ public final class WorkflowSetMeta {
     public int hashCode() {
         return new HashCodeBuilder()
                 .append(m_author)
-                .append(m_comments)
+                .append(m_title)
+                .append(m_description)
+                .append(m_blogLinks)
+                .append(m_videoLinks)
+                .append(m_additionalLinks)
+                .append(m_tags)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "workflow_meta_author: " + m_author.orElse(null) +
-        ", workflow_meta_comments: " + m_comments.orElse(null);
+        String blogs = null;
+        if (m_blogLinks.isPresent()) {
+            blogs = StringUtils.join(m_blogLinks.get(), ", ");
+        }
+
+        String videos = null;
+        if (m_videoLinks.isPresent()) {
+            videos = StringUtils.join(m_videoLinks.get(), ", ");
+        }
+
+        String urls = null;
+        if (m_additionalLinks.isPresent()) {
+            urls = StringUtils.join(m_additionalLinks.get(), ", ");
+        }
+
+        String tags = null;
+        if (m_tags.isPresent()) {
+            tags = StringUtils.join(m_tags.get(), ", ");
+        }
+        return "author: " + m_author.orElse(null) + "\n" +
+                "title: " + m_title.orElse(null) + "\n" +
+                "description: " + m_description.orElse(null) + "\n" +
+                "blogLinks: " + blogs + "\n" +
+                "videoLinks: " + videos + "\n" +
+                "additionalLinks: " + urls + "\n" +
+                "tags: " + tags;
+
+    }
+
+    // -- Helper methods --
+
+    private static String createURLTag(final String s) {
+        final int textIndex = s.indexOf(':');
+        final int urlIndex = s.indexOf("http");
+        final String text = s.substring(textIndex + 1, urlIndex).trim();
+        final String href = s.substring(urlIndex, s.length()).trim();
+        return "<a href=\"" + href + "\">" + text + "</a>";
     }
 }
