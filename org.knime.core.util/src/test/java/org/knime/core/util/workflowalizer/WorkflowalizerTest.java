@@ -202,9 +202,7 @@ public class WorkflowalizerTest {
         final WorkflowSetMeta wsm = wkfMd.getWorkflowSetMetadata().get();
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getAdditionalLinks().get().length == 0);
-        assertTrue(wsm.getBlogLinks().get().length == 0);
-        assertTrue(wsm.getVideoLinks().get().length == 0);
+        assertTrue(wsm.getLinks().get().size() == 0);
         assertTrue(wsm.getTags().get().length == 0);
     }
 
@@ -468,9 +466,7 @@ public class WorkflowalizerTest {
         final WorkflowSetMeta wsm = wkfMd.getWorkflowSetMetadata().get();
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getAdditionalLinks().get().length == 0);
-        assertTrue(wsm.getBlogLinks().get().length == 0);
-        assertTrue(wsm.getVideoLinks().get().length == 0);
+        assertTrue(wsm.getLinks().get().size() == 0);
         assertTrue(wsm.getTags().get().length == 0);
 
         assertUOEThrown(wkfMd::getConnections);
@@ -1070,9 +1066,7 @@ public class WorkflowalizerTest {
         final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines);
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getAdditionalLinks().get().length == 0);
-        assertTrue(wsm.getBlogLinks().get().length == 0);
-        assertTrue(wsm.getVideoLinks().get().length == 0);
+        assertTrue(wsm.getLinks().get().size() == 0);
         assertTrue(wsm.getTags().get().length == 0);
     }
 

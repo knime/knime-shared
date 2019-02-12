@@ -80,14 +80,8 @@ public final class WorkflowSetMeta {
     @JsonProperty("description")
     private final Optional<String> m_description;
 
-    @JsonProperty("blogLinks")
-    private final Optional<String[]> m_blogLinks;
-
-    @JsonProperty("videoLinks")
-    private final Optional<String[]> m_videoLinks;
-
-    @JsonProperty("additionalLinks")
-    private final Optional<String[]> m_additionalLinks;
+    @JsonProperty("links")
+    private final Optional<List<Link>> m_links;
 
     @JsonProperty("tags")
     private final Optional<String[]> m_tags;
@@ -102,9 +96,10 @@ public final class WorkflowSetMeta {
             int start = 0;
             // If the first line is less than 20 words, followed by a blank line, then another line which isn't
             // one of the special "tags" -> assume the first line is a title
-            if (lines.length > 2 && (!lines[0].isEmpty() && lines[1].isEmpty() && !lines[2].isEmpty())
+            if (lines.length > 2 && (!lines[0].isEmpty() && lines[1].trim().isEmpty() && !lines[2].isEmpty())
                 && !(lines[2].startsWith("BLOG:") || lines[2].startsWith("URL:") || lines[2].startsWith("VIDEO:")
-                    || lines[2].startsWith("TAG:") || lines[2].startsWith("TAGS:")) && lines[0].split(" ").length < 20) {
+                    || lines[2].startsWith("TAG:") || lines[2].startsWith("TAGS:"))
+                && lines[0].split(" ").length < 20) {
                 title = lines[0];
                 start = 2;
             }
@@ -123,17 +118,11 @@ public final class WorkflowSetMeta {
             }
             m_description = Optional.ofNullable(b.toString().trim());
 
-            final List<String> blogs = new ArrayList<>();
-            final List<String> urls = new ArrayList<>();
-            final List<String> videos = new ArrayList<>();
+            final List<Link> links = new ArrayList<>();
             final List<String> tags = new ArrayList<>();
             for (int i = stop; i < lines.length; i++) {
-                if (lines[i].startsWith("BLOG:")) {
-                    blogs.add(createURLTag(lines[i]));
-                } else if (lines[i].startsWith("URL:")) {
-                    urls.add(createURLTag(lines[i]));
-                } else if (lines[i].startsWith("VIDEO:")) {
-                    videos.add(createURLTag(lines[i]));
+                if (lines[i].startsWith("BLOG:") || lines[i].startsWith("URL:") || lines[i].startsWith("VIDEO:")) {
+                    links.add(createURLTag(lines[i]));
                 } else if (lines[i].startsWith("TAG:") || lines[i].startsWith("TAGS:")) {
                     final String[] split = lines[i].split(":");
                     final String[] ts = split[1].split(",");
@@ -143,16 +132,12 @@ public final class WorkflowSetMeta {
                 }
             }
 
-            m_blogLinks = Optional.ofNullable(blogs.toArray(new String[blogs.size()]));
-            m_additionalLinks = Optional.ofNullable(urls.toArray(new String[urls.size()]));
-            m_videoLinks = Optional.ofNullable(videos.toArray(new String[videos.size()]));
+            m_links = Optional.ofNullable(links);
             m_tags = Optional.ofNullable(tags.toArray(new String[tags.size()]));
         } else {
             m_title = Optional.empty();
             m_description = Optional.empty();
-            m_blogLinks = Optional.empty();
-            m_videoLinks = Optional.empty();
-            m_additionalLinks = Optional.empty();
+            m_links = Optional.empty();
             m_tags = Optional.empty();
         }
     }
@@ -197,44 +182,16 @@ public final class WorkflowSetMeta {
     }
 
     /**
-     * Returns the list of blog links associated with this workflow, as listed in the workflowset.meta file, if present.
+     * Returns the the list of links associated with this workflow, as listed in the workflowset.meta file, if present.
      *
-     * @return list of blog links
+     * @return list of links
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
-    public Optional<String[]> getBlogLinks() {
-        if (m_blogLinks == null) {
-            throw new UnsupportedOperationException("getBlogLinks() is not supported, field was not read");
+    public Optional<List<Link>> getLinks() {
+        if (m_links == null) {
+            throw new UnsupportedOperationException("getLinks() is not supported, field was not read");
         }
-        return m_blogLinks;
-    }
-
-    /**
-     * Returns the the list of video links associated with this workflow, as listed in the workflowset.meta file, if
-     * present.
-     *
-     * @return list of video links
-     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
-     */
-    public Optional<String[]> getVideoLinks() {
-        if (m_videoLinks == null) {
-            throw new UnsupportedOperationException("getVideoLinks() is not supported, field was not read");
-        }
-        return m_videoLinks;
-    }
-
-    /**
-     * Returns the the list of additional information links associated with this workflow, as listed in the
-     * workflowset.meta file, if present.
-     *
-     * @return list of additional information links
-     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
-     */
-    public Optional<String[]> getAdditionalLinks() {
-        if (m_additionalLinks == null) {
-            throw new UnsupportedOperationException("getAdditionalLinks() is not supported, field was not read");
-        }
-        return m_additionalLinks;
+        return m_links;
     }
 
     /**
@@ -266,9 +223,7 @@ public final class WorkflowSetMeta {
                 .append(m_author, other.m_author)
                 .append(m_title, other.m_title)
                 .append(m_description, other.m_description)
-                .append(m_blogLinks, other.m_blogLinks)
-                .append(m_videoLinks, other.m_videoLinks)
-                .append(m_additionalLinks, other.m_additionalLinks)
+                .append(m_links, other.m_links)
                 .append(m_tags, other.m_tags)
                 .isEquals();
     }
@@ -279,51 +234,95 @@ public final class WorkflowSetMeta {
                 .append(m_author)
                 .append(m_title)
                 .append(m_description)
-                .append(m_blogLinks)
-                .append(m_videoLinks)
-                .append(m_additionalLinks)
+                .append(m_links)
                 .append(m_tags)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        String blogs = null;
-        if (m_blogLinks.isPresent()) {
-            blogs = StringUtils.join(m_blogLinks.get(), ", ");
-        }
-
-        String videos = null;
-        if (m_videoLinks.isPresent()) {
-            videos = StringUtils.join(m_videoLinks.get(), ", ");
-        }
-
-        String urls = null;
-        if (m_additionalLinks.isPresent()) {
-            urls = StringUtils.join(m_additionalLinks.get(), ", ");
+        String links = "";
+        if (m_links.isPresent()) {
+            for (Link l : m_links.get()) {
+                links += l.toString() + ", ";
+            }
         }
 
         String tags = null;
         if (m_tags.isPresent()) {
             tags = StringUtils.join(m_tags.get(), ", ");
         }
-        return "author: " + m_author.orElse(null) + "\n" +
-                "title: " + m_title.orElse(null) + "\n" +
-                "description: " + m_description.orElse(null) + "\n" +
-                "blogLinks: " + blogs + "\n" +
-                "videoLinks: " + videos + "\n" +
-                "additionalLinks: " + urls + "\n" +
-                "tags: " + tags;
-
+        return "author: " + m_author.orElse(null) + "\n" + "title: " + m_title.orElse(null) + "\n" + "description: "
+            + m_description.orElse(null) + "\n" + "links: " + links + "\n" + "tags: " + tags;
     }
 
     // -- Helper methods --
 
-    private static String createURLTag(final String s) {
+    private static Link createURLTag(final String s) {
         final int textIndex = s.indexOf(':');
         final int urlIndex = s.indexOf("http");
         final String text = s.substring(textIndex + 1, urlIndex).trim();
         final String href = s.substring(urlIndex, s.length()).trim();
-        return "<a href=\"" + href + "\">" + text + "</a>";
+        return new Link(href, text);
+    }
+
+    // -- Helper classes --
+
+    /**
+     * POJO for representing links.
+     */
+    @JsonAutoDetect
+    public static final class Link {
+
+        private final String m_url;
+        private final String m_text;
+
+        private Link(final String url, final String text) {
+            m_url = url;
+            m_text = text;
+        }
+
+        /**
+         * Return this link's URL.
+         *
+         * @return the url
+         */
+        public String getUrl() {
+            return m_url;
+        }
+
+        /**
+         * Return this link's text.
+         *
+         * @return the text
+         */
+        public String getText() {
+            return m_text;
+        }
+
+        @Override
+        public String toString() {
+            return "url: " + m_url + " text: " + m_text;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof Link)) {
+                return false;
+            }
+            final Link other = (Link)obj;
+            return new EqualsBuilder().append(m_url, other.m_url).append(m_text, other.m_text).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().append(m_url).append(m_text).toHashCode();
+        }
     }
 }
