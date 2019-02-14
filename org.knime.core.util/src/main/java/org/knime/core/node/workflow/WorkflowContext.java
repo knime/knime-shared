@@ -69,15 +69,16 @@ import org.knime.core.util.User;
  *
  * @author Thorsten Meinl, KNIME.com Zurich, Switzerland
  * @since 4.4
+ * @noextend This class is not intended to be subclassed by clients.
  */
-public final class WorkflowContext implements Externalizable {
+public class WorkflowContext implements Externalizable {
 
     private static final long serialVersionUID = 67323L;
 
     /**
      * Factory for workflow contexts. This class is not thread-safe!
      */
-    public static final class Factory {
+    public static class Factory {
         String m_userid;
 
         File m_currentLocation;
@@ -123,7 +124,7 @@ public final class WorkflowContext implements Externalizable {
         /** New instance based on the value of the passed reference.
          * @param origContext To copy from - not null.
          * @since 5.3 */
-        public Factory(final WorkflowContext origContext) {
+        protected Factory(final WorkflowContext origContext) {
             m_currentLocation = origContext.m_currentLocation;
             m_userid = origContext.m_userid;
             m_mountpointRoot = origContext.m_mountpointRoot;
@@ -296,8 +297,14 @@ public final class WorkflowContext implements Externalizable {
 
     private boolean m_isTempCopy;
 
-
-    private WorkflowContext(final Factory factory) {
+    /**
+     * Constructor.
+     *
+     * @param factory the factory
+     *
+     * @noreference This constructor is not intended to be referenced by clients.
+     */
+    protected WorkflowContext(final Factory factory) {
         assert factory.m_userid != null : "User is must not be null";
         assert factory.m_currentLocation != null : "Current workflow location must not be null";
         m_userid = factory.m_userid;
@@ -309,10 +316,11 @@ public final class WorkflowContext implements Externalizable {
             if (factory.m_mountpointUri.getPath().endsWith("/workflow.knime")) {
                 String path = factory.m_mountpointUri.getPath();
                 try {
-                    m_mountpointUri = new URI(factory.m_mountpointUri.getScheme(), factory.m_mountpointUri.getUserInfo(),
-                        factory.m_mountpointUri.getHost(), factory.m_mountpointUri.getPort(),
-                        path.substring(0, path.length() - "/workflow.knime".length()),
-                        factory.m_mountpointUri.getQuery(), factory.m_mountpointUri.getFragment());
+                    m_mountpointUri =
+                        new URI(factory.m_mountpointUri.getScheme(), factory.m_mountpointUri.getUserInfo(),
+                            factory.m_mountpointUri.getHost(), factory.m_mountpointUri.getPort(),
+                            path.substring(0, path.length() - "/workflow.knime".length()),
+                            factory.m_mountpointUri.getQuery(), factory.m_mountpointUri.getFragment());
                 } catch (URISyntaxException ex) {
                     // shouldn't happen because we come from a valid URI
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -436,6 +444,17 @@ public final class WorkflowContext implements Externalizable {
      */
     public boolean isTemporaryCopy() {
         return m_isTempCopy;
+    }
+
+
+    /**
+     * Returns the factory to copy this instance.
+     *
+     * @return the factory
+     * @since 5.11
+     */
+    public Factory createCopy() {
+        return new Factory(this);
     }
 
     /**
