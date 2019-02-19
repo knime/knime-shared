@@ -1156,7 +1156,7 @@ components:
         numTotalRows:
           description: >-
             The total number of rows. Might be larger than the number of rows
-            contained here.
+            contained here. If a value < 0 indicates that the row count is not know.
           type: integer
           format: int64
         rows:
