@@ -67,8 +67,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class NativeNodeMetadata implements SingleNodeMetadata {
 
-    @JsonProperty("uniqueNodeId")
-    private final String m_globalNodeId;
+    @JsonProperty("factoryName")
+    private final String m_factoryName;
 
     @JsonProperty("nodeInstanceId")
     private final String m_nodeId;
@@ -89,7 +89,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
     private final NodeAndBundleInformation m_nodeAndBundleInfo;
 
     NativeNodeMetadata(final NativeNodeMetadataBuilder builder) {
-        m_globalNodeId = builder.getFactoryClass().orElse("") + builder.getFactorySettings();
+        m_factoryName = builder.getFactoryClass().orElse("") + builder.getFactorySettings();
         m_nodeId = builder.getSingleNodeFields().getId();
         m_type = builder.getSingleNodeFields().getType();
         m_nodeConfiguration = builder.getSingleNodeFields().getNodeConfiguration();
@@ -157,8 +157,8 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      *
      * @return the unique node identifier
      */
-    public String getGlobalNodeID() {
-        return m_globalNodeId;
+    public String getFactoryName() {
+        return m_factoryName;
     }
 
     @Override
@@ -168,7 +168,7 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
             numNodeConfig = m_nodeConfiguration.get().keySet().size() + "";
         }
 
-        return "global_node_id: " + m_globalNodeId +
+        return "factory_name: " + m_factoryName +
                 ", node_ID: " + m_nodeId +
                 ", type: " + m_type +
                 ", num_node_config: " + numNodeConfig +
