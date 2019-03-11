@@ -47,7 +47,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
         {{/isPrimitiveType}}
         {{/isBodyParam}}
         {{/allParams}}
-        return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{httpMethod}}");
+        return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params);
     }
 {{/operation}}
 
