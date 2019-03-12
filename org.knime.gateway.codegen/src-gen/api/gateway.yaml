@@ -902,10 +902,56 @@ paths:
             application/json:
               schema:
                 type: string
+        '204':
+          $ref: "#/components/responses/NoWizardPage"
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+          
+  '/workflow/wizard/next-page':
+    get:
+      tags:
+        - WizardExecution
+      description: >-
+        Executes the workflow to the next page. If no data is sent the job is executed with the current view values (if
+        there are any), otherwise the view values are set according to the JSON map provided.
+      operationId: getNextPage
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - name: async
+          description: >-
+            If true the call will return immediately after input validation and starting the
+            execution.
+            If false the call will wait until execution has finished (which is the
+            default if no request parameter is specified)
+          in: query
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        description: optional view parameter for the workflow page execution
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+      responses:
+        '200':
+          description: Successfull response with the next page's content if async is true. Otherwise an empty response.
+          content:
+            application/json:
+              schema:
+                type: string
+        '204':
           $ref: "#/components/responses/NoWizardPage"
+        '400':
+          $ref: "#/components/responses/InvalidSettings"
+        '403':
+          $ref: '#/components/responses/NoPermission'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
