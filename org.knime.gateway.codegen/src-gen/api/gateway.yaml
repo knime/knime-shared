@@ -918,7 +918,7 @@ paths:
       description: >-
         Executes the workflow to the next page. If no data is sent the job is executed with the current view values (if
         there are any), otherwise the view values are set according to the JSON map provided.
-      operationId: getNextPage
+      operationId: executeToNextPage
       parameters:
         - $ref: '#/components/parameters/job-id'
         - name: async
@@ -931,6 +931,15 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: timeout
+          description: >-
+            Timeout in milliseconds when synchronous execution is requested. The request will return with a
+            timeout-response if the workflow doesn't finish execution (step) before the timeout
+          in: query
+          schema:
+            type: integer
+            format: int64
+            default: 600000
       requestBody:
         description: optional view parameter for the workflow page execution
         content:
@@ -952,6 +961,9 @@ paths:
           $ref: "#/components/responses/InvalidSettings"
         '403':
           $ref: '#/components/responses/NoPermission'
+        # not ideal, will be revisited with SRV-2128!!
+        '502':
+          $ref: "#/components/responses/ExecutorTimeout"
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -1038,6 +1050,12 @@ components:
       description: If a wizard page is not available.
       x-knime-gateway-executor-exceptions:
         - name: NoWizardPageException
+    # not ideal, will be revisited with SRV-2128
+    ExecutorTimeout:
+      description: If the executor got a timeout, e.g., because a workflow
+        didn't finish execution before the timeout.
+      x-knime-gateway-executor-exceptions:
+        - name: TimeoutException
     
     # server responses/exceptions
     InternalServerError:
