@@ -325,22 +325,25 @@ public class GatewayCodegen extends AbstractJavaCodegen {
                         (List<Map<String, String>>)extensions.get("x-knime-gateway-executor-exceptions");
                     if (executorExceptions != null) {
                         executorExceptions.forEach(e -> {
-                            e.put("code", code);
                             if (!e.containsKey("description")) {
                                 e.put("description", res.getValue().getDescription());
                             }
-                            m_operationExecutorExceptions.computeIfAbsent(operationId, k -> new ArrayList<>()).add(e);
+                            Map<String, String> copy = new HashMap<>(e);
+                            copy.put("code", code);
+                            m_operationExecutorExceptions.computeIfAbsent(operationId, k -> new ArrayList<>())
+                                .add(copy);
                         });
                     }
                     List<Map<String, String>> serverExceptions =
                         (List<Map<String, String>>)extensions.get("x-knime-gateway-server-exceptions");
                     if (serverExceptions != null) {
                         serverExceptions.forEach(e -> {
-                            e.put("code", code);
                             if(!e.containsKey("description")) {
                                 e.put("description", res.getValue().getDescription());
                             }
-                            m_operationServerExceptions.computeIfAbsent(operationId, k -> new ArrayList<>()).add(e);
+                            Map<String, String> copy = new HashMap<>(e);
+                            copy.put("code", code);
+                            m_operationServerExceptions.computeIfAbsent(operationId, k -> new ArrayList<>()).add(copy);
                         });
                     }
                 }
