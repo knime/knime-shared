@@ -948,7 +948,7 @@ paths:
               $ref: "#/components/schemas/WizardPageInput"
       responses:
         '200':
-          description: Successfull response with the next page's content if async is true. Otherwise an empty response.
+          description: Successfull response with the next page's content if async is false. Otherwise an empty response.
           content:
             application/json:
               schema:
