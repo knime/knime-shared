@@ -912,7 +912,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
           
   '/workflow/wizard/next-page':
-    get:
+    post:
       tags:
         - WizardExecution
       description: >-
@@ -941,13 +941,11 @@ paths:
             format: int64
             default: 600000
       requestBody:
-        description: optional view parameter for the workflow page execution
+        description: The input parameters for the next wizard page.
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties:
-                type: string
+              $ref: "#/components/schemas/WizardPageInput"
       responses:
         '200':
           description: Successfull response with the next page's content if async is true. Otherwise an empty response.
@@ -1753,6 +1751,16 @@ components:
         foregroundColor:
           description: Style range foreground color.
           type: integer
+          
+    WizardPageInput:
+      description: Input data required to execute one wizard page of a workflow.
+      type: object
+      properties:
+        viewValues:
+          description: A map from node-ids to input parameters.
+          additionalProperties:
+            type: string
+      x-knimegateway-isUsedAsParameter: true
 
     WorkflowAnnotation:
       description: A workflow annotation.
