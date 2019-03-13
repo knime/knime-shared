@@ -960,7 +960,7 @@ paths:
         '404':
           $ref: "#/components/responses/NoWizardPage"
         # not ideal, will be revisited with SRV-2128!!
-        '502':
+        '503':
           $ref: "#/components/responses/ExecutorTimeout"
         '504':
           $ref: '#/components/responses/Timeout'
