@@ -219,6 +219,18 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 		return super.postProcessOperations(objs);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean needToImport(final String type) {
+        if (type.contains("GatewayException")) {
+            return false;
+        } else {
+            return super.needToImport(type);
+        }
+    }
+
 	@Override
 	public String toApiName(final String name) {
 		// make original name available to templates
@@ -281,7 +293,7 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 	}
 
     private String extractNameFromRef(final String ref) {
-        return ref.substring(ref.lastIndexOf("schemas/") + 8);
+        return ref.substring(ref.lastIndexOf("/") + 1);
     }
 
 	@Override
@@ -306,57 +318,84 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 		}
 	}
 
-	@Override
-	public void preprocessOpenAPI(final OpenAPI openAPI) {
-		super.preprocessOpenAPI(openAPI);
+    @Override
+    public void preprocessOpenAPI(final OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
 
-        //extract and collect the server and executor exceptions from responses for each operation individually
-		//(for easier access the in the code templates later on)
-        List<Operation> operations = openAPI.getPaths().values().stream().flatMap(
-            pi -> Arrays.asList(pi.getGet(), pi.getPut(), pi.getPost(), pi.getDelete(), pi.getHead()).stream())
+        Map<String, Map<String, String>> executorExceptions = collectExecutorExceptions(openAPI);
+
+        List<Operation> operations = openAPI.getPaths().values().stream()
+            .flatMap(pi -> Arrays.asList(pi.getGet(), pi.getPut(), pi.getPost(), pi.getDelete(), pi.getHead()).stream())
             .filter(o -> o != null).collect(Collectors.toList());
         operations.forEach(o -> {
-            String operationId = o.getOperationId();
-            for (Entry<String, ApiResponse> res : o.getResponses().entrySet()) {
-                String code = res.getKey();
-                Map<String, Object> extensions = res.getValue().getExtensions();
-                if(extensions != null) {
-                    List<Map<String, String>> executorExceptions =
-                        (List<Map<String, String>>)extensions.get("x-knime-gateway-executor-exceptions");
-                    if (executorExceptions != null) {
-                        executorExceptions.forEach(e -> {
-                            if (!e.containsKey("description")) {
-                                e.put("description", res.getValue().getDescription());
-                            }
-                            Map<String, String> copy = new HashMap<>(e);
-                            copy.put("code", code);
-                            m_operationExecutorExceptions.computeIfAbsent(operationId, k -> new ArrayList<>())
-                                .add(copy);
-                        });
-                    }
-                    List<Map<String, String>> serverExceptions =
-                        (List<Map<String, String>>)extensions.get("x-knime-gateway-server-exceptions");
-                    if (serverExceptions != null) {
-                        serverExceptions.forEach(e -> {
-                            if(!e.containsKey("description")) {
-                                e.put("description", res.getValue().getDescription());
-                            }
-                            Map<String, String> copy = new HashMap<>(e);
-                            copy.put("code", code);
-                            m_operationServerExceptions.computeIfAbsent(operationId, k -> new ArrayList<>()).add(copy);
-                        });
-                    }
+            resolveAndCollectExecutorExceptionsForOperation(o, executorExceptions);
+            collectServerExceptionsForOperation(o);
+        });
+    }
+
+    /**
+     * Collect all 'x-knime-gateway-executor-exceptions' extensions of possible responses and make them globally
+     * available.
+     */
+    private Map<String, Map<String, String>> collectExecutorExceptions(final OpenAPI openAPI) {
+        final Map<String, Map<String, String>> executorExceptions = (Map<String, Map<String, String>>)openAPI
+            .getComponents().getExtensions().get("x-knime-gateway-executor-exceptions");
+        additionalProperties().put("x-knime-gateway-codegen-executor-exceptions", executorExceptions.values());
+        return executorExceptions;
+    }
+
+    /**
+     * Resolve and collect the executor exceptions from the respective extension (x-...) for an operation. Required for
+     * easier access the in the code templates later on.
+     *
+     * Directly manipulates the passed operation in order to set the resolved references!!
+     */
+    private void resolveAndCollectExecutorExceptionsForOperation(final Operation op,
+        final Map<String, Map<String, String>> executorExceptions) {
+        //collect the executor exception from the operation's 'x-knime-gateway-executor-exceptions'-extension
+        List<Map<String, String>> executorExceptionsRefs;
+        if (op.getExtensions() != null && (executorExceptionsRefs =
+            (List<Map<String, String>>)op.getExtensions().get("x-knime-gateway-executor-exceptions")) != null) {
+            //replace references with referees
+            List<Map<String, String>> replaced = new ArrayList<Map<String, String>>();
+            executorExceptionsRefs.forEach(ref -> {
+                String refName = extractNameFromRef(ref.get("$ref"));
+                Map<String, String> ee = executorExceptions.get(refName);
+                if (ee == null) {
+                    throw new IllegalStateException("Broken gateway-executor-exception reference: " + refName);
+                }
+                replaced.add(ee);
+                m_operationExecutorExceptions.computeIfAbsent(op.getOperationId(), k -> new ArrayList<>()).add(ee);
+            });
+            op.getExtensions().put("x-knime-gateway-executor-exceptions", replaced);
+        }
+
+    }
+
+    /**
+     * Extract and collect the server exceptions from the respective response for an operation. Required for easier
+     * access the in the code templates later on.
+     */
+    private void collectServerExceptionsForOperation(final Operation op) {
+        //collect the server exceptions from the responses
+        for (Entry<String, ApiResponse> res : op.getResponses().entrySet()) {
+            String code = res.getKey();
+            Map<String, Object> extensions = res.getValue().getExtensions();
+            if (extensions != null) {
+                List<Map<String, String>> serverExceptions =
+                    (List<Map<String, String>>)extensions.get("x-knime-gateway-server-exceptions");
+                if (serverExceptions != null) {
+                    serverExceptions.forEach(e -> {
+                        if (!e.containsKey("description")) {
+                            e.put("description", res.getValue().getDescription());
+                        }
+                        Map<String, String> copy = new HashMap<>(e);
+                        copy.put("code", code);
+                        m_operationServerExceptions.computeIfAbsent(op.getOperationId(), k -> new ArrayList<>())
+                            .add(copy);
+                    });
                 }
             }
-
-        });
-
-        //collect all 'x-knime-gateway-executor-exceptions' extensions of possible responses and make them globally available
-        List<Entry<String, Object>> responseExtensions = openAPI.getComponents().getResponses().values().stream()
-            .flatMap(r -> r.getExtensions().entrySet().stream()).collect(Collectors.toList());
-        List<Object> executorExceptions =
-            responseExtensions.stream().filter(e -> e.getKey().equals("x-knime-gateway-executor-exceptions"))
-                .flatMap(e -> ((List<Object>)e.getValue()).stream()).collect(Collectors.toList());
-        additionalProperties().put("x-knime-gateway-codegen-executor-exceptions", executorExceptions);
+        }
     }
 }

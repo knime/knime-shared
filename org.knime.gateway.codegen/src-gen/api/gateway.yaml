@@ -64,6 +64,13 @@ paths:
               $ref: '#/components/schemas/WorkflowParts'
         description: The actual part selection.
         required: true
+      x-knime-gateway-executor-exceptions:
+         #if the parent id of the parts to be copied doesn't refer to a sub-workflow
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         #if the parent id of the parts to be copied doesn't refer to a node
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         #if parts to be copied don't exist
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
       responses:
         '201':
           description: Successfully created. Returns the parts-id.
@@ -73,16 +80,9 @@ paths:
                 type: string
                 format: uuid
         '400':
-          #if the parent id of the parts to be copied doesn't refer to a sub-workflow
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: "#/components/responses/NoPermission"
-        '404':
-          #if the parent id of the parts to be copied doesn't refer to a node
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          #if parts to be copied don't exist
-          $ref: '#/components/responses/InvalidRequest'
         '500':
           $ref: "#/components/responses/InternalServerError"
         '504':
@@ -114,6 +114,13 @@ paths:
               $ref: '#/components/schemas/WorkflowParts'
         description: The parts to be deleted.
         required: true
+      x-knime-gateway-executor-exceptions:
+         #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         #if the parent id of the parts to be deleted doesn't refer to a node
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         #if a part exists but couldn't be removed
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/ActionNotAllowed'
       responses:
         '200':
           description: >-
@@ -126,16 +133,9 @@ paths:
                 type: string
                 format: uuid
         '400':
-          #if the parent id of the parts to be deleted doesn't refer to a sub-workflow
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: "#/components/responses/NoPermission"
-        '404':
-          #if the parent id of the parts to be deleted doesn't refer to a node
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          #if a part exists but couldn't be removed
-          $ref: '#/components/responses/ActionNotAllowed'
         '500':
           $ref: "#/components/responses/InternalServerError"
         '504':
@@ -178,6 +178,11 @@ paths:
           required: false
           schema:
             type: string
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         #if the parent id of the parts to be deleted doesn't refere to a node
+         #OR: if there is no copy for the given part-id
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
           description: >-
@@ -188,13 +193,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/WorkflowParts'
         '400':
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: "#/components/responses/NoPermission"
-        '404':
-          #if the parent id of the parts to be deleted doesn't refere to a node
-          #OR: if there is no copy for the given part-id
-          $ref: '#/components/responses/NotFound'
         '500':
           $ref: "#/components/responses/InternalServerError"
         '504':
@@ -218,6 +219,8 @@ paths:
           schema:
             type: string
             format: uuid
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
           description: 'Successful response, with a patch containing all the changes.'
@@ -225,10 +228,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Patch'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: "#/components/responses/NoPermission"
-        '404':
-          $ref: '#/components/responses/NotFound'
         '500':
           $ref: "#/components/responses/InternalServerError"
         '504':
@@ -245,6 +248,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: 'Successful response, with a representation of the sub-workflow.'
@@ -253,11 +259,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/WorkflowSnapshot'
         '400':
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: "#/components/responses/NoPermission"
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '500':
           $ref: "#/components/responses/InternalServerError"
         '504':
@@ -279,6 +283,9 @@ paths:
           schema:
             type: string
             format: uuid
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
           description: 'Successful response, with a patch containing all the changes.'
@@ -287,11 +294,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Patch'
         '400':
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: "#/components/responses/NoPermission"
-        '404':
-          $ref: '#/components/responses/NotFound'
         '500':
           $ref: "#/components/responses/InternalServerError"
         '504':
@@ -355,6 +360,12 @@ paths:
               $ref: '#/components/schemas/NodeFactoryKey'
         description: The key representing the native node to be added to the workflow.
         required: true
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         # if the parent node couldn't be found or the node factory key is unknown
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         # if the node factory key's settings are required but missing or not readable
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
       responses:
         '201':
           description: New node has been successfully created. Returns the new node id.
@@ -363,15 +374,9 @@ paths:
               schema:
                 type: string
         '400':
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          # if the parent node couldn't be found or the node factory key is unknown
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          # if the node factory key's settings are required but missing or not readable
-          $ref: '#/components/responses/InvalidRequest'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -388,6 +393,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
       responses:
         '200':
           description: Successful response with a representation of the metanode dialog.
@@ -395,12 +403,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MetaNodeDialog'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          $ref: '#/components/responses/InvalidRequest'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -415,6 +421,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: 'Successful response, with a representation of the Node.'
@@ -422,10 +430,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Node'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -447,13 +455,15 @@ paths:
               $ref: '#/components/schemas/Bounds'
         description: The node bounds to set.
         required: true          
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: Settings successfully set.
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -468,6 +478,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: 'Successful response, with a json-representation of the settings'
@@ -475,10 +487,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NodeSettings'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -497,17 +509,17 @@ paths:
             schema:
               $ref: '#/components/schemas/NodeSettings'
         description: The node settings to set.          
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidSettings'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/IllegalState'
       responses:
         '200':
           description: Settings successfully set.
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          $ref: '#/components/responses/InvalidSettings'
-        '409':
-          $ref: '#/components/responses/IllegalState'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -533,6 +545,9 @@ paths:
               - reset
               - cancel
               - execute
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/ActionNotAllowed'
       responses:
         '200':
           description: 'Successful response, with the current node''s state.'
@@ -540,12 +555,10 @@ paths:
             application/json:
               schema:
                 type: string
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          $ref: '#/components/responses/ActionNotAllowed'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -560,6 +573,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: >-
@@ -571,10 +586,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PortObjectSpec'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -614,6 +629,9 @@ paths:
           required: false
           schema:
             type: integer
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
       responses:
         '200':
           description: 'Successful response, with the specified range of rows.'
@@ -621,12 +639,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DataTable'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          $ref: '#/components/responses/InvalidRequest'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -646,6 +662,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: 'Successful response, with a all flow variables available'
@@ -655,10 +673,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlowVariable'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -676,6 +694,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: >-
@@ -687,10 +707,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PortObjectSpec'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -707,6 +727,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
       responses:
         '200':
           description: 'Successful response, with a list of all flow variables available'
@@ -716,10 +738,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlowVariable'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -736,6 +758,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
       responses:
         '200':
           description: Successful response with requested the web view.
@@ -743,12 +768,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewData'
+        '400':
+          $ref: "#/components/responses/GatewayExecutorException"
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          $ref: '#/components/responses/InvalidRequest'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -774,15 +797,16 @@ paths:
             schema:
               $ref: '#/components/schemas/JavaObject'
         description: The view value to set.          
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
       responses:
         '200':
           description: The new view value has been set successfully.
+        '400':
+          $ref: "#/components/responses/GatewayExecutorException"
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NodeNotFound'
-        '405':
-          $ref: '#/components/responses/InvalidRequest'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -805,6 +829,9 @@ paths:
               $ref: '#/components/schemas/Connection'
         description: The connection.
         required: true          
+      x-knime-gateway-executor-exceptions:
+         #if connection couldn't be added, e.g. because node is executing or a node for a given node id doesn't exist
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/ActionNotAllowed'
       responses:
         '201':
           description: Connection has been created.
@@ -816,11 +843,10 @@ paths:
                   node id and destination port index and built as
                   '<dest-node-id>_<dest-ports-index>'
                 type: string
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '405':
-          #if connection couldn't be added, e.g. because node is executing or a node for a given node id doesn't exist
-          $ref: '#/components/responses/ActionNotAllowed'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -841,11 +867,13 @@ paths:
             type: string
       requestBody:
         $ref: '#/components/requestBodies/Bounds'          
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
           description: Bounds successfully changed
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
         '504':
@@ -871,15 +899,16 @@ paths:
             type: string
       requestBody:
         $ref: '#/components/requestBodies/Bounds'          
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
           description: Bounds successfully changed
         '400':
-          $ref: '#/components/responses/NotASubWorkflow'
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -895,6 +924,8 @@ paths:
       operationId: getCurrentPage
       parameters:
         - $ref: '#/components/parameters/job-id'
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
       responses:
         '200':
           description: Successfull response with the current page content.
@@ -902,10 +933,10 @@ paths:
             application/json:
               schema:
                 type: string
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: "#/components/responses/NoWizardPage"
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -946,6 +977,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/WizardPageInput"
+      x-knime-gateway-executor-exceptions:
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidSettings'
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/Timeout'
       responses:
         '200':
           description: Successfull response with the next page's content if async is false. Otherwise an empty response.
@@ -954,14 +989,9 @@ paths:
               schema:
                 type: string
         '400':
-          $ref: "#/components/responses/InvalidSettings"
+          $ref: "#/components/responses/GatewayExecutorException"
         '403':
           $ref: '#/components/responses/NoPermission'
-        '404':
-          $ref: "#/components/responses/NoWizardPage"
-        # not ideal, will be revisited with SRV-2128!!
-        '503':
-          $ref: "#/components/responses/ExecutorTimeout"
         '504':
           $ref: '#/components/responses/Timeout'
         '505':
@@ -995,67 +1025,63 @@ components:
       schema:
         type: string
  
-  # Some notes on responses and code-generation:
-  # In the generated java-code responses (except 200 and 201 responses) are mapped to one or more exceptions
-  # that are thrown respectively.
-  # The expected exceptions for a response are defined by the response's 'x-knime-gateway-[executor/server]-exceptions'-extension (see below).
-  # There are two classes of exceptions:
-  # - Exceptions thrown by the server:
-  #   Here a fully qualified class name must be specified ('fullname'-property) and a respective exception mapper
-  #   (http-code to exception) must be provided (TODO: could probably be auto-generated).
-  # - Exceptions thrown by the executor:
-  #   Only the name is specified and their actual classes are auto-generated from that name.
-  #   NOTE: the code generation so far only supports a 1:1 response-exception mapping for executor exceptions.
-  #   I.e. although the exceptions are specified as an array, only one element is supported so far (TODO).
-  responses:
-    #executor responses/exceptions 
+  x-knime-gateway-executor-exceptions:
     NodeNotFound:
       description: The requested node was not found.
-      x-knime-gateway-executor-exceptions:
-        - name: NodeNotFoundException
+      name: NodeNotFoundException
     NotFound:
       description: A resource couldn't be found.
       # more general not found exception (as opposed to the NodeNotFound exception)
       # - the actual cause can be found in the exception message 
-      x-knime-gateway-executor-exceptions:
-        - name: NotFoundException
+      name: NotFoundException
     NotASubWorkflow:
       description: >-
         The requested node is not a sub-workflow (i.e. a meta- or sub-node), but
         is required to be.
-      x-knime-gateway-executor-exceptions:
-        - name: NotASubWorkflowException
+      name: NotASubWorkflowException
     ActionNotAllowed:
       description: >-
         If the an action is not allowed because it's not applicable or it
         doesn't exist.
-      x-knime-gateway-executor-exceptions: 
       # TODO maybe rename to 'OperationNotAllowed'
-        - name: ActionNotAllowedException
+      name: ActionNotAllowedException
     InvalidRequest:
       description: If the request is invalid for a reason.
-      x-knime-gateway-executor-exceptions:  
-        - name: InvalidRequestException 
+      name: InvalidRequestException 
     InvalidSettings:
       description: If settings couldn't be applied.
-      x-knime-gateway-executor-exceptions:
-        - name: InvalidSettingsException
+      name: InvalidSettingsException
     IllegalState:
       description: If node is not in the right state to apply the settings.
-      x-knime-gateway-executor-exceptions:
-        - name: IllegalStateException
+      name: IllegalStateException
     NoWizardPage:
       description: If a wizard page is not available.
-      x-knime-gateway-executor-exceptions:
-        - name: NoWizardPageException
-    # not ideal, will be revisited with SRV-2128
-    ExecutorTimeout:
+      name: NoWizardPageException
+    Timeout:
       description: If the executor got a timeout, e.g., because a workflow
         didn't finish execution before the timeout.
-      x-knime-gateway-executor-exceptions:
-        - name: TimeoutException
-    
+      name: TimeoutException
+     
+  
+  # Some notes on responses and code-generation:
+  # In the generated java-code responses (except 200 and 201 responses) are (optionally) mapped to one or more exceptions
+  # that are thrown respectively.
+  # The expected exceptions for a response are defined by the response's 'x-knime-gateway-server-exceptions'-extension (see below).
+  # A fully qualified class name must be specified ('fullname'-property) and a respective exception mapper
+  # (http-code to exception) must be provided (TODO: could probably be auto-generated).
+  # 
+  # The exceptions specified here are only thrown by/in the server and returned as response.
+  # Exceptions thrown by/in the executor (see above) are defined and handled differently.
+  responses:
     # server responses/exceptions
+    GatewayExecutorException:
+      description: >-
+        Response returned when a gateway service threw an exception in the executor.
+        The exception is one of the executor-exceptions listed above.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GatewayException"
     InternalServerError:
       description: >-
         Internal server error, e.g. if an error occurs while fetching job
@@ -1304,6 +1330,17 @@ components:
             - STRING
         value:
           description: The actual value.
+          type: string
+    
+    GatewayException:
+      description: Details of an exception thrown by gateway implementations such as services.
+      type: object 
+      properties:
+        exception-name:
+          description: Simple name of the gateway executor exception.
+          type: string
+        exception-message:
+          description: The more detailed exception message.
           type: string
 
     JavaObject:

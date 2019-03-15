@@ -41,7 +41,7 @@ public class {{classname}} implements {{baseName}}Service {
     @JsonRpcErrors(value = {
     {{#vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
         @JsonRpcError(exception = {{>exceptionName}}.class, code = -32600,
-            data = "{{code}}" /*per convention the data property contains the status code*/){{^-last}},{{/-last}}
+            data = "{{name}}" /*per convention the data property contains the exception name*/){{^-last}},{{/-last}}
     {{/vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
     })
     {{/vendorExtensions.x-knime-gateway-codegen-executor-exceptions.0}}

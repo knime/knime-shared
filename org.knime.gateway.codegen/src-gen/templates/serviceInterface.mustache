@@ -25,11 +25,9 @@ public interface {{classname}} extends GatewayService {
      {{/allParams}}
      *
      * {{#returnType}}@return the result{{/returnType}}
-     {{#responses}}
      {{#vendorExtensions.x-knime-gateway-executor-exceptions}}
      * @throws {{>exceptionName}} {{description}}
      {{/vendorExtensions.x-knime-gateway-executor-exceptions}}
-     {{/responses}}
      */
     {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{nickname}}({{#allParams}}{{>serviceQueryParams}}{{>servicePathParams}}{{>serviceHeaderParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}){{>throwsExecutorExceptions}};
         
