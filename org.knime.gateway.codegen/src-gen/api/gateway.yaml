@@ -997,6 +997,33 @@ paths:
         '505':
           $ref: '#/components/responses/InternalServerError'
 
+  '/workflow/wizard/previous-page':
+    post:
+      tags:
+        - WizardExecution
+      description: >-
+        Resets a workflow to a previously executed page.
+      operationId: resetToPreviousPage
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+      x-knime-gateway-executor-exceptions:
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
+      responses:
+        '200':
+          description: Successfull response with the previous page's content.
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: "#/components/responses/GatewayExecutorException"
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+
 servers:
   - url: '/v4/jobs/{job-id}'
     variables:
