@@ -1023,7 +1023,34 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-
+          
+  '/workflow/wizard/web-resources':
+    get:
+      tags:
+        - WizardExecution
+      description: >-
+        Returns a list of web resources needed for this job to handle wizard execution.
+      operationId: listWebResources
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+      responses:
+        '200':
+          description: Successfull response with a list of the web-resources.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+          
 servers:
   - url: '/v4/jobs/{job-id}'
     variables:
