@@ -1050,6 +1050,40 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
+
+  '/workflow/wizard/web-resources/{resource-id:[^:]*}':
+    get:
+      tags:
+        - WizardExecution
+      description: >-
+        Returns a list of web resources needed for this job to handle wizard execution.
+      operationId: getWebResource
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - name: resource-id
+          description: The id (usually a relative path) of a single web resource (e.g. js, css, png, ...).
+          in: path
+          schema:
+            type: string
+      x-knime-gateway-executor-exceptions:
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
+      responses:
+        '200':
+          description: Successfull response with a list of the web-resources.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+          
           
 servers:
   - url: '/v4/jobs/{job-id}'
