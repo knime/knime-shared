@@ -928,7 +928,7 @@ paths:
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
       responses:
         '200':
-          description: Successfull response with the current page content.
+          description: Successful response with the current page content.
           content:
             application/json:
               schema:
@@ -983,7 +983,7 @@ paths:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/Timeout'
       responses:
         '200':
-          description: Successfull response with the next page's content if async is false. Otherwise an empty response.
+          description: Successful response with the next page's content if async is false. Otherwise an empty response.
           content:
             application/json:
               schema:
@@ -1010,7 +1010,7 @@ paths:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
       responses:
         '200':
-          description: Successfull response with the previous page's content.
+          description: Successful response with the previous page's content.
           content:
             application/json:
               schema:
@@ -1035,7 +1035,7 @@ paths:
         - $ref: '#/components/parameters/job-id'
       responses:
         '200':
-          description: Successfull response with a list of the web-resources.
+          description: Successful response with a list of the web-resources.
           content:
             application/json:
               schema:
@@ -1069,9 +1069,10 @@ paths:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
-          description: Successfull response with a list of the web-resources.
+          description: Successful response with a list of the web-resources.
           content:
-            '*/*':
+            # TODO media type might need to be revisited
+            application/octet-stream:
               schema:
                 type: string
                 format: binary
