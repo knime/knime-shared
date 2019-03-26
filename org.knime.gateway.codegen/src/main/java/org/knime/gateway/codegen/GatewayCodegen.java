@@ -142,7 +142,11 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 			});
 
 		}));
-	}
+
+        //TODO set to, e.g., 'InputStream' when streaming is supported throughout the whole stack
+        //(i.e. in client, server and executor)
+        typeMapping.put("file", "byte[]");
+    }
 
 	private Optional<String> getPropertyAsString(final String propName) {
 		return Optional.ofNullable(additionalProperties().get(propName)).map(o -> o.toString());

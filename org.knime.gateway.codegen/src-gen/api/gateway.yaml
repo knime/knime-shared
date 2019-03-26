@@ -1074,7 +1074,7 @@ paths:
             '*/*':
               schema:
                 type: string
-                format: byte
+                format: binary
         '400':
           $ref: '#/components/responses/GatewayExecutorException'
         '403':
