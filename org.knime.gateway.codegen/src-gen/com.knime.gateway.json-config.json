@@ -13,7 +13,7 @@
         "modelTemplateFile" : "json/entityMixIn.mustache",
         "modelNamePattern" : "##name##EntMixIn",
         "modelPropertyNamePattern" : "##name##Ent",
-        "modelPropertyPackage" : "com.knime.gateway.v0.entity",
+        "modelPropertyPackage" : "com.knime.gateway.entity",
         "supportingFiles" : [
             {
                 "templateFile": "json/listMixInEntities.mustache",

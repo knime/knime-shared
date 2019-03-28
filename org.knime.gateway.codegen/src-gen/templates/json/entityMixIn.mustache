@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 {{#models}}
 {{#model}}
 
-import com.knime.gateway.v0.entity.{{name}}Ent;
-import com.knime.gateway.v0.entity.impl.Default{{name}}Ent;
-import com.knime.gateway.v0.entity.impl.Default{{name}}Ent.Default{{name}}EntBuilder;
+import com.knime.gateway.entity.{{name}}Ent;
+import com.knime.gateway.entity.impl.Default{{name}}Ent;
+import com.knime.gateway.entity.impl.Default{{name}}Ent.Default{{name}}EntBuilder;
 {{#children}}
-import com.knime.gateway.v0.entity.impl.Default{{name}}Ent;
+import com.knime.gateway.entity.impl.Default{{name}}Ent;
 {{/children}}
 
 /**

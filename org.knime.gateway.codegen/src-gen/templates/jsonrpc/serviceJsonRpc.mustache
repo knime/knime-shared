@@ -5,12 +5,12 @@ package {{package}};
 import {{import}};
 {{/imports}}
 
-import com.knime.gateway.v0.service.util.ServiceExceptions;
+import com.knime.gateway.service.util.ServiceExceptions;
 
 import com.googlecode.jsonrpc4j.JsonRpcMethod;
 
 {{#operations}}
-import com.knime.gateway.v0.service.{{baseName}}Service;
+import com.knime.gateway.service.{{baseName}}Service;
 
 /**
  * Interface that adds json rpc annotations. 
