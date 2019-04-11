@@ -18,7 +18,7 @@ tags:
     description: Operations for the worklfow wizard execution.
 
 paths:
-  /workflow/parts:
+  /workflow/{workflow-id}/parts:
     post:
       tags:
         - Workflow
@@ -30,6 +30,8 @@ paths:
       operationId: createWorkflowCopy
       parameters:
         - $ref: '#/components/parameters/job-id'
+        # id of the workflow to create the copy from
+        - $ref: "#/components/parameters/workflow-id"
       requestBody:
         content:
           application/json:
@@ -69,6 +71,8 @@ paths:
       operationId: deleteWorkflowParts
       parameters:
         - $ref: '#/components/parameters/job-id'
+        # id of the workflow to delete the parts from
+        - $ref: "#/components/parameters/workflow-id"
         - name: copy
           in: query
           description: >-
@@ -114,7 +118,7 @@ paths:
         '504':
           $ref: "#/components/responses/Timeout"
           
-  '/workflow/parts/{parts-id}':
+  '/workflow/{workflow-id}/parts/{parts-id}':
     put:
       tags:
         - Workflow
@@ -122,6 +126,8 @@ paths:
       operationId: pasteWorkflowParts
       parameters:
         - $ref: '#/components/parameters/job-id'
+        # id of the workflow to paste the parts into
+        - $ref: "#/components/parameters/workflow-id"
         - name: parts-id
           in: path
           description: The id referencing the parts to paste.
@@ -141,22 +147,6 @@ paths:
           required: true
           schema:
             type: integer
-        - name: node-id
-          in: query
-          description: >-
-            The ID of the node referencing a sub-workflow to paste the parts
-            into. If none is given it will be pasted into the root workflow.
-            The node-id format: Node IDs always start with 'root' and
-            optionally followed by numbers separated by ':' refering to
-            nested nodes/subworkflows,e.g. root:3:6:4.
-            Nodes within wrapped metanodes require an additional
-            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
-          required: false
-          schema:
-            type: string
-            format: node-id
-            pattern: '^root(:\d+)*$'
-          x-knime-gateway-server-param-as-string: true
       x-knime-gateway-executor-exceptions:
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
          #if the parent id of the parts to be deleted doesn't refere to a node
@@ -1911,21 +1901,7 @@ components:
         Represents a selection of parts of a workflow (i.e collections of nodes,
         connection, annotations etc.), e.g. to be copied or deleted.
       type: object
-      required:
-        - parentNodeID
       properties:
-        parentNodeID:
-          description: >-
-            The parent node id of parts or 'root' if it's the root
-            node/workflow.
-            The node-id format: Node IDs always start with 'root' and
-            optionally followed by numbers separated by ':' refering to
-            nested nodes/subworkflows,e.g. root:3:6:4.
-            Nodes within wrapped metanodes require an additional
-            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
-          type: string
-          format: node-id
-          pattern: '^root(:\d+)*$'
         nodeIDs:
           description: The ids of the nodes referenced.
           type: array
