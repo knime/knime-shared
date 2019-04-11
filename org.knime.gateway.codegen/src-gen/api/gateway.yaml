@@ -758,7 +758,7 @@ paths:
         '505':
           $ref: '#/components/responses/InternalServerError'
 
-  '/workflow/{node-id}/annotation/{anno-id}/bounds':
+  '/workflow/annotation/{anno-id}/bounds':
     put:
       tags:
         - Annotation
@@ -768,7 +768,6 @@ paths:
       operationId: setAnnotationBounds
       parameters:
         - $ref: '#/components/parameters/job-id'
-        - $ref: "#/components/parameters/node-id"
         - name: anno-id
           in: path
           required: true
