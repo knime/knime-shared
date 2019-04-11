@@ -180,7 +180,7 @@ paths:
         '504':
           $ref: "#/components/responses/Timeout"
 
-  '/workflow/{node-id}':
+  '/workflow/{workflow-id}':
     get:
       tags:
         - Workflow
@@ -190,7 +190,7 @@ paths:
       operationId: getWorkflow
       parameters:
         - $ref: '#/components/parameters/job-id'
-        - $ref: "#/components/parameters/node-id"
+        - $ref: "#/components/parameters/workflow-id"
       x-knime-gateway-executor-exceptions:
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
@@ -216,8 +216,8 @@ paths:
       operationId: createNode
       parameters:
         - $ref: '#/components/parameters/job-id'
-        # node-id of the workflow to add the new node to
-        - $ref: "#/components/parameters/node-id"
+        # workflow-id of the workflow to add the new node to
+        - $ref: "#/components/parameters/workflow-id"
         - name: x
           description: the x coordinate to place the new node
           in: query
@@ -261,7 +261,7 @@ paths:
         '505':
           $ref: '#/components/responses/InternalServerError'
 
-  '/workflowdiff/{node-id}':
+  '/workflowdiff/{workflow-id}':
     get:
       tags:
         - Workflow
@@ -269,7 +269,7 @@ paths:
       operationId: getWorkflowDiff
       parameters:
         - $ref: '#/components/parameters/job-id'
-        - $ref: "#/components/parameters/node-id"
+        - $ref: "#/components/parameters/workflow-id"
         - name: snapshot-id
           in: query
           description: The id of the workflow snapshot already retrieved.
@@ -1002,6 +1002,18 @@ components:
         nested nodes/subworkflows,e.g. root:3:6:4.
         Nodes within wrapped metanodes require an additional
         trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+      required: true
+      schema:
+        type: string
+        format: node-id
+        pattern: '^root(:\d+)*$'
+      example: 'root:3:6:0:4'
+      x-knime-gateway-server-param-as-string: true
+    workflow-id:
+      name: workflow-id
+      in: path
+      description: >-
+        The ID of a worklow which has the same format as a node-id.
       required: true
       schema:
         type: string
