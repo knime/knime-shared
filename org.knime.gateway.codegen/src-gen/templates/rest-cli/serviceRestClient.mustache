@@ -52,7 +52,7 @@ public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implement
         try{
             {{#returnType}}return {{/returnType}}doRequest(c -> {
                 try {
-                    return c.{{nickname}}({{#allParams}}{{#isBodyParam}}toByteArray({{paramName}}){{/isBodyParam}}{{^isBodyParam}}{{paramName}}{{/isBodyParam}}{{^-last}}, {{/-last}}{{/allParams}});
+                    return c.{{nickname}}({{#allParams}}{{#isBodyParam}}toByteArray({{paramName}}){{/isBodyParam}}{{^isBodyParam}}{{paramName}}{{#vendorExtensions.x-knime-gateway-server-param-as-string}}.toString(){{/vendorExtensions.x-knime-gateway-server-param-as-string}}{{/isBodyParam}}{{^-last}}, {{/-last}}{{/allParams}});
                 } catch (PermissionException | ExecutorException | IOException | TimeoutException ex) {
                     //server errors
                     throw new ServiceException("Internal server error.", ex);

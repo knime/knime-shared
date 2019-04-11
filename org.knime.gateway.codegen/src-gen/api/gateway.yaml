@@ -18,33 +18,6 @@ tags:
     description: Operations for the worklfow wizard execution.
 
 paths:
-  /workflow:
-    get:
-      tags:
-        - Workflow
-      description: >-
-        Retrieves the complete structure (nodes, connections, annotations) of
-        the workflow
-      operationId: getWorkflow
-      parameters:
-        - $ref: '#/components/parameters/job-id'
-      responses:
-        '200':
-          description: >-
-            Successful response, with a representation of the workflow
-            accompanied by a snapshot id. The snapshot id allows to subsequently
-            retrieve workflow changes only using the workflow-diff endpoints.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WorkflowSnapshot'
-        '403':
-          $ref: "#/components/responses/NoPermission"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-        '504':
-          $ref: "#/components/responses/Timeout"
-
   /workflow/parts:
     post:
       tags:
@@ -172,12 +145,18 @@ paths:
           in: query
           description: >-
             The ID of the node referencing a sub-workflow to paste the parts
-            into. If none is given it will be pasted into the root workflow. For
-            nested sub-workflows the node id's are concatenated with an ':'
-            (e.g. 6:4:3).
+            into. If none is given it will be pasted into the root workflow.
+            The node-id format: Node IDs always start with 'root' and
+            optionally followed by numbers separated by ':' refering to
+            nested nodes/subworkflows,e.g. root:3:6:4.
+            Nodes within wrapped metanodes require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
           required: false
           schema:
             type: string
+            format: node-id
+            pattern: '^root(:\d+)*$'
+          x-knime-gateway-server-param-as-string: true
       x-knime-gateway-executor-exceptions:
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
          #if the parent id of the parts to be deleted doesn't refere to a node
@@ -201,50 +180,14 @@ paths:
         '504':
           $ref: "#/components/responses/Timeout"
 
-  /workflowdiff:
-    get:
-      tags:
-        - Workflow
-      description: >-
-        Gives the changes of the workflow as patch. Please note that there is
-        not always a snapshot available for the provided snapshot id, either
-        because the snapshot never existed or has expired.
-      operationId: getWorkflowDiff
-      parameters:
-        - $ref: '#/components/parameters/job-id'
-        - name: snapshot-id
-          in: query
-          description: The id of the workflow snapshot already retrieved.
-          required: true
-          schema:
-            type: string
-            format: uuid
-      x-knime-gateway-executor-exceptions:
-         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
-      responses:
-        '200':
-          description: 'Successful response, with a patch containing all the changes.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Patch'
-        '400':
-          $ref: '#/components/responses/GatewayExecutorException'
-        '403':
-          $ref: "#/components/responses/NoPermission"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-        '504':
-          $ref: "#/components/responses/Timeout"
-
   '/workflow/{node-id}':
     get:
       tags:
         - Workflow
       description: >-
         Retrieves the complete structure (nodes, connections, annotations) of
-        sub-workflows.
-      operationId: getSubWorkflow
+        (sub-)workflows.
+      operationId: getWorkflow
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
@@ -272,7 +215,7 @@ paths:
       tags:
         - Workflow
       description: Gives the changes of the sub-workflow as a patch.
-      operationId: getSubWorkflowDiff
+      operationId: getWorkflowDiff
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
@@ -303,26 +246,6 @@ paths:
           $ref: "#/components/responses/Timeout"
 
   /workflow/node:
-    get:
-      tags:
-        - Node
-      description: Retrieves the root node referencing the workflow
-      operationId: getRootNode
-      parameters:
-        - $ref: '#/components/parameters/job-id'
-      responses:
-        '200':
-          description: 'Successful response, with a representation of the Node.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Node'
-        '403':
-          $ref: "#/components/responses/NoPermission"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-        '504':
-          $ref: "#/components/responses/Timeout"
     post:
       tags:
         - Node
@@ -345,14 +268,19 @@ paths:
         - name: parent-node-id
           description: >-
             Optional id of the parent node if the new node should be added to a
-            sub-workflow. The node-id format: For nested nodes the node ids are
-            concatenated with an ':', e.g. 3:6:4. Nodes within wrapped metanodes
-            required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a
-            wrapped metanode).
+            sub-workflow.
+            The node-id format: Node IDs always start with 'root' and
+            optionally followed by numbers separated by ':' refering to
+            nested nodes/subworkflows,e.g. root:3:6:4.
+            Nodes within wrapped metanodes require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
           in: query
           required: false
           schema:
             type: string
+            format: node-id
+            pattern: '^root(:\d+)*$'
+          x-knime-gateway-server-param-as-string: true
       requestBody:
         content:
           application/json:
@@ -373,6 +301,8 @@ paths:
             application/json:
               schema:
                 type: string
+                format: node-id
+                pattern: '^root(:\d+)*$'
         '400':
           $ref: '#/components/responses/GatewayExecutorException'
         '403':
@@ -843,36 +773,9 @@ paths:
                   node id and destination port index and built as
                   '<dest-node-id>_<dest-ports-index>'
                 type: string
+                format: connection-id
+                pattern: '^root(:\d+)*_\d+$'
         '400':
-          $ref: '#/components/responses/GatewayExecutorException'
-        '403':
-          $ref: '#/components/responses/NoPermission'
-        '504':
-          $ref: '#/components/responses/Timeout'
-        '505':
-          $ref: '#/components/responses/InternalServerError'
-
-  '/workflow/annotation/{anno-id}/bounds':
-    put:
-      tags:
-        - Annotation
-      description: 'Changes the bounds (x,y,width,height) of a workflow annotation'
-      operationId: setAnnotationBounds
-      parameters:
-        - $ref: '#/components/parameters/job-id'
-        - name: anno-id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        $ref: '#/components/requestBodies/Bounds'          
-      x-knime-gateway-executor-exceptions:
-         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
-      responses:
-        '200':
-          description: Bounds successfully changed
-        '404':
           $ref: '#/components/responses/GatewayExecutorException'
         '403':
           $ref: '#/components/responses/NoPermission'
@@ -888,7 +791,7 @@ paths:
       description: >-
         Changes the bounds (x,y,width,height) of a workflow annotation in a
         sub-workflow.
-      operationId: setAnnotationBoundsInSubWorkflow
+      operationId: setAnnotationBounds
       parameters:
         - $ref: '#/components/parameters/job-id'
         - $ref: "#/components/parameters/node-id"
@@ -897,6 +800,9 @@ paths:
           required: true
           schema:
             type: string
+            format: annotation-id
+            pattern: '^root(:\d+)*_\d+$'
+          x-knime-gateway-server-param-as-string: true
       requestBody:
         $ref: '#/components/requestBodies/Bounds'          
       x-knime-gateway-executor-exceptions:
@@ -1107,12 +1013,18 @@ components:
       in: path
       description: >-
         The ID of a node.
-        The node-id format: For nested nodes the node ids are concatenated with an ':',
-        e.g. 3:6:4. Nodes within wrapped metanodes require an additional
-        trailing '0', e.g. 3:6:0:4 (if 3:6 is a wrapped metanode).
+        The node-id format: Node IDs always start with 'root' and
+        optionally followed by numbers separated by ':' refering to
+        nested nodes/subworkflows,e.g. root:3:6:4.
+        Nodes within wrapped metanodes require an additional
+        trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
       required: true
       schema:
         type: string
+        format: node-id
+        pattern: '^root(:\d+)*$'
+      example: 'root:3:6:0:4'
+      x-knime-gateway-server-param-as-string: true
  
   x-knime-gateway-executor-exceptions:
     NodeNotFound:
@@ -1270,22 +1182,30 @@ components:
         - type
       properties:
         dest:
-          type: string
           description: >-
-            The destination node. The node-id format: For nested nodes the node
-            ids are concatenated with an ':', e.g. 3:6:4. Nodes within wrapped
-            metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6
-            is a wrapped metanode).
+            The destination node.
+            The node-id format: Node IDs always start with 'root' and
+            optionally followed by numbers separated by ':' refering to
+            nested nodes/subworkflows,e.g. root:3:6:4.
+            Nodes within wrapped metanodes require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+          type: string
+          format: node-id
+          pattern: '^root(:\d+)*$'
         destPort:
           type: integer
           description: 'The destination port, starting at 0.'
         source:
-          type: string
           description: >-
-            The source node. The node-id format: For nested nodes the node ids
-            are concatenated with an ':', e.g. 3:6:4. Nodes within wrapped
-            metanodes required an additional trailing '0', e.g. 3:6:0:4 (if 3:6
-            is a wrapped metanode).
+            The source node.
+            The node-id format: Node IDs always start with 'root' and
+            optionally followed by numbers separated by ':' refering to
+            nested nodes/subworkflows,e.g. root:3:6:4.
+            Nodes within wrapped metanodes require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+          type: string
+          format: node-id
+          pattern: '^root(:\d+)*$'
         sourcePort:
           type: integer
           description: 'The source port, starting at 0.'
@@ -1394,6 +1314,8 @@ components:
         nodeID:
           description: The id of the node contributing to this dialog.
           type: string
+          format: node-id
+          pattern: '^root(:\d+)*$'
         isHideInDialog:
           description: Whether the component should be hidden in the subnode's dialog.
           type: boolean
@@ -1525,6 +1447,8 @@ components:
         nodeID:
           description: The ID of the node.
           type: string
+          format: node-id
+          pattern: '^root(:\d+)*$'
         nodeType:
           description: The type of the node.
           type: string
@@ -1552,6 +1476,8 @@ components:
             The parent node id of the node or "root" if it's the root
             node/workflow.
           type: string
+          format: node-id
+          pattern: '^root(:\d+)*$'
         rootWorkflowID:
           description: The id of the root workflow this node is contained in or represents.
           type: string
@@ -1899,6 +1825,8 @@ components:
             annotationID:
               description: Identifier for the workflow annotations.
               type: string
+              format: annotation-id
+              pattern: '^root(:\d+)*_\d+$'
 
     Workflow:
       type: object
@@ -1993,16 +1921,22 @@ components:
         parentNodeID:
           description: >-
             The parent node id of parts or 'root' if it's the root
-            node/workflow. The node-id format: For nested nodes the node ids are
-            concatenated with an ':', e.g. 3:6:4. Nodes within wrapped metanodes
-            required an additional trailing '0', e.g. 3:6:0:4 (if 3:6 is a
-            wrapped metanode).
+            node/workflow.
+            The node-id format: Node IDs always start with 'root' and
+            optionally followed by numbers separated by ':' refering to
+            nested nodes/subworkflows,e.g. root:3:6:4.
+            Nodes within wrapped metanodes require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
           type: string
+          format: node-id
+          pattern: '^root(:\d+)*$'
         nodeIDs:
           description: The ids of the nodes referenced.
           type: array
           items:
             type: string
+            format: node-id
+            pattern: '^root(:\d+)*$'
         connectionIDs:
           description: >-
             The ids of the connections referenced. The id has the following
@@ -2010,11 +1944,15 @@ components:
           type: array
           items:
             type: string
+            format: connection-id
+            pattern: '^root(:\d+)*_\d+$'
         annotationIDs:
           description: The ids of the workflow annotations referenced.
           type: array
           items:
             type: string
+            format: annotation-id
+            pattern: '^root(:\d+)*_\d+$'
       x-knimegateway-isUsedAsParameter: true
 
     WorkflowSnapshot:
@@ -2069,11 +2007,27 @@ components:
         - type: object
           properties:
             virtualInNodeID:
-              description: Node ID of the virtual in-node (i.e. source).
+              description: >
+                Node ID of the virtual in-node (i.e. source).
+                The node-id format: Node IDs always start with 'root' and
+                optionally followed by numbers separated by ':' refering to
+                nested nodes/subworkflows,e.g. root:3:6:4.
+                Nodes within wrapped metanodes require an additional
+                trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
               type: string
+              format: node-id
+              pattern: '^root(:\d+)*$'
             virtualOutNodeID:
-              description: Node ID of the virtual out-node (i.e. sink).
+              description: >
+                Node ID of the virtual out-node (i.e. sink).
+                The node-id format: Node IDs always start with 'root' and
+                optionally followed by numbers separated by ':' refering to
+                nested nodes/subworkflows,e.g. root:3:6:4.
+                Nodes within wrapped metanodes require an additional
+                trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
               type: string
+              format: node-id
+              pattern: '^root(:\d+)*$'
             inactive:
               description: 'Whether this node is inactive, e.g. due to inactive connections'
               type: boolean

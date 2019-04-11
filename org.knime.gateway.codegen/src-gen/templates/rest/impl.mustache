@@ -31,7 +31,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
      */
     {{/summary}}
     @Override
-    public Response {{nickname}}({{#allParams}}{{#isBodyParam}}byte[]{{/isBodyParam}}{{^isBodyParam}}{{{dataType}}}{{/isBodyParam}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    public Response {{nickname}}({{#allParams}}{{#isBodyParam}}byte[]{{/isBodyParam}}{{^isBodyParam}}{{>rest/paramDataType}}{{/isBodyParam}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
        {{>throwsServerExceptions}} {
         ArrayNode params = JsonNodeFactory.instance.arrayNode();
         {{#allParams}}

@@ -148,6 +148,19 @@ public class GatewayCodegen extends AbstractJavaCodegen {
         typeMapping.put("file", "byte[]");
     }
 
+	@Override
+    public String getTypeDeclaration(final Schema p) {
+        if ("node-id".equals(p.getFormat())) {
+            return "com.knime.gateway.entity.NodeIDEnt";
+        } else if ("connection-id".equals(p.getFormat())) {
+            return "com.knime.gateway.entity.ConnectionIDEnt";
+        } else if ("annotation-id".equals(p.getFormat())) {
+            return "com.knime.gateway.entity.AnnotationIDEnt";
+        } else {
+            return super.getTypeDeclaration(p);
+        }
+    }
+
 	private Optional<String> getPropertyAsString(final String propName) {
 		return Optional.ofNullable(additionalProperties().get(propName)).map(o -> o.toString());
 	}
