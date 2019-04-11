@@ -55,6 +55,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -99,6 +100,8 @@ public class WorkflowContext implements Externalizable {
 
         String m_remoteMountId;
 
+        UUID m_jobId;
+
         boolean m_isTempCopy;
 
         /**
@@ -122,6 +125,7 @@ public class WorkflowContext implements Externalizable {
         }
 
         /** New instance based on the value of the passed reference.
+         *
          * @param origContext To copy from - not null.
          * @since 5.3 */
         protected Factory(final WorkflowContext origContext) {
@@ -136,6 +140,7 @@ public class WorkflowContext implements Externalizable {
             m_remoteAuthToken = origContext.m_remoteAuthToken;
             m_relativeRemotePath = origContext.m_relativeRemotePath;
             m_isTempCopy = origContext.m_isTempCopy;
+            m_jobId = origContext.m_jobId;
         }
 
         /**
@@ -253,6 +258,18 @@ public class WorkflowContext implements Externalizable {
         }
 
         /**
+         * Sets the jobId of the workflow
+         *
+         * @param jobId the jobId of the workflow
+         * @return the updated factory
+         * @since 5.11
+         */
+        public Factory setJobId(final UUID jobId) {
+            m_jobId = jobId;
+            return this;
+        }
+
+        /**
          * Sets whether the workflow location is a temporary copy of a workflow living somewhere else. In this case the
          * resolution of relative knime-URLs has to be done differently than for "real" workflows.
          *
@@ -295,6 +312,12 @@ public class WorkflowContext implements Externalizable {
 
     private String m_remoteMountId;
 
+    /**
+     * Only used in the executor and therefore, it is is not included in
+     * {@link WorkflowContext#readExternal(ObjectInput)} and {@link WorkflowContext#writeExternal(ObjectInput)} .
+     */
+    private UUID m_jobId;
+
     private boolean m_isTempCopy;
 
     /**
@@ -333,6 +356,7 @@ public class WorkflowContext implements Externalizable {
         m_relativeRemotePath = factory.m_relativeRemotePath;
         m_remoteAuthToken = factory.m_remoteAuthToken;
         m_remoteMountId = factory.m_remoteMountId;
+        m_jobId = factory.m_jobId;
         m_isTempCopy = factory.m_isTempCopy;
     }
 
@@ -436,6 +460,16 @@ public class WorkflowContext implements Externalizable {
     }
 
     /**
+     * Returns the job id of the workflow. This value is only set if the workflow is executed in a server executor.
+     *
+     * @return a job id or an empty optional
+     * @since 5.11
+     */
+    public Optional<UUID> getJobId() {
+        return Optional.ofNullable(m_jobId);
+    }
+
+    /**
      * Returns whether the workflow location is a temporary copy of a workflow living somewhere else. In this case the
      * resolution of relative knime-URLs has to be done differently than for "real" workflows.
      *
@@ -445,7 +479,6 @@ public class WorkflowContext implements Externalizable {
     public boolean isTemporaryCopy() {
         return m_isTempCopy;
     }
-
 
     /**
      * Returns the factory to copy this instance.
@@ -562,6 +595,7 @@ public class WorkflowContext implements Externalizable {
         result = prime * result + ((m_remoteRepositoryAddress == null) ? 0 : m_remoteRepositoryAddress.hashCode());
         result = prime * result + ((m_relativeRemotePath == null) ? 0 : m_relativeRemotePath.hashCode());
         result = prime * result + ((m_remoteAuthToken == null) ? 0 : m_remoteAuthToken.hashCode());
+        result = prime * result + ((m_jobId == null) ? 0 : m_jobId.hashCode());
         result = prime * result + (m_isTempCopy ? 77 : 0);
         return result;
     }
@@ -620,7 +654,7 @@ public class WorkflowContext implements Externalizable {
         return Objects.equals(m_mountpointUri, other.m_mountpointUri)
                 && Objects.equals(m_remoteAuthToken, other.m_remoteAuthToken)
                 && Objects.equals(m_remoteRepositoryAddress, other.m_remoteRepositoryAddress)
-                && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath)
-                && (m_isTempCopy == other.m_isTempCopy);
+                && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath) && (m_isTempCopy == other.m_isTempCopy)
+                && Objects.equals(m_jobId, other.m_jobId);
     }
 }
