@@ -209,6 +209,57 @@ paths:
           $ref: "#/components/responses/InternalServerError"
         '504':
           $ref: "#/components/responses/Timeout"
+    post:
+      tags:
+        - Node
+      description: Creates and adds a new native node to the workflow.
+      operationId: createNode
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        # node-id of the workflow to add the new node to
+        - $ref: "#/components/parameters/node-id"
+        - name: x
+          description: the x coordinate to place the new node
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: 'y'
+          description: the y coordinate to place the new node
+          in: query
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeFactoryKey'
+        description: The key representing the native node to be added to the workflow.
+        required: true
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         # if the parent node couldn't be found or the node factory key is unknown
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         # if the node factory key's settings are required but missing or not readable
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
+      responses:
+        '201':
+          description: New node has been successfully created. Returns the new node id.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: node-id
+                pattern: '^root(:\d+)*$'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
 
   '/workflowdiff/{node-id}':
     get:
@@ -244,73 +295,6 @@ paths:
           $ref: "#/components/responses/InternalServerError"
         '504':
           $ref: "#/components/responses/Timeout"
-
-  /workflow/node:
-    post:
-      tags:
-        - Node
-      description: Creates and adds a new native node to the workflow.
-      operationId: createNode
-      parameters:
-        - $ref: '#/components/parameters/job-id'
-        - name: x
-          description: the x coordinate to place the new node
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: 'y'
-          description: the y coordinate to place the new node
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: parent-node-id
-          description: >-
-            Optional id of the parent node if the new node should be added to a
-            sub-workflow.
-            The node-id format: Node IDs always start with 'root' and
-            optionally followed by numbers separated by ':' refering to
-            nested nodes/subworkflows,e.g. root:3:6:4.
-            Nodes within wrapped metanodes require an additional
-            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
-          in: query
-          required: false
-          schema:
-            type: string
-            format: node-id
-            pattern: '^root(:\d+)*$'
-          x-knime-gateway-server-param-as-string: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NodeFactoryKey'
-        description: The key representing the native node to be added to the workflow.
-        required: true
-      x-knime-gateway-executor-exceptions:
-         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
-         # if the parent node couldn't be found or the node factory key is unknown
-         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
-         # if the node factory key's settings are required but missing or not readable
-         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
-      responses:
-        '201':
-          description: New node has been successfully created. Returns the new node id.
-          content:
-            application/json:
-              schema:
-                type: string
-                format: node-id
-                pattern: '^root(:\d+)*$'
-        '400':
-          $ref: '#/components/responses/GatewayExecutorException'
-        '403':
-          $ref: '#/components/responses/NoPermission'
-        '504':
-          $ref: '#/components/responses/Timeout'
-        '505':
-          $ref: '#/components/responses/InternalServerError'
 
   '/workflow/wmetanode/{node-id}/dialog':
     get:
