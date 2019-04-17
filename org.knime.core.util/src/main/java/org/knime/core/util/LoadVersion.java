@@ -124,6 +124,12 @@ public enum LoadVersion {
          */
         V3070("3.7.0"),
         /**
+         * Changed default table compression format.
+         *
+         * @since 5.11
+         */
+        V3080("3.8.0"),
+        /**
          * Try to be forward compatible.
          *
          * @since 2.8

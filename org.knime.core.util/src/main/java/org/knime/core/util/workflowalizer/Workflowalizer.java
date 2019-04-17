@@ -271,9 +271,9 @@ public final class Workflowalizer {
         final LoadVersion loadVersion = versionOptional.get();
 
         WorkflowParser parser = null;
-        if (loadVersion.equals(LoadVersion.V3070) || loadVersion.equals(LoadVersion.V3060Pre)
-            || loadVersion.equals(LoadVersion.V3010) || loadVersion.equals(LoadVersion.V2100)
-            || loadVersion.equals(LoadVersion.V2100Pre)) {
+        if (loadVersion.equals(LoadVersion.V3080) || loadVersion.equals(LoadVersion.V3070)
+            || loadVersion.equals(LoadVersion.V3060Pre) || loadVersion.equals(LoadVersion.V3010)
+            || loadVersion.equals(LoadVersion.V2100) || loadVersion.equals(LoadVersion.V2100Pre)) {
             parser = new WorkflowParserV2100Pre();
         } else if (loadVersion.equals(LoadVersion.V280)) {
             parser = new WorkflowParserV280();
