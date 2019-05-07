@@ -277,7 +277,13 @@ public final class WorkflowSetMeta {
         private final String m_url;
         private final String m_text;
 
-        private Link(final String url, final String text) {
+        /**
+         * Creates a new link.
+         *
+         * @param url the link's URL
+         * @param text the link's text
+         */
+        public Link(final String url, final String text) {
             m_url = url;
             m_text = text;
         }
