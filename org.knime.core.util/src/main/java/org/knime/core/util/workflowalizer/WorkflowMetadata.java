@@ -92,6 +92,9 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     @JsonProperty("workflowVariables")
     private final List<String> m_variables;
 
+    @JsonProperty("hasReport")
+    private final boolean m_hasReport;
+
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {
         super(builder);
         m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
@@ -105,6 +108,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
         m_variables = builder.getWorkflowVariables();
+        m_hasReport = builder.getHasReport();
     }
 
     /**
@@ -121,6 +125,7 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         m_workflowSetMeta = workflow.m_workflowSetMeta;
         m_credentials = workflow.m_credentials;
         m_variables = workflow.m_variables;
+        m_hasReport = workflow.m_hasReport;
     }
 
     /**
@@ -167,6 +172,13 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
      */
     public List<String> getWorkflowVariables() {
         return m_variables;
+    }
+
+    /**
+     * @return true if the workflow has a report, false otherwise
+     */
+    public boolean hasReport() {
+        return m_hasReport;
     }
 
     /**

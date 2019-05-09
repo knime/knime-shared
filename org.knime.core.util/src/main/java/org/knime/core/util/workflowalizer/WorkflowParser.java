@@ -48,12 +48,14 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipFile;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
@@ -373,4 +375,11 @@ interface WorkflowParser {
      * @throws InvalidSettingsException
      */
     Optional<Version> getBundleVersion(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * @param workflow the workflow directory path, or null if parsing a zip file
+     * @param zipWorkflow the workflow zip, or null if parsing a workflow directory
+     * @return true if the workflow has a report, false otherwise
+     */
+    boolean getHasReport(final Path workflow, final ZipFile zipWorkflow);
 }

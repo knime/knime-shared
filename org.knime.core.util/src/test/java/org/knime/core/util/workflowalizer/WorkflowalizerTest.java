@@ -515,6 +515,23 @@ public class WorkflowalizerTest {
     }
 
     /**
+     * Test reading if a workflow has a report
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingHasReport() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        assertFalse(wkfMd.hasReport());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+    /**
      * Tests attempting to read a workflowset.meta file, for a workflow which doesn't have such a file
      *
      * @throws Exception

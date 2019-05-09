@@ -49,6 +49,9 @@
 package org.knime.core.util.workflowalizer;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,14 +59,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.ConfigUtils;
 import org.knime.core.util.Version;
+import org.knime.core.util.report.ReportingConstants;
 
 /**
  * Abstract base class for {@code WorkflowParser}s.
@@ -513,4 +520,24 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return v == null || v.isEmpty() ? Optional.empty() : Optional.ofNullable(new Version(v));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean getHasReport(final Path workflow, final ZipFile zipWorkflow) {
+        if (zipWorkflow != null) {
+            final Enumeration<? extends ZipEntry> e = zipWorkflow.entries();
+            while (e.hasMoreElements()) {
+                if (e.nextElement().getName().endsWith("/" + ReportingConstants.KNIME_REPORT_FILE)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        try {
+            return Files.list(workflow).filter(f -> f.endsWith(ReportingConstants.KNIME_REPORT_FILE)).count() > 0;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 }

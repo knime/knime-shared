@@ -366,6 +366,9 @@ public final class Workflowalizer {
         final List<String> variables = parser.getWorkflowVariables(workflowKnime);
         builder.setWorkflowVariables(variables);
 
+        final boolean hasReport = parser.getHasReport(zip == null ? Paths.get(path) : null, zip);
+        builder.setHasReport(hasReport);
+
         return builder.build(wc);
     }
 

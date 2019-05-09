@@ -75,6 +75,7 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
     private List<String> m_credentials;
     private List<String> m_variables;
+    private Boolean m_hasReport;
 
     void setSvgWidth(final Integer svgWidth) {
         m_svgWidth = svgWidth;
@@ -114,6 +115,10 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
 
     void setWorkflowVariables(final List<String> variables) {
         m_variables = variables;
+    }
+
+    void setHasReport(final Boolean hasReport) {
+        m_hasReport = hasReport;
     }
 
     Integer getSvgWidth() {
@@ -156,6 +161,10 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         return m_variables;
     }
 
+    Boolean getHasReport() {
+        return m_hasReport;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -168,6 +177,7 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         checkPopulated(m_artifacts, "artifacts directory");
         checkPopulated(m_credentials, "workflow credentials");
         checkPopulated(m_variables, "workflow variables");
+        checkPopulated(m_hasReport, "has report");
         if (wc.parseWorkflowMeta()) {
             checkPopulated(m_workflowSetMeta, "workflowset.meta");
         }
