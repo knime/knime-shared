@@ -18,6 +18,12 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.MetanodeMetadata"/>
+                <message_argument value="getType()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.MetanodeMetadata"/>
                 <message_argument value="isMetaNode()"/>
             </message_arguments>
         </filter>
@@ -38,6 +44,12 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.NativeNodeMetadata"/>
+                <message_argument value="getType()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NativeNodeMetadata"/>
                 <message_argument value="isMetaNode()"/>
             </message_arguments>
         </filter>
@@ -53,6 +65,38 @@
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.NodeConnection"/>
                 <message_argument value="getSourceId()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/NodeMetadata.java" type="org.knime.core.util.workflowalizer.NodeMetadata">
+        <filter id="403804204">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="getNodeId()"/>
+            </message_arguments>
+        </filter>
+        <filter id="403804204">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="getType()"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="getNodeId()"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="getType()"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.NodeMetadata"/>
+                <message_argument value="isMetaNode()"/>
             </message_arguments>
         </filter>
     </resource>
@@ -86,6 +130,12 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
+                <message_argument value="getType()"/>
+            </message_arguments>
+        </filter>
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
                 <message_argument value="isMetaNode()"/>
             </message_arguments>
         </filter>
@@ -103,6 +153,14 @@
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.WorkflowSetMeta"/>
                 <message_argument value="getComments()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/core/util/workflowalizer/Workflowalizer.java" type="org.knime.core.util.workflowalizer.Workflowalizer">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.util.workflowalizer.Workflowalizer"/>
+                <message_argument value="readWorkflowGroup(Path)"/>
             </message_arguments>
         </filter>
     </resource>

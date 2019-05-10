@@ -532,6 +532,7 @@ public class WorkflowalizerTest {
      * Test reading if a workflow has a report
      *
      * @throws Exception
+     * @since 5.11
      */
     @Test
     public void testReadingHasReport() throws Exception {
@@ -947,6 +948,7 @@ public class WorkflowalizerTest {
      * Test reading and extracting a workflow SVG from a zip.
      *
      * @throws Exception
+     * @since 5.11
      */
     @Test
     public void testReadingSVGFromZip() throws Exception {

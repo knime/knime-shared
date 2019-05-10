@@ -102,6 +102,7 @@ public interface NodeMetadata {
 
     /**
      * @return the node type
+     * @since 5.11
      */
     NodeType getType();
 

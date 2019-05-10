@@ -58,6 +58,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * POJO representing workflow group.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.11
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class WorkflowGroupMetadata extends WorkflowSetMeta implements RepositoryItemMetadata {

@@ -52,6 +52,7 @@ package org.knime.core.util.workflowalizer;
  * Base POJO for all KNIME repository items (workflows, templates, etc.).
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @since 5.11
  */
 public interface RepositoryItemMetadata {
 
