@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -76,6 +77,8 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
     private List<String> m_credentials;
     private List<String> m_variables;
     private Boolean m_hasReport;
+    private Path m_svgFile;
+    private String m_svgZipEntry;
 
     void setSvgWidth(final Integer svgWidth) {
         m_svgWidth = svgWidth;
@@ -121,6 +124,14 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         m_hasReport = hasReport;
     }
 
+    void setSvgFile(final Path svg) {
+        m_svgFile = svg;
+    }
+
+    void setSvgZipEntry(final String zipEntryPath) {
+        m_svgZipEntry = zipEntryPath;
+    }
+
     Integer getSvgWidth() {
         return m_svgWidth;
     }
@@ -163,6 +174,14 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
 
     Boolean getHasReport() {
         return m_hasReport;
+    }
+
+    Path getSvgFile() {
+        return m_svgFile;
+    }
+
+    String getSvgZipEntry() {
+        return m_svgZipEntry;
     }
 
     /**

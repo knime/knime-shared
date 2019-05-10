@@ -48,11 +48,21 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.apache.commons.lang3.StringUtils;
+import org.knime.core.util.PathUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -95,6 +105,11 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     @JsonProperty("hasReport")
     private final boolean m_hasReport;
 
+    private final Path m_svgPath;
+    private final String m_svgZipEntryPath;
+
+    private Optional<File> m_svgFile;
+
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {
         super(builder);
         m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
@@ -109,6 +124,14 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         m_credentials = builder.getWorkflowCredentialsNames();
         m_variables = builder.getWorkflowVariables();
         m_hasReport = builder.getHasReport();
+
+        m_svgPath = builder.getSvgFile();
+        m_svgZipEntryPath = builder.getSvgZipEntry();
+        if (StringUtils.isEmpty(m_svgZipEntryPath) && (m_svgPath == null || !Files.exists(m_svgPath))) {
+            m_svgFile = Optional.empty();
+        } else if (StringUtils.isEmpty(m_svgZipEntryPath) && m_svgPath != null && Files.exists(m_svgPath)) {
+            m_svgFile = Optional.ofNullable(m_svgPath.toFile());
+        }
     }
 
     /**
@@ -126,6 +149,9 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         m_credentials = workflow.m_credentials;
         m_variables = workflow.m_variables;
         m_hasReport = workflow.m_hasReport;
+        m_svgPath = workflow.m_svgPath;
+        m_svgZipEntryPath = workflow.m_svgZipEntryPath;
+        m_svgFile = workflow.m_svgFile;
     }
 
     /**
@@ -254,6 +280,18 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         return new WorkflowMetadata(this);
     }
 
+    /**
+     * Returns the workflow's svg file, if present.
+     *
+     * @return svg file
+     */
+    public Optional<File> getSvgFile() {
+        if (m_svgFile == null) {
+            readSvg();
+        }
+        return m_svgFile;
+    }
+
     // -- Helper classes --
 
     /**
@@ -292,5 +330,27 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         public String toString() {
             return "width: " + m_width + " & height: " + m_height;
         }
+    }
+
+    // -- Helper methods --
+
+    private synchronized void readSvg() {
+        if (m_svgFile != null) {
+            return;
+        }
+        if (!StringUtils.isEmpty(m_svgZipEntryPath)) {
+            try (final ZipFile zip = new ZipFile(m_svgPath.toFile())) {
+                final ZipEntry entry = zip.getEntry(m_svgZipEntryPath);
+                try (final InputStream zin = zip.getInputStream(entry)) {
+                    final Path tmp = PathUtils.createTempFile("knime", ".svg");
+                    Files.copy(zin, tmp, StandardCopyOption.REPLACE_EXISTING);
+                    m_svgFile = Optional.ofNullable(tmp.toFile());
+                    return;
+                }
+            } catch (final Exception e) {
+                // Do nothing, m_svgFile will be set to empty optional
+            }
+        }
+        m_svgFile = Optional.empty();
     }
 }

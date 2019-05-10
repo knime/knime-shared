@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -220,6 +221,16 @@ public class WorkflowalizerTest {
         assertTrue(wkfMd.getWorkflowSvg().isPresent());
         assertEquals(1301, wkfMd.getWorkflowSvg().get().getWidth().intValue());
         assertEquals(501, wkfMd.getWorkflowSvg().get().getHeight().intValue());
+
+        final Path svg = m_workflowDir.resolve("workflow.svg");
+        final File readSvg = wkfMd.getSvgFile().orElse(null);
+        assertNotNull(readSvg);
+        final List<String> lines = Files.readAllLines(svg);
+        final List<String> readLines = Files.readAllLines(readSvg.toPath());
+        assertEquals(lines.size(), readLines.size());
+        for (int i = 0; i < lines.size(); i++) {
+            assertEquals(lines.get(i), readLines.get(i));
+        }
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -927,6 +938,37 @@ public class WorkflowalizerTest {
         assertEquals(6, nativeNodeCount);
         assertEquals(0, subnodeCount);
         assertEquals(0, metanodeCount);
+    }
+
+    /**
+     * Test reading and extracting a workflow SVG from a zip.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingSVGFromZip() throws Exception {
+        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
+
+        assertTrue(wm.getWorkflowSvg().isPresent());
+        assertEquals(1301, wm.getWorkflowSvg().get().getWidth().intValue());
+        assertEquals(501, wm.getWorkflowSvg().get().getHeight().intValue());
+
+        final Path svg = m_workflowDir.resolve("workflow.svg");
+        final File readSvg = wm.getSvgFile().orElse(null);
+        assertNotNull(readSvg);
+        final List<String> lines = Files.readAllLines(svg);
+        final List<String> readLines = Files.readAllLines(readSvg.toPath());
+        assertEquals(lines.size(), readLines.size());
+        for (int i = 0; i < lines.size(); i++) {
+            assertEquals(lines.get(i), readLines.get(i));
+        }
+
+        assertUOEThrown(wm::getConnections);
+        assertUOEThrown(wm::getNodes);
+        assertUOEThrown(wm::getUnexpectedFileNames);
+        assertUOEThrown(wm::getWorkflowSetMetadata);
     }
 
     // -- Test reading template --

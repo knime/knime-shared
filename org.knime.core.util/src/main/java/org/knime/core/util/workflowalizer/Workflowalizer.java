@@ -816,6 +816,7 @@ public final class Workflowalizer {
         }
         CheckUtils.checkArgument(Files.probeContentType(svg).toLowerCase().contains("svg"),
             parser.getWorkflowSVGFileName() + " is not an SVG");
+        builder.setSvgFile(svg);
 
         final String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
         final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
@@ -839,6 +840,8 @@ public final class Workflowalizer {
         if (svg == null) {
             return;
         }
+        builder.setSvgFile(Paths.get(zip.getName()));
+        builder.setSvgZipEntry(path + parser.getWorkflowSVGFileName());
         try (final InputStream stream = zip.getInputStream(svg)) {
             final String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
             final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
