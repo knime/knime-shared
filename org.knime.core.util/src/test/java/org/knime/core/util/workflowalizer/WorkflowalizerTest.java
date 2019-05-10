@@ -204,7 +204,7 @@ public class WorkflowalizerTest {
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
         assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().length == 0);
+        assertTrue(wsm.getTags().get().size() == 0);
     }
 
     // -- Test reading individual workflow fields --
@@ -478,7 +478,7 @@ public class WorkflowalizerTest {
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
         assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().length == 0);
+        assertTrue(wsm.getTags().get().size() == 0);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -1126,7 +1126,7 @@ public class WorkflowalizerTest {
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
         assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().length == 0);
+        assertTrue(wsm.getTags().get().size() == 0);
     }
 
     // -- Helper methods --

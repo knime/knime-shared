@@ -84,7 +84,7 @@ public final class WorkflowSetMeta {
     private final Optional<List<Link>> m_links;
 
     @JsonProperty("tags")
-    private final Optional<String[]> m_tags;
+    private final Optional<List<String>> m_tags;
 
     WorkflowSetMeta(final Optional<String> author, final Optional<String> comments) {
         m_author = author;
@@ -133,7 +133,7 @@ public final class WorkflowSetMeta {
             }
 
             m_links = Optional.ofNullable(links);
-            m_tags = Optional.ofNullable(tags.toArray(new String[tags.size()]));
+            m_tags = Optional.ofNullable(tags);
         } else {
             m_title = Optional.empty();
             m_description = Optional.empty();
@@ -200,7 +200,7 @@ public final class WorkflowSetMeta {
      * @return list of workflow tags
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
-    public Optional<String[]> getTags() {
+    public Optional<List<String>> getTags() {
         if (m_tags == null) {
             throw new UnsupportedOperationException("getTags() is not supported, field was not read");
         }
