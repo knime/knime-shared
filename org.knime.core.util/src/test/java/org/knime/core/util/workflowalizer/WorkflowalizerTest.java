@@ -1124,9 +1124,10 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWorkflowGroup() throws Exception {
-        final WorkflowSetMeta wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile);
+        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile);
         assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
         final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines);
+        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
         assertTrue(wsm.getLinks().get().size() == 0);

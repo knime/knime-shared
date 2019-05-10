@@ -117,7 +117,7 @@ public final class Workflowalizer {
      * @throws IOException
      * @throws XPathExpressionException
      */
-    public static WorkflowSetMeta readWorkflowGroup(final Path workflowsetMetaFile)
+    public static WorkflowGroupMetadata readWorkflowGroup(final Path workflowsetMetaFile)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
         if (isZip(workflowsetMetaFile)) {
             try (final ZipFile zip = new ZipFile(workflowsetMetaFile.toAbsolutePath().toString())) {
@@ -125,7 +125,7 @@ public final class Workflowalizer {
                 CheckUtils.checkArgumentNotNull(workflowPath,
                     "Zip file does not contain a workflow group: " + workflowsetMetaFile);
                 try (final InputStream is = zip.getInputStream(zip.getEntry(workflowPath))) {
-                    return readWorkflowSetMeta(is);
+                    return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
                 }
             }
         }
@@ -133,7 +133,7 @@ public final class Workflowalizer {
         CheckUtils.checkArgument(Files.exists(workflowsetMetaFile), workflowsetMetaFile + " does not exist");
         CheckUtils.checkArgument(!Files.isDirectory(workflowsetMetaFile), workflowsetMetaFile + " is a directory");
         try (final InputStream is = Files.newInputStream(workflowsetMetaFile)) {
-            return readWorkflowSetMeta(is);
+            return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
         }
     }
 

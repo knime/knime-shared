@@ -69,7 +69,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @since 5.10
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
-public final class WorkflowSetMeta {
+public class WorkflowSetMeta {
 
     @JsonProperty("author")
     private final Optional<String> m_author;
@@ -140,6 +140,19 @@ public final class WorkflowSetMeta {
             m_links = Optional.empty();
             m_tags = Optional.empty();
         }
+    }
+
+    /**
+     * Constructor which creates a shallow duplicate of the given POJO.
+     *
+     * @param workflowSetMeta POJO to copy
+     */
+    protected WorkflowSetMeta(final WorkflowSetMeta workflowSetMeta) {
+        m_author = workflowSetMeta.m_author;
+        m_title = workflowSetMeta.m_title;
+        m_description = workflowSetMeta.m_description;
+        m_links = workflowSetMeta.m_links;
+        m_tags = workflowSetMeta.m_tags;
     }
 
     /**
