@@ -44,83 +44,53 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Oct 29, 2018 (awalter): created
+ *   May 10, 2019 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Optional;
-
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.config.base.ConfigBase;
-import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
-
 /**
- * {@code WorkflowParser} for parsing v2.3.0 through v2.6.0 files
+ * Base POJO for all KNIME repository items (workflows, templates, etc.).
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-final class WorkflowParserV230 extends AbstractWorkflowParser {
+public interface RepositoryItemMetadata {
 
     /**
-     * {@inheritDoc}
+     * Enum denoting the type of the KNIME repository item.
      */
-    @Override
-    public NodeType getType(final ConfigBase config) throws InvalidSettingsException {
-        final boolean isMetaNode = config.getBoolean("node_is_meta");
-        return isMetaNode ? NodeType.METANODE : NodeType.NATIVE_NODE;
-    }
+    public enum RepositoryItemType {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getAuthorName(final ConfigBase config) throws InvalidSettingsException {
-        return "<unknown>";
-    }
+        /**
+         * This denotes that an object is a KNIME workflow.
+         */
+        WORKFLOW("Workflow"),
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Date getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        return new Date(0);
-    }
+        /**
+         * This denotes that an object is a KNIME template.
+         */
+        TEMPLATE("Template"),
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<String> getEditorName(final ConfigBase config) throws InvalidSettingsException {
-        return Optional.empty();
-    }
+        /**
+         * This denotes that an object is a KNIME workflow group.
+         */
+        WORKFLOW_GROUP("WorkflowGroup");
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<Date> getEditedDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        return Optional.empty();
-    }
+        private final String m_type;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<ConfigBase> getNodeConfiguration(final ConfigBase settingsXml, final ConfigBase nodeXml)
-        throws InvalidSettingsException {
-        return nodeXml.containsKey("model") ? Optional.ofNullable(nodeXml.getConfigBase("model"))
-            : Optional.empty();
-    }
-
-    @Override
-    public Optional<String> getNodeName(final ConfigBase settingsXml, final ConfigBase nodeXml)
-        throws InvalidSettingsException {
-        // version 2.6.0 has the node name in both settings.xml and node.xml
-        if (settingsXml.containsKey("node-name")) {
-            return Optional.ofNullable(settingsXml.getString("node-name"));
+        RepositoryItemType(final String type) {
+            m_type = type;
         }
-        return nodeXml.containsKey("name") ? Optional.ofNullable(nodeXml.getString("name")) : Optional.empty();
+
+        @Override
+        public String toString() {
+            return m_type;
+        }
     }
+
+    /**
+     * Returns the type of this KNIME repository item.
+     *
+     * @return the type
+     */
+    RepositoryItemType getType();
 }

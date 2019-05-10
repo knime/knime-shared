@@ -50,6 +50,8 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
+
 /**
  * Configuration and quasi-builder for all fields in {@link NodeMetadata}.
  *
@@ -58,7 +60,7 @@ import java.util.Optional;
 class NodeFields {
 
     private String m_id;
-    private String m_type;
+    private NodeType m_type;
     private Optional<String> m_annotationText;
 
     NodeFields() {
@@ -71,7 +73,7 @@ class NodeFields {
         return m_id;
     }
 
-    String getType() {
+    NodeType getType() {
         return m_type;
     }
 
@@ -85,7 +87,7 @@ class NodeFields {
         m_id = id;
     }
 
-    void setType(final String type) {
+    void setType(final NodeType type) {
         m_type = type;
     }
 

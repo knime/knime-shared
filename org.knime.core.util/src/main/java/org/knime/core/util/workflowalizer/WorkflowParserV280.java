@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
  * {@code WorkflowParser} for parsing v2.8.0 files
@@ -62,8 +63,8 @@ final class WorkflowParserV280 extends AbstractWorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public String getType(final ConfigBase config) throws InvalidSettingsException {
+    public NodeType getType(final ConfigBase config) throws InvalidSettingsException {
         final boolean isMetaNode = config.getBoolean("node_is_meta");
-        return isMetaNode ? "MetaNode" : "NativeNode";
+        return isMetaNode ? NodeType.METANODE : NodeType.NATIVE_NODE;
     }
 }

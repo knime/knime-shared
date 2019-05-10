@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.knime.core.util.Version;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -239,7 +240,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
     }
 
     private void addNodes(final NodeMetadata nm, final List<NodeMetadata> nodes) {
-        if (nm.getType().equalsIgnoreCase("nativenode")) {
+        if (nm.getType().equals(NodeType.NATIVE_NODE)) {
             nodes.add(nm);
             return;
         }

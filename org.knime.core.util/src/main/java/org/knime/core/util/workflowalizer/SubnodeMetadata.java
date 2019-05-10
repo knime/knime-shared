@@ -71,7 +71,7 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
     private final String m_nodeId;
 
     @JsonProperty("type")
-    private final String m_type;
+    private final NodeType m_type;
 
     @JsonProperty("nodeConfiguration")
     private final Optional<ConfigBase> m_nodeConfiguration;
@@ -123,7 +123,7 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
      * {@inheritDoc}
      */
     @Override
-    public String getType() {
+    public NodeType getType() {
         return m_type;
     }
 

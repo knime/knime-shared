@@ -51,6 +51,7 @@ package org.knime.core.util.workflowalizer;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
  * {@code WorkflowParser} for parsing v2.10.0Pre through the current version (3.7.0) files
@@ -63,7 +64,15 @@ final class WorkflowParserV2100Pre extends AbstractWorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public String getType(final ConfigBase config) throws InvalidSettingsException {
-        return config.getString("node_type");
+    public NodeType getType(final ConfigBase config) throws InvalidSettingsException {
+        final String type = config.getString("node_type");
+        if (type.equalsIgnoreCase(NodeType.NATIVE_NODE.toString())) {
+            return NodeType.NATIVE_NODE;
+        } else if (type.equalsIgnoreCase(NodeType.SUBNODE.toString())) {
+            return NodeType.SUBNODE;
+        } else if (type.equalsIgnoreCase(NodeType.METANODE.toString())) {
+            return NodeType.METANODE;
+        }
+        throw new IllegalArgumentException("Unrecognized node type: " + type);
     }
 }

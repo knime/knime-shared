@@ -60,6 +60,7 @@ import java.util.zip.ZipFile;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.Version;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
  * Parses metadata for workflows from a pre-loaded {@link MetadataConfig}.
@@ -164,7 +165,7 @@ interface WorkflowParser {
      * @return the node's type
      * @throws InvalidSettingsException
      */
-    String getType(final ConfigBase config) throws InvalidSettingsException;
+    NodeType getType(final ConfigBase config) throws InvalidSettingsException;
 
     /**
      * @param workflowConfig the config containing the workflow xml

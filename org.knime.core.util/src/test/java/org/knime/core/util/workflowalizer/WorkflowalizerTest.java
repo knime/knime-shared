@@ -87,6 +87,8 @@ import org.knime.core.node.config.base.XMLConfig;
 import org.knime.core.util.PathUtils;
 import org.knime.core.util.Version;
 import org.knime.core.util.XMLUtils;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
+import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
 
 /**
  * Tests for {@link Workflowalizer}.
@@ -167,6 +169,7 @@ public class WorkflowalizerTest {
     public void testTopLevelWorkflowMetadata() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
 
+        assertEquals(RepositoryItemType.WORKFLOW, wkfMd.getType());
         assertEquivalentAnnotations(readAnnotations(m_readWorkflowLines), wkfMd.getAnnotations());
         assertEquals(readAuthorInformation(m_readWorkflowLines), wkfMd.getAuthorInformation());
         assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), wkfMd.getConnections());
@@ -580,7 +583,7 @@ public class WorkflowalizerTest {
         assertTrue(readNodeConfiguration(new File(m_nodeDir.toFile(), "settings.xml")).get()
             .isIdentical(nativeNode.getNodeConfiguration().get()));
         assertEquals(readNodeAndBundleInformation(false, m_readNodeLines), nativeNode.getNodeAndBundleInformation());
-        assertEquals("NativeNode", node.getType());
+        assertEquals(NodeType.NATIVE_NODE, node.getType());
     }
 
     /**
@@ -592,7 +595,7 @@ public class WorkflowalizerTest {
     public void testReadingNodeInMetanode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final MetanodeMetadata mtnMd =
-            (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("MetaNode")).findFirst().get();
+            (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
         final NativeNodeMetadata node =
             (NativeNodeMetadata)mtnMd.getNodes().stream().filter(n -> n.getNodeId().equals(mtnMd.getNodeId() + ":2")).findFirst().get();
         final Path nodePath =
@@ -604,7 +607,7 @@ public class WorkflowalizerTest {
         assertEquals(readCustomNodeDescription(readLines), node.getCustomNodeDescription());
         assertTrue(readNodeConfiguration(nodePath.toFile()).get().isIdentical(node.getNodeConfiguration().get()));
         assertEquals(readNodeAndBundleInformation(false, readLines), node.getNodeAndBundleInformation());
-        assertEquals("NativeNode", node.getType());
+        assertEquals(NodeType.NATIVE_NODE, node.getType());
     }
 
     // -- Test reading individual node fields --
@@ -725,7 +728,7 @@ public class WorkflowalizerTest {
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals("NativeNode", nativeNode.getType());
+        assertEquals(NodeType.NATIVE_NODE, nativeNode.getType());
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -740,7 +743,7 @@ public class WorkflowalizerTest {
     public void testReadingMetaNode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final MetanodeMetadata mtnMtd =
-            (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("MetaNode")).findFirst().get();
+            (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
             new File(m_workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
 
@@ -781,7 +784,7 @@ public class WorkflowalizerTest {
     public void testReadingWrappedMetaNode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
         final SubnodeMetadata mtnMtd =
-            (SubnodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals("SubNode")).findFirst().get();
+            (SubnodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.SUBNODE)).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
             new File(m_workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
         final List<String> readMetaNodeNodeLines = Files.readAllLines(
@@ -863,14 +866,14 @@ public class WorkflowalizerTest {
                 id = id.substring(index + 1, id.length());
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            if (node.getType().equals("NativeNode")) {
+            if (node.getType().equals(NodeType.NATIVE_NODE)) {
                 nativeNodeCount++;
             }
-            if (node.getType().equals("SubNode")) {
+            if (node.getType().equals(NodeType.SUBNODE)) {
                 subnodeCount++;
                 sm = (SubnodeMetadata)node;
             }
-            if (node.getType().equals("MetaNode")) {
+            if (node.getType().equals(NodeType.METANODE)) {
                 metanodeCount++;
                 mm = (MetanodeMetadata)node;
             }
@@ -895,13 +898,13 @@ public class WorkflowalizerTest {
                 id = id.substring(index + 1, id.length());
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            if (node.getType().equals("NativeNode")) {
+            if (node.getType().equals(NodeType.NATIVE_NODE)) {
                 nativeNodeCount++;
             }
-            if (node.getType().equals("SubNode")) {
+            if (node.getType().equals(NodeType.SUBNODE)) {
                 subnodeCount++;
             }
-            if (node.getType().equals("MetaNode")) {
+            if (node.getType().equals(NodeType.METANODE)) {
                 metanodeCount++;
             }
         }
@@ -925,13 +928,13 @@ public class WorkflowalizerTest {
                 id = id.substring(index + 1, id.length());
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            if (node.getType().equals("NativeNode")) {
+            if (node.getType().equals(NodeType.NATIVE_NODE)) {
                 nativeNodeCount++;
             }
-            if (node.getType().equals("SubNode")) {
+            if (node.getType().equals(NodeType.SUBNODE)) {
                 subnodeCount++;
             }
-            if (node.getType().equals("MetaNode")) {
+            if (node.getType().equals(NodeType.METANODE)) {
                 metanodeCount++;
             }
         }
@@ -994,6 +997,7 @@ public class WorkflowalizerTest {
     public void testTemplateMetadata() throws Exception {
         final TemplateMetadata template = Workflowalizer.readTemplate(m_templateDir);
 
+        assertEquals(RepositoryItemType.TEMPLATE, template.getType());
         assertEquivalentAnnotations(readAnnotations(m_readTemplateWorkflowKnime), template.getAnnotations());
         assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), template.getAuthorInformation());
         assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), template.getConnections());
@@ -1370,10 +1374,10 @@ public class WorkflowalizerTest {
         final List<NodeMetadata> metaNodes = new ArrayList<>();
         final List<NodeMetadata> wrappedMetaNodes = new ArrayList<>();
         for (final NodeMetadata nodeMeta : wkfMd.getNodes()) {
-            if (nodeMeta.getType().equals("MetaNode")) {
+            if (nodeMeta.getType().equals(NodeType.METANODE)) {
                 metaNodes.add(nodeMeta);
             }
-            if (nodeMeta.getType().equals("SubNode")) {
+            if (nodeMeta.getType().equals(NodeType.SUBNODE)) {
                 wrappedMetaNodes.add(nodeMeta);
             }
         }

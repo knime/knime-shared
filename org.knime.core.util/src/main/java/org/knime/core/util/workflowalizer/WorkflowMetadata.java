@@ -66,6 +66,7 @@ import org.knime.core.util.PathUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,7 +83,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
  * @since 5.10
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
-public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> {
+public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> implements RepositoryItemMetadata {
 
     @JsonProperty("authorInformation")
     private final AuthorInformation m_authorInfo;
@@ -105,9 +106,13 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     @JsonProperty("hasReport")
     private final boolean m_hasReport;
 
+    @JsonIgnore
     private final Path m_svgPath;
+
+    @JsonIgnore
     private final String m_svgZipEntryPath;
 
+    @JsonIgnore
     private Optional<File> m_svgFile;
 
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {
@@ -208,14 +213,12 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
     }
 
     /**
-     * Returns whether this "workflow" is a metanode template or not.
-     *
-     * @return {@code true} if the workflow is a template
+     * {@inheritDoc}
      */
-    @SuppressWarnings("static-method")
-    @JsonProperty("template")
-    public boolean isTemplate() {
-        return false;
+    @JsonProperty("type")
+    @Override
+    public RepositoryItemType getType() {
+        return RepositoryItemType.WORKFLOW;
     }
 
     @Override

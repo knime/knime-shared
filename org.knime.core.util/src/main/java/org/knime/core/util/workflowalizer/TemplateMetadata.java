@@ -69,7 +69,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
  * @since 5.10
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
-public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> {
+public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> implements RepositoryItemMetadata {
 
     @JsonProperty("authorInformation")
     private final AuthorInformation m_authorInfo;
@@ -112,13 +112,12 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
     }
 
     /**
-     * Returns whether this "workflow" is a metanode template or not.
-     *
-     * @return {@code true} if the workflow is a template
+     * {@inheritDoc}
      */
-    @JsonProperty("template")
-    public boolean isTemplate() {
-        return true;
+    @JsonProperty("type")
+    @Override
+    public RepositoryItemType getType() {
+        return RepositoryItemType.TEMPLATE;
     }
 
     @Override
@@ -164,4 +163,5 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
     public TemplateMetadata flatten() {
         return new TemplateMetadata(this);
     }
+
 }

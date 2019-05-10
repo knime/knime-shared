@@ -92,6 +92,7 @@ import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.Version;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -432,16 +433,20 @@ public final class Workflowalizer {
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final Map<Integer, NodeMetadata> map = new HashMap<>();
         for (final ConfigBase config : configs) {
-            final String type = parser.getType(config);
+            final NodeType type = parser.getType(config);
             NodeMetadata n = null;
-            if (type.equals("NativeNode")) {
-                n = readNativeNode(currentWorkflowDirectory, zip, config, wc, parser, nodeId);
-            } else if (type.equals("SubNode")) {
-                n = readWrappedMetanode(currentWorkflowDirectory, zip, config, wc, parser, nodeId);
-            } else if (type.equals("MetaNode")) {
-                n = readMetanode(currentWorkflowDirectory, zip, wc, config, parser, nodeId);
-            } else {
-                throw new IllegalArgumentException("Unknown node type: " + type);
+            switch (type) {
+                case NATIVE_NODE:
+                    n = readNativeNode(currentWorkflowDirectory, zip, config, wc, parser, nodeId);
+                    break;
+                case SUBNODE:
+                    n = readWrappedMetanode(currentWorkflowDirectory, zip, config, wc, parser, nodeId);
+                    break;
+                case METANODE:
+                    n = readMetanode(currentWorkflowDirectory, zip, wc, config, parser, nodeId);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown node type: " + type);
             }
 
             String nId = n.getNodeId();
@@ -645,7 +650,7 @@ public final class Workflowalizer {
         }
         nf.setId(nid);
 
-        final String type = parser.getType(nodeConfig);
+        final NodeType type = parser.getType(nodeConfig);
         nf.setType(type);
     }
 

@@ -69,7 +69,7 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
     private final String m_nodeId;
 
     @JsonProperty("type")
-    private final String m_type;
+    private final NodeType m_type;
 
     @JsonProperty("annotationText")
     private final Optional<String> m_annotationText;
@@ -111,7 +111,7 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      * {@inheritDoc}
      */
     @Override
-    public String getType() {
+    public NodeType getType() {
         return m_type;
     }
 

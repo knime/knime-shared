@@ -59,6 +59,39 @@ import java.util.Optional;
  * @since 5.10
  */
 public interface NodeMetadata {
+
+    /**
+     * Enum denoting the type of the KNIME node.
+     */
+    public enum NodeType {
+
+        /**
+         * This denotes that an object is a KNIME metanode.
+         */
+        METANODE("MetaNode"),
+
+        /**
+         * This denotes that an object is a KNIME subnode.
+         */
+        SUBNODE("SubNode"),
+
+        /**
+         * This denotes that an object is a KNIME native node.
+         */
+        NATIVE_NODE("NativeNode");
+
+        private final String m_type;
+
+        NodeType(final String type) {
+            m_type = type;
+        }
+
+        @Override
+        public String toString() {
+            return m_type;
+        }
+    }
+
     /**
      * @return the node ID with hierarchy, in the form {@code ..:grandparent-ID:parent-ID:node-ID} where parent is a metanode.
      *         There can be any number of predecessors. Nodes in the workflow (i.e. not contained in metanodes) will not
@@ -70,7 +103,7 @@ public interface NodeMetadata {
     /**
      * @return the node type
      */
-    String getType();
+    NodeType getType();
 
     /**
      * @return the node's annotation text
