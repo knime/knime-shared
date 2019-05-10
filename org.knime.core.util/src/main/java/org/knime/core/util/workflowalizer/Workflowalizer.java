@@ -108,6 +108,91 @@ import org.xml.sax.SAXException;
 public final class Workflowalizer {
 
     /**
+     * Reads the repository item as the given path. All fields for the given item will be read.
+     *
+     * @param repoItem path to the directory of the repository item or zip file containing the item. If the zip contains
+     *            multiple repository items only the first highest level item is read. In the event of ties the priority
+     *            is workflow group, workflow, template
+     * @return repository item pojo
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InvalidSettingsException
+     * @throws ParseException
+     * @throws XPathExpressionException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
+    public static RepositoryItemMetadata readRepositoryItem(final Path repoItem)
+        throws FileNotFoundException, IOException, InvalidSettingsException, ParseException, XPathExpressionException,
+        ParserConfigurationException, SAXException {
+        return readRepositoryItem(repoItem, WorkflowalizerConfiguration.builder().readAll().build());
+    }
+
+    /**
+     * Reads the repository item as the given path, only the requested fields will be populated.
+     *
+     * @param repoItem path to the directory of the repository item or zip file containing the item. If the zip contains
+     *            multiple repository items only the first highest level item is read. In the event of ties the priority
+     *            is workflow group, workflow, template
+     * @param config the {@link WorkflowalizerConfiguration}, this cannot be {@code null}
+     * @return repository item pojo
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InvalidSettingsException
+     * @throws ParseException
+     * @throws XPathExpressionException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
+    public static RepositoryItemMetadata readRepositoryItem(final Path repoItem,
+        final WorkflowalizerConfiguration config) throws FileNotFoundException, IOException, InvalidSettingsException,
+        ParseException, XPathExpressionException, ParserConfigurationException, SAXException {
+        if (isZip(repoItem)) {
+            try (final ZipFile zip = new ZipFile(repoItem.toAbsolutePath().toString())) {
+                final String workflowGroupPath = findFirstWorkflowGroup(zip);
+                final String workflowPath = findFirstWorkflow(zip);
+                final String templatePath = findFirstTemplate(zip);
+
+                CheckUtils.checkArgument(!(workflowGroupPath == null && workflowPath == null && templatePath == null),
+                    "No template, workflow, or workflow group found in zip file at: " + repoItem);
+
+                final int groupLevel =
+                    workflowGroupPath == null ? Integer.MAX_VALUE : StringUtils.countMatches(workflowGroupPath, "/");
+                final int workflowLevel =
+                    workflowPath == null ? Integer.MAX_VALUE : StringUtils.countMatches(workflowPath, "/");
+                final int templateLevel =
+                    templatePath == null ? Integer.MAX_VALUE : StringUtils.countMatches(templatePath, "/");
+
+                if (groupLevel <= workflowLevel && groupLevel <= templateLevel) {
+                    try (final InputStream is = zip.getInputStream(zip.getEntry(workflowGroupPath))) {
+                        return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
+                    }
+                } else if (workflowLevel < groupLevel && workflowLevel <= templateLevel) {
+                    readTopLevelWorkflow(workflowPath, zip, config);
+                }
+                return readTemplateMetadata(templatePath, zip, config);
+            }
+        }
+        CheckUtils.checkArgument(Files.exists(repoItem), repoItem + " does not exist");
+        CheckUtils.checkArgument(Files.isDirectory(repoItem), repoItem + " is not a directory");
+
+        final Path workflowSetMeta = repoItem.resolve("workflowset.meta");
+        final boolean hasWorkflowKnime = Files.exists(repoItem.resolve("workflow.knime"));
+        final boolean hasWorkflowSetMeta = Files.exists(workflowSetMeta);
+        final boolean hasTemplateKnime = Files.exists(repoItem.resolve("template.knime"));
+        if (hasTemplateKnime && hasWorkflowKnime) {
+            return readTemplateMetadata(repoItem.toAbsolutePath().toString(), null, config);
+        } else if (hasWorkflowKnime && !hasTemplateKnime) {
+            return readTopLevelWorkflow(repoItem.toAbsolutePath().toString(), null, config);
+        } else if (hasWorkflowSetMeta && !hasTemplateKnime && !hasWorkflowKnime) {
+            try (final InputStream is = Files.newInputStream(workflowSetMeta)) {
+                return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
+            }
+        }
+        throw new IllegalArgumentException("No template, workflow, or workflow group found at path: " + repoItem);
+    }
+
+    /**
      * Reads the workflowset meta file.
      *
      * @param workflowsetMetaFile path to "workflowset.meta" file

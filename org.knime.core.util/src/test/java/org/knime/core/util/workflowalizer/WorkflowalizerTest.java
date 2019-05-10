@@ -1136,6 +1136,61 @@ public class WorkflowalizerTest {
         assertTrue(wsm.getTags().get().size() == 0);
     }
 
+    // -- General repository item --
+
+    /**
+     * Tests the method for reading a generic repository item on the file system.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingRepositoryItem() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(m_workflowDir, wc);
+        assertEquals(RepositoryItemType.WORKFLOW, rip.getType());
+        assertTrue(rip instanceof WorkflowMetadata);
+
+        rip = Workflowalizer.readRepositoryItem(m_templateDir, wc);
+        assertEquals(RepositoryItemType.TEMPLATE, rip.getType());
+        assertTrue(rip instanceof TemplateMetadata);
+
+        rip = Workflowalizer.readRepositoryItem(m_workflowGroupFile.getParent(), wc);
+        assertEquals(RepositoryItemType.WORKFLOW_GROUP, rip.getType());
+        assertTrue(rip instanceof WorkflowGroupMetadata);
+
+        try {
+            rip = Workflowalizer.readRepositoryItem(m_nodeDir, wc);
+            assertTrue("Expected exception was not thrown", false);
+        } catch (final IllegalArgumentException ex) {
+            assertTrue(ex.getMessage().startsWith("No template, workflow, or workflow group found"));
+        }
+    }
+
+    /**
+     * Tests the method for reading a generic zipped repository item.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingRepositoryItemZip() throws Exception {
+        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        final RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(zipFile, wc);
+
+        assertEquals(RepositoryItemType.WORKFLOW_GROUP, rip.getType());
+        assertTrue(rip instanceof WorkflowGroupMetadata);
+
+        // Test that is the top-level group
+        final WorkflowGroupMetadata wgm = (WorkflowGroupMetadata) rip;
+        assertFalse(wgm.getAuthor().isPresent());
+        assertFalse(wgm.getDescription().isPresent());
+        assertFalse(wgm.getTitle().isPresent());
+        assertFalse(wgm.getTags().isPresent());
+        assertFalse(wgm.getLinks().isPresent());
+    }
+
     // -- Helper methods --
 
     private static Optional<String> readAnnotationText(final List<String> readLines) {
