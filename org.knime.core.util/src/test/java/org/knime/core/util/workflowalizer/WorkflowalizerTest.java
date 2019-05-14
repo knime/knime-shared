@@ -1136,6 +1136,42 @@ public class WorkflowalizerTest {
         assertTrue(wsm.getTags().get().size() == 0);
     }
 
+    /**
+     * Tests reading a workflow group from a directory path.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingWorkflowGroupDir() throws Exception {
+        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile.getParent());
+        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
+        final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines);
+        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
+        assertFalse(wsm.getTitle().isPresent());
+        assertEquals(comments, wsm.getDescription().orElse(null));
+        assertTrue(wsm.getLinks().get().size() == 0);
+        assertTrue(wsm.getTags().get().size() == 0);
+    }
+
+    /**
+     * Tests reading a zipped workflow group
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingWorkflowGroupZip() throws Exception {
+        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final WorkflowGroupMetadata wgm = Workflowalizer.readWorkflowGroup(zipFile);
+        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wgm.getType());
+        assertFalse(wgm.getAuthor().isPresent());
+        assertFalse(wgm.getDescription().isPresent());
+        assertFalse(wgm.getTitle().isPresent());
+        assertFalse(wgm.getTags().isPresent());
+        assertFalse(wgm.getLinks().isPresent());
+    }
+
     // -- General repository item --
 
     /**

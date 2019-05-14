@@ -193,31 +193,36 @@ public final class Workflowalizer {
     }
 
     /**
-     * Reads the workflowset meta file.
+     * Reads the "workflowset.meta" file at the given path.
      *
-     * @param workflowsetMetaFile path to "workflowset.meta" file
+     * @param workflowsetmeta path to "workflowset.meta" file or directory/zip containing this file.
      * @return the metadata contained within the file as {@link WorkflowSetMeta}
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
      * @throws XPathExpressionException
      */
-    public static WorkflowGroupMetadata readWorkflowGroup(final Path workflowsetMetaFile)
+    public static WorkflowGroupMetadata readWorkflowGroup(final Path workflowsetmeta)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        if (isZip(workflowsetMetaFile)) {
-            try (final ZipFile zip = new ZipFile(workflowsetMetaFile.toAbsolutePath().toString())) {
+        if (isZip(workflowsetmeta)) {
+            try (final ZipFile zip = new ZipFile(workflowsetmeta.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflowGroup(zip);
                 CheckUtils.checkArgumentNotNull(workflowPath,
-                    "Zip file does not contain a workflow group: " + workflowsetMetaFile);
+                    "Zip file does not contain a workflow group: " + workflowsetmeta);
                 try (final InputStream is = zip.getInputStream(zip.getEntry(workflowPath))) {
                     return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
                 }
             }
         }
 
-        CheckUtils.checkArgument(Files.exists(workflowsetMetaFile), workflowsetMetaFile + " does not exist");
-        CheckUtils.checkArgument(!Files.isDirectory(workflowsetMetaFile), workflowsetMetaFile + " is a directory");
-        try (final InputStream is = Files.newInputStream(workflowsetMetaFile)) {
+        CheckUtils.checkArgument(Files.exists(workflowsetmeta), workflowsetmeta + " does not exist");
+        Path metafile = workflowsetmeta;
+        if (Files.isDirectory(workflowsetmeta)) {
+            metafile = workflowsetmeta.resolve("workflowset.meta");
+            CheckUtils.checkArgument(Files.exists(metafile),
+                "workflowset.meta file not found at path: " + workflowsetmeta);
+        }
+        try (final InputStream is = Files.newInputStream(metafile)) {
             return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
         }
     }
