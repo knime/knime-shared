@@ -44,56 +44,51 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   May 15, 2019 (awalter): created
+ *   May 15, 2019 (hornm): created
  */
 package org.knime.core.util.workflowalizer2;
-
-import java.util.List;
-import java.util.Map;
-
-import org.knime.core.util.workflowalizer.AuthorInformation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
- * @author awalter
+ * @author hornm
  */
-public interface Workflow {
+public interface NodeAnnotation {
 
-    @JsonProperty("created_by")
-    String getCreated_by();
+    @JsonProperty("text")
+    String getText();
 
-    @JsonProperty("created_by_nightly")
-    boolean getCreatedByNightly();
+    @JsonProperty("bgcolor")
+    int getBGColor();
 
-    @JsonProperty("version")
-    String getVersion();
+    @JsonProperty("x-coordinate")
+    int getXCoordinate();
 
-    @JsonProperty("name")
-    String getName();
+    @JsonProperty(" y-coordinate")
+    int getYCoordinate();
 
-    @JsonProperty("authorInformation")
-    AuthorInformation getAuthorInformation();
+    @JsonProperty(" width")
+    int getWidth();
 
-    @JsonProperty("customDescription")
-    String getCustomDescription();
+    @JsonProperty(" height")
+    int getHeight();
 
-    @JsonProperty("state")
-    String getState();
+    @JsonProperty(" alignment")
+    String getAlignment();
 
-    @JsonProperty("workflow_credentials")
-    List<WorkflowCredential> getWorkflowCredentials();
+    @JsonProperty(" borderSize")
+    int getBorderSize();
 
-    @JsonProperty("annotations")
-    Map<String, WorkflowAnnotation> getAnnotations();
+    @JsonProperty(" borderColor")
+    int getBorderColor();
 
-    @JsonProperty("nodes")
-    Map<String, NodeMeta> getNodes();
+    @JsonProperty(" defFontSize")
+    int getFontSize();
 
-    @JsonProperty("connections")
-    Map<String, Connection> getConnections();
+    @JsonProperty(" annotation-version")
+    int getAnnotationVersion();
 
-    @JsonProperty("workflow_editor_settings")
-    WorkflowEditorSettings getWorkflowEditorSettings();
+    @JsonProperty("styles")
+    Style getStyle();
 }

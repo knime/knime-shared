@@ -44,56 +44,32 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   May 15, 2019 (awalter): created
+ *   May 15, 2019 (hornm): created
  */
 package org.knime.core.util.workflowalizer2;
-
-import java.util.List;
-import java.util.Map;
-
-import org.knime.core.util.workflowalizer.AuthorInformation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
- * @author awalter
+ * @author hornm
  */
-public interface Workflow {
+public interface NodeMeta {
 
-    @JsonProperty("created_by")
-    String getCreated_by();
+    @JsonProperty("id")
+    int getId();
 
-    @JsonProperty("created_by_nightly")
-    boolean getCreatedByNightly();
+    @JsonProperty("node_settings_file")
+    String getNodeSettingsFile();
 
-    @JsonProperty("version")
-    String getVersion();
+    @JsonProperty("node_is_meta")
+    boolean isMetaNode();
 
-    @JsonProperty("name")
-    String getName();
+    @JsonProperty("node_type")
+    String getNodeType();
 
-    @JsonProperty("authorInformation")
-    AuthorInformation getAuthorInformation();
+    String getUIClassName();
 
-    @JsonProperty("customDescription")
-    String getCustomDescription();
-
-    @JsonProperty("state")
-    String getState();
-
-    @JsonProperty("workflow_credentials")
-    List<WorkflowCredential> getWorkflowCredentials();
-
-    @JsonProperty("annotations")
-    Map<String, WorkflowAnnotation> getAnnotations();
-
-    @JsonProperty("nodes")
-    Map<String, NodeMeta> getNodes();
-
-    @JsonProperty("connections")
-    Map<String, Connection> getConnections();
-
-    @JsonProperty("workflow_editor_settings")
-    WorkflowEditorSettings getWorkflowEditorSettings();
+    @JsonProperty("ui_settings")
+    UISettings getUISettings();
 }

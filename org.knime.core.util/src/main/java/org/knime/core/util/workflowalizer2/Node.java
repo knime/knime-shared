@@ -44,37 +44,35 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   May 15, 2019 (awalter): created
+ *   May 15, 2019 (hornm): created
  */
 package org.knime.core.util.workflowalizer2;
 
-import java.util.List;
 import java.util.Map;
 
-import org.knime.core.util.workflowalizer.AuthorInformation;
+import javax.sound.sampled.Port;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
- * @author awalter
+ * @author hornm
  */
-public interface Workflow {
+public interface Node {
+    @JsonProperty("node_file")
+    String getNodeFile();
 
-    @JsonProperty("created_by")
-    String getCreated_by();
+    @JsonProperty("flow_stack")
+    String getFlowStack(); //TODO type
 
-    @JsonProperty("created_by_nightly")
-    boolean getCreatedByNightly();
+    @JsonProperty("internal_node_subsettings")
+    NodeSettings getInternalNodeSubsettings(); //TODO type - schemaless
 
-    @JsonProperty("version")
-    String getVersion();
+    @JsonProperty("model")
+    NodeSettings getModel(); //TODO type - schemaless
 
-    @JsonProperty("name")
-    String getName();
-
-    @JsonProperty("authorInformation")
-    AuthorInformation getAuthorInformation();
+    @JsonProperty("nodeAnnotation")
+    NodeAnnotation getNodeAnnotation();
 
     @JsonProperty("customDescription")
     String getCustomDescription();
@@ -82,18 +80,52 @@ public interface Workflow {
     @JsonProperty("state")
     String getState();
 
-    @JsonProperty("workflow_credentials")
-    List<WorkflowCredential> getWorkflowCredentials();
+    @JsonProperty("factory")
+    String getFactory();
 
-    @JsonProperty("annotations")
-    Map<String, WorkflowAnnotation> getAnnotations();
+    @JsonProperty("node-name")
+    String getNodeName();
 
-    @JsonProperty("nodes")
-    Map<String, NodeMeta> getNodes();
+    @JsonProperty("node-bundle-name")
+    String getNodeBundleName();
 
-    @JsonProperty("connections")
-    Map<String, Connection> getConnections();
+    @JsonProperty("node-bundle-symbolic-name")
+    String getNodeBundleSymbolicName();
 
-    @JsonProperty("workflow_editor_settings")
-    WorkflowEditorSettings getWorkflowEditorSettings();
+    @JsonProperty("node-bundle-vendor")
+    String getNodeBundleVendor();
+
+    @JsonProperty("node-bundle-version")
+    String getNodeBundleVersion();
+
+    @JsonProperty("node-feature-name")
+    String getNodeFeatureName();
+
+    @JsonProperty("node-feature-symbolic-name")
+    String getNodeFeatureSymbolicName();
+
+    @JsonProperty("node-feature-vendor")
+    String getNodeFeatureVendor();
+
+    @JsonProperty("node-feature-version")
+    String getNodeFeatureVersion();
+
+    @JsonProperty("factory_settings")
+    NodeSettings getFactorySettings(); //TODO type - schemaless
+
+    @JsonProperty("name")
+    String getName();
+
+    @JsonProperty("hasContent")
+    boolean hasContent();
+
+    @JsonProperty("isInactive")
+    boolean isInactive();
+
+    @JsonProperty("ports")
+    Map<String, Port> getPorts();
+
+    @JsonProperty("filestores")
+    Map<String, Port> getFileStores();
+
 }

@@ -44,56 +44,37 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   May 15, 2019 (awalter): created
+ *   May 15, 2019 (hornm): created
  */
 package org.knime.core.util.workflowalizer2;
-
-import java.util.List;
-import java.util.Map;
-
-import org.knime.core.util.workflowalizer.AuthorInformation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
- * @author awalter
+ * @author hornm
  */
-public interface Workflow {
+public interface WorkflowEditorSettings {
 
-    @JsonProperty("created_by")
-    String getCreated_by();
+    @JsonProperty("workflow.editor.snapToGrid")
+    boolean isSnapToGrid();
 
-    @JsonProperty("created_by_nightly")
-    boolean getCreatedByNightly();
+    @JsonProperty(" workflow.editor.ShowGrid")
+    boolean isShowGrid();
 
-    @JsonProperty("version")
-    String getVersion();
+    @JsonProperty("workflow.editor.gridX")
+    int getGridX();
 
-    @JsonProperty("name")
-    String getName();
+    @JsonProperty("workflow.editor.gridY")
+    int getGridY();
 
-    @JsonProperty("authorInformation")
-    AuthorInformation getAuthorInformation();
+    @JsonProperty("workflow.editor.zoomLevel")
+    double getZoomLevel();
 
-    @JsonProperty("customDescription")
-    String getCustomDescription();
+    @JsonProperty("workflow.editor.curvedConnections")
+    boolean hasCurvedConnections();
 
-    @JsonProperty("state")
-    String getState();
+    @JsonProperty("workflow.editor.connectionWidth")
+    int getConnectionWidth();
 
-    @JsonProperty("workflow_credentials")
-    List<WorkflowCredential> getWorkflowCredentials();
-
-    @JsonProperty("annotations")
-    Map<String, WorkflowAnnotation> getAnnotations();
-
-    @JsonProperty("nodes")
-    Map<String, NodeMeta> getNodes();
-
-    @JsonProperty("connections")
-    Map<String, Connection> getConnections();
-
-    @JsonProperty("workflow_editor_settings")
-    WorkflowEditorSettings getWorkflowEditorSettings();
 }
