@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer2;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.JSONConfig;
 import org.knime.core.node.config.base.JSONConfig.WriterConfig;
@@ -82,7 +83,16 @@ public class ConfigBaseSerializer extends StdSerializer<ConfigBase> {
         if (value == null) {
             gen.writeNull();
         } else {
-            gen.writeStringField(value.getKey(), JSONConfig.toJSONString(value, WriterConfig.PRETTY));
+            final String key = value.getKey();
+            final String s = JSONConfig.toJSONString(value, WriterConfig.PRETTY);
+            if (StringUtils.isEmpty(key)) {
+                gen.writeNull();
+            }
+            else if (StringUtils.isEmpty(s)) {
+                gen.writeNullField(key);
+            } else {
+                gen.writeString(s);
+            }
         }
     }
 }
