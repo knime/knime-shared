@@ -283,6 +283,9 @@ public class Workflowalizer2 {
     public static ConfigBase convert(final Object pojo, final ConfigBase initialConfigBase) {
         ConfigBase cb = initialConfigBase;
         for (Method m : pojo.getClass().getInterfaces()[0].getMethods()) {
+            if("getId".equals(m.getName())) {
+                continue;
+            }
             String key = m.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");
             Object value;
             try {
