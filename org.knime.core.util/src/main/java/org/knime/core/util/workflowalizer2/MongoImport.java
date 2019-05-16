@@ -132,11 +132,11 @@ public class MongoImport {
         }
     }
 
-    public static WorkflowBundle exportWorkflow(final String wkfId, final String connection) {
-        try (final MongoClient client = MongoClients.create(connection)) {
-            return exportWorkflow(wkfId, client);
-        }
-    }
+//    public static WorkflowBundle exportWorkflow(final String wkfId, final String connection) {
+//        try (final MongoClient client = MongoClients.create(connection)) {
+//            return exportWorkflow(wkfId, client);
+//        }
+//    }
 
     public static WorkflowBundle exportWorkflow(final String wkfId, final MongoClient client) {
         final MongoDatabase database = client.getDatabase("knime");
@@ -169,11 +169,11 @@ public class MongoImport {
 
 
 
-    public static List<Workflow> exportAllWorkflows(final String connection) {
-        try (final MongoClient client = MongoClients.create(connection)) {
-            return exportAllWorkflows(client);
-         }
-    }
+//    public static List<Workflow> exportAllWorkflows(final String connection) {
+//        try (final MongoClient client = MongoClients.create(connection)) {
+//            return exportAllWorkflows(client);
+//         }
+//    }
 
     public static List<Workflow> exportAllWorkflows(final MongoClient client) {
         final MongoDatabase database = client.getDatabase("knime");
