@@ -57,6 +57,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface ConnectionUISettings {
 
-    @JsonProperty("extrainfo.conn.bendpoints_size")
+    @JsonProperty("extrainfo#conn#bendpoints_size")
     int getNumBendpoints();
 }
