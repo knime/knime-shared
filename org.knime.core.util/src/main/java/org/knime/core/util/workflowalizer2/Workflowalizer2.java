@@ -64,6 +64,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -86,6 +88,47 @@ public class Workflowalizer2 {
         //utility
     }
 
+    public static List<Object> convertAllConfigs(final List<ConfigBase> configs) {
+        String wfId = UUID.randomUUID().toString();
+        return configs.stream().map(config -> {
+            if ("workflow.knime".equals(config.getKey())) {
+                return convert(config, Workflow.class, wfId);
+            } else if (config.getKey().startsWith("node")) {
+                return convert(config, NodeMeta.class, null);
+            } else if ("settings.xml".equals(config.getKey())) {
+                return convert(config, Node.class, wfId);
+            } else {
+                throw new IllegalStateException("unsupported config 'complex' type");
+            }
+        }).collect(Collectors.toList());
+
+    }
+
+
+    public static List<Object> readAsPojos(final Path path) throws IOException, InvalidSettingsException {
+        if (isZip(path)) {
+            List<Object> res = new ArrayList<Object>();
+            try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
+                final String workflowPath = findFirstWorkflow(zip);
+                CheckUtils.checkArgumentNotNull(workflowPath, "Zip file does not contain a workflow: " + path);
+                ConfigBase workflowKnime = readFile(workflowPath + "workflow.knime", zip);
+                String wfId = UUID.randomUUID().toString();
+                res.add(convert(workflowKnime, Workflow.class, wfId));
+                List<ConfigBase> nodesMeta = readNodesMeta(workflowKnime);
+                nodesMeta.forEach(cb -> {
+                    res.add(convert(cb, NodeMeta.class, null));
+                });
+                for (ConfigBase nodeMeta : nodesMeta) {
+                    ConfigBase cb = readNode(nodeMeta, workflowPath, zip);
+                    res.add(convert(cb, Node.class, wfId + "#" + nodeMeta.getKey()));
+                }
+                return res;
+            }
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     public static List<ConfigBase> readAllConfigs(final Path path) throws IOException, InvalidSettingsException {
         if (isZip(path)) {
             List<ConfigBase> res = new ArrayList<ConfigBase>();
@@ -104,7 +147,6 @@ public class Workflowalizer2 {
         } else {
             throw new UnsupportedOperationException();
         }
-
     }
 
     private static List<ConfigBase> readNodesMeta(final ConfigBase workflowConfig)
@@ -199,9 +241,13 @@ public class Workflowalizer2 {
 
 
     @SuppressWarnings("unchecked")
-    public static <T> T convert(final ConfigBase config, final Class<T> pojoClass) {
+    public static <T> T convert(final ConfigBase config, final Class<T> pojoClass, final String id) {
         return (T)Proxy.newProxyInstance(Workflowalizer2.class.getClassLoader(), new Class[]{pojoClass},
             (proxy, method, args) -> {
+                if("getId".equals(method.getName())) {
+                    assert id != null;
+                    return id;
+                }
                 String key = method.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");
                 Class<?> returnType = method.getReturnType();
                 if (!config.containsKey(key)) {
@@ -222,14 +268,14 @@ public class Workflowalizer2 {
                     Map res = new HashMap();
                     for (int i = 0; i < list.getChildCount(); i++) {
                         ConfigBase child = (ConfigBase)list.getChildAt(i);
-                        res.put(child.getKey(), convert(child, returnParam));
+                        res.put(child.getKey(), convert(child, returnParam, null));
                     }
                     return res;
                 } else if (ConfigBase.class.isAssignableFrom(returnType)) {
                     return config.getConfigBase(key);
                 } else {
                     //a nested pojo
-                    return convert(config.getConfigBase(key), returnType);
+                    return convert(config.getConfigBase(key), returnType, null);
                 }
             });
     }
