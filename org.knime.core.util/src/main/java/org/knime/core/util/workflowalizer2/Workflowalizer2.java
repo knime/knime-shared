@@ -53,6 +53,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -73,6 +74,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.node.config.base.JSONConfig;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.workflowalizer.MetadataConfig;
 
@@ -252,6 +254,49 @@ public class Workflowalizer2 {
     }
 
 
+    @SuppressWarnings("unchecked")
+    public static <T> T convert(final Map<String, Object> map, final Class<T> pojoClass) {
+        return (T)Proxy.newProxyInstance(Workflowalizer2.class.getClassLoader(), new Class[]{pojoClass},
+            (proxy, method, args) -> {
+                String key = method.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");
+                Class<?> returnType = method.getReturnType();
+                if (!map.containsKey(key)) {
+                    return null;
+                }
+                Object value = map.get(key);
+                if (String.class.isAssignableFrom(returnType)) {
+                    return (String)value;
+                } else if (int.class.isAssignableFrom(returnType)) {
+                    return Integer.parseInt((String)value);
+                } else if (boolean.class.isAssignableFrom(returnType)) {
+                    return Boolean.parseBoolean((String)value);
+                } else if (double.class.isAssignableFrom(returnType)) {
+                    return Double.parseDouble((String)value);
+                } else if (Map.class.isAssignableFrom(returnType)) {
+                    assert value instanceof Map;
+                    ParameterizedType parametrizedType = (ParameterizedType)method.getGenericReturnType();
+                    Class<?> returnParam = (Class<?>)parametrizedType.getActualTypeArguments()[1];
+                    Map submap = (Map)value;
+                    Map res = new HashMap();
+                    submap.keySet().forEach(k -> {
+                        Object v = submap.get(k);
+                        assert v instanceof Map;
+                        res.put(k, convert((Map)v, returnParam));
+                    });
+                    return res;
+                } else if (ConfigBase.class.isAssignableFrom(returnType)) {
+                    assert value instanceof String;
+                    MetadataConfig conf = new MetadataConfig(key);
+                    JSONConfig.readJSON(conf, new StringReader((String)value));
+                    return conf;
+                } else {
+                    assert value instanceof Map;
+                    //a nested pojo
+                    return convert((Map) value, returnType);
+                }
+            });
+    }
+
 
     @SuppressWarnings("unchecked")
     public static <T> T convert(final ConfigBase config, final Class<T> pojoClass, final String id) {
@@ -306,11 +351,11 @@ public class Workflowalizer2 {
             Object value;
             try {
                 value = m.invoke(pojo);
-                if (value == null) {
-                    continue;
-                }
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
                 throw new RuntimeException();
+            }
+            if (value == null) {
+                continue;
             }
             Class<?> returnType = m.getReturnType();
             if (String.class.isAssignableFrom(returnType)) {
