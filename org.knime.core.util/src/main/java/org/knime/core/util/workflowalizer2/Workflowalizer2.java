@@ -259,7 +259,7 @@ public class Workflowalizer2 {
     public static <T> T convert(final Map<String, Object> map, final Class<T> pojoClass) {
         return (T)Proxy.newProxyInstance(Workflowalizer2.class.getClassLoader(), new Class[]{pojoClass},
             (proxy, method, args) -> {
-                String key = method.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");
+                String key = method.getAnnotation(JsonProperty.class).value();
                 Class<?> returnType = method.getReturnType();
                 if (!map.containsKey(key)) {
                     return null;
