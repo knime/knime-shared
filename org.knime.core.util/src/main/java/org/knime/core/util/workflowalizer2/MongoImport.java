@@ -57,7 +57,6 @@ import java.util.List;
 
 import org.bson.Document;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.util.workflowalizer.ConfigBaseEntrySerializer;
 import org.knime.core.util.workflowalizer.VersionSerializer;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -69,6 +68,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 
 /**
  *
@@ -106,7 +106,7 @@ public class MongoImport {
             mapper.registerModule(new Jdk8Module());
             final SimpleModule sm = new SimpleModule();
             sm.addSerializer(new VersionSerializer());
-            sm.addSerializer(new ConfigBaseEntrySerializer());
+            sm.addSerializer(new ConfigBaseSerializer());
             mapper.registerModule(sm);
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
             mapper.setDateFormat(df);
@@ -128,5 +128,34 @@ public class MongoImport {
             e.printStackTrace();
             return;
         }
+    }
+
+    public static WorkflowBundle exportWorkflow(final String wkfId, final MongoClient client) {
+        final MongoDatabase database = client.getDatabase("knime");
+        final MongoCollection<Document> wkf = database.getCollection("workflows");
+        final MongoCollection<Document> nd = database.getCollection("nodes");
+
+        final Document wkfDoc = wkf.find(Filters.eq("id", wkfId)).first();
+        final List<Document> ndDocs = new ArrayList<>();
+        nd.find(Filters.regex("id", wkfId + "#node_[1-9]+")).into(ndDocs);
+
+        final Workflow workflow = Workflowalizer2.convert(wkfDoc, Workflow.class);
+        final List<Node> nodes = new ArrayList<>(ndDocs.size());
+        for (final Document d : ndDocs) {
+            nodes.add(Workflowalizer2.convert(d, Node.class));
+        }
+
+        return new WorkflowBundle() {
+
+            @Override
+            public Workflow getWorkflow() {
+                return workflow;
+            }
+
+            @Override
+            public List<Node> getNodes() {
+                return nodes;
+            }
+        };
     }
 }
