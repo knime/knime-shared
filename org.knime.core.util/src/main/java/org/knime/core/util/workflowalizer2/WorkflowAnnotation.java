@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer2;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -55,9 +57,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author awalter
  */
 public interface WorkflowAnnotation {
-
-    @JsonProperty("key")
-    String getKey();
 
     @JsonProperty("text")
     String getText();
@@ -93,6 +92,6 @@ public interface WorkflowAnnotation {
     int getAnnotationVersion();
 
     @JsonProperty("styles")
-    Style getStyle();
+    Map<String, Style> getStyle();
 
 }

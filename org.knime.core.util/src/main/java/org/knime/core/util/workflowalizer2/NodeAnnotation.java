@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer2;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -65,30 +67,30 @@ public interface NodeAnnotation {
     @JsonProperty("x-coordinate")
     int getXCoordinate();
 
-    @JsonProperty(" y-coordinate")
+    @JsonProperty("y-coordinate")
     int getYCoordinate();
 
-    @JsonProperty(" width")
+    @JsonProperty("width")
     int getWidth();
 
-    @JsonProperty(" height")
+    @JsonProperty("height")
     int getHeight();
 
-    @JsonProperty(" alignment")
+    @JsonProperty("alignment")
     String getAlignment();
 
-    @JsonProperty(" borderSize")
+    @JsonProperty("borderSize")
     int getBorderSize();
 
-    @JsonProperty(" borderColor")
+    @JsonProperty("borderColor")
     int getBorderColor();
 
-    @JsonProperty(" defFontSize")
+    @JsonProperty("defFontSize")
     int getFontSize();
 
-    @JsonProperty(" annotation-version")
+    @JsonProperty("annotation-version")
     int getAnnotationVersion();
 
     @JsonProperty("styles")
-    Style getStyle();
+    Map<String, Style> getStyle();
 }

@@ -56,9 +56,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface Style {
 
-    @JsonProperty("key")
-    String getKey();
-
     @JsonProperty("start")
     int getStart();
 

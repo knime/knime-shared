@@ -67,4 +67,8 @@ public interface Connection {
 
     @JsonProperty("destPort")
     int getDestPort();
+
+    @JsonProperty("ui_settings")
+    ConnectionUISettings getUISettings();
+
 }

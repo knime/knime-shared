@@ -54,9 +54,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author hornm
  */
-public interface UISettings {
+public interface NodeUISettings {
 
-    @JsonProperty("extrainfo.node.bounds")
+    @JsonProperty("extrainfo#node#bounds")
     Bounds getBounds();
 
 }

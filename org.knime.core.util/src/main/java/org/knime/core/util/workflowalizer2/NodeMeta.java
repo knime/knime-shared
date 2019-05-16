@@ -68,8 +68,9 @@ public interface NodeMeta {
     @JsonProperty("node_type")
     String getNodeType();
 
+    @JsonProperty("ui_classname")
     String getUIClassName();
 
     @JsonProperty("ui_settings")
-    UISettings getUISettings();
+    NodeUISettings getUISettings();
 }

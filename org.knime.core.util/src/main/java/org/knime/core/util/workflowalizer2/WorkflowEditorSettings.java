@@ -56,25 +56,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface WorkflowEditorSettings {
 
-    @JsonProperty("workflow.editor.snapToGrid")
+    @JsonProperty("workflow#editor#snapToGrid")
     boolean isSnapToGrid();
 
-    @JsonProperty(" workflow.editor.ShowGrid")
+    @JsonProperty("workflow#editor#ShowGrid")
     boolean isShowGrid();
 
-    @JsonProperty("workflow.editor.gridX")
+    @JsonProperty("workflow#editor#gridX")
     int getGridX();
 
-    @JsonProperty("workflow.editor.gridY")
+    @JsonProperty("workflow#editor#gridY")
     int getGridY();
 
-    @JsonProperty("workflow.editor.zoomLevel")
+    @JsonProperty("workflow#editor#zoomLevel")
     double getZoomLevel();
 
-    @JsonProperty("workflow.editor.curvedConnections")
+    @JsonProperty("workflow#editor#curvedConnections")
     boolean hasCurvedConnections();
 
-    @JsonProperty("workflow.editor.connectionWidth")
+    @JsonProperty("workflow#editor#connectionWidth")
     int getConnectionWidth();
 
 }

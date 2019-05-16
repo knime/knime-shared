@@ -50,7 +50,7 @@ package org.knime.core.util.workflowalizer2;
 
 import java.util.Map;
 
-import javax.sound.sampled.Port;
+import org.knime.core.node.config.base.ConfigBase;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -62,14 +62,14 @@ public interface Node {
     @JsonProperty("node_file")
     String getNodeFile();
 
-    @JsonProperty("flow_stack")
-    String getFlowStack(); //TODO type
+//    @JsonProperty("flow_stack")
+//    String getFlowStack(); //TODO type
 
     @JsonProperty("internal_node_subsettings")
-    NodeSettings getInternalNodeSubsettings(); //TODO type - schemaless
+    ConfigBase getInternalNodeSubsettings(); //TODO type - schemaless
 
     @JsonProperty("model")
-    NodeSettings getModel(); //TODO type - schemaless
+    ConfigBase getModel(); //TODO type - schemaless
 
     @JsonProperty("nodeAnnotation")
     NodeAnnotation getNodeAnnotation();
@@ -111,7 +111,7 @@ public interface Node {
     String getNodeFeatureVersion();
 
     @JsonProperty("factory_settings")
-    NodeSettings getFactorySettings(); //TODO type - schemaless
+    ConfigBase getFactorySettings(); //TODO type - schemaless
 
     @JsonProperty("name")
     String getName();
@@ -126,6 +126,6 @@ public interface Node {
     Map<String, Port> getPorts();
 
     @JsonProperty("filestores")
-    Map<String, Port> getFileStores();
+    FileStores getFileStores();
 
 }

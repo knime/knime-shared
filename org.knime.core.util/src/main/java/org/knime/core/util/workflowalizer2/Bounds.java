@@ -58,6 +58,9 @@ public interface Bounds {
     @JsonProperty("array-size")
     int getArraySize();
 
+    @JsonProperty("0")
+    int get0();
+
     @JsonProperty("1")
     int get1();
 
@@ -66,7 +69,4 @@ public interface Bounds {
 
     @JsonProperty("3")
     int get3();
-
-    @JsonProperty("4")
-    int get4();
 }
