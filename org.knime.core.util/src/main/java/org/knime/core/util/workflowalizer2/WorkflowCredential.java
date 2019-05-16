@@ -42,15 +42,16 @@
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
- * 
+ *
  * History
  *   May 15, 2019 (awalter): created
  */
 package org.knime.core.util.workflowalizer2;
 
 /**
- * 
+ *
  * @author awalter
+ * @since 5.11
  */
 public interface WorkflowCredential {
 

@@ -53,6 +53,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  *
  * @author hornm
+ * @since 5.11
  */
 public interface FileStores {
 
