@@ -73,7 +73,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.workflowalizer.MetadataConfig;
-import org.knime.core.util.workflowalizer.TestBlub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -201,7 +200,7 @@ public class Workflowalizer2 {
 
     @SuppressWarnings("unchecked")
     public static <T> T convert(final ConfigBase config, final Class<T> pojoClass) {
-        return (T)Proxy.newProxyInstance(TestBlub.class.getClassLoader(), new Class[]{pojoClass},
+        return (T)Proxy.newProxyInstance(Workflowalizer2.class.getClassLoader(), new Class[]{pojoClass},
             (proxy, method, args) -> {
                 String key = method.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");
                 Class<?> returnType = method.getReturnType();
