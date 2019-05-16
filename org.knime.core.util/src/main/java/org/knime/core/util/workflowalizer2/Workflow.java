@@ -60,6 +60,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface Workflow {
 
+    @JsonProperty("id")
+    String getId();
+
     @JsonProperty("created_by")
     String getCreated_by();
 

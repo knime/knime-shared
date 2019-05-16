@@ -59,6 +59,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author hornm
  */
 public interface Node {
+
+    @JsonProperty("id")
+    String getId();
+
     @JsonProperty("node_file")
     String getNodeFile();
 
