@@ -54,6 +54,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.knime.core.node.InvalidSettingsException;
@@ -66,6 +67,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -130,6 +132,12 @@ public class MongoImport {
         }
     }
 
+    public static WorkflowBundle exportWorkflow(final String wkfId, final String connection) {
+        try (final MongoClient client = MongoClients.create(connection)) {
+            return exportWorkflow(wkfId, client);
+        }
+    }
+
     public static WorkflowBundle exportWorkflow(final String wkfId, final MongoClient client) {
         final MongoDatabase database = client.getDatabase("knime");
         final MongoCollection<Document> wkf = database.getCollection("workflows");
@@ -158,4 +166,23 @@ public class MongoImport {
             }
         };
     }
+
+
+
+    public static List<Workflow> exportAllWorkflows(final String connection) {
+        try (final MongoClient client = MongoClients.create(connection)) {
+            return exportAllWorkflows(client);
+         }
+    }
+
+    public static List<Workflow> exportAllWorkflows(final MongoClient client) {
+        final MongoDatabase database = client.getDatabase("knime");
+        final MongoCollection<Document> wkf = database.getCollection("workflows");
+        final List<Document> docs = new ArrayList<>();
+        wkf.find().into(docs);
+        return docs.stream().map(d -> {
+            return Workflowalizer2.convert(d, Workflow.class);
+        }).collect(Collectors.toList());
+    }
+
 }
