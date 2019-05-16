@@ -81,6 +81,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  *
  * @author hornm
+ * @since 5.11
  */
 public class Workflowalizer2 {
 
@@ -105,24 +106,36 @@ public class Workflowalizer2 {
     }
 
 
-    public static List<Object> readAsPojos(final Path path) throws IOException, InvalidSettingsException {
+    public static WorkflowBundle readWorkflowBundle(final Path path) throws IOException, InvalidSettingsException {
         if (isZip(path)) {
-            List<Object> res = new ArrayList<Object>();
             try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflow(zip);
                 CheckUtils.checkArgumentNotNull(workflowPath, "Zip file does not contain a workflow: " + path);
-                ConfigBase workflowKnime = readFile(workflowPath + "workflow.knime", zip);
                 String wfId = UUID.randomUUID().toString();
-                res.add(convert(workflowKnime, Workflow.class, wfId));
-                List<ConfigBase> nodesMeta = readNodesMeta(workflowKnime);
-                nodesMeta.forEach(cb -> {
-                    res.add(convert(cb, NodeMeta.class, null));
-                });
-                for (ConfigBase nodeMeta : nodesMeta) {
-                    ConfigBase cb = readNode(nodeMeta, workflowPath, zip);
-                    res.add(convert(cb, Node.class, wfId + "#" + nodeMeta.getKey()));
-                }
-                return res;
+                ConfigBase workflowConfig = readFile(workflowPath + "workflow.knime", zip);
+                final Workflow workflow = convert(workflowConfig, Workflow.class, wfId);
+                List<ConfigBase> nodesMetaConfig = readNodesMeta(workflowConfig);
+                final List<Node> nodes = nodesMetaConfig.stream().map(c -> {
+                    ConfigBase cb;
+                    try {
+                        cb = readNode(c, workflowPath, zip);
+                        return convert(cb, Node.class, wfId + "#" + c.getKey());
+                    } catch (InvalidSettingsException | IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.toList());
+                return new WorkflowBundle() {
+
+                    @Override
+                    public Workflow getWorkflow() {
+                        return workflow;
+                    }
+
+                    @Override
+                    public List<Node> getNodes() {
+                        return nodes;
+                    }
+                };
             }
         } else {
             throw new UnsupportedOperationException();
@@ -138,7 +151,7 @@ public class Workflowalizer2 {
                 ConfigBase workflowKnime = readFile(workflowPath + "workflow.knime", zip);
                 res.add(workflowKnime);
                 List<ConfigBase> nodesMeta = readNodesMeta(workflowKnime);
-                res.addAll(nodesMeta);
+                //res.addAll(nodesMeta);
                 for (ConfigBase nodeMeta : nodesMeta) {
                     res.add(readNode(nodeMeta, workflowPath, zip));
                 }
