@@ -108,13 +108,14 @@ public class Workflowalizer2 {
     }
 
 
-    public static WorkflowBundle readWorkflowBundle(final Path path) throws IOException, InvalidSettingsException {
+    public static WorkflowBundle readWorkflowBundle(final Path path, final String workflowName) throws IOException, InvalidSettingsException {
         if (isZip(path)) {
             try (final ZipFile zip = new ZipFile(path.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflow(zip);
                 CheckUtils.checkArgumentNotNull(workflowPath, "Zip file does not contain a workflow: " + path);
                 String wfId = UUID.randomUUID().toString();
                 ConfigBase workflowConfig = readFile(workflowPath + "workflow.knime", zip);
+                workflowConfig.addString("name", workflowName);
                 final Workflow workflow = convert(workflowConfig, Workflow.class, wfId);
                 List<ConfigBase> nodesMetaConfig = readNodesMeta(workflowConfig);
                 final List<Node> nodes = nodesMetaConfig.stream().map(c -> {
@@ -267,11 +268,11 @@ public class Workflowalizer2 {
                 if (String.class.isAssignableFrom(returnType)) {
                     return (String)value;
                 } else if (int.class.isAssignableFrom(returnType)) {
-                    return Integer.parseInt((String)value);
+                    return (int) value;
                 } else if (boolean.class.isAssignableFrom(returnType)) {
-                    return Boolean.parseBoolean((String)value);
+                    return (boolean) value;
                 } else if (double.class.isAssignableFrom(returnType)) {
-                    return Double.parseDouble((String)value);
+                    return (double) value;
                 } else if (Map.class.isAssignableFrom(returnType)) {
                     assert value instanceof Map;
                     ParameterizedType parametrizedType = (ParameterizedType)method.getGenericReturnType();

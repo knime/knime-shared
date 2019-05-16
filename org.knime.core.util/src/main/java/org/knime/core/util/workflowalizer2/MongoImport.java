@@ -77,10 +77,10 @@ import com.mongodb.client.model.Filters;
  */
 public class MongoImport {
 
-    public static void uploadWorkflow(final Path path, final MongoClient client) {
+    public static void uploadWorkflow(final Path path, final String workflowName, final MongoClient client) {
         WorkflowBundle pojo;
         try {
-            pojo = Workflowalizer2.readWorkflowBundle(path);
+            pojo = Workflowalizer2.readWorkflowBundle(path, workflowName);
         } catch (IOException e) {
             System.out.println("Cannot access file");
             e.printStackTrace();
