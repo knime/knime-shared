@@ -72,7 +72,7 @@ public class VersionSerializer extends StdSerializer<Version> {
     /**
      * Create serializer
      */
-    protected VersionSerializer() {
+    public VersionSerializer() {
         super(Version.class);
     }
 

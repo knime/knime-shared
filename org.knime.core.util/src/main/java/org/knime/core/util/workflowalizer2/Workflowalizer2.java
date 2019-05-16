@@ -259,6 +259,9 @@ public class Workflowalizer2 {
             (proxy, method, args) -> {
                 if("getId".equals(method.getName())) {
                     assert id != null;
+                    if (int.class.isAssignableFrom(method.getReturnType())) {
+                        return config.getInt("id");
+                    }
                     return id;
                 }
                 String key = method.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");

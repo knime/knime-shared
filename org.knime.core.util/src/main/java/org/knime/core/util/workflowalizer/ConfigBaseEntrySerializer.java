@@ -84,7 +84,7 @@ public class ConfigBaseEntrySerializer extends StdSerializer<ConfigBase> {
     /**
      * Creates a serializer for ConfigBase objects
      */
-    protected ConfigBaseEntrySerializer() {
+    public ConfigBaseEntrySerializer() {
         super(ConfigBase.class);
     }
 
