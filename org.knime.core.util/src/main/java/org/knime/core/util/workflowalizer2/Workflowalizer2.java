@@ -342,8 +342,8 @@ public class Workflowalizer2 {
             });
     }
 
-    public static ConfigBase convert(final Object pojo, final ConfigBase initialConfigBase) {
-        ConfigBase cb = initialConfigBase;
+    public static <C extends ConfigBase> C convert(final Object pojo, final C initialConfigBase) {
+        C cb = initialConfigBase;
         for (Method m : pojo.getClass().getInterfaces()[0].getMethods()) {
             if("getId".equals(m.getName())) {
                 continue;
