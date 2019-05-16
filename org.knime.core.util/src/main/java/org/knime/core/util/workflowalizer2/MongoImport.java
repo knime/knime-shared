@@ -73,13 +73,14 @@ import com.mongodb.client.MongoDatabase;
 /**
  *
  * @author awalter
+ * @since 5.11
  */
 public class MongoImport {
 
     public static void uploadWorkflow(final Path path, final MongoClient client) {
-        List<Object> pojo;
+        WorkflowBundle pojo;
         try {
-            pojo = Workflowalizer2.readAsPojos(path);
+            pojo = Workflowalizer2.readWorkflowBundle(path);
         } catch (IOException e) {
             System.out.println("Cannot access file");
             e.printStackTrace();
@@ -90,24 +91,7 @@ public class MongoImport {
             return;
         }
 
-        Workflow w = null;
-        List<Node> n = new ArrayList<>();
-
-        for (Object o : pojo) {
-            if (w == null && o.getClass().getInterfaces()[0].equals(Workflow.class)) {
-                w = (Workflow)o;
-            } else if (w != null && o.getClass().getInterfaces()[0].equals(Workflow.class)) {
-                throw new IllegalArgumentException("Multiple workflows!?!");
-            } else if (o.getClass().getInterfaces()[0].equals(Node.class)) {
-                n.add((Node)o);
-            } else if (o.getClass().getInterfaces()[0].equals(NodeMeta.class)) {
-                // Skip for now, they're referenced in the Workflow
-            } else {
-                throw new IllegalArgumentException("What?!: " + o.getClass());
-            }
-        }
-
-        uploadWorkflow(w, n, client);
+        uploadWorkflow(pojo.getWorkflow(), pojo.getNodes(), client);
     }
 
     public static void uploadWorkflow(final Workflow workflow, final List<Node> nodes, final MongoClient client) {
