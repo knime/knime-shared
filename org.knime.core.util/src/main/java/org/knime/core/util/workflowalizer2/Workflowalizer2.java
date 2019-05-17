@@ -345,9 +345,6 @@ public class Workflowalizer2 {
     public static <C extends ConfigBase> C convert(final Object pojo, final C initialConfigBase) {
         C cb = initialConfigBase;
         for (Method m : pojo.getClass().getInterfaces()[0].getMethods()) {
-            if("getId".equals(m.getName())) {
-                continue;
-            }
             String key = m.getAnnotation(JsonProperty.class).value().replaceAll("#", ".");
             Object value;
             try {
