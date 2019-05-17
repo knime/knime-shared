@@ -49,15 +49,24 @@
 package org.knime.core.util.workflowalizer2;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.util.PathUtils;
 import org.knime.core.util.workflowalizer.VersionSerializer;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -78,7 +87,8 @@ import com.mongodb.client.model.Filters;
  */
 public class MongoImport {
 
-    public static void uploadWorkflow(final Path path, final String workflowName, final MongoClient client, final ObjectStore objectStore) {
+    public static void uploadWorkflow(final Path path, final String workflowName, final MongoClient client,
+        final ObjectStore objectStore) {
         WorkflowBundle pojo;
         try {
             pojo = Workflowalizer2.readWorkflowBundle(path, workflowName);
@@ -92,7 +102,57 @@ public class MongoImport {
             return;
         }
 
-        uploadWorkflow(pojo.getWorkflow(), pojo.getNodes(), client);
+        final Workflow workflow = pojo.getWorkflow();
+        final List<Node> nodes = pojo.getNodes();
+        uploadWorkflow(workflow, pojo.getNodes(), client);
+
+        try (final ZipFile zip = new ZipFile(path.toFile())) {
+            // upload files
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                final ZipEntry e = entries.nextElement();
+                if (!e.isDirectory() && e.getName().matches(".*/data/.*")) {
+                    try (final InputStream stream = zip.getInputStream(e)) {
+                        final String[] pieces = e.getName().split("/");
+                        final Path temp = PathUtils.createTempFile("knime", null);
+                        Files.copy(stream, temp, StandardCopyOption.REPLACE_EXISTING);
+                        objectStore.saveObject(temp.toFile(), pieces[pieces.length - 1], e.getName(), workflow.getId());
+                    }
+                }
+            }
+
+            // upload port objects
+            for (final Node node : nodes) {
+                final String key = node.getId().split("\\#")[1];
+                final NodeMeta meta = workflow.getNodes().getOrDefault(key, null);
+                if (meta != null) {
+                    for (final Port p : node.getPorts().values()) {
+                        if (!StringUtils.isEmpty(p.getPortDirLocation())) {
+                            final String dir = "/" + Paths.get(meta.getNodeSettingsFile()).getParent().toString() + "/"
+                                + p.getPortDirLocation() + "/";
+                            final String internal =
+                                "/" + Paths.get(meta.getNodeSettingsFile()).getParent().toString() + "/internal/";
+                            entries = zip.entries();
+                            while (entries.hasMoreElements()) {
+                                final ZipEntry e = entries.nextElement();
+                                if (!e.isDirectory() && (e.getName().contains(dir) || e.getName().contains(internal))) {
+                                    try (final InputStream stream = zip.getInputStream(e)) {
+                                        final String[] pieces = e.getName().split("/");
+                                        final Path temp = PathUtils.createTempFile("knime", null);
+                                        Files.copy(stream, temp, StandardCopyOption.REPLACE_EXISTING);
+                                        objectStore.saveObject(temp.toFile(), pieces[pieces.length - 1], e.getName(),
+                                            workflow.getId());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            System.out.println("Failed to upload data files!");
+            e.printStackTrace();
+        }
     }
 
     public static void uploadWorkflow(final Workflow workflow, final List<Node> nodes, final MongoClient client) {
