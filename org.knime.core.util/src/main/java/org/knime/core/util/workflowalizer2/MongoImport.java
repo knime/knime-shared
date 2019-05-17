@@ -78,7 +78,7 @@ import com.mongodb.client.model.Filters;
  */
 public class MongoImport {
 
-    public static void uploadWorkflow(final Path path, final String workflowName, final MongoClient client) {
+    public static void uploadWorkflow(final Path path, final String workflowName, final MongoClient client, final ObjectStore objectStore) {
         WorkflowBundle pojo;
         try {
             pojo = Workflowalizer2.readWorkflowBundle(path, workflowName);
