@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Base POJO for all KNIME repository items (workflows, templates, etc.).
  *
@@ -82,6 +84,7 @@ public interface RepositoryItemMetadata {
             m_type = type;
         }
 
+        @JsonValue
         @Override
         public String toString() {
             return m_type;

@@ -50,6 +50,8 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Represents the metadata for nodes. This includes metanodes, subnodes, and native nodes.
  *
@@ -86,6 +88,7 @@ public interface NodeMetadata {
             m_type = type;
         }
 
+        @JsonValue
         @Override
         public String toString() {
             return m_type;
