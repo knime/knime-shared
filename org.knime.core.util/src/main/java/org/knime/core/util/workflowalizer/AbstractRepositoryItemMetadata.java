@@ -44,70 +44,61 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Oct 16, 2018 (awalter): created
+ *   May 20, 2019 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.Date;
-import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Builder for {@link TemplateMetadata}.
+ * Superclass for {@link IWorkflowMetadata} which contain {@link AuthorInformation}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @param <R> {@link RepositoryItemMetadata} returned by the builder
+ * @param <B>  type of builder
+ * @since 5.11
  */
-class TemplateMetadataBuilder extends AbstractRepositoryItemBuilder<TemplateMetadata> {
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE)
+public abstract class AbstractRepositoryItemMetadata<R extends RepositoryItemMetadata, B extends AbstractRepositoryItemBuilder<R>>
+    extends AbstractWorkflowMetadata<B> {
 
-    private String m_role;
-    private Date m_timeStamp;
-    private Optional<String> m_sourceURI;
-    private String m_type;
+    @JsonProperty("authorInformation")
+    private final AuthorInformation m_authorInfo;
 
-    void setRole(final String role) {
-        m_role = role;
-    }
-
-    void setTimeStamp(final Date timeStamp) {
-        m_timeStamp = timeStamp;
-    }
-
-    void setSourceURI(final Optional<String> sourceURI) {
-        m_sourceURI = sourceURI;
-    }
-
-    void setType(final String type) {
-        m_type = type;
-    }
-
-    String getRole() {
-        return m_role;
-    }
-
-    Date getTimeStamp() {
-        return m_timeStamp;
-    }
-
-    Optional<String> getSourceURI() {
-        return m_sourceURI;
-    }
-
-    String getType() {
-        return m_type;
+    /**
+     * @param builder
+     */
+    public AbstractRepositoryItemMetadata(final B builder) {
+        super(builder);
+        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
+            builder.getLastEditDate());
     }
 
     /**
-     * {@inheritDoc}
+     * For internal use only! If the given {@code AbstractWorkflowMetadata<?>} is not a {@code NodeMetadata} then the
+     * node list will be flattened, otherwise the node list will be set to {@code null}. Connections will always be set
+     * to {@code null}.
+     *
+     * @param item
      */
+    protected AbstractRepositoryItemMetadata(final AbstractRepositoryItemMetadata<R, B> item) {
+        super(item);
+        m_authorInfo = item.m_authorInfo;
+    }
+
+
+    /**
+     * @return the {@link AuthorInformation} associated with this item
+     */
+    public AuthorInformation getAuthorInformation() {
+        return m_authorInfo;
+    }
+
     @Override
-    TemplateMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
-        checkPopulated(getAuthor(), "author");
-        checkPopulated(getAuthorDate(), "authored date");
-        checkPopulated(getLastEditDate(), "last edited date");
-        checkPopulated(getLastEditor(), "last editor");
-        checkPopulated(m_role, "template role");
-        checkPopulated(m_timeStamp, "template timestamp");
-        checkPopulated(m_sourceURI, "template source URI");
-        checkPopulated(m_type, "template type");
-        return new TemplateMetadata(this);
+    public String toString() {
+        return super.toString() + ", " + m_authorInfo;
     }
 }

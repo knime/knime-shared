@@ -140,14 +140,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/main/java/org/knime/core/util/workflowalizer/WorkflowMetadata.java" type="org.knime.core.util.workflowalizer.WorkflowMetadata">
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.util.workflowalizer.WorkflowMetadata"/>
-                <message_argument value="getWorkflowSvg()"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/main/java/org/knime/core/util/workflowalizer/WorkflowSetMeta.java" type="org.knime.core.util.workflowalizer.WorkflowSetMeta">
         <filter id="338792546">
             <message_arguments>

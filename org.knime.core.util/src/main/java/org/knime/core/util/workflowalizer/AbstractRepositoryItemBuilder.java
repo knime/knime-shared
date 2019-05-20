@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Oct 16, 2018 (awalter): created
+ *   May 20, 2019 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
@@ -52,62 +52,47 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * Builder for {@link TemplateMetadata}.
+ * Builder for {@link AbstractRepositoryItemMetadata}.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-class TemplateMetadataBuilder extends AbstractRepositoryItemBuilder<TemplateMetadata> {
+abstract class AbstractRepositoryItemBuilder<R extends RepositoryItemMetadata> extends AbstractWorkflowBuilder<R> {
 
-    private String m_role;
-    private Date m_timeStamp;
-    private Optional<String> m_sourceURI;
-    private String m_type;
+    private String m_author;
+    private Date m_authorDate;
+    private Optional<String> m_lastEditor;
+    private Optional<Date> m_lastEditDate;
 
-    void setRole(final String role) {
-        m_role = role;
+    void setAuthor(final String author) {
+        m_author = author;
     }
 
-    void setTimeStamp(final Date timeStamp) {
-        m_timeStamp = timeStamp;
+    void setAuthorDate(final Date authorDate) {
+        m_authorDate = authorDate;
     }
 
-    void setSourceURI(final Optional<String> sourceURI) {
-        m_sourceURI = sourceURI;
+    void setLastEditor(final Optional<String> lastEditor) {
+        m_lastEditor = lastEditor;
     }
 
-    void setType(final String type) {
-        m_type = type;
+    void setLastEditDate(final Optional<Date> lastEditDate) {
+        m_lastEditDate = lastEditDate;
     }
 
-    String getRole() {
-        return m_role;
+    String getAuthor() {
+        return m_author;
     }
 
-    Date getTimeStamp() {
-        return m_timeStamp;
+    Date getAuthorDate() {
+        return m_authorDate;
     }
 
-    Optional<String> getSourceURI() {
-        return m_sourceURI;
+    Optional<String> getLastEditor() {
+        return m_lastEditor;
     }
 
-    String getType() {
-        return m_type;
+    Optional<Date> getLastEditDate() {
+        return m_lastEditDate;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    TemplateMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
-        checkPopulated(getAuthor(), "author");
-        checkPopulated(getAuthorDate(), "authored date");
-        checkPopulated(getLastEditDate(), "last edited date");
-        checkPopulated(getLastEditor(), "last editor");
-        checkPopulated(m_role, "template role");
-        checkPopulated(m_timeStamp, "template timestamp");
-        checkPopulated(m_sourceURI, "template source URI");
-        checkPopulated(m_type, "template type");
-        return new TemplateMetadata(this);
-    }
 }

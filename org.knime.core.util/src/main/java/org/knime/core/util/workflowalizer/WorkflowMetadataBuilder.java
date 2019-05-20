@@ -50,7 +50,6 @@ package org.knime.core.util.workflowalizer;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,17 +61,13 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> {
+class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMetadata> {
 
     private static final Log LOGGER = LogFactory.getLog(WorkflowMetadataBuilder.class);
 
     private Integer m_svgWidth;
     private Integer m_svgHeight;
     private Optional<Collection<String>> m_artifacts;
-    private String m_author;
-    private Date m_authorDate;
-    private Optional<String> m_lastEditor;
-    private Optional<Date> m_lastEditDate;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
     private List<String> m_credentials;
     private List<String> m_variables;
@@ -90,22 +85,6 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
 
     void setArtifactsFileNames(final Optional<Collection<String>> artifactsFileNames) {
         m_artifacts = artifactsFileNames;
-    }
-
-    void setAuthor(final String author) {
-        m_author = author;
-    }
-
-    void setAuthorDate(final Date authorDate) {
-        m_authorDate = authorDate;
-    }
-
-    void setLastEditor(final Optional<String> lastEditor) {
-        m_lastEditor = lastEditor;
-    }
-
-    void setLastEditDate(final Optional<Date> lastEditDate) {
-        m_lastEditDate = lastEditDate;
     }
 
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
@@ -144,22 +123,6 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
         return m_artifacts;
     }
 
-    String getAuthor() {
-        return m_author;
-    }
-
-    Date getAuthorDate() {
-        return m_authorDate;
-    }
-
-    Optional<String> getLastEditor() {
-        return m_lastEditor;
-    }
-
-    Optional<Date> getLastEditDate() {
-        return m_lastEditDate;
-    }
-
     Optional<WorkflowSetMeta> getWorkflowSetMeta() {
         return m_workflowSetMeta;
     }
@@ -189,10 +152,10 @@ class WorkflowMetadataBuilder extends AbstractWorkflowBuilder<WorkflowMetadata> 
      */
     @Override
     WorkflowMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
-        checkPopulated(m_author, "author");
-        checkPopulated(m_authorDate, "authored date");
-        checkPopulated(m_lastEditDate, "last edited date");
-        checkPopulated(m_lastEditor, "last editor");
+        checkPopulated(getAuthor(), "author");
+        checkPopulated(getAuthorDate(), "authored date");
+        checkPopulated(getLastEditDate(), "last edited date");
+        checkPopulated(getLastEditor(), "last editor");
         checkPopulated(m_artifacts, "artifacts directory");
         checkPopulated(m_credentials, "workflow credentials");
         checkPopulated(m_variables, "workflow variables");

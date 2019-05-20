@@ -68,19 +68,16 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
-public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataBuilder> implements RepositoryItemMetadata {
-
-    @JsonProperty("authorInformation")
-    private final AuthorInformation m_authorInfo;
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE)
+public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMetadata, TemplateMetadataBuilder>
+    implements RepositoryItemMetadata {
 
     @JsonProperty("templateInformation")
     private final TemplateInformation m_templateInfo;
 
     TemplateMetadata(final TemplateMetadataBuilder builder) {
         super(builder);
-        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
-            builder.getLastEditDate());
         m_templateInfo = new TemplateInformation(builder.getRole(), builder.getTimeStamp(), builder.getSourceURI(),
             builder.getType());
     }
@@ -93,15 +90,7 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
      */
     private TemplateMetadata(final TemplateMetadata template) {
         super(template);
-        m_authorInfo = template.m_authorInfo;
         m_templateInfo = template.m_templateInfo;
-    }
-
-    /**
-     * @return the {@link AuthorInformation} associated with this template
-     */
-    public AuthorInformation getAuthorInformation() {
-        return m_authorInfo;
     }
 
     /**
@@ -122,9 +111,7 @@ public class TemplateMetadata extends AbstractWorkflowMetadata<TemplateMetadataB
 
     @Override
     public String toString() {
-        return super.toString() +
-                ", " + m_authorInfo +
-                ", " + m_templateInfo;
+        return super.toString() + ", " + m_templateInfo;
     }
 
     /**

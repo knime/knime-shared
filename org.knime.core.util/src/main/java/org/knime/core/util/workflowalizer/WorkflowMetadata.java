@@ -82,11 +82,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
-public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMetadataBuilder> implements RepositoryItemMetadata {
-
-    @JsonProperty("authorInformation")
-    private final AuthorInformation m_authorInfo;
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE)
+public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<WorkflowMetadata, WorkflowMetadataBuilder>
+    implements RepositoryItemMetadata {
 
     @JsonProperty("workflowSvg")
     private final Optional<WorkflowSVG> m_svg;
@@ -117,8 +116,6 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
 
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {
         super(builder);
-        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
-            builder.getLastEditDate());
         if (builder.getSvgHeight() == null || builder.getSvgWidth() == null) {
             m_svg = Optional.empty();
         } else {
@@ -147,7 +144,6 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
      */
     private WorkflowMetadata(final WorkflowMetadata workflow) {
         super(workflow);
-        m_authorInfo = workflow.m_authorInfo;
         m_svg = workflow.m_svg;
         m_artifacts = workflow.m_artifacts;
         m_workflowSetMeta = workflow.m_workflowSetMeta;
@@ -157,13 +153,6 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         m_svgPath = workflow.m_svgPath;
         m_svgZipEntryPath = workflow.m_svgZipEntryPath;
         m_svgFile = workflow.m_svgFile;
-    }
-
-    /**
-     * @return the {@link AuthorInformation} associated with this workflow
-     */
-    public AuthorInformation getAuthorInformation() {
-        return m_authorInfo;
     }
 
     /**
@@ -238,7 +227,6 @@ public final class WorkflowMetadata extends AbstractWorkflowMetadata<WorkflowMet
         }
 
         return super.toString() +
-                ", " + m_authorInfo +
                 ", workflow_svg: " + m_svg.toString() +
                 ", artifacts_files: " + artifacts +
                 ", workflow_meta: " + wsm +
