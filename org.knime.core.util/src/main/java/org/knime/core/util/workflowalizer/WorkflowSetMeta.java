@@ -122,7 +122,10 @@ public class WorkflowSetMeta {
             final List<String> tags = new ArrayList<>();
             for (int i = stop; i < lines.length; i++) {
                 if (lines[i].startsWith("BLOG:") || lines[i].startsWith("URL:") || lines[i].startsWith("VIDEO:")) {
-                    links.add(createURLTag(lines[i]));
+                    final Link l = createURLTag(lines[i]);
+                    if (l != null) {
+                        links.add(l);
+                    }
                 } else if (lines[i].startsWith("TAG:") || lines[i].startsWith("TAGS:")) {
                     final String[] split = lines[i].split(":");
                     final String[] ts = split[1].split(",");
@@ -274,8 +277,16 @@ public class WorkflowSetMeta {
     private static Link createURLTag(final String s) {
         final int textIndex = s.indexOf(':');
         final int urlIndex = s.indexOf("http");
-        final String text = s.substring(textIndex + 1, urlIndex).trim();
+
+        if (urlIndex < 0) {
+            return null;
+        }
+
         final String href = s.substring(urlIndex, s.length()).trim();
+        String text = href;
+        if (textIndex >= 0) {
+            text = s.substring(textIndex + 1, urlIndex).trim();
+        }
         return new Link(href, text);
     }
 
