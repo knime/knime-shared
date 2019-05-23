@@ -104,6 +104,8 @@ public interface NodeMetadata {
     String getNodeId();
 
     /**
+     * Returns the {@lnk NodeType} of this node.
+     *
      * @return the node type
      * @since 5.11
      */

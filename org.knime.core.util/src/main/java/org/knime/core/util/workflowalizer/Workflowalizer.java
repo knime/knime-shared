@@ -108,7 +108,7 @@ import org.xml.sax.SAXException;
 public final class Workflowalizer {
 
     /**
-     * Reads the repository item as the given path. All fields for the given item will be read.
+     * Reads the repository item at the given path. All fields for the given item will be read.
      *
      * @param repoItem path to the directory of the repository item or zip file containing the item. If the zip contains
      *            multiple repository items only the first highest level item is read. In the event of ties the priority
@@ -129,7 +129,7 @@ public final class Workflowalizer {
     }
 
     /**
-     * Reads the repository item as the given path, only the requested fields will be populated.
+     * Reads the repository item at the given path, only the requested fields will be populated.
      *
      * @param repoItem path to the directory of the repository item or zip file containing the item. If the zip contains
      *            multiple repository items only the first highest level item is read. In the event of ties the priority

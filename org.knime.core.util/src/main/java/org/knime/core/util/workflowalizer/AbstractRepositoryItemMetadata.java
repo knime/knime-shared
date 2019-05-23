@@ -69,7 +69,9 @@ public abstract class AbstractRepositoryItemMetadata<R extends RepositoryItemMet
     private final AuthorInformation m_authorInfo;
 
     /**
-     * @param builder
+     * Creates a new AbstractRepositoryItemMetadata using the metadata set in the AbstractRepositoryItemBuilder.
+     *
+     * @param builder the populated AbstractRepositoryItemBuilder
      */
     public AbstractRepositoryItemMetadata(final B builder) {
         super(builder);
@@ -78,11 +80,11 @@ public abstract class AbstractRepositoryItemMetadata<R extends RepositoryItemMet
     }
 
     /**
-     * For internal use only! If the given {@code AbstractWorkflowMetadata<?>} is not a {@code NodeMetadata} then the
-     * node list will be flattened, otherwise the node list will be set to {@code null}. Connections will always be set
-     * to {@code null}.
+     * For internal use only! If the given {@code AbstractRepositoryItemMetadata<?>} is not a {@code NodeMetadata} then
+     * the node list will be flattened, otherwise the node list will be set to {@code null}. Connections will always be
+     * set to {@code null}.
      *
-     * @param item
+     * @param item the AbstractRepositoryItemMetadata to copy
      */
     protected AbstractRepositoryItemMetadata(final AbstractRepositoryItemMetadata<R, B> item) {
         super(item);
@@ -91,6 +93,8 @@ public abstract class AbstractRepositoryItemMetadata<R extends RepositoryItemMet
 
 
     /**
+     * Returns the {@link AuthorInformation} for this repository item.
+     *
      * @return the {@link AuthorInformation} associated with this item
      */
     public AuthorInformation getAuthorInformation() {
