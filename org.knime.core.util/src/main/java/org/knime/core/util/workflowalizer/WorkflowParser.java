@@ -48,14 +48,13 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.zip.ZipFile;
+import java.util.stream.Stream;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
@@ -378,9 +377,11 @@ interface WorkflowParser {
     Optional<Version> getBundleVersion(final ConfigBase config) throws InvalidSettingsException;
 
     /**
-     * @param workflow the workflow directory path, or null if parsing a zip file
-     * @param zipWorkflow the workflow zip, or null if parsing a workflow directory
+     * Determine if the workflow contains a report file.
+     *
+     * @param files a {@link Stream} of files in the workflow directory. In the case of a directory this should be a
+     *            {@code Stream<Path>} and if it is a zip file this should be {@code Stream<? extends ZipEntry>}.
      * @return true if the workflow has a report, false otherwise
      */
-    boolean getHasReport(final Path workflow, final ZipFile zipWorkflow);
+    <T> boolean getHasReport(final Stream<T> files);
 }

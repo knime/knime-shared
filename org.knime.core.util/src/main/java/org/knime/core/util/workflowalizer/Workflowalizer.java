@@ -71,6 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -457,8 +458,10 @@ public final class Workflowalizer {
         final List<String> variables = parser.getWorkflowVariables(workflowKnime);
         builder.setWorkflowVariables(variables);
 
-        final boolean hasReport = parser.getHasReport(zip == null ? Paths.get(path) : null, zip);
-        builder.setHasReport(hasReport);
+        try (final Stream<?> files = zip == null ? Files.list(Paths.get(path)) : zip.stream()) {
+            final boolean hasReport = parser.getHasReport(files);
+            builder.setHasReport(hasReport);
+        }
 
         return builder.build(wc);
     }

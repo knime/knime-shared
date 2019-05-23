@@ -49,8 +49,6 @@
 package org.knime.core.util.workflowalizer;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -59,12 +57,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
@@ -524,20 +522,16 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public boolean getHasReport(final Path workflow, final ZipFile zipWorkflow) {
-        if (zipWorkflow != null) {
-            final Enumeration<? extends ZipEntry> e = zipWorkflow.entries();
-            while (e.hasMoreElements()) {
-                if (e.nextElement().getName().endsWith("/" + ReportingConstants.KNIME_REPORT_FILE)) {
-                    return true;
-                }
+    public <T> boolean getHasReport(final Stream<T> files) {
+        final Predicate<T> predicate = f -> {
+            String fileName = "Not a report file";
+            if (f instanceof ZipEntry) {
+                fileName = ((ZipEntry)f).getName();
+            } else if (f instanceof Path) {
+                fileName = ((Path)f).toAbsolutePath().toString();
             }
-            return false;
-        }
-        try {
-            return Files.list(workflow).filter(f -> f.endsWith(ReportingConstants.KNIME_REPORT_FILE)).count() > 0;
-        } catch (IOException e) {
-            return false;
-        }
+            return fileName.endsWith(ReportingConstants.KNIME_REPORT_FILE);
+        };
+        return files.anyMatch(predicate);
     }
 }
