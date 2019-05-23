@@ -116,7 +116,7 @@ public class WorkflowSetMeta {
                     b.append(lines[i] + "\n");
                 }
             }
-            m_description = Optional.ofNullable(b.toString().trim());
+            m_description = Optional.of(b.toString().trim());
 
             final List<Link> links = new ArrayList<>();
             final List<String> tags = new ArrayList<>();
@@ -135,8 +135,8 @@ public class WorkflowSetMeta {
                 }
             }
 
-            m_links = Optional.ofNullable(links);
-            m_tags = Optional.ofNullable(tags);
+            m_links = Optional.of(links);
+            m_tags = Optional.of(tags);
         } else {
             m_title = Optional.empty();
             m_description = Optional.empty();
