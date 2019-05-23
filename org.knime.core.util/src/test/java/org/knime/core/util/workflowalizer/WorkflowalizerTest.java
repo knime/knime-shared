@@ -226,13 +226,14 @@ public class WorkflowalizerTest {
         assertEquals(501, wkfMd.getWorkflowSvg().get().getHeight().intValue());
 
         final Path svg = m_workflowDir.resolve("workflow.svg");
-        final File readSvg = wkfMd.getSvgFile().orElse(null);
-        assertNotNull(readSvg);
-        final List<String> lines = Files.readAllLines(svg);
-        final List<String> readLines = Files.readAllLines(readSvg.toPath());
-        assertEquals(lines.size(), readLines.size());
-        for (int i = 0; i < lines.size(); i++) {
-            assertEquals(lines.get(i), readLines.get(i));
+        try (final InputStream readSvg = wkfMd.getSvgInputStream().orElse(null)) {
+            assertNotNull(readSvg);
+            final byte[] bytes = IOUtils.toByteArray(Files.newInputStream(svg));
+            final byte[] readBytes = IOUtils.toByteArray(readSvg);
+            assertEquals(bytes.length, readBytes.length);
+            for (int i = 0; i < bytes.length; i++) {
+                assertEquals(bytes[i], readBytes[i]);
+            }
         }
 
         assertUOEThrown(wkfMd::getConnections);
@@ -961,13 +962,14 @@ public class WorkflowalizerTest {
         assertEquals(501, wm.getWorkflowSvg().get().getHeight().intValue());
 
         final Path svg = m_workflowDir.resolve("workflow.svg");
-        final File readSvg = wm.getSvgFile().orElse(null);
-        assertNotNull(readSvg);
-        final List<String> lines = Files.readAllLines(svg);
-        final List<String> readLines = Files.readAllLines(readSvg.toPath());
-        assertEquals(lines.size(), readLines.size());
-        for (int i = 0; i < lines.size(); i++) {
-            assertEquals(lines.get(i), readLines.get(i));
+        try (final InputStream readSvg = wm.getSvgInputStream().orElse(null)) {
+            assertNotNull(readSvg);
+            final byte[] bytes = IOUtils.toByteArray(Files.newInputStream(svg));
+            final byte[] readBytes = IOUtils.toByteArray(readSvg);
+            assertEquals(bytes.length, readBytes.length);
+            for (int i = 0; i < bytes.length; i++) {
+                assertEquals(bytes[i], readBytes[i]);
+            }
         }
 
         assertUOEThrown(wm::getConnections);

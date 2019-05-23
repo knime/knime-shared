@@ -48,11 +48,10 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -61,8 +60,8 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.knime.core.util.PathUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -111,9 +110,6 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     @JsonIgnore
     private final String m_svgZipEntryPath;
 
-    @JsonIgnore
-    private Optional<File> m_svgFile;
-
     WorkflowMetadata(final WorkflowMetadataBuilder builder) {
         super(builder);
         if (builder.getSvgHeight() == null || builder.getSvgWidth() == null) {
@@ -129,11 +125,6 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
 
         m_svgPath = builder.getSvgFile();
         m_svgZipEntryPath = builder.getSvgZipEntry();
-        if (StringUtils.isEmpty(m_svgZipEntryPath) && (m_svgPath == null || !Files.exists(m_svgPath))) {
-            m_svgFile = Optional.empty();
-        } else if (StringUtils.isEmpty(m_svgZipEntryPath) && m_svgPath != null && Files.exists(m_svgPath)) {
-            m_svgFile = Optional.ofNullable(m_svgPath.toFile());
-        }
     }
 
     /**
@@ -152,7 +143,6 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_hasReport = workflow.m_hasReport;
         m_svgPath = workflow.m_svgPath;
         m_svgZipEntryPath = workflow.m_svgZipEntryPath;
-        m_svgFile = workflow.m_svgFile;
     }
 
     /**
@@ -272,15 +262,32 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     }
 
     /**
-     * Returns the workflow's svg file, if present.
+     * Returns the workflow's svg file as an {@link InputStream}, if the SVG is present in the workflow.
      *
-     * @return svg file
+     * @return {@link InputStream} on SVG file, if file is present
      */
-    public Optional<File> getSvgFile() {
-        if (m_svgFile == null) {
-            readSvg();
+    public Optional<InputStream> getSvgInputStream() {
+        try {
+            if (m_svgPath != null && Files.exists(m_svgPath)) {
+                if (!StringUtils.isEmpty(m_svgZipEntryPath)) {
+                    try (final ZipFile zip = new ZipFile(m_svgPath.toFile())) {
+                        final ZipEntry svgEntry = zip.getEntry(m_svgZipEntryPath);
+                        if (svgEntry != null) {
+                            // Can't just return zip.getInputStream(svgEntry) because the resulting stream would
+                            // just be closed once the ZipFile is closed. So it needs to be copied
+                            try (final InputStream zipStream = zip.getInputStream(svgEntry)) {
+                                return Optional.of(new ByteArrayInputStream(IOUtils.toByteArray(zipStream)));
+                            }
+                        }
+                    }
+                } else {
+                    return Optional.of(Files.newInputStream(m_svgPath));
+                }
+            }
+        } catch (final Exception ex) {
+            // Do nothing, empty optional will be returned
         }
-        return m_svgFile;
+        return Optional.empty();
     }
 
     // -- Helper classes --
@@ -321,27 +328,5 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         public String toString() {
             return "width: " + m_width + " & height: " + m_height;
         }
-    }
-
-    // -- Helper methods --
-
-    private synchronized void readSvg() {
-        if (m_svgFile != null) {
-            return;
-        }
-        if (!StringUtils.isEmpty(m_svgZipEntryPath)) {
-            try (final ZipFile zip = new ZipFile(m_svgPath.toFile())) {
-                final ZipEntry entry = zip.getEntry(m_svgZipEntryPath);
-                try (final InputStream zin = zip.getInputStream(entry)) {
-                    final Path tmp = PathUtils.createTempFile("knime", ".svg");
-                    Files.copy(zin, tmp, StandardCopyOption.REPLACE_EXISTING);
-                    m_svgFile = Optional.ofNullable(tmp.toFile());
-                    return;
-                }
-            } catch (final Exception e) {
-                // Do nothing, m_svgFile will be set to empty optional
-            }
-        }
-        m_svgFile = Optional.empty();
     }
 }
