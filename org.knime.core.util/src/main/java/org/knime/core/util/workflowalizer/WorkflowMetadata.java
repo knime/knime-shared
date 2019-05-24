@@ -55,6 +55,7 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -132,9 +133,10 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
      * connections to {@code null} and flattens the node tree
      *
      * @param workflow the {@code WorkflowMetadata} to copy
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
-    private WorkflowMetadata(final WorkflowMetadata workflow) {
-        super(workflow);
+    private WorkflowMetadata(final WorkflowMetadata workflow, final List<String> excludedFactories) {
+        super(workflow, excludedFactories);
         m_svg = workflow.m_svg;
         m_artifacts = workflow.m_artifacts;
         m_workflowSetMeta = workflow.m_workflowSetMeta;
@@ -258,7 +260,22 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
      *         to {@code null}
      */
     public WorkflowMetadata flatten() {
-        return new WorkflowMetadata(this);
+        return new WorkflowMetadata(this, Collections.emptyList());
+    }
+
+    /**
+     * Creates a {@code WorkflowMetadata} with a filtered flattened node list for writing to JSON.
+     *
+     * @param excludedFatoryNames a list of factoryNames to be excluded from the flattened node list, supports regex matching
+     * @return a {@code WorkflowMetadata} whose node list is flat (i.e. depth = 1), and whose connections have been set
+     *         to {@code null}
+     */
+    public WorkflowMetadata flatten(final List<String> excludedFatoryNames) {
+        List<String> efn = excludedFatoryNames;
+        if (efn == null) {
+            efn = Collections.emptyList();
+        }
+        return new WorkflowMetadata(this, efn);
     }
 
     /**

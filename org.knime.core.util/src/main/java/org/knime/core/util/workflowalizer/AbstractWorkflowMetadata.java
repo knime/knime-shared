@@ -111,9 +111,10 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      * node list will be flattened, otherwise the node list will be set to {@code null}. Connections will always be set
      * to {@code null}.
      *
-     * @param workflow
+     * @param workflow {@code AbstractWorkflowMetadata} to copy
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
-    protected AbstractWorkflowMetadata(final AbstractWorkflowMetadata<?> workflow) {
+    protected AbstractWorkflowMetadata(final AbstractWorkflowMetadata<?> workflow, final List<String> excludedFactories) {
         m_version = workflow.m_version;
         m_createdBy = workflow.m_createdBy;
         m_annotations = workflow.m_annotations;
@@ -127,7 +128,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         if (!(workflow instanceof NodeMetadata) && workflow.m_nodes != null) {
             nodes = new ArrayList<>();
             for (final NodeMetadata node : workflow.m_nodes) {
-                addNodes(node, nodes);
+                addNodes(node, nodes, excludedFactories);
             }
         }
         m_nodes = nodes;
@@ -239,14 +240,17 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         ", unexpected_files: " + uf;
     }
 
-    private void addNodes(final NodeMetadata nm, final List<NodeMetadata> nodes) {
+    private void addNodes(final NodeMetadata nm, final List<NodeMetadata> nodes, final List<String> excludedFactories) {
         if (nm.getType().equals(NodeType.NATIVE_NODE)) {
-            nodes.add(nm);
+            final NativeNodeMetadata nativeNode = (NativeNodeMetadata)nm;
+            if (!excludedFactories.stream().anyMatch(exclude -> nativeNode.getFactoryName().matches(exclude))) {
+                nodes.add(nativeNode);
+            }
             return;
         }
         final IWorkflowMetadata wm = (IWorkflowMetadata) nm;
         for (final NodeMetadata node : wm.getNodes()) {
-            addNodes(node, nodes);
+            addNodes(node, nodes, excludedFactories);
         }
         if (wm instanceof SubnodeMetadata) {
             nodes.add(((SubnodeMetadata)nm).dropNodes());

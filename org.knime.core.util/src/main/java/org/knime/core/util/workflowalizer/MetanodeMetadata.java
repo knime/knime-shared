@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -90,9 +92,10 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      * nodes/connections to {@code null}
      *
      * @param metanode the {@code MetanodeMetadata} to copy
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
-    private MetanodeMetadata(final MetanodeMetadata metanode) {
-        super(metanode);
+    private MetanodeMetadata(final MetanodeMetadata metanode, final List<String> excludedFactories) {
+        super(metanode, excludedFactories);
         m_nodeId = metanode.m_nodeId;
         m_type = metanode.m_type;
         m_annotationText = metanode.m_annotationText;
@@ -144,6 +147,6 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      * @return a copy of this {@code MetanodeMetadata}, except the nodes/connections have been set to {@code null}.
      */
     MetanodeMetadata dropNodes() {
-        return new MetanodeMetadata(this);
+        return new MetanodeMetadata(this, Collections.emptyList());
     }
 }

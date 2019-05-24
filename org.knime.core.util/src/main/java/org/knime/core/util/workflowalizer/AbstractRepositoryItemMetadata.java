@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -85,9 +87,10 @@ public abstract class AbstractRepositoryItemMetadata<R extends RepositoryItemMet
      * set to {@code null}.
      *
      * @param item the AbstractRepositoryItemMetadata to copy
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
-    protected AbstractRepositoryItemMetadata(final AbstractRepositoryItemMetadata<R, B> item) {
-        super(item);
+    protected AbstractRepositoryItemMetadata(final AbstractRepositoryItemMetadata<R, B> item, final List<String> excludedFactories) {
+        super(item, excludedFactories);
         m_authorInfo = item.m_authorInfo;
     }
 

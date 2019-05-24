@@ -50,6 +50,8 @@ package org.knime.core.util.workflowalizer;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -87,9 +89,10 @@ public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMet
      * connections to {@code null} and flattens the node tree
      *
      * @param template the {@code TemplateMetadata} to copy
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list,, supports regex matching
      */
-    private TemplateMetadata(final TemplateMetadata template) {
-        super(template);
+    private TemplateMetadata(final TemplateMetadata template, final List<String> excludedFactories) {
+        super(template, excludedFactories);
         m_templateInfo = template.m_templateInfo;
     }
 
@@ -148,7 +151,21 @@ public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMet
      *         to {@code null}
      */
     public TemplateMetadata flatten() {
-        return new TemplateMetadata(this);
+        return new TemplateMetadata(this, Collections.emptyList());
     }
 
+    /**
+     * Creates a {@code TemplateMetadata} with a filtered flattened node list for writing to JSON.
+     *
+     * @param excludedFatoryNames a list of factoryNames to be excluded from the flattened node list, supports regex matching
+     * @return a {@code TemplateMetadata} whose node list is flat (i.e. depth = 1), and whose connections have been set
+     *         to {@code null}
+     */
+    public TemplateMetadata flatten(final List<String> excludedFatoryNames) {
+        List<String> efn = excludedFatoryNames;
+        if (efn == null) {
+            efn = Collections.emptyList();
+        }
+        return new TemplateMetadata(this, efn);
+    }
 }

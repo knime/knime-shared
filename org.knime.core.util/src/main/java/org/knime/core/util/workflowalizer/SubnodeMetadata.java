@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.knime.core.node.config.base.ConfigBase;
@@ -100,9 +102,10 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
      * nodes/connections to {@code null}.
      *
      * @param subnode {@code SubnodeMetadata} to copy
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
-    private SubnodeMetadata(final SubnodeMetadata subnode) {
-        super(subnode);
+    private SubnodeMetadata(final SubnodeMetadata subnode, final List<String> excludedFactories) {
+        super(subnode, excludedFactories);
         m_nodeId = subnode.m_nodeId;
         m_type = subnode.m_type;
         m_nodeConfiguration = subnode.m_nodeConfiguration;
@@ -182,6 +185,6 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
      *         {@code null}
      */
     SubnodeMetadata dropNodes() {
-        return new SubnodeMetadata(this);
+        return new SubnodeMetadata(this, Collections.emptyList());
     }
 }
