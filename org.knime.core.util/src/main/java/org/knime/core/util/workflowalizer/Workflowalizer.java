@@ -681,7 +681,9 @@ public final class Workflowalizer {
         final Optional<String> featureName = parser.getFeatureName(settingsXml);
         builder.setFeatureName(featureName);
 
-        final Optional<String> featureSymbolicName = parser.getFeatureSymbolicName(settingsXml);
+        Optional<String> featureSymbolicName = parser.getFeatureSymbolicName(settingsXml)
+                // Remove extraneously added .feature.group
+                .map(s -> s.replaceAll("\\.feature\\.group$", ""));
         builder.setFeatureSymbolicName(featureSymbolicName);
 
         final Optional<String> featureVendor = parser.getFeatureVendor(settingsXml);

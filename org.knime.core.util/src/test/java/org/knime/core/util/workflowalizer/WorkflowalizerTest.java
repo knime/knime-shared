@@ -1277,8 +1277,13 @@ public class WorkflowalizerTest {
         final Optional<Version> nodeBundleVersion = nodeBundleVersionString == null || nodeBundleVersionString.isEmpty()
             ? Optional.empty() : Optional.ofNullable(new Version(nodeBundleVersionString));
         final Optional<String> nodeFeatureName = Optional.ofNullable(parseValue(readLines, "node-feature-name"));
-        final Optional<String> nodeFeatureSymbolicName =
-            Optional.ofNullable(parseValue(readLines, "node-feature-symbolic-name"));
+
+        String fsn = parseValue(readLines, "node-feature-symbolic-name");
+        if (fsn != null && fsn.endsWith(".feature.group")) {
+            fsn = fsn.substring(0, fsn.length() - 14);
+        }
+        final Optional<String> nodeFeatureSymbolicName = Optional.ofNullable(fsn);
+
         final Optional<String> nodeFeatureVendor = Optional.ofNullable(parseValue(readLines, "node-feature-vendor"));
         final String nodeFeatureVersionString = parseValue(readLines, "node-feature-version");
         final Optional<Version> nodeFeatureVersion =
