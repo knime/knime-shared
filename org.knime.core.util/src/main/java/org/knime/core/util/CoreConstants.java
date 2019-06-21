@@ -70,4 +70,14 @@ public final class CoreConstants {
      * Currently used when the user logs in on the server web portal and in API hooks in KNIME AP (AP-11261).
      */
     public static final String CREDENTIALS_KNIME_SYSTEM_DEFAULT_ID = "knime.system.default";
+
+    /**
+     * The id of the examples mount point.
+     */
+    public static final String KNIME_EXAMPLES_MOUNT_ID = "EXAMPLES";
+
+    /**
+     * The id of the KNIME Hub mount point.
+     */
+    public static final String KNIME_HUB_MOUNT_ID = "My-KNIME-Hub";
 }
