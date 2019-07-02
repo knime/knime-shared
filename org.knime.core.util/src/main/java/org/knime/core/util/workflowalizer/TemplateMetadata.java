@@ -91,7 +91,7 @@ public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMet
      * @param template the {@code TemplateMetadata} to copy
      * @param excludedFactories list of factoryNames to exclude from the flattened node list,, supports regex matching
      */
-    private TemplateMetadata(final TemplateMetadata template, final List<String> excludedFactories) {
+    protected TemplateMetadata(final TemplateMetadata template, final List<String> excludedFactories) {
         super(template, excludedFactories);
         m_templateInfo = template.m_templateInfo;
     }
