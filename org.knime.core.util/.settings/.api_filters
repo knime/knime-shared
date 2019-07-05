@@ -118,19 +118,7 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
-                <message_argument value="getModelParameters()"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
                 <message_argument value="getNodeId()"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.util.workflowalizer.SubnodeMetadata"/>
-                <message_argument value="getType()"/>
             </message_arguments>
         </filter>
         <filter id="338792546">
@@ -145,14 +133,6 @@
             <message_arguments>
                 <message_argument value="org.knime.core.util.workflowalizer.WorkflowSetMeta"/>
                 <message_argument value="getComments()"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/main/java/org/knime/core/util/workflowalizer/Workflowalizer.java" type="org.knime.core.util.workflowalizer.Workflowalizer">
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.util.workflowalizer.Workflowalizer"/>
-                <message_argument value="readWorkflowGroup(Path)"/>
             </message_arguments>
         </filter>
     </resource>

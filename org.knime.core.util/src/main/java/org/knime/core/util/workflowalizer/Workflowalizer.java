@@ -65,12 +65,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -296,9 +298,12 @@ public final class Workflowalizer {
      * @throws URISyntaxException
      * @throws InvalidSettingsException
      * @throws ParseException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws XPathExpressionException
      */
-    public static TemplateMetadata readTemplate(final Path path)
-        throws IOException, URISyntaxException, InvalidSettingsException, ParseException {
+    public static TemplateMetadata readTemplate(final Path path) throws IOException, URISyntaxException,
+        InvalidSettingsException, ParseException, XPathExpressionException, ParserConfigurationException, SAXException {
         return readTemplate(path, WorkflowalizerConfiguration.builder().readAll().build());
     }
 
@@ -313,9 +318,13 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws URISyntaxException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws XPathExpressionException
      */
     public static TemplateMetadata readTemplate(final Path path, final WorkflowalizerConfiguration config)
-        throws IOException, URISyntaxException, InvalidSettingsException, ParseException {
+        throws IOException, URISyntaxException, InvalidSettingsException, ParseException, XPathExpressionException,
+        ParserConfigurationException, SAXException {
         CheckUtils.checkArgumentNotNull(config, "Configuration cannot be null");
         CheckUtils.checkArgument(Files.exists(path), "File does not exist at path " + path);
         if (isZip(path)) {
@@ -337,6 +346,30 @@ public final class Workflowalizer {
     }
 
     // -- Helper methods --
+
+    private static Optional<WorkflowSetMeta> readWorkflowSetMeta(final String path, final ZipFile zip,
+        final WorkflowParser parser)
+        throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+        if (zip == null) {
+            final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
+            if (!Files.exists(workflowsetPath)) {
+                return Optional.empty();
+            }
+
+            try (final InputStream is = Files.newInputStream(workflowsetPath)) {
+                return Optional.ofNullable(readWorkflowSetMeta(is));
+            }
+        }
+
+        final ZipEntry entry = zip.getEntry(path + parser.getWorkflowSetMetaFileName());
+        if (entry == null) {
+            return Optional.empty();
+        }
+
+        try (final InputStream is = zip.getInputStream(entry)) {
+            return Optional.ofNullable(readWorkflowSetMeta(is));
+        }
+    }
 
     private static WorkflowSetMeta readWorkflowSetMeta(final InputStream is)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
@@ -429,26 +462,7 @@ public final class Workflowalizer {
         }
 
         if (wc.parseWorkflowMeta()) {
-            Optional<WorkflowSetMeta> wsa = null;
-            if (zip == null) {
-                final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
-                if (!Files.exists(workflowsetPath)) {
-                    wsa = Optional.empty();
-                } else {
-                    try (final InputStream is = Files.newInputStream(workflowsetPath)) {
-                        wsa = Optional.ofNullable(readWorkflowSetMeta(is));
-                    }
-                }
-            } else {
-                final ZipEntry entry = zip.getEntry(path + parser.getWorkflowSetMetaFileName());
-                if (entry == null) {
-                    wsa = Optional.empty();
-                } else {
-                    try (final InputStream is = zip.getInputStream(entry)) {
-                        wsa = Optional.ofNullable(readWorkflowSetMeta(is));
-                    }
-                }
-            }
+            final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser);
             builder.setWorkflowSetMeta(wsa);
         }
 
@@ -467,8 +481,8 @@ public final class Workflowalizer {
     }
 
     private static TemplateMetadata readTemplateMetadata(final String path, final ZipFile zip,
-        final WorkflowalizerConfiguration wc)
-        throws InvalidSettingsException, FileNotFoundException, ParseException, IOException {
+        final WorkflowalizerConfiguration wc) throws InvalidSettingsException, FileNotFoundException, ParseException,
+        IOException, XPathExpressionException, ParserConfigurationException, SAXException {
         // Reading files
         // TODO: Is the template file always template.knime?
         MetadataConfig workflowKnime = null;
@@ -485,12 +499,30 @@ public final class Workflowalizer {
         final String readVersion = templateKnime.getString("version");
         final WorkflowParser parser = getParser(readVersion);
 
+        // Read template type (MetaNode or Component template)
+        final String templateType = parser.getTemplateType(templateKnime);
+
         // Read template
-        final TemplateMetadataBuilder builder = new TemplateMetadataBuilder();
+        TemplateMetadataBuilder builder = null;
+        if (templateType.equalsIgnoreCase("subnode")) {
+            final ComponentMetadataBuilder bc = new ComponentMetadataBuilder();
+            builder = bc;
+
+            final WorkflowFields wfTemp = wc.createWorkflowFields();
+            populateWorkflowFields(wfTemp,
+                WorkflowalizerConfiguration.builder().readNodeConfiguration().readNodesAndConnections().build(), parser,
+                workflowKnime, templateKnime, path, zip, null);
+            populateComponentFields(path, zip, parser, bc, wfTemp, wc);
+        } else {
+            builder = new TemplateMetadataBuilder();
+        }
+
+        builder.setType(templateType);
 
         final WorkflowFields wf = wc.createWorkflowFields();
-        builder.setWorkflowFields(wf);
         populateWorkflowFields(wf, wc, parser, workflowKnime, templateKnime, path, zip, null);
+        builder.setWorkflowFields(wf);
+
         final String name = new File(path).getName();
         wf.setName(name);
 
@@ -515,14 +547,12 @@ public final class Workflowalizer {
         final Optional<String> sourceURI = parser.getSourceURI(templateKnime);
         builder.setSourceURI(sourceURI);
 
-        final String templateType = parser.getTemplateType(templateKnime);
-        builder.setType(templateType);
-
         return builder.build(wc);
     }
 
     private static Map<Integer, NodeMetadata> readNodes(final String currentWorkflowDirectory, final ZipFile zip,
-        final List<ConfigBase> configs, final WorkflowalizerConfiguration wc, final WorkflowParser parser, final String nodeId)
+        final List<ConfigBase> configs, final WorkflowalizerConfiguration wc, final WorkflowParser parser,
+        final String nodeId)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final Map<Integer, NodeMetadata> map = new HashMap<>();
         for (final ConfigBase config : configs) {
@@ -552,7 +582,8 @@ public final class Workflowalizer {
     }
 
     private static MetanodeMetadata readMetanode(final String parentDirectory, final ZipFile zip,
-        final WorkflowalizerConfiguration wc, final ConfigBase configBase, final WorkflowParser parser, final String nodeId)
+        final WorkflowalizerConfiguration wc, final ConfigBase configBase, final WorkflowParser parser,
+        final String nodeId)
         throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final MetanodeMetadataBuilder builder = new MetanodeMetadataBuilder();
@@ -620,6 +651,12 @@ public final class Workflowalizer {
         final Optional<String> templateLink = parser.getTemplateLink(settingsXml);
         builder.setTemplateLink(templateLink);
 
+        final int virtualInputId = parser.getVirtualInId(settingsXml);
+        builder.setInputId(virtualInputId);
+
+        final int virtualOutputId = parser.getVirtualOutId(settingsXml);
+        builder.setOutputId(virtualOutputId);
+
         return builder.build(wc);
     }
 
@@ -682,8 +719,8 @@ public final class Workflowalizer {
         builder.setFeatureName(featureName);
 
         Optional<String> featureSymbolicName = parser.getFeatureSymbolicName(settingsXml)
-                // Remove extraneously added .feature.group
-                .map(s -> s.replaceAll("\\.feature\\.group$", ""));
+            // Remove extraneously added .feature.group
+            .map(s -> s.replaceAll("\\.feature\\.group$", ""));
         builder.setFeatureSymbolicName(featureSymbolicName);
 
         final Optional<String> featureVendor = parser.getFeatureVendor(settingsXml);
@@ -699,7 +736,8 @@ public final class Workflowalizer {
 
     private static void populateWorkflowFields(final WorkflowFields wf, final WorkflowalizerConfiguration wc,
         final WorkflowParser parser, final ConfigBase workflowKnime, final ConfigBase templateKnime, final String path,
-        final ZipFile zip, final String nodeId) throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
+        final ZipFile zip, final String nodeId)
+        throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
         final Version version = parser.getVersion(workflowKnime, templateKnime);
         wf.setVersion(version);
 
@@ -714,11 +752,11 @@ public final class Workflowalizer {
 
         final Optional<List<String>> annotations = parser.getAnnotations(workflowKnime);
         wf.setAnnotations(annotations);
-        if (wc.parseNodes()) {
+        if (wc.parseNodes() && wf.getNodes() == null) {
             final Map<Integer, NodeMetadata> nodes =
                 readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser, nodeId);
             wf.setNodes(new ArrayList<>(nodes.values()));
-            if (wc.parseConnections()) {
+            if (wc.parseConnections() && wf.getConnections() == null) {
                 final List<NodeConnection> connections = parser.getConnections(workflowKnime, nodes);
                 wf.setConnections(connections);
             }
@@ -769,7 +807,179 @@ public final class Workflowalizer {
         snf.setAnnotationText(annotationText);
     }
 
+    private static void populateComponentFields(final String path, final ZipFile zip,
+        final WorkflowParser parser, final ComponentMetadataBuilder builder, final WorkflowFields wf,
+        final WorkflowalizerConfiguration config) throws FileNotFoundException, IOException, InvalidSettingsException,
+        XPathExpressionException, ParserConfigurationException, SAXException {
+        // workflowset.meta
+        if (config.parseWorkflowMeta()) {
+            final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser);
+            builder.setWorkflowSetMeta(wsa);
+        }
+
+        // node.xml and settings.xml were combined into one file BEFORE SubNodes/Components existed
+        final MetadataConfig settingsXml = readFile(path, "settings.xml", zip);
+        final int inputId = parser.getVirtualInId(settingsXml);
+        final int outputId = parser.getVirtualOutId(settingsXml);
+
+        final List<ComponentDialogSection.Field> fields = new ArrayList<>();
+        final List<String> viewNodes = new ArrayList<>();
+        Optional<String> description = Optional.empty();
+        List<Optional<String>> inportNames = Collections.emptyList();
+        List<Optional<String>> inportDescriptions = Collections.emptyList();
+        List<Optional<String>> outportNames = Collections.emptyList();
+        List<Optional<String>> outportDescriptions = Collections.emptyList();
+
+        for (final NodeMetadata n : wf.getNodes()) {
+            if (n instanceof NativeNodeMetadata) {
+                final NativeNodeMetadata nn = (NativeNodeMetadata)n;
+                if (nn.getNodeConfiguration().isPresent()) {
+                    final ConfigBase nodeConfig = nn.getNodeConfiguration().get();
+                    if (n.getNodeId().equals(inputId + "")) {
+                        description = parser.getSharedComponentDescription(nodeConfig);
+                        inportNames = parser.getPortNames(nodeConfig);
+                        inportDescriptions = parser.getPortDescriptions(nodeConfig);
+                    } else if (n.getNodeId().equals(outputId + "")) {
+                        outportNames = parser.getPortNames(nodeConfig);
+                        outportDescriptions = parser.getPortDescriptions(nodeConfig);
+                    } else {
+                        if (parser.isDialogNode(nodeConfig)) {
+                            final Optional<String> fieldName = parser.getDialogFieldName(nodeConfig);
+                            final Optional<String> fieldDescription =
+                                parser.getDialogFieldDescription(nodeConfig);
+                            // does not appear as though component dialogs support optional fields
+                            fields.add(new ComponentDialogSection.Field(fieldName, fieldDescription, false));
+                        }
+                        if (parser.isInteractiveViewNode(nodeConfig)) {
+                            viewNodes.add(nn.getFactoryName());
+                        }
+                    }
+                }
+            } else if (n instanceof IWorkflowMetadata) {
+                populateViewNodes(((IWorkflowMetadata) n).getNodes(), viewNodes);
+            } else {
+                throw new IllegalArgumentException("Unrecognized node type: " + n.getType());
+            }
+        }
+        builder.setViewNodes(viewNodes);
+        builder.setDialog(
+            Collections.singletonList(new ComponentDialogSection(Optional.empty(), Optional.empty(), fields)));
+        builder.setDescription(description);
+
+        // ports
+        final List<ComponentPortInfo> ports = new ArrayList<>();
+        final List<NodeConnection> inputConnections =
+            wf.getConnections().stream().filter(c -> c.getSourceId().equals(inputId + "")).collect(Collectors.toList());
+        final List<Integer> readPorts = new ArrayList<>();
+        for (final NodeConnection inputConnection : inputConnections) {
+            if (!readPorts.contains(inputConnection.getSourcePort())) {
+                // An inport can connect to several nodes, but we only want to read ONE of these nodes
+                if (!inputConnection.getDestinationNode().isPresent()) {
+                    throw new IllegalArgumentException("Cannot determine port");
+                }
+                populatePort(inputConnection.getDestinationNode().get(), inputConnection.getDestinationPort(),
+                    inputConnection.getSourcePort(), ports, true, inportDescriptions, inportNames);
+                readPorts.add(inputConnection.getSourcePort());
+            }
+        }
+
+        final List<NodeConnection> outputConnections = wf.getConnections().stream()
+            .filter(c -> c.getDestinationId().equals(outputId + "")).collect(Collectors.toList());
+        for (final NodeConnection outputConnection : outputConnections) {
+            if (!readPorts.contains(outputConnection.getSourcePort())) {
+                // A single outport can only be connected to ONE inport, so no need to check duplicates
+                if (!outputConnection.getSourceNode().isPresent()) {
+                    throw new IllegalArgumentException("Cannot determine port");
+                }
+                populatePort(outputConnection.getSourceNode().get(), outputConnection.getSourcePort(),
+                    outputConnection.getDestinationPort(), ports, false, outportDescriptions, outportNames);
+            }
+        }
+    }
+
+    private static void populateViewNodes(final List<NodeMetadata> nodes, final List<String> viewNodes)
+        throws InvalidSettingsException, FileNotFoundException, IOException {
+        if (nodes.isEmpty()) {
+            return;
+        }
+
+        for (final NodeMetadata node : nodes) {
+            if (node instanceof NativeNodeMetadata) {
+                viewNodes.add(((NativeNodeMetadata)node).getFactoryName());
+            } else if (node instanceof IWorkflowMetadata) {
+                populateViewNodes(((IWorkflowMetadata)node).getNodes(), viewNodes);
+            } else {
+                throw new IllegalArgumentException("Unrecognized node type: " + node.getType());
+            }
+        }
+    }
+
+    private static void populatePort(final NodeMetadata node, final int nodePortIndex, final int componentPortIndex,
+        final List<ComponentPortInfo> ports, final boolean isInport, final List<Optional<String>> descriptions,
+        final List<Optional<String>> names) {
+        if (node.getType().equals(NodeType.NATIVE_NODE)) {
+            final NativeNodeMetadata nn = (NativeNodeMetadata)node;
+            final ComponentPortInfo p = new ComponentPortInfo(nn.getFactoryName(), isInport, componentPortIndex,
+                nodePortIndex, descriptions.get(componentPortIndex), names.get(componentPortIndex));
+            ports.add(p);
+        } else if (node.getType().equals(NodeType.METANODE)) {
+            final MetanodeMetadata mm = (MetanodeMetadata)node;
+            if (isInport) {
+                final Optional<NodeConnection> n = mm.getConnections().stream()
+                    .filter(c -> c.getSourceId().equals(-1 + "") && c.getSourcePort() == nodePortIndex).findFirst();
+                if (!n.isPresent() || !n.get().getDestinationNode().isPresent()) {
+                    throw new IllegalArgumentException("Cannot determine port");
+                }
+                populatePort(n.get().getDestinationNode().get(), n.get().getDestinationPort(), componentPortIndex,
+                    ports, isInport, descriptions, names);
+            } else {
+                final Optional<NodeConnection> n = mm.getConnections().stream()
+                    .filter(c -> c.getDestinationId().equals(-1 + "") && c.getDestinationPort() == nodePortIndex)
+                    .findFirst();
+                if (!n.isPresent() || !n.get().getSourceNode().isPresent()) {
+                    throw new IllegalArgumentException("Cannot determine port");
+                }
+                populatePort(n.get().getSourceNode().get(), n.get().getSourcePort(), componentPortIndex, ports,
+                    isInport, descriptions, names);
+            }
+        } else if (node.getType().equals(NodeType.SUBNODE)) {
+            final SubnodeMetadata sm = (SubnodeMetadata)node;
+            if (isInport) {
+                final Optional<NodeConnection> n = sm.getConnections().stream()
+                    .filter(c -> c.getSourceId().equals(sm.getInputId() + "") && c.getSourcePort() == nodePortIndex)
+                    .findFirst();
+                if (!n.isPresent() || !n.get().getDestinationNode().isPresent()) {
+                    throw new IllegalArgumentException("Cannot determine port");
+                }
+                populatePort(n.get().getDestinationNode().get(), n.get().getDestinationPort(), componentPortIndex,
+                    ports, isInport, descriptions, names);
+            } else {
+                final Optional<NodeConnection> n = sm.getConnections().stream().filter(
+                    c -> c.getDestinationId().equals(sm.getOutputId() + "") && c.getDestinationPort() == nodePortIndex)
+                    .findFirst();
+                if (!n.isPresent() || !n.get().getSourceNode().isPresent()) {
+                    throw new IllegalArgumentException("Cannot determine port");
+                }
+                populatePort(n.get().getSourceNode().get(), n.get().getSourcePort(), componentPortIndex, ports,
+                    isInport, descriptions, names);
+            }
+        } else {
+            throw new IllegalArgumentException("Unknown node type: " + node.getType());
+        }
+    }
+
     // -- File methods --
+
+    private static MetadataConfig readFile(final String currentDir, final String relativeFilePath, final ZipFile zip)
+        throws FileNotFoundException, IOException {
+        if (zip == null) {
+            return readFile(Paths.get(currentDir, relativeFilePath));
+        }
+        final String cd = currentDir.endsWith("/") ? currentDir : currentDir + "/";
+        final String rp = relativeFilePath.startsWith("/") ? relativeFilePath.substring(1, relativeFilePath.length())
+            : relativeFilePath;
+        return readFile(cd + rp, zip);
+    }
 
     private static MetadataConfig readFile(final Path f) throws FileNotFoundException, IOException {
         try (final InputStream s = Files.newInputStream(f)) {
