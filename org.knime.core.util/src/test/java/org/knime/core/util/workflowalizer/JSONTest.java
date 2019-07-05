@@ -125,7 +125,8 @@ public class JSONTest {
                     writer.write(json);
                     count++;
                 }
-            } catch (IOException | URISyntaxException | InvalidSettingsException | ParseException e) {
+            } catch (IOException | URISyntaxException | InvalidSettingsException | ParseException
+                    | XPathExpressionException | ParserConfigurationException | SAXException e) {
                 System.out.println("Error reading template: " + templateDir);
                 System.out.println(e);
                 e.printStackTrace();

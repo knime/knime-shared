@@ -56,6 +56,7 @@ import org.knime.core.node.config.base.ConfigBase;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -87,6 +88,12 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
     @JsonProperty("templateLink")
     private final Optional<String> m_template;
 
+    @JsonIgnore
+    private final int m_virtualInputId;
+
+    @JsonIgnore
+    private final int m_virtualOutputId;
+
     SubnodeMetadata(final SubnodeMetadataBuilder builder) {
         super(builder);
         m_nodeId = builder.getSingleNodeFields().getId();
@@ -95,6 +102,9 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
         m_annotationText = builder.getSingleNodeFields().getAnnotationText();
         m_customNodeDescription = builder.getSingleNodeFields().getCustomDescription();
         m_template = builder.getTemplateLink();
+        m_virtualInputId = builder.getInputId();
+        m_virtualOutputId = builder.getOutputId();
+
     }
 
     /**
@@ -112,6 +122,8 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
         m_annotationText = subnode.m_annotationText;
         m_customNodeDescription = subnode.m_customNodeDescription;
         m_template = subnode.m_template;
+        m_virtualInputId = subnode.m_virtualInputId;
+        m_virtualOutputId = subnode.m_virtualOutputId;
     }
 
     /**
@@ -162,6 +174,32 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
      */
     public Optional<String> getTemplateLink() {
         return m_template;
+    }
+
+    /**
+     * Returns the ID of the virtual input node.
+     *
+     * <p>
+     * This is intended for internal use only.
+     * </p>
+     *
+     * @return the ID
+     */
+    int getInputId() {
+        return m_virtualInputId;
+    }
+
+    /**
+     * Returns the ID of the virtual output node.
+     *
+     * <p>
+     * This is intended for internal use only.
+     * </p>
+     *
+     * @return the ID
+     */
+    int getOutputId() {
+        return m_virtualOutputId;
     }
 
     @Override

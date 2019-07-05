@@ -59,6 +59,8 @@ class SubnodeMetadataBuilder extends AbstractWorkflowBuilder<SubnodeMetadata> {
 
     private SingleNodeFields m_singleNodeFields;
     private Optional<String> m_templateLink;
+    private int m_inputId;
+    private int m_outputId;
 
     void setSingleNodeFields(final SingleNodeFields singleNodeFields) {
         m_singleNodeFields = singleNodeFields;
@@ -68,12 +70,28 @@ class SubnodeMetadataBuilder extends AbstractWorkflowBuilder<SubnodeMetadata> {
         m_templateLink = templateLink;
     }
 
+    void setInputId(final int inputId) {
+        m_inputId = inputId;
+    }
+
+    void setOutputId(final int outputId) {
+        m_outputId = outputId;
+    }
+
     SingleNodeFields getSingleNodeFields() {
         return m_singleNodeFields;
     }
 
     Optional<String> getTemplateLink() {
         return m_templateLink;
+    }
+
+    int getInputId() {
+        return m_inputId;
+    }
+
+    int getOutputId() {
+        return m_outputId;
     }
 
     /**
