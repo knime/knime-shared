@@ -64,6 +64,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.ConfigUtils;
@@ -408,6 +410,97 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     @Override
     public String getTemplateType(final ConfigBase config) throws InvalidSettingsException {
         return config.getConfigBase("workflow_template_information").getString("templateType");
+    }
+
+    // -- Shared Components --
+
+    @Override
+    public int getVirtualInId(final ConfigBase config) throws InvalidSettingsException {
+        return config.getInt("virtual-in-ID");
+    }
+
+    @Override
+    public int getVirtualOutId(final ConfigBase config) throws InvalidSettingsException {
+        return config.getInt("virtual-out-ID");
+    }
+
+    @Override
+    public Optional<String> getSharedComponentDescription(final ConfigBase config) throws InvalidSettingsException {
+        if (config.containsKey("sub-node-description")) {
+            final String desc = config.getString("sub-node-description");
+            return StringUtils.isEmpty(desc) ? Optional.empty() : Optional.of(desc);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean isDialogNode(final ConfigBase nodeConfiguration) {
+        return nodeConfiguration.containsKey("hideInDialog");
+    }
+
+    @Override
+    public boolean isInteractiveViewNode(final ConfigBase nodeConfiguration) {
+        return nodeConfiguration.containsKey("hideInWizard") || nodeConfiguration.containsKey("hide_in_wizard");
+    }
+
+    @Override
+    public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration) throws InvalidSettingsException {
+        if (nodeConfiguration.containsKey("port-names")) {
+            final String[] pns = nodeConfiguration.getStringArray("port-names");
+            if (ArrayUtils.isEmpty(pns)) {
+                return Collections.emptyList();
+            }
+            final List<Optional<String>> portNames = new ArrayList<>(pns.length);
+            for (int i = 0; i < pns.length; i++) {
+                if (StringUtils.isEmpty(pns[i])) {
+                    portNames.add(Optional.empty());
+                } else {
+                    portNames.add(Optional.of(pns[i]));
+                }
+            }
+            return portNames;
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration)
+        throws InvalidSettingsException {
+        if (nodeConfiguration.containsKey("port-descriptions")) {
+            final String[] pds = nodeConfiguration.getStringArray("port-descriptions");
+            if (ArrayUtils.isEmpty(pds)) {
+                return Collections.emptyList();
+            }
+            final List<Optional<String>> portDescriptions = new ArrayList<>(pds.length);
+            for (int i = 0; i < pds.length; i++) {
+                if (StringUtils.isEmpty(pds[i])) {
+                    portDescriptions.add(Optional.empty());
+                } else {
+                    portDescriptions.add(Optional.of(pds[i]));
+                }
+            }
+            return portDescriptions;
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<String> getDialogFieldName(final ConfigBase nodeConfiguration) throws InvalidSettingsException {
+        if (nodeConfiguration.containsKey("label")) {
+            final String name = nodeConfiguration.getString("label");
+            return StringUtils.isEmpty(name) ? Optional.empty() : Optional.of(name);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> getDialogFieldDescription(final ConfigBase nodeConfiguration)
+        throws InvalidSettingsException {
+        if (nodeConfiguration.containsKey("description")) {
+            final String desc = nodeConfiguration.getString("description");
+            return StringUtils.isEmpty(desc) ? Optional.empty() : Optional.of(desc);
+        }
+        return Optional.empty();
     }
 
     // -- Metanodes --

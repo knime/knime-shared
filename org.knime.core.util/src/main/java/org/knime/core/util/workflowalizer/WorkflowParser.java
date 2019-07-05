@@ -287,6 +287,98 @@ interface WorkflowParser {
      */
     String getTemplateType(final ConfigBase config) throws InvalidSettingsException;
 
+    // -- Shared Components --
+
+    /**
+     * Returns the ID of the virtual input node.
+     *
+     * @param config the {@link ConfigBase} the settings.xml was read into
+     * @return the ID
+     * @throws InvalidSettingsException
+     */
+    int getVirtualInId(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * Returns the ID of the virtual output node.
+     *
+     * @param config the {@link ConfigBase} the settings.xml was read into
+     * @return the ID
+     * @throws InvalidSettingsException
+     */
+    int getVirtualOutId(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * Returns the description for this shared component.
+     *
+     * @param config the {@link ConfigBase} the relevant XML was read into. Currently, this would be the settings.xml of
+     *            the component's virtual input node.
+     * @return the description
+     * @throws InvalidSettingsException
+     */
+    Optional<String> getSharedComponentDescription(final ConfigBase config) throws InvalidSettingsException;
+
+    /**
+     * Returns {@code true} if the node is a dialog, {@code false} otherwise.
+     *
+     * @param nodeConfiguration the {@link ConfigBase} the node's model configuration was read into
+     * @return if the node is a dialog node or not
+     * @throws InvalidSettingsException
+     */
+    boolean isDialogNode(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
+    /**
+     * Returns {@code true} if the node produces an interactive view, {@code false} otherwise.
+     *
+     * @param nodeConfiguration the {@link ConfigBase} the node's model configuration was read into
+     * @return if the node produces an interactive view or not
+     * @throws InvalidSettingsException
+     */
+    boolean isInteractiveViewNode(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
+    /**
+     * Returns the port names for a component. If these are the names of the inports or outports, depends on the
+     * {@code nodeConfiguration} passed in. If the virtual input node's model configuration was passed in, then the port
+     * names are for the inports.
+     *
+     * @param nodeConfiguration the {@link ConfigBase} the components virtual input/output node model configuration was
+     *            read into
+     * @return port names for the component
+     * @throws InvalidSettingsException
+     */
+    List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
+    /**
+     * Returns the port descriptions for a component. If these are the names of the inports or outports, depends on the
+     * {@code nodeConfiguration} passed in. If the virtual input node's model configuration was passed in, then the port
+     * description are for the inports.
+     *
+     * @param nodeConfiguration the {@link ConfigBase} the components virtual input/output node model configuration was
+     *            read into
+     * @return port descriptions for the component
+     * @throws InvalidSettingsException
+     */
+    List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
+    /**
+     * Returns the name of the dialog option which is provided by the dialog node whose node model configuration is
+     * provided.
+     *
+     * @param nodeConfiguration the {@link ConfigBase} the dialog node's model configuration was read into
+     * @return name of dialog option
+     * @throws InvalidSettingsException
+     */
+    Optional<String> getDialogFieldName(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
+    /**
+     * Returns the description of the dialog option which is provided by the dialog node whose node model configuration
+     * is provided.
+     *
+     * @param nodeConfiguration the {@link ConfigBase} the dialog node's model configuration was read into
+     * @return description of dialog option
+     * @throws InvalidSettingsException
+     */
+    Optional<String> getDialogFieldDescription(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
     // -- MetaNodes --
 
     /**
