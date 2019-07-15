@@ -72,6 +72,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -102,12 +103,16 @@ public class WorkflowalizerTest {
     private static Path m_nodeDir;
     private static Path m_templateDir;
     private static Path m_workflowGroupFile;
+    private static Path m_componentTemplateDir;
+
     private static List<String> m_readWorkflowLines;
     private static List<String> m_readNodeLines;
     private static List<String> m_readTemplateWorkflowKnime;
     private static List<String> m_readTemplateTemplateKnime;
     private static List<String> m_readWorkflowSetLines;
     private static List<String> m_readWorkflowGroupLines;
+    private static List<String> m_readComponentTemplateWorkflowKnime;
+    private static List<String> m_readComponentTemplateTemplateKnime;
 
     /** Exception for testing */
     @Rule
@@ -136,6 +141,14 @@ public class WorkflowalizerTest {
             Files.readAllLines(Paths.get(m_templateDir.toAbsolutePath().toString(), "workflow.knime"));
         m_readTemplateTemplateKnime =
             Files.readAllLines(Paths.get(m_templateDir.toAbsolutePath().toString(), "template.knime"));
+
+        m_componentTemplateDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-simple.zip")) {
+            unzip(is, m_componentTemplateDir.toFile());
+        }
+        m_componentTemplateDir = m_componentTemplateDir.resolve("Simple-Component");
+        m_readComponentTemplateWorkflowKnime = Files.readAllLines(m_componentTemplateDir.resolve("workflow.knime"));
+        m_readComponentTemplateTemplateKnime = Files.readAllLines(m_componentTemplateDir.resolve("template.knime"));
 
         final Path workflowSetMetaPath = m_workflowDir.resolve("workflowset.meta");
         m_readWorkflowSetLines = Files.readAllLines(workflowSetMetaPath);
@@ -1119,6 +1132,292 @@ public class WorkflowalizerTest {
         Workflowalizer.readTemplate(m_workflowDir);
     }
 
+    // -- Component Template --
+
+    /**
+     * Tests that the component template has the correct structure
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testComponentTemplateStructure() throws Exception {
+        final TemplateMetadata template = Workflowalizer.readTemplate(m_componentTemplateDir);
+        final Path t = Paths.get(m_componentTemplateDir.toAbsolutePath().toString(), "workflow.knime");
+        assertTrue(template instanceof ComponentMetadata);
+        testStructure(template, t);
+    }
+
+    /**
+     * Tests reading the "workflow" fields of the component template
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateWorkflowFields() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+
+        assertEquivalentAnnotations(readAnnotations(m_readComponentTemplateWorkflowKnime), tm.getAnnotations());
+        assertEquals(readAuthorInformation(m_readComponentTemplateWorkflowKnime), tm.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(m_readComponentTemplateWorkflowKnime), tm.getConnections());
+        assertEquals(readCreatedBy(m_readComponentTemplateTemplateKnime), tm.getCreatedBy());
+        assertEquals(readCustomDescription(m_readComponentTemplateWorkflowKnime), tm.getCustomDescription());
+        assertEquals("Simple-Component", tm.getName());
+
+        final List<Integer> nodeIds = readNodeIds(m_readComponentTemplateWorkflowKnime);
+        final List<NodeMetadata> nodes = tm.getNodes();
+        assertEquals(nodeIds.size(), nodes.size());
+        for (final NodeMetadata node : nodes) {
+            String id = node.getNodeId();
+            final int index = id.lastIndexOf(':');
+            if (index >= 0) {
+                id = id.substring(index + 1, id.length());
+            }
+            assertTrue(nodeIds.contains(Integer.parseInt(id)));
+        }
+        assertEquals(readTemplateInformation(m_readComponentTemplateTemplateKnime), tm.getTemplateInformation());
+        assertEquals(readVersion(m_readComponentTemplateTemplateKnime), tm.getVersion());
+        assertTrue(tm.getUnexpectedFileNames().isEmpty());
+    }
+
+    /**
+     * Tests reading a components ports.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplatePorts() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        final List<ComponentPortInfo> inports =
+            cm.getPorts().stream().filter(p -> p.getIsInport()).collect(Collectors.toList());
+        final List<ComponentPortInfo> outports =
+            cm.getPorts().stream().filter(p -> !p.getIsInport()).collect(Collectors.toList());
+
+        assertEquals(2, inports.size());
+        assertEquals(3, outports.size());
+
+        for (final ComponentPortInfo inport : inports) {
+            if (inport.getIndex() == 0) {
+                assertEquals("1st data table inport", inport.getDescription().orElse(""));
+                assertEquals("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory", inport.getFactoryName());
+                assertEquals("Inport 1", inport.getName().orElse(""));
+            } else {
+                assertEquals("2nd data table inport", inport.getDescription().orElse(""));
+                assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f", inport.getFactoryName());
+                assertEquals("Inport 2", inport.getName().orElse(""));
+            }
+            assertEquals(1, inport.getSourceIndex());
+        }
+
+        for (final ComponentPortInfo outport : outports) {
+            if (outport.getIndex() == 0) {
+                assertEquals("Variable outport.", outport.getDescription().orElse(""));
+                assertEquals("org.knime.js.base.node.configuration.input.bool.BooleanDialogNodeFactory",
+                    outport.getFactoryName());
+                assertEquals("Outport 1", outport.getName().orElse(""));
+            } else if (outport.getIndex() == 1) {
+                assertEquals("Data outport.", outport.getDescription().orElse(""));
+                assertEquals("org.knime.base.node.preproc.columnappend.ColumnAppenderNodeFactory",
+                    outport.getFactoryName());
+                assertEquals("Outport 2", outport.getName().orElse(""));
+            } else {
+                assertEquals("Image outport.", outport.getDescription().orElse(""));
+                assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f", outport.getFactoryName());
+                assertEquals("Outport 3", outport.getName().orElse(""));
+            }
+            assertEquals(1, outport.getSourceIndex());
+        }
+    }
+
+    /**
+     * Tests that all "view" (JS views, quickforms, widget, etc.) nodes were read.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateViewNodes() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        // 3 JS views, 1 widget, 1 legacy quickform
+        assertEquals(5, cm.getViewNodes().size());
+        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
+        assertTrue(
+            cm.getViewNodes().contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
+        assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:f822b045"));
+        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
+        assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f"));
+    }
+
+    /**
+     * Tests reading the component template's description.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateDescription() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        assertEquals("Simple component description.", cm.getDescription().orElse(""));
+    }
+
+    /**
+     * Tests reading the component template's dialog.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateDialog() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        // 1 configuration node, 1 quickform node
+        assertEquals(1, cm.getDialog().size());
+        assertEquals(2, cm.getDialog().get(0).getFields().size());
+        assertFalse(cm.getDialog().get(0).getSectionHeader().isPresent());
+        assertFalse(cm.getDialog().get(0).getSectionDescription().isPresent());
+        assertEquals("Legacy dialog name", cm.getDialog().get(0).getFields().get(0).getName().orElse(""));
+        assertEquals("Legacy dialog description", cm.getDialog().get(0).getFields().get(0).getDescription().orElse(""));
+        assertEquals("Dialog field name", cm.getDialog().get(0).getFields().get(1).getName().orElse(""));
+        assertEquals("Dialog field description", cm.getDialog().get(0).getFields().get(1).getDescription().orElse(""));
+    }
+
+    /**
+     * Tests reading a component template with nested elements (i.e. other components or metanodes).
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateNested() throws Exception {
+        Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-nested.zip")) {
+            unzip(is, componentPath.toFile());
+        }
+        componentPath = componentPath.resolve("Nested Component");
+
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        // Description
+        assertEquals("I like kitty cats", cm.getDescription().orElse(""));
+
+        // Ports
+        final List<ComponentPortInfo> inports =
+            cm.getPorts().stream().filter(p -> p.getIsInport()).collect(Collectors.toList());
+        final List<ComponentPortInfo> outports =
+            cm.getPorts().stream().filter(p -> !p.getIsInport()).collect(Collectors.toList());
+
+        assertEquals(2, inports.size());
+        assertEquals(2, outports.size());
+
+        for (final ComponentPortInfo inport : inports) {
+            if (inport.getIndex() == 0) {
+                assertEquals("IP1 desc", inport.getDescription().orElse(""));
+                assertEquals("org.knime.base.node.preproc.filter.column.DataColumnSpecFilterNodeFactory",
+                    inport.getFactoryName());
+                assertEquals("InPort 1", inport.getName().orElse(""));
+            } else {
+                assertEquals("IP2 desc", inport.getDescription().orElse(""));
+                assertEquals("org.knime.base.node.preproc.valcount.ValueCounterNodeFactory", inport.getFactoryName());
+                assertEquals("InPort 2", inport.getName().orElse(""));
+            }
+            assertEquals(1, inport.getSourceIndex());
+        }
+
+        for (final ComponentPortInfo outport : outports) {
+            if (outport.getIndex() == 0) {
+                assertEquals("OP1 desc", outport.getDescription().orElse(""));
+                assertEquals("org.knime.base.node.preproc.joiner.Joiner2NodeFactory", outport.getFactoryName());
+                assertEquals("OutPort 1", outport.getName().orElse(""));
+                assertEquals(1, outport.getSourceIndex());
+            } else {
+                assertEquals("OP2 desc", outport.getDescription().orElse(""));
+                assertEquals("org.knime.base.node.preproc.valcount.ValueCounterNodeFactory", outport.getFactoryName());
+                assertEquals("OutPort 2", outport.getName().orElse(""));
+                assertEquals(0, outport.getSourceIndex());
+            }
+        }
+
+        // Dialog - "top-level" dialog elements only
+        assertEquals(1, cm.getDialog().size());
+        assertEquals(1, cm.getDialog().get(0).getFields().size());
+        assertEquals("Field Name", cm.getDialog().get(0).getFields().get(0).getName().orElse(""));
+        assertEquals("Field Description", cm.getDialog().get(0).getFields().get(0).getDescription().orElse(""));
+
+        // Views - including all nested views
+        assertEquals(2, cm.getViewNodes().size());
+        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
+        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory"));
+    }
+
+    /**
+     * Tests reading a component template which has no ports.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateNoPorts() throws Exception {
+        Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-no-ports.zip")) {
+            unzip(is, componentPath.toFile());
+        }
+        componentPath = componentPath.resolve("No Connections");
+
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        // Description
+        assertFalse(cm.getDescription().isPresent());
+
+        // Ports
+        assertTrue(cm.getPorts().isEmpty());
+
+        // Dialog - "top-level" dialog elements only
+        assertTrue(cm.getDialog().isEmpty());
+
+        // Views - including all nested views
+        assertTrue(cm.getViewNodes().isEmpty());
+    }
+
+    /**
+     * Tests reading a component template whose ports are not all connected.
+     *
+     * @throws Exception
+     * @since 5.11
+     */
+    @Test
+    public void testReadingComponentTemplateMissingConnections() throws Exception {
+        Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (final InputStream is =
+            WorkflowalizerTest.class.getResourceAsStream("/component-template-missing-connection.zip")) {
+            unzip(is, componentPath.toFile());
+        }
+        componentPath = componentPath.resolve("Missing Connection");
+
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        // TODO - should be three but can only read two
+    }
+
     // -- Workflow group --
 
     /**
@@ -1391,6 +1690,9 @@ public class WorkflowalizerTest {
             lastEdited = df.parse(lastEditedString);
         }
 
+        if (author == null || authoredString == null) {
+            return AuthorInformation.UNKNOWN;
+        }
         return new AuthorInformation(author, df.parse(authoredString), Optional.ofNullable(lastEditor),
             Optional.ofNullable(lastEdited));
     }

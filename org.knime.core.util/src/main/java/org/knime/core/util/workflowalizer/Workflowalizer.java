@@ -807,10 +807,10 @@ public final class Workflowalizer {
         snf.setAnnotationText(annotationText);
     }
 
-    private static void populateComponentFields(final String path, final ZipFile zip,
-        final WorkflowParser parser, final ComponentMetadataBuilder builder, final WorkflowFields wf,
-        final WorkflowalizerConfiguration config) throws FileNotFoundException, IOException, InvalidSettingsException,
-        XPathExpressionException, ParserConfigurationException, SAXException {
+    private static void populateComponentFields(final String path, final ZipFile zip, final WorkflowParser parser,
+        final ComponentMetadataBuilder builder, final WorkflowFields wf, final WorkflowalizerConfiguration config)
+        throws FileNotFoundException, IOException, InvalidSettingsException, XPathExpressionException,
+        ParserConfigurationException, SAXException {
         // workflowset.meta
         if (config.parseWorkflowMeta()) {
             final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser);
@@ -845,8 +845,7 @@ public final class Workflowalizer {
                     } else {
                         if (parser.isDialogNode(nodeConfig)) {
                             final Optional<String> fieldName = parser.getDialogFieldName(nodeConfig);
-                            final Optional<String> fieldDescription =
-                                parser.getDialogFieldDescription(nodeConfig);
+                            final Optional<String> fieldDescription = parser.getDialogFieldDescription(nodeConfig);
                             // does not appear as though component dialogs support optional fields
                             fields.add(new ComponentDialogSection.Field(fieldName, fieldDescription, false));
                         }
@@ -856,7 +855,7 @@ public final class Workflowalizer {
                     }
                 }
             } else if (n instanceof IWorkflowMetadata) {
-                populateViewNodes(((IWorkflowMetadata) n).getNodes(), viewNodes);
+                populateViewNodes(((IWorkflowMetadata)n).getNodes(), viewNodes, parser);
             } else {
                 throw new IllegalArgumentException("Unrecognized node type: " + n.getType());
             }
@@ -886,28 +885,31 @@ public final class Workflowalizer {
         final List<NodeConnection> outputConnections = wf.getConnections().stream()
             .filter(c -> c.getDestinationId().equals(outputId + "")).collect(Collectors.toList());
         for (final NodeConnection outputConnection : outputConnections) {
-            if (!readPorts.contains(outputConnection.getSourcePort())) {
-                // A single outport can only be connected to ONE inport, so no need to check duplicates
-                if (!outputConnection.getSourceNode().isPresent()) {
-                    throw new IllegalArgumentException("Cannot determine port");
-                }
-                populatePort(outputConnection.getSourceNode().get(), outputConnection.getSourcePort(),
-                    outputConnection.getDestinationPort(), ports, false, outportDescriptions, outportNames);
+            // A single outport can only be connected to ONE inport, so no need to check duplicates
+            if (!outputConnection.getSourceNode().isPresent()) {
+                throw new IllegalArgumentException("Cannot determine port");
             }
+            populatePort(outputConnection.getSourceNode().get(), outputConnection.getSourcePort(),
+                outputConnection.getDestinationPort(), ports, false, outportDescriptions, outportNames);
         }
+        builder.setPorts(ports);
     }
 
-    private static void populateViewNodes(final List<NodeMetadata> nodes, final List<String> viewNodes)
-        throws InvalidSettingsException, FileNotFoundException, IOException {
+    private static void populateViewNodes(final List<NodeMetadata> nodes, final List<String> viewNodes,
+        final WorkflowParser parser) throws InvalidSettingsException, FileNotFoundException, IOException {
         if (nodes.isEmpty()) {
             return;
         }
 
         for (final NodeMetadata node : nodes) {
             if (node instanceof NativeNodeMetadata) {
-                viewNodes.add(((NativeNodeMetadata)node).getFactoryName());
+                final NativeNodeMetadata nn = (NativeNodeMetadata)node;
+                if (nn.getNodeConfiguration().isPresent()
+                    && parser.isInteractiveViewNode(nn.getNodeConfiguration().get())) {
+                    viewNodes.add(nn.getFactoryName());
+                }
             } else if (node instanceof IWorkflowMetadata) {
-                populateViewNodes(((IWorkflowMetadata)node).getNodes(), viewNodes);
+                populateViewNodes(((IWorkflowMetadata)node).getNodes(), viewNodes, parser);
             } else {
                 throw new IllegalArgumentException("Unrecognized node type: " + node.getType());
             }
@@ -919,8 +921,8 @@ public final class Workflowalizer {
         final List<Optional<String>> names) {
         if (node.getType().equals(NodeType.NATIVE_NODE)) {
             final NativeNodeMetadata nn = (NativeNodeMetadata)node;
-            final ComponentPortInfo p = new ComponentPortInfo(nn.getFactoryName(), isInport, componentPortIndex,
-                nodePortIndex, descriptions.get(componentPortIndex), names.get(componentPortIndex));
+            final ComponentPortInfo p = new ComponentPortInfo(nn.getFactoryName(), isInport, componentPortIndex - 1,
+                nodePortIndex, descriptions.get(componentPortIndex - 1), names.get(componentPortIndex - 1));
             ports.add(p);
         } else if (node.getType().equals(NodeType.METANODE)) {
             final MetanodeMetadata mm = (MetanodeMetadata)node;
@@ -946,7 +948,8 @@ public final class Workflowalizer {
             final SubnodeMetadata sm = (SubnodeMetadata)node;
             if (isInport) {
                 final Optional<NodeConnection> n = sm.getConnections().stream()
-                    .filter(c -> c.getSourceId().equals(sm.getInputId() + "") && c.getSourcePort() == nodePortIndex)
+                    .filter(c -> c.getSourceId().equals(sm.getNodeId() + ":" + sm.getInputId())
+                        && c.getSourcePort() == nodePortIndex)
                     .findFirst();
                 if (!n.isPresent() || !n.get().getDestinationNode().isPresent()) {
                     throw new IllegalArgumentException("Cannot determine port");
@@ -954,8 +957,9 @@ public final class Workflowalizer {
                 populatePort(n.get().getDestinationNode().get(), n.get().getDestinationPort(), componentPortIndex,
                     ports, isInport, descriptions, names);
             } else {
-                final Optional<NodeConnection> n = sm.getConnections().stream().filter(
-                    c -> c.getDestinationId().equals(sm.getOutputId() + "") && c.getDestinationPort() == nodePortIndex)
+                final Optional<NodeConnection> n = sm.getConnections().stream()
+                    .filter(c -> c.getDestinationId().equals(sm.getNodeId() + ":" + sm.getOutputId())
+                        && c.getDestinationPort() == nodePortIndex)
                     .findFirst();
                 if (!n.isPresent() || !n.get().getSourceNode().isPresent()) {
                     throw new IllegalArgumentException("Cannot determine port");

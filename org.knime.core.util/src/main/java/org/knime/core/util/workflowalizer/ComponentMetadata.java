@@ -101,7 +101,7 @@ public final class ComponentMetadata extends TemplateMetadata {
         m_description = d;
 
         final List<ComponentDialogSection> sections = new ArrayList<>(builder.getDialog().size());
-        for (final ComponentDialogSection section : sections) {
+        for (final ComponentDialogSection section : builder.getDialog()) {
             if (!section.isEmpty()) {
                 sections.add(section);
             }
