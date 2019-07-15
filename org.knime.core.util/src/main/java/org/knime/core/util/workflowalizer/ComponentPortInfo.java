@@ -64,69 +64,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
     setterVisibility = Visibility.NONE)
 public final class ComponentPortInfo {
 
-    @JsonProperty("factoryName")
-    private final String m_factoryName;
-
-    @JsonProperty("inport")
-    private final boolean m_isInport;
-
-    @JsonProperty("index")
-    private final int m_index;
-
-    @JsonProperty("sourceIndex")
-    private final int m_sourceIndex;
-
     @JsonProperty("description")
     private final Optional<String> m_description;
 
     @JsonProperty("name")
     private final Optional<String> m_name;
 
-    ComponentPortInfo(final String factoryName, final boolean isInport, final int index, final int sourceIndex,
-        final Optional<String> description, final Optional<String> name) {
-        m_factoryName = factoryName;
-        m_isInport = isInport;
-        m_index = index;
-        m_sourceIndex = sourceIndex;
+    @JsonProperty("objectClass")
+    private final String m_objectClass;
+
+    ComponentPortInfo(final Optional<String> description, final Optional<String> name, final String objectClass) {
         m_description = description;
         m_name = name;
-    }
-
-    /**
-     * Returns the "factory name" of the node this port belongs to. The factory name is in the form
-     * node_factory_class:factory_settings_hash.
-     *
-     * @return the factory name of the node this port belongs to
-     */
-    public String getFactoryName() {
-        return m_factoryName;
-    }
-
-    /**
-     * Returns {@code true} if this port is an inport to the component, otherwise {@code false}.
-     *
-     * @return {@code true} if the port is an inport
-     */
-    public boolean getIsInport() {
-        return m_isInport;
-    }
-
-    /**
-     * Returns the index of this port on the component.
-     *
-     * @return the index of this port on the component
-     */
-    public int getIndex() {
-        return m_index;
-    }
-
-    /**
-     * Returns the index of this port for the node this port belongs to, not the component.
-     *
-     * @return the index of this port
-     */
-    public int getSourceIndex() {
-        return m_sourceIndex;
+        m_objectClass = objectClass;
     }
 
     /**
@@ -147,10 +97,18 @@ public final class ComponentPortInfo {
         return m_name;
     }
 
+    /**
+     * Returns the object type this port accepts.
+     *
+     * @return the object class
+     */
+    public String getObjectClass() {
+        return m_objectClass;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder("factoryName: " + m_factoryName + ", isInport: " + m_isInport
-            + ", index: " + m_index + ", sourceIndex: " + m_sourceIndex);
+        final StringBuilder builder = new StringBuilder("objectClass: " + m_objectClass);
         if (m_description.isPresent()) {
             builder.append(", description: " + m_description.get());
         }

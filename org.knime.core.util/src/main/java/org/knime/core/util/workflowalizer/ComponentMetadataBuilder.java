@@ -61,7 +61,8 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
 
     private Optional<String> m_description;
     private List<String> m_viewNodes;
-    private List<ComponentPortInfo> m_ports;
+    private List<ComponentPortInfo> m_inPorts;
+    private List<ComponentPortInfo> m_outPorts;
     private List<ComponentDialogSection> m_dialog;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
 
@@ -73,8 +74,12 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         m_viewNodes = viewNodes;
     }
 
-    void setPorts(final List<ComponentPortInfo> ports) {
-        m_ports = ports;
+    void setInPorts(final List<ComponentPortInfo> inPorts) {
+        m_inPorts = inPorts;
+    }
+
+    void setOutPorts(final List<ComponentPortInfo> outPorts) {
+        m_outPorts = outPorts;
     }
 
     void setDialog(final List<ComponentDialogSection> dialog) {
@@ -93,8 +98,12 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         return m_viewNodes;
     }
 
-    List<ComponentPortInfo> getPorts() {
-        return m_ports;
+    List<ComponentPortInfo> getInPorts() {
+        return m_inPorts;
+    }
+
+    List<ComponentPortInfo> getOutPorts() {
+        return m_outPorts;
     }
 
     List<ComponentDialogSection> getDialog() {
@@ -120,7 +129,8 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         checkPopulated(getType(), "template type");
         checkPopulated(m_description, "description");
         checkPopulated(m_viewNodes, "view nodes");
-        checkPopulated(m_ports, "ports");
+        checkPopulated(m_inPorts, "inPorts");
+        checkPopulated(m_outPorts, "outPorts");
         checkPopulated(m_dialog, "dialog");
         checkPopulated(m_workflowSetMeta, "workflow set meta");
         return new ComponentMetadata(this);
