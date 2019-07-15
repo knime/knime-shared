@@ -412,20 +412,29 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return config.getConfigBase("workflow_template_information").getString("templateType");
     }
 
-    // -- Shared Components --
+    // -- Component Templates --
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getVirtualInId(final ConfigBase config) throws InvalidSettingsException {
         return config.getInt("virtual-in-ID");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getVirtualOutId(final ConfigBase config) throws InvalidSettingsException {
         return config.getInt("virtual-out-ID");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Optional<String> getSharedComponentDescription(final ConfigBase config) throws InvalidSettingsException {
+    public Optional<String> getComponentTemplateDescription(final ConfigBase config) throws InvalidSettingsException {
         if (config.containsKey("sub-node-description")) {
             final String desc = config.getString("sub-node-description");
             return StringUtils.isEmpty(desc) ? Optional.empty() : Optional.of(desc);
@@ -433,16 +442,25 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return Optional.empty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isDialogNode(final ConfigBase nodeConfiguration) {
         return nodeConfiguration.containsKey("hideInDialog");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isInteractiveViewNode(final ConfigBase nodeConfiguration) {
         return nodeConfiguration.containsKey("hideInWizard") || nodeConfiguration.containsKey("hide_in_wizard");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration) throws InvalidSettingsException {
         if (nodeConfiguration.containsKey("port-names")) {
@@ -463,6 +481,9 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return Collections.emptyList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration)
         throws InvalidSettingsException {
@@ -484,6 +505,47 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return Collections.emptyList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getInPortObjects(final ConfigBase settingsXml) throws InvalidSettingsException {
+        if (settingsXml.containsKey("inports")) {
+            final ConfigBase inports = settingsXml.getConfigBase("inports");
+            final List<String> objectTypes = new ArrayList<>();
+            for (final String key : inports.keySet()) {
+                final ConfigBase inport = inports.getConfigBase(key);
+                final int index = inport.getInt("index");
+                final String objectType = inport.getConfigBase("type").getString("object_class");
+                objectTypes.add(index, objectType);
+            }
+            return objectTypes;
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getOutPortObjects(final ConfigBase settingsXml) throws InvalidSettingsException {
+        if (settingsXml.containsKey("outports")) {
+            final ConfigBase outports = settingsXml.getConfigBase("outports");
+            final List<String> objectTypes = new ArrayList<>();
+            for (final String key : outports.keySet()) {
+                final ConfigBase outport = outports.getConfigBase(key);
+                final int index = outport.getInt("index");
+                final String objectType = outport.getConfigBase("type").getString("object_class");
+                objectTypes.add(index, objectType);
+            }
+            return objectTypes;
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<String> getDialogFieldName(final ConfigBase nodeConfiguration) throws InvalidSettingsException {
         if (nodeConfiguration.containsKey("label")) {
@@ -493,6 +555,9 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return Optional.empty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<String> getDialogFieldDescription(final ConfigBase nodeConfiguration)
         throws InvalidSettingsException {

@@ -287,7 +287,7 @@ interface WorkflowParser {
      */
     String getTemplateType(final ConfigBase config) throws InvalidSettingsException;
 
-    // -- Shared Components --
+    // -- Component Template --
 
     /**
      * Returns the ID of the virtual input node.
@@ -315,7 +315,7 @@ interface WorkflowParser {
      * @return the description
      * @throws InvalidSettingsException
      */
-    Optional<String> getSharedComponentDescription(final ConfigBase config) throws InvalidSettingsException;
+    Optional<String> getComponentTemplateDescription(final ConfigBase config) throws InvalidSettingsException;
 
     /**
      * Returns {@code true} if the node is a dialog, {@code false} otherwise.
@@ -358,6 +358,26 @@ interface WorkflowParser {
      * @throws InvalidSettingsException
      */
     List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+
+    /**
+     * Returns a list of the inport object types, where the indices of the list correspond to the indices of the
+     * inports.
+     *
+     * @param settingsXml the {@link ConfigBase} the component template's settings.xml was read into
+     * @return inport object types
+     * @throws InvalidSettingsException
+     */
+    List<String> getInPortObjects(final ConfigBase settingsXml) throws InvalidSettingsException;
+
+    /**
+     * Returns a list of the outport object types, where the indices of the list correspond to the indices of the
+     * outports.
+     *
+     * @param settingsXml the {@link ConfigBase} the component template's settings.xml was read into
+     * @return outport object types
+     * @throws InvalidSettingsException
+     */
+    List<String> getOutPortObjects(final ConfigBase settingsXml) throws InvalidSettingsException;
 
     /**
      * Returns the name of the dialog option which is provided by the dialog node whose node model configuration is

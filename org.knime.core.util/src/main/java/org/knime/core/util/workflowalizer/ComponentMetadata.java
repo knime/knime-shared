@@ -73,8 +73,11 @@ public final class ComponentMetadata extends TemplateMetadata {
     @JsonProperty("viewNodes")
     private final List<String> m_viewNodes;
 
-    @JsonProperty("ports")
-    private final List<ComponentPortInfo> m_ports;
+    @JsonProperty("inPorts")
+    private final List<ComponentPortInfo> m_inPorts;
+
+    @JsonProperty("outPorts")
+    private final List<ComponentPortInfo> m_outPorts;
 
     @JsonProperty("dialog")
     private final List<ComponentDialogSection> m_dialog;
@@ -91,7 +94,8 @@ public final class ComponentMetadata extends TemplateMetadata {
     ComponentMetadata(final ComponentMetadataBuilder builder) {
         super(builder);
         m_viewNodes = builder.getViewNodes();
-        m_ports = builder.getPorts();
+        m_inPorts = builder.getInPorts();
+        m_outPorts = builder.getOutPorts();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
 
         Optional<String> d = builder.getDescription();
@@ -120,7 +124,8 @@ public final class ComponentMetadata extends TemplateMetadata {
         super(component, excludedFactories);
         m_description = component.m_description;
         m_viewNodes = component.m_viewNodes;
-        m_ports = component.m_ports;
+        m_inPorts = component.m_inPorts;
+        m_outPorts = component.m_outPorts;
         m_dialog = component.m_dialog;
         m_workflowSetMeta = component.m_workflowSetMeta;
     }
@@ -144,12 +149,23 @@ public final class ComponentMetadata extends TemplateMetadata {
     }
 
     /**
-     * Returns the in/out ports for this component.
+     * Returns a list containing the inports for this component, where the indices of the list map to the indices of the
+     * ports.
      *
-     * @return the ports
+     * @return the inports
      */
-    public List<ComponentPortInfo> getPorts() {
-        return m_ports;
+    public List<ComponentPortInfo> getInPorts() {
+        return m_inPorts;
+    }
+
+    /**
+     * Returns a list containing the outports for this component, where the indices of the list map to the indices of
+     * the ports.
+     *
+     * @return the outports
+     */
+    public List<ComponentPortInfo> getOutPorts() {
+        return m_outPorts;
     }
 
     /**
@@ -180,9 +196,17 @@ public final class ComponentMetadata extends TemplateMetadata {
         if (!m_viewNodes.isEmpty()) {
             builder.append(String.join(", ", m_viewNodes));
         }
-        builder.append("], ports: [ ");
-        if (!m_ports.isEmpty()) {
-            for (final ComponentPortInfo port : m_ports) {
+        builder.append("], inPorts: [ ");
+        if (!m_inPorts.isEmpty()) {
+            for (final ComponentPortInfo port : m_inPorts) {
+                builder.append("{" + port.toString() + "}, ");
+            }
+            // remove unnecessary final comma and space
+            builder.delete(builder.length() - 2, builder.length());
+        }
+        builder.append("], outPorts: [ ");
+        if (!m_outPorts.isEmpty()) {
+            for (final ComponentPortInfo port : m_outPorts) {
                 builder.append("{" + port.toString() + "}, ");
             }
             // remove unnecessary final comma and space

@@ -72,7 +72,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -1194,45 +1193,32 @@ public class WorkflowalizerTest {
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
-        final List<ComponentPortInfo> inports =
-            cm.getPorts().stream().filter(p -> p.getIsInport()).collect(Collectors.toList());
-        final List<ComponentPortInfo> outports =
-            cm.getPorts().stream().filter(p -> !p.getIsInport()).collect(Collectors.toList());
-
+        // inports
+        final List<ComponentPortInfo> inports = cm.getInPorts();
         assertEquals(2, inports.size());
+
+        assertEquals("1st data table inport", inports.get(0).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(0).getObjectClass());
+        assertEquals("Inport 1", inports.get(0).getName().orElse(""));
+
+        assertEquals("2nd data table inport", inports.get(1).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(1).getObjectClass());
+        assertEquals("Inport 2", inports.get(1).getName().orElse(""));
+
+        // outports
+        final List<ComponentPortInfo> outports = cm.getOutPorts();
         assertEquals(3, outports.size());
+        assertEquals("Variable outport.", outports.get(0).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.port.flowvariable.FlowVariablePortObject", outports.get(0).getObjectClass());
+        assertEquals("Outport 1", outports.get(0).getName().orElse(""));
 
-        for (final ComponentPortInfo inport : inports) {
-            if (inport.getIndex() == 0) {
-                assertEquals("1st data table inport", inport.getDescription().orElse(""));
-                assertEquals("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory", inport.getFactoryName());
-                assertEquals("Inport 1", inport.getName().orElse(""));
-            } else {
-                assertEquals("2nd data table inport", inport.getDescription().orElse(""));
-                assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f", inport.getFactoryName());
-                assertEquals("Inport 2", inport.getName().orElse(""));
-            }
-            assertEquals(1, inport.getSourceIndex());
-        }
+        assertEquals("Data outport.", outports.get(1).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", outports.get(1).getObjectClass());
+        assertEquals("Outport 2", outports.get(1).getName().orElse(""));
 
-        for (final ComponentPortInfo outport : outports) {
-            if (outport.getIndex() == 0) {
-                assertEquals("Variable outport.", outport.getDescription().orElse(""));
-                assertEquals("org.knime.js.base.node.configuration.input.bool.BooleanDialogNodeFactory",
-                    outport.getFactoryName());
-                assertEquals("Outport 1", outport.getName().orElse(""));
-            } else if (outport.getIndex() == 1) {
-                assertEquals("Data outport.", outport.getDescription().orElse(""));
-                assertEquals("org.knime.base.node.preproc.columnappend.ColumnAppenderNodeFactory",
-                    outport.getFactoryName());
-                assertEquals("Outport 2", outport.getName().orElse(""));
-            } else {
-                assertEquals("Image outport.", outport.getDescription().orElse(""));
-                assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f", outport.getFactoryName());
-                assertEquals("Outport 3", outport.getName().orElse(""));
-            }
-            assertEquals(1, outport.getSourceIndex());
-        }
+        assertEquals("Image outport.", outports.get(2).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.port.image.ImagePortObject", outports.get(2).getObjectClass());
+        assertEquals("Outport 3", outports.get(2).getName().orElse(""));
     }
 
     /**
@@ -1316,42 +1302,29 @@ public class WorkflowalizerTest {
         // Description
         assertEquals("I like kitty cats", cm.getDescription().orElse(""));
 
-        // Ports
-        final List<ComponentPortInfo> inports =
-            cm.getPorts().stream().filter(p -> p.getIsInport()).collect(Collectors.toList());
-        final List<ComponentPortInfo> outports =
-            cm.getPorts().stream().filter(p -> !p.getIsInport()).collect(Collectors.toList());
-
+        // InPorts
+        final List<ComponentPortInfo> inports = cm.getInPorts();
         assertEquals(2, inports.size());
+
+        assertEquals("IP1 desc", inports.get(0).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(0).getObjectClass());
+        assertEquals("InPort 1", inports.get(0).getName().orElse(""));
+
+        assertEquals("IP2 desc", inports.get(1).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(1).getObjectClass());
+        assertEquals("InPort 2", inports.get(1).getName().orElse(""));
+
+        // OutPorts
+        final List<ComponentPortInfo> outports = cm.getOutPorts();
         assertEquals(2, outports.size());
 
-        for (final ComponentPortInfo inport : inports) {
-            if (inport.getIndex() == 0) {
-                assertEquals("IP1 desc", inport.getDescription().orElse(""));
-                assertEquals("org.knime.base.node.preproc.filter.column.DataColumnSpecFilterNodeFactory",
-                    inport.getFactoryName());
-                assertEquals("InPort 1", inport.getName().orElse(""));
-            } else {
-                assertEquals("IP2 desc", inport.getDescription().orElse(""));
-                assertEquals("org.knime.base.node.preproc.valcount.ValueCounterNodeFactory", inport.getFactoryName());
-                assertEquals("InPort 2", inport.getName().orElse(""));
-            }
-            assertEquals(1, inport.getSourceIndex());
-        }
+        assertEquals("OP1 desc", outports.get(0).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", outports.get(0).getObjectClass());
+        assertEquals("OutPort 1", outports.get(0).getName().orElse(""));
 
-        for (final ComponentPortInfo outport : outports) {
-            if (outport.getIndex() == 0) {
-                assertEquals("OP1 desc", outport.getDescription().orElse(""));
-                assertEquals("org.knime.base.node.preproc.joiner.Joiner2NodeFactory", outport.getFactoryName());
-                assertEquals("OutPort 1", outport.getName().orElse(""));
-                assertEquals(1, outport.getSourceIndex());
-            } else {
-                assertEquals("OP2 desc", outport.getDescription().orElse(""));
-                assertEquals("org.knime.base.node.preproc.valcount.ValueCounterNodeFactory", outport.getFactoryName());
-                assertEquals("OutPort 2", outport.getName().orElse(""));
-                assertEquals(0, outport.getSourceIndex());
-            }
-        }
+        assertEquals("OP2 desc", outports.get(1).getDescription().orElse(""));
+        assertEquals("org.knime.core.node.port.flowvariable.FlowVariablePortObject", outports.get(1).getObjectClass());
+        assertEquals("OutPort 2", outports.get(1).getName().orElse(""));
 
         // Dialog - "top-level" dialog elements only
         assertEquals(1, cm.getDialog().size());
@@ -1387,7 +1360,8 @@ public class WorkflowalizerTest {
         assertFalse(cm.getDescription().isPresent());
 
         // Ports
-        assertTrue(cm.getPorts().isEmpty());
+        assertTrue(cm.getInPorts().isEmpty());
+        assertTrue(cm.getOutPorts().isEmpty());
 
         // Dialog - "top-level" dialog elements only
         assertTrue(cm.getDialog().isEmpty());
@@ -1415,7 +1389,35 @@ public class WorkflowalizerTest {
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
-        // TODO - should be three but can only read two
+        // Description
+        assertFalse(cm.getDescription().isPresent());
+
+        // InPorts
+        final List<ComponentPortInfo> inports = cm.getInPorts();
+        assertEquals(2, inports.size());
+
+        assertFalse(inports.get(0).getDescription().isPresent());
+        assertEquals("Port 1", inports.get(0).getName().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(0).getObjectClass());
+
+        assertFalse(inports.get(1).getDescription().isPresent());
+        assertEquals("Port 2", inports.get(1).getName().orElse(""));
+        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(1).getObjectClass());
+
+        // OutPorts
+        final List<ComponentPortInfo> outports = cm.getOutPorts();
+        assertEquals(1, outports.size());
+
+        assertFalse(outports.get(0).getDescription().isPresent());
+        assertEquals("Port 1", outports.get(0).getName().orElse(""));
+        assertEquals("org.knime.core.node.port.image.ImagePortObject", outports.get(0).getObjectClass());
+
+        // Dialog - "top-level" dialog elements only
+        assertTrue(cm.getDialog().isEmpty());
+
+        // Views - including all nested views
+        assertEquals(1, cm.getViewNodes().size());
+        assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1d2c1a0e", cm.getViewNodes().get(0));
     }
 
     // -- Workflow group --

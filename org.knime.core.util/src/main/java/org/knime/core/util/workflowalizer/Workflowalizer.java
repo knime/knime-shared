@@ -72,7 +72,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -836,7 +835,7 @@ public final class Workflowalizer {
                 if (nn.getNodeConfiguration().isPresent()) {
                     final ConfigBase nodeConfig = nn.getNodeConfiguration().get();
                     if (n.getNodeId().equals(inputId + "")) {
-                        description = parser.getSharedComponentDescription(nodeConfig);
+                        description = parser.getComponentTemplateDescription(nodeConfig);
                         inportNames = parser.getPortNames(nodeConfig);
                         inportDescriptions = parser.getPortDescriptions(nodeConfig);
                     } else if (n.getNodeId().equals(outputId + "")) {
@@ -866,33 +865,19 @@ public final class Workflowalizer {
         builder.setDescription(description);
 
         // ports
-        final List<ComponentPortInfo> ports = new ArrayList<>();
-        final List<NodeConnection> inputConnections =
-            wf.getConnections().stream().filter(c -> c.getSourceId().equals(inputId + "")).collect(Collectors.toList());
-        final List<Integer> readPorts = new ArrayList<>();
-        for (final NodeConnection inputConnection : inputConnections) {
-            if (!readPorts.contains(inputConnection.getSourcePort())) {
-                // An inport can connect to several nodes, but we only want to read ONE of these nodes
-                if (!inputConnection.getDestinationNode().isPresent()) {
-                    throw new IllegalArgumentException("Cannot determine port");
-                }
-                populatePort(inputConnection.getDestinationNode().get(), inputConnection.getDestinationPort(),
-                    inputConnection.getSourcePort(), ports, true, inportDescriptions, inportNames);
-                readPorts.add(inputConnection.getSourcePort());
-            }
+        final List<String> inportObjects = parser.getInPortObjects(settingsXml);
+        final List<ComponentPortInfo> inports = new ArrayList<>(inportObjects.size());
+        for (int i = 0; i < inportObjects.size(); i++) {
+            inports.add(new ComponentPortInfo(inportDescriptions.get(i), inportNames.get(i), inportObjects.get(i)));
         }
+        builder.setInPorts(inports);
 
-        final List<NodeConnection> outputConnections = wf.getConnections().stream()
-            .filter(c -> c.getDestinationId().equals(outputId + "")).collect(Collectors.toList());
-        for (final NodeConnection outputConnection : outputConnections) {
-            // A single outport can only be connected to ONE inport, so no need to check duplicates
-            if (!outputConnection.getSourceNode().isPresent()) {
-                throw new IllegalArgumentException("Cannot determine port");
-            }
-            populatePort(outputConnection.getSourceNode().get(), outputConnection.getSourcePort(),
-                outputConnection.getDestinationPort(), ports, false, outportDescriptions, outportNames);
+        final List<String> outportObjects = parser.getOutPortObjects(settingsXml);
+        final List<ComponentPortInfo> outports = new ArrayList<>(outportObjects.size());
+        for (int i = 0; i < outportObjects.size(); i++) {
+            outports.add(new ComponentPortInfo(outportDescriptions.get(i), outportNames.get(i), outportObjects.get(i)));
         }
-        builder.setPorts(ports);
+        builder.setOutPorts(outports);
     }
 
     private static void populateViewNodes(final List<NodeMetadata> nodes, final List<String> viewNodes,
@@ -913,62 +898,6 @@ public final class Workflowalizer {
             } else {
                 throw new IllegalArgumentException("Unrecognized node type: " + node.getType());
             }
-        }
-    }
-
-    private static void populatePort(final NodeMetadata node, final int nodePortIndex, final int componentPortIndex,
-        final List<ComponentPortInfo> ports, final boolean isInport, final List<Optional<String>> descriptions,
-        final List<Optional<String>> names) {
-        if (node.getType().equals(NodeType.NATIVE_NODE)) {
-            final NativeNodeMetadata nn = (NativeNodeMetadata)node;
-            final ComponentPortInfo p = new ComponentPortInfo(nn.getFactoryName(), isInport, componentPortIndex - 1,
-                nodePortIndex, descriptions.get(componentPortIndex - 1), names.get(componentPortIndex - 1));
-            ports.add(p);
-        } else if (node.getType().equals(NodeType.METANODE)) {
-            final MetanodeMetadata mm = (MetanodeMetadata)node;
-            if (isInport) {
-                final Optional<NodeConnection> n = mm.getConnections().stream()
-                    .filter(c -> c.getSourceId().equals(-1 + "") && c.getSourcePort() == nodePortIndex).findFirst();
-                if (!n.isPresent() || !n.get().getDestinationNode().isPresent()) {
-                    throw new IllegalArgumentException("Cannot determine port");
-                }
-                populatePort(n.get().getDestinationNode().get(), n.get().getDestinationPort(), componentPortIndex,
-                    ports, isInport, descriptions, names);
-            } else {
-                final Optional<NodeConnection> n = mm.getConnections().stream()
-                    .filter(c -> c.getDestinationId().equals(-1 + "") && c.getDestinationPort() == nodePortIndex)
-                    .findFirst();
-                if (!n.isPresent() || !n.get().getSourceNode().isPresent()) {
-                    throw new IllegalArgumentException("Cannot determine port");
-                }
-                populatePort(n.get().getSourceNode().get(), n.get().getSourcePort(), componentPortIndex, ports,
-                    isInport, descriptions, names);
-            }
-        } else if (node.getType().equals(NodeType.SUBNODE)) {
-            final SubnodeMetadata sm = (SubnodeMetadata)node;
-            if (isInport) {
-                final Optional<NodeConnection> n = sm.getConnections().stream()
-                    .filter(c -> c.getSourceId().equals(sm.getNodeId() + ":" + sm.getInputId())
-                        && c.getSourcePort() == nodePortIndex)
-                    .findFirst();
-                if (!n.isPresent() || !n.get().getDestinationNode().isPresent()) {
-                    throw new IllegalArgumentException("Cannot determine port");
-                }
-                populatePort(n.get().getDestinationNode().get(), n.get().getDestinationPort(), componentPortIndex,
-                    ports, isInport, descriptions, names);
-            } else {
-                final Optional<NodeConnection> n = sm.getConnections().stream()
-                    .filter(c -> c.getDestinationId().equals(sm.getNodeId() + ":" + sm.getOutputId())
-                        && c.getDestinationPort() == nodePortIndex)
-                    .findFirst();
-                if (!n.isPresent() || !n.get().getSourceNode().isPresent()) {
-                    throw new IllegalArgumentException("Cannot determine port");
-                }
-                populatePort(n.get().getSourceNode().get(), n.get().getSourcePort(), componentPortIndex, ports,
-                    isInport, descriptions, names);
-            }
-        } else {
-            throw new IllegalArgumentException("Unknown node type: " + node.getType());
         }
     }
 
