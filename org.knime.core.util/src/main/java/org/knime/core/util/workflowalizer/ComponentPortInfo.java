@@ -58,7 +58,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * A POJO containing port information for a single in/outport of a component.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
- * @since 5.11
+ * @since 5.12
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
     setterVisibility = Visibility.NONE)

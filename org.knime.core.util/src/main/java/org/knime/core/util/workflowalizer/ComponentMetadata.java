@@ -117,7 +117,7 @@ public final class ComponentMetadata extends TemplateMetadata {
      * connections to {@code null} and flattens the node tree
      *
      * @param component the {@code ComponentMetadata} to copy
-     * @param excludedFactories list of factoryNames to exclude from the flattened node list,, supports regex matching
+     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
     private ComponentMetadata(final ComponentMetadata component, final List<String> excludedFactories) {
         super(component, excludedFactories);
