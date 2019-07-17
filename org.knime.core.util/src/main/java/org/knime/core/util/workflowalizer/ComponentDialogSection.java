@@ -48,10 +48,10 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -89,14 +89,8 @@ public final class ComponentDialogSection {
         final List<Field> fields) {
         m_sectionHeader = sectionHeader;
         m_sectionDescription = sectionDescription;
-
-        final List<Field> f = new ArrayList<>(fields.size());
-        for (final Field field : fields) {
-            if (!field.isEmpty()) {
-                f.add(field);
-            }
-        }
-        m_fields = Collections.unmodifiableList(f);
+        m_fields = fields.stream().filter(f -> !f.isEmpty())
+            .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
     /**
@@ -162,6 +156,12 @@ public final class ComponentDialogSection {
         return builder.toString();
     }
 
+    /**
+     * Returns {@code true} if this dialog section is empty, {@code false} otherwise. A {@code ComponentDialogSection}
+     * is empty if it has no header, description, or fields.
+     *
+     * @return if dialog section is empty
+     */
     boolean isEmpty() {
         return !m_sectionHeader.isPresent() && !m_sectionDescription.isPresent() && m_fields.isEmpty();
     }
@@ -190,8 +190,10 @@ public final class ComponentDialogSection {
          * @param optional if the field is optional or not
          */
         Field(final Optional<String> name, final Optional<String> description, final boolean optional) {
-            m_name = StringUtils.isEmpty(name.orElse("")) ? Optional.empty() : name;
-            m_description = StringUtils.isEmpty(description.orElse("")) ? Optional.empty() : description;
+            // Replace optionals containing empty Strings with empty optionals
+            m_name = name.isPresent() && StringUtils.isEmpty(name.get()) ? Optional.empty() : name;
+            m_description =
+                description.isPresent() && StringUtils.isEmpty(description.get()) ? Optional.empty() : description;
             m_optional = optional;
         }
 
@@ -245,6 +247,12 @@ public final class ComponentDialogSection {
             return builder.toString();
         }
 
+        /**
+         * Returns {@code true} if this field is empty, {@code false} otherwise. A {@code Field} is empty if it has an
+         * empty name and description.
+         *
+         * @return if dialog section is empty
+         */
         boolean isEmpty() {
             return !m_name.isPresent() && !m_description.isPresent();
         }

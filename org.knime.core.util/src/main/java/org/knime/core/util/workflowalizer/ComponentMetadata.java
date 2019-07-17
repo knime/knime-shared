@@ -48,13 +48,15 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -65,6 +67,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.11
  */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+setterVisibility = Visibility.NONE)
 public final class ComponentMetadata extends TemplateMetadata {
 
     @JsonProperty("description")
@@ -104,13 +108,8 @@ public final class ComponentMetadata extends TemplateMetadata {
         }
         m_description = d;
 
-        final List<ComponentDialogSection> sections = new ArrayList<>(builder.getDialog().size());
-        for (final ComponentDialogSection section : builder.getDialog()) {
-            if (!section.isEmpty()) {
-                sections.add(section);
-            }
-        }
-        m_dialog = Collections.unmodifiableList(sections);
+        m_dialog = builder.getDialog().stream().filter(dg -> !dg.isEmpty())
+            .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
     /**
@@ -190,7 +189,7 @@ public final class ComponentMetadata extends TemplateMetadata {
     public String toString() {
         final StringBuilder builder = new StringBuilder(super.toString());
         if (m_description.isPresent()) {
-            builder.append(", description" + m_description.get());
+            builder.append(", description: " + m_description.get());
         }
         builder.append(", viewNodes : [ ");
         if (!m_viewNodes.isEmpty()) {
@@ -198,25 +197,19 @@ public final class ComponentMetadata extends TemplateMetadata {
         }
         builder.append("], inPorts: [ ");
         if (!m_inPorts.isEmpty()) {
-            for (final ComponentPortInfo port : m_inPorts) {
-                builder.append("{" + port.toString() + "}, ");
-            }
+            m_inPorts.stream().forEach(i -> builder.append("{" + i.toString() + "}, "));
             // remove unnecessary final comma and space
             builder.delete(builder.length() - 2, builder.length());
         }
         builder.append("], outPorts: [ ");
         if (!m_outPorts.isEmpty()) {
-            for (final ComponentPortInfo port : m_outPorts) {
-                builder.append("{" + port.toString() + "}, ");
-            }
+            m_outPorts.stream().forEach(i -> builder.append("{" + i.toString() + "}, "));
             // remove unnecessary final comma and space
             builder.delete(builder.length() - 2, builder.length());
         }
         builder.append("], dialog: [ ");
         if (!m_dialog.isEmpty()) {
-            for (final ComponentDialogSection section : m_dialog) {
-                builder.append("{" + section.toString() + "}, ");
-            }
+            m_dialog.stream().forEach(i -> builder.append("{" + i.toString() + "}, "));
             // remove unnecessary final comma and space
             builder.delete(builder.length() - 2, builder.length());
         }
@@ -248,10 +241,7 @@ public final class ComponentMetadata extends TemplateMetadata {
      */
     @Override
     public ComponentMetadata flatten(final List<String> excludedFatoryNames) {
-        List<String> efn = excludedFatoryNames;
-        if (efn == null) {
-            efn = Collections.emptyList();
-        }
+        final List<String> efn = excludedFatoryNames == null ? Collections.emptyList() : excludedFatoryNames;
         return new ComponentMetadata(this, efn);
     }
 
