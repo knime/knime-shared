@@ -2,19 +2,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>com.knime.enterprise</groupId>
 		<artifactId>mavenconfig</artifactId>
 		<version>4.10.0-SNAPSHOT</version>
 		<relativePath>../../knime-com-shared/com.knime.enterprise.mavenconfig/pom.xml</relativePath>
 	</parent>
+
 	<groupId>org.knime</groupId>
 	<artifactId>core.util</artifactId>
 	<version>5.12.0-SNAPSHOT</version>
+	<packaging>${packaging.default}</packaging>
+
+	<!--
 	<name>KNIME utility plugin</name>
 	<description>Utility plugin that should have no dependencies to other plugins.</description>
+	-->
 
+	<!--
 	<build>
 		<resources>
 			<resource>
@@ -31,6 +39,8 @@
 		</resources>
 		<finalName>${project.groupId}.${project.artifactId}_${project.version}</finalName>
 	</build>
+	-->
+
 	<dependencies>
 		<dependency>
 			<groupId>commons-io</groupId>
