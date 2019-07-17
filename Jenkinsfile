@@ -44,7 +44,7 @@ node('maven') {
 			withMaven {
 				sh '''
 					export PATH="$MVN_CMD_DIR:$PATH"
-	            	mvn -P SRV -Dmaven.test.failure.ignore=true clean verify
+					mvn -P SRV -DskipTests=false clean install
 				'''
 			}
 
