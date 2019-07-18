@@ -24,7 +24,7 @@
 
 			<modules>
 				<module>org.apache.xmlbeans</module>
-				<module>org.knime.core.util</module>
+				<module>org.knime.core.util/pom-tycho.xml</module>
 				<module>org.knime.features.util</module>
 				<module>org.knime.gateway.codegen</module>
 				<module>org.knime.update.shared</module>
@@ -45,6 +45,7 @@
 			</modules>
 		</profile>
 	</profiles>
+
 </project>
 
 <!-- vim: set ts=4: -->
