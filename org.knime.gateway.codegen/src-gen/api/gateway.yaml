@@ -292,7 +292,7 @@ paths:
         - Node
       description: >-
         Gives access to the dialog representations, values and configs of a
-        wrapped metanode.
+        component.
       operationId: getWMetaNodeDialog
       parameters:
         - $ref: '#/components/parameters/job-id'
@@ -558,9 +558,9 @@ paths:
         - Node
       description: >-
         Provides the node's flow variables available for the node's output with
-        the given node-id. For metanodes (not wrapped metanodes) the same
-        variables are returned as with '... For metanodes (not wrapped
-        metanodes) the same variables are returned as with
+        the given node-id. For metanodes (not components) the same
+        variables are returned as with '... For metanodes (not components)
+        the same variables are returned as with
         '.../input/flowvariables'.
       operationId: getOutputFlowVariables
       parameters:
@@ -993,8 +993,8 @@ components:
         The node-id format: Node IDs always start with 'root' and
         optionally followed by numbers separated by ':' refering to
         nested nodes/subworkflows,e.g. root:3:6:4.
-        Nodes within wrapped metanodes require an additional
-        trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+        Nodes within components require an additional
+        trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a component).
       required: true
       schema:
         type: string
@@ -1176,8 +1176,8 @@ components:
             The node-id format: Node IDs always start with 'root' and
             optionally followed by numbers separated by ':' refering to
             nested nodes/subworkflows,e.g. root:3:6:4.
-            Nodes within wrapped metanodes require an additional
-            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+            Nodes within components require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a component).
           type: string
           format: node-id
           pattern: '^root(:\d+)*$'
@@ -1190,8 +1190,8 @@ components:
             The node-id format: Node IDs always start with 'root' and
             optionally followed by numbers separated by ':' refering to
             nested nodes/subworkflows,e.g. root:3:6:4.
-            Nodes within wrapped metanodes require an additional
-            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+            Nodes within components require an additional
+            trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a component).
           type: string
           format: node-id
           pattern: '^root(:\d+)*$'
@@ -1975,8 +1975,8 @@ components:
 
     WrappedWorkflowNode:
       description: >-
-        A node wrapping (referencing) a workflow (also referred to it as wrapped
-        metanode or subnode) that almost behaves as a ordinary node.
+        A node wrapping (referencing) a workflow (also referred to it as component
+        or subnode) that almost behaves as a ordinary node.
       allOf:
         - $ref: '#/components/schemas/WorkflowNode'
         - type: object
@@ -1987,8 +1987,8 @@ components:
                 The node-id format: Node IDs always start with 'root' and
                 optionally followed by numbers separated by ':' refering to
                 nested nodes/subworkflows,e.g. root:3:6:4.
-                Nodes within wrapped metanodes require an additional
-                trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+                Nodes within components require an additional
+                trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a component).
               type: string
               format: node-id
               pattern: '^root(:\d+)*$'
@@ -1998,8 +1998,8 @@ components:
                 The node-id format: Node IDs always start with 'root' and
                 optionally followed by numbers separated by ':' refering to
                 nested nodes/subworkflows,e.g. root:3:6:4.
-                Nodes within wrapped metanodes require an additional
-                trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a wrapped metanode).
+                Nodes within components require an additional
+                trailing '0', e.g. 'root:3:6:0:4' (if 'root:3:6' is a component).
               type: string
               format: node-id
               pattern: '^root(:\d+)*$'
