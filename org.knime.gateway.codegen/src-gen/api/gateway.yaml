@@ -811,7 +811,8 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: string 
+                format: binary
         '400':
           $ref: '#/components/responses/GatewayExecutorException'
         '403':
@@ -867,6 +868,7 @@ paths:
             application/json:
               schema:
                 type: string
+                format: binary
         '400':
           $ref: "#/components/responses/GatewayExecutorException"
         '403':
@@ -894,6 +896,7 @@ paths:
             application/json:
               schema:
                 type: string
+                format: binary
         '400':
           $ref: "#/components/responses/GatewayExecutorException"
         '403':
@@ -942,6 +945,7 @@ paths:
         - name: resource-id
           description: The id (usually a relative path) of a single web resource (e.g. js, css, png, ...).
           in: path
+          required: true
           schema:
             type: string
       x-knime-gateway-executor-exceptions:
