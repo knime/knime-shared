@@ -402,6 +402,13 @@ interface WorkflowParser {
     // -- MetaNodes --
 
     /**
+     * Returns the node's template link, if present.
+     *
+     * <p>
+     * This method will attempt to decode the given link. However, if decoding the link fails it will still return the
+     * encoded link.
+     * </p>
+     *
      * @param config a pre-loaded {@link ConfigBase} to be parsed
      * @return the node's template link
      * @throws InvalidSettingsException

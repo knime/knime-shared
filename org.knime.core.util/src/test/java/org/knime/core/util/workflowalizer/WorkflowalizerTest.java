@@ -59,6 +59,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,6 +79,7 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -1596,7 +1598,17 @@ public class WorkflowalizerTest {
     }
 
     private static Optional<String> readTemplateLink(final List<String> readLines) {
-        return Optional.ofNullable(parseValue(readLines, "sourceURI"));
+        final String r = parseValue(readLines, "sourceURI");
+        if (!StringUtils.isEmpty(r)) {
+            try {
+                final String decoded = java.net.URLDecoder.decode(r, StandardCharsets.UTF_8.name());
+                return Optional.of(decoded);
+            } catch (UnsupportedEncodingException e) {
+                // string can't be decoded, return encoded string
+                return Optional.ofNullable(r);
+            }
+        }
+        return Optional.empty();
     }
 
     private static Version readVersion(final List<String> readLines) {
