@@ -48,9 +48,15 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -1371,6 +1377,35 @@ public class WorkflowalizerTest {
         // Views - including all nested views
         assertTrue(cm.getViewNodes().isEmpty());
     }
+
+    /**
+     * Tests reading a component template which has ports but without descriptions.
+     *
+     * @throws Exception if an error occurs
+     * @since 5.12
+     */
+    @Test
+    public void testReadingComponentNoPortDescriptions() throws Exception {
+        Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (final InputStream is =
+            WorkflowalizerTest.class.getResourceAsStream("/component-no-port-descriptions.zip")) {
+            unzip(is, componentPath.toFile());
+        }
+        componentPath = componentPath.resolve("No Descriptions");
+
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
+        assertThat("Unexpected metadata subtype read", tm, is(instanceOf(ComponentMetadata.class)));
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+
+        // Description
+        assertFalse(cm.getDescription().isPresent());
+
+        // Ports
+        assertThat("No input ports found", cm.getInPorts(), is(not(empty())));
+        assertThat("Unexpected description for input port", cm.getInPorts().get(0).getDescription().orElse(null),
+            is(nullValue()));
+    }
+
 
     /**
      * Tests reading a component template whose ports are not all connected.
