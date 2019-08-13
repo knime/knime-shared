@@ -99,21 +99,21 @@ import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemT
  * @since 5.10
  */
 public class WorkflowalizerTest {
-    private static Path m_workspaceDir;
-    private static Path m_workflowDir;
-    private static Path m_nodeDir;
-    private static Path m_templateDir;
-    private static Path m_workflowGroupFile;
-    private static Path m_componentTemplateDir;
+    private static Path workspaceDir;
+    private static Path workflowDir;
+    private static Path nodeDir;
+    private static Path templateDir;
+    private static Path workflowGroupFile;
+    private static Path componentTemplateDir;
 
-    private static List<String> m_readWorkflowLines;
-    private static List<String> m_readNodeLines;
-    private static List<String> m_readTemplateWorkflowKnime;
-    private static List<String> m_readTemplateTemplateKnime;
-    private static List<String> m_readWorkflowSetLines;
-    private static List<String> m_readWorkflowGroupLines;
-    private static List<String> m_readComponentTemplateWorkflowKnime;
-    private static List<String> m_readComponentTemplateTemplateKnime;
+    private static List<String> readWorkflowLines;
+    private static List<String> readNodeLines;
+    private static List<String> readTemplateWorkflowKnime;
+    private static List<String> readTemplateTemplateKnime;
+    private static List<String> readWorkflowSetLines;
+    private static List<String> readWorkflowGroupLines;
+    private static List<String> readComponentTemplateWorkflowKnime;
+    private static List<String> readComponentTemplateTemplateKnime;
 
     /** Exception for testing */
     @Rule
@@ -126,36 +126,36 @@ public class WorkflowalizerTest {
      */
     @BeforeClass
     public static void setup() throws Exception {
-        m_workspaceDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        workspaceDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (InputStream is = WorkflowalizerTest.class.getResourceAsStream("/workflowalizer-test.zip")) {
-            unzip(is, m_workspaceDir.toFile());
+            unzip(is, workspaceDir.toFile());
         }
-        m_workflowDir = new File(m_workspaceDir.toFile(), "workflowalizer-test/Testing_Workflowalizer_360Pre").toPath();
-        m_readWorkflowLines = Files.readAllLines(new File(m_workflowDir.toFile(), "workflow.knime").toPath());
+        workflowDir = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_Workflowalizer_360Pre").toPath();
+        readWorkflowLines = Files.readAllLines(new File(workflowDir.toFile(), "workflow.knime").toPath());
 
-        m_nodeDir = new File(m_workflowDir.toFile(), "Column Splitter (#10)").toPath();
-        m_readNodeLines = Files.readAllLines(new File(m_nodeDir.toFile(), "settings.xml").toPath());
+        nodeDir = new File(workflowDir.toFile(), "Column Splitter (#10)").toPath();
+        readNodeLines = Files.readAllLines(new File(nodeDir.toFile(), "settings.xml").toPath());
 
-        m_templateDir =
-            new File(m_workspaceDir.toFile(), "workflowalizer-test/Hierarchical Cluster Assignment").toPath();
-        m_readTemplateWorkflowKnime =
-            Files.readAllLines(Paths.get(m_templateDir.toAbsolutePath().toString(), "workflow.knime"));
-        m_readTemplateTemplateKnime =
-            Files.readAllLines(Paths.get(m_templateDir.toAbsolutePath().toString(), "template.knime"));
+        templateDir =
+            new File(workspaceDir.toFile(), "workflowalizer-test/Hierarchical Cluster Assignment").toPath();
+        readTemplateWorkflowKnime =
+            Files.readAllLines(Paths.get(templateDir.toAbsolutePath().toString(), "workflow.knime"));
+        readTemplateTemplateKnime =
+            Files.readAllLines(Paths.get(templateDir.toAbsolutePath().toString(), "template.knime"));
 
-        m_componentTemplateDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        componentTemplateDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-simple.zip")) {
-            unzip(is, m_componentTemplateDir.toFile());
+            unzip(is, componentTemplateDir.toFile());
         }
-        m_componentTemplateDir = m_componentTemplateDir.resolve("Simple-Component");
-        m_readComponentTemplateWorkflowKnime = Files.readAllLines(m_componentTemplateDir.resolve("workflow.knime"));
-        m_readComponentTemplateTemplateKnime = Files.readAllLines(m_componentTemplateDir.resolve("template.knime"));
+        componentTemplateDir = componentTemplateDir.resolve("Simple-Component");
+        readComponentTemplateWorkflowKnime = Files.readAllLines(componentTemplateDir.resolve("workflow.knime"));
+        readComponentTemplateTemplateKnime = Files.readAllLines(componentTemplateDir.resolve("template.knime"));
 
-        final Path workflowSetMetaPath = m_workflowDir.resolve("workflowset.meta");
-        m_readWorkflowSetLines = Files.readAllLines(workflowSetMetaPath);
+        final Path workflowSetMetaPath = workflowDir.resolve("workflowset.meta");
+        readWorkflowSetLines = Files.readAllLines(workflowSetMetaPath);
 
-        m_workflowGroupFile = m_workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta");
-        m_readWorkflowGroupLines = Files.readAllLines(m_workflowGroupFile);
+        workflowGroupFile = workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta");
+        readWorkflowGroupLines = Files.readAllLines(workflowGroupFile);
     }
 
     // -- Test reading workflow --
@@ -168,8 +168,8 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testStructure() throws Exception {
-        final IWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
-        final Path workflowPath = new File(m_workflowDir.toFile(), "workflow.knime").toPath();
+        final IWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
+        final Path workflowPath = new File(workflowDir.toFile(), "workflow.knime").toPath();
 
         testStructure(wkfMd, workflowPath);
     }
@@ -181,17 +181,17 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testTopLevelWorkflowMetadata() throws Exception {
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
 
         assertEquals(RepositoryItemType.WORKFLOW, wkfMd.getType());
-        assertEquivalentAnnotations(readAnnotations(m_readWorkflowLines), wkfMd.getAnnotations());
-        assertEquals(readAuthorInformation(m_readWorkflowLines), wkfMd.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), wkfMd.getConnections());
-        assertEquals(readCreatedBy(m_readWorkflowLines), wkfMd.getCreatedBy());
-        assertEquals(readCustomDescription(m_readWorkflowLines), wkfMd.getCustomDescription());
-        assertEquals(m_workflowDir.getFileName().toString(), wkfMd.getName());
+        assertEquivalentAnnotations(readAnnotations(readWorkflowLines), wkfMd.getAnnotations());
+        assertEquals(readAuthorInformation(readWorkflowLines), wkfMd.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(readWorkflowLines), wkfMd.getConnections());
+        assertEquals(readCreatedBy(readWorkflowLines), wkfMd.getCreatedBy());
+        assertEquals(readCustomDescription(readWorkflowLines), wkfMd.getCustomDescription());
+        assertEquals(workflowDir.getFileName().toString(), wkfMd.getName());
 
-        final List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
+        final List<Integer> nodeIds = readNodeIds(readWorkflowLines);
         final List<NodeMetadata> nodes = wkfMd.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
@@ -202,20 +202,20 @@ public class WorkflowalizerTest {
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
-        assertEquals(readVersion(m_readWorkflowLines), wkfMd.getVersion());
+        assertEquals(readVersion(readWorkflowLines), wkfMd.getVersion());
 
         assertTrue(wkfMd.getWorkflowSvg().isPresent());
         assertEquals(1301, wkfMd.getWorkflowSvg().get().getWidth().intValue());
         assertEquals(501, wkfMd.getWorkflowSvg().get().getHeight().intValue());
-        assertEquals(m_workflowDir
-            .relativize(new File(m_workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
+        assertEquals(workflowDir
+            .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
             .toString(), wkfMd.getArtifacts().get().iterator().next());
         assertTrue(wkfMd.getUnexpectedFileNames().isEmpty());
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowSetLines),
+        assertEquals(parseWorkflowSetMeta("Author", readWorkflowSetLines),
             wkfMd.getWorkflowSetMetadata().get().getAuthor().orElse(null));
 
-        final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowSetLines);
+        final String comments = parseWorkflowSetMeta("Comments", readWorkflowSetLines);
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
         final WorkflowSetMeta wsm = wkfMd.getWorkflowSetMetadata().get();
         assertFalse(wsm.getTitle().isPresent());
@@ -234,12 +234,12 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingSVG() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue(wkfMd.getWorkflowSvg().isPresent());
         assertEquals(1301, wkfMd.getWorkflowSvg().get().getWidth().intValue());
         assertEquals(501, wkfMd.getWorkflowSvg().get().getHeight().intValue());
 
-        final Path svg = m_workflowDir.resolve("workflow.svg");
+        final Path svg = workflowDir.resolve("workflow.svg");
         try (final InputStream readSvg = wkfMd.getSvgInputStream().orElse(null)) {
             assertNotNull(readSvg);
             final byte[] bytes = IOUtils.toByteArray(Files.newInputStream(svg));
@@ -264,11 +264,11 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingArtifactsDirectory() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        final File test = new File(m_workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
         assertEquals(1, wkfMd.getArtifacts().get().size());
-        assertEquals(m_workflowDir.relativize(test.toPath()).toString(), wkfMd.getArtifacts().get().iterator().next());
+        assertEquals(workflowDir.relativize(test.toPath()).toString(), wkfMd.getArtifacts().get().iterator().next());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -291,7 +291,7 @@ public class WorkflowalizerTest {
 
         try {
             // Add some unexpected files
-            dataDir = new File(m_workflowDir.toFile(), "data");
+            dataDir = new File(workflowDir.toFile(), "data");
             dataDir.mkdirs();
             dataFile = new File(dataDir, "myData.txt");
             dataFile.createNewFile();
@@ -299,15 +299,15 @@ public class WorkflowalizerTest {
             subDataDir.mkdirs();
             subDataFile = new File(subDataDir, "moreData.txt");
             subDataFile.createNewFile();
-            emptyDir = new File(m_workflowDir.toFile(), "tmp");
+            emptyDir = new File(workflowDir.toFile(), "tmp");
             emptyDir.mkdirs();
 
             final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readUnexpectedFiles().build();
-            final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+            final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
             final Collection<String> unexpectedFiles = wkfMd.getUnexpectedFileNames();
             assertEquals(2, unexpectedFiles.size());
-            assertTrue(unexpectedFiles.contains(m_workflowDir.relativize(dataFile.toPath()).toString()));
-            assertTrue(unexpectedFiles.contains(m_workflowDir.relativize(subDataFile.toPath()).toString()));
+            assertTrue(unexpectedFiles.contains(workflowDir.relativize(dataFile.toPath()).toString()));
+            assertTrue(unexpectedFiles.contains(workflowDir.relativize(subDataFile.toPath()).toString()));
 
             assertUOEThrown(wkfMd::getConnections);
             assertUOEThrown(wkfMd::getNodes);
@@ -341,8 +341,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingAnnotations() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquivalentAnnotations(readAnnotations(m_readWorkflowLines), wkfMd.getAnnotations());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquivalentAnnotations(readAnnotations(readWorkflowLines), wkfMd.getAnnotations());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -358,8 +358,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingAuthorInformation() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquals(readAuthorInformation(m_readWorkflowLines), wkfMd.getAuthorInformation());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquals(readAuthorInformation(readWorkflowLines), wkfMd.getAuthorInformation());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -376,8 +376,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingNodesAndConnections() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodesAndConnections().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), wkfMd.getConnections());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquivalentConnections(readConnectionIds(readWorkflowLines), wkfMd.getConnections());
 
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
@@ -391,8 +391,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingCreatedBy() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquals(readCreatedBy(m_readWorkflowLines), wkfMd.getCreatedBy());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquals(readCreatedBy(readWorkflowLines), wkfMd.getCreatedBy());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -408,8 +408,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingCustomDescription() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquals(readCustomDescription(m_readWorkflowLines), wkfMd.getCustomDescription());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquals(readCustomDescription(readWorkflowLines), wkfMd.getCustomDescription());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -425,8 +425,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingName() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquals(m_workflowDir.getFileName().toString(), wkfMd.getName());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquals(workflowDir.getFileName().toString(), wkfMd.getName());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -443,9 +443,9 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingNodes() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<NodeMetadata> nodes = wkfMd.getNodes();
-        final List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
+        final List<Integer> nodeIds = readNodeIds(readWorkflowLines);
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
             String id = node.getNodeId();
@@ -469,8 +469,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingVersion() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
-        assertEquals(readVersion(m_readWorkflowLines), wkfMd.getVersion());
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertEquals(readVersion(readWorkflowLines), wkfMd.getVersion());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -486,11 +486,11 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowWorkflowSetMeta() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowSetLines),
+        assertEquals(parseWorkflowSetMeta("Author", readWorkflowSetLines),
             wkfMd.getWorkflowSetMetadata().get().getAuthor().orElse(null));
-        final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowSetLines);
+        final String comments = parseWorkflowSetMeta("Comments", readWorkflowSetLines);
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
         final WorkflowSetMeta wsm = wkfMd.getWorkflowSetMetadata().get();
         assertFalse(wsm.getTitle().isPresent());
@@ -511,7 +511,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowCredentials() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<String> cred = wkfMd.getWorkflowCredentialsNames();
         assertEquals(1, cred.size());
         assertEquals("Credential", cred.get(0));
@@ -530,7 +530,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowVariables() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<String> vars = wkfMd.getWorkflowVariables();
         assertEquals(3, vars.size());
         assertTrue(vars.contains("TestDouble"));
@@ -552,7 +552,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingHasReport() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertFalse(wkfMd.hasReport());
 
         assertUOEThrown(wkfMd::getConnections);
@@ -569,7 +569,7 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowSetNotPresent() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
-        final Path workflowPath = m_workspaceDir.resolve("workflowalizer-test/test_group/test1");
+        final Path workflowPath = workspaceDir.resolve("workflowalizer-test/test_group/test1");
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowPath, wc);
         assertTrue(wkfMd.getWorkflowSetMetadata() != null);
         assertFalse(wkfMd.getWorkflowSetMetadata().isPresent());
@@ -588,17 +588,17 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodeInWorkflow() throws Exception {
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readAnnotationText(m_readNodeLines), nativeNode.getAnnotationText());
-        assertEquals(readCustomNodeDescription(m_readNodeLines), nativeNode.getCustomNodeDescription());
-        assertTrue(readNodeConfiguration(new File(m_nodeDir.toFile(), "settings.xml")).get()
+        assertEquals(readAnnotationText(readNodeLines), nativeNode.getAnnotationText());
+        assertEquals(readCustomNodeDescription(readNodeLines), nativeNode.getCustomNodeDescription());
+        assertTrue(readNodeConfiguration(new File(nodeDir.toFile(), "settings.xml")).get()
             .isIdentical(nativeNode.getNodeConfiguration().get()));
-        assertEquals(readNodeAndBundleInformation(false, m_readNodeLines), nativeNode.getNodeAndBundleInformation());
+        assertEquals(readNodeAndBundleInformation(false, readNodeLines), nativeNode.getNodeAndBundleInformation());
         assertEquals(NodeType.NATIVE_NODE, node.getType());
     }
 
@@ -609,13 +609,13 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodeInMetanode() throws Exception {
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final MetanodeMetadata mtnMd =
             (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
         final NativeNodeMetadata node =
             (NativeNodeMetadata)mtnMd.getNodes().stream().filter(n -> n.getNodeId().equals(mtnMd.getNodeId() + ":2")).findFirst().get();
         final Path nodePath =
-            new File(m_workflowDir.toFile(), "Hierarchical (#15)/Numeric Distances (#2)/settings.xml").toPath();
+            new File(workflowDir.toFile(), "Hierarchical (#15)/Numeric Distances (#2)/settings.xml").toPath();
         final List<String> readLines = Files.readAllLines(nodePath);
 
         // No need to test ID, since the list was filtered on that
@@ -637,13 +637,13 @@ public class WorkflowalizerTest {
     public void testReadingAnnotationText() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readAnnotationText(m_readNodeLines), nativeNode.getAnnotationText());
+        assertEquals(readAnnotationText(readNodeLines), nativeNode.getAnnotationText());
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -656,13 +656,13 @@ public class WorkflowalizerTest {
     public void testReadingCustomNodeDescription() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readCustomNodeDescription(m_readNodeLines), nativeNode.getCustomNodeDescription());
+        assertEquals(readCustomNodeDescription(readNodeLines), nativeNode.getCustomNodeDescription());
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -676,13 +676,13 @@ public class WorkflowalizerTest {
     public void testReadingNodeConfiguration() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().readNodeConfiguration().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertTrue(readNodeConfiguration(new File(m_nodeDir.toFile(), "settings.xml")).get()
+        assertTrue(readNodeConfiguration(new File(nodeDir.toFile(), "settings.xml")).get()
             .isIdentical(nativeNode.getNodeConfiguration().get()));
     }
 
@@ -695,13 +695,13 @@ public class WorkflowalizerTest {
     public void testReadingNodeAndBundleInformation() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readNodeAndBundleInformation(false, m_readNodeLines), nativeNode.getNodeAndBundleInformation());
+        assertEquals(readNodeAndBundleInformation(false, readNodeLines), nativeNode.getNodeAndBundleInformation());
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -714,7 +714,7 @@ public class WorkflowalizerTest {
     public void testReadingNodeId() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
 
         // Filter on something that isn't ID, so the ID check actual tests something
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> (n instanceof NativeNodeMetadata)
@@ -738,7 +738,7 @@ public class WorkflowalizerTest {
     public void testReadingType() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().build();
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir, wc);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
@@ -757,11 +757,11 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingMetaNode() throws Exception {
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final MetanodeMetadata mtnMtd =
             (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
-            new File(m_workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
+            new File(workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
 
         // Read workflow fields
         assertEquivalentAnnotations(readAnnotations(readMetaNodeWorkflowLines), mtnMtd.getAnnotations());
@@ -798,13 +798,13 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWrappedMetaNode() throws Exception {
-        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(m_workflowDir);
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final SubnodeMetadata mtnMtd =
             (SubnodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.SUBNODE)).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
-            new File(m_workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
+            new File(workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
         final List<String> readMetaNodeNodeLines = Files.readAllLines(
-            new File(m_workflowDir.toFile(), "Format Outpu (#16)/settings.xml").toPath(), StandardCharsets.UTF_8);
+            new File(workflowDir.toFile(), "Format Outpu (#16)/settings.xml").toPath(), StandardCharsets.UTF_8);
 
         // Read workflow fields
         assertEquivalentAnnotations(readAnnotations(readMetaNodeWorkflowLines), mtnMtd.getAnnotations());
@@ -831,7 +831,7 @@ public class WorkflowalizerTest {
         // Read node fields
         assertEquals(readAnnotationText(readMetaNodeNodeLines), mtnMtd.getAnnotationText());
         assertEquals(readCustomNodeDescription(readMetaNodeNodeLines), mtnMtd.getCustomNodeDescription());
-        assertTrue(readNodeConfiguration(new File(m_workflowDir.toFile(), "Format Outpu (#16)/settings.xml")).get()
+        assertTrue(readNodeConfiguration(new File(workflowDir.toFile(), "Format Outpu (#16)/settings.xml")).get()
             .isIdentical(mtnMtd.getNodeConfiguration().get()));
         assertEquals("16", mtnMtd.getNodeId());
         assertEquals(readTemplateLink(readMetaNodeNodeLines), mtnMtd.getTemplateLink());
@@ -852,13 +852,13 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAll().build();
         final WorkflowMetadata twm = Workflowalizer.readWorkflow(zipFile, wc);
 
-        assertEquivalentAnnotations(readAnnotations(m_readWorkflowLines), twm.getAnnotations());
-        assertEquals(readAuthorInformation(m_readWorkflowLines), twm.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(m_readWorkflowLines), twm.getConnections());
-        assertEquals(readCreatedBy(m_readWorkflowLines), twm.getCreatedBy());
-        assertEquals(readCustomDescription(m_readWorkflowLines), twm.getCustomDescription());
+        assertEquivalentAnnotations(readAnnotations(readWorkflowLines), twm.getAnnotations());
+        assertEquals(readAuthorInformation(readWorkflowLines), twm.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(readWorkflowLines), twm.getConnections());
+        assertEquals(readCreatedBy(readWorkflowLines), twm.getCreatedBy());
+        assertEquals(readCustomDescription(readWorkflowLines), twm.getCustomDescription());
         assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
-        assertEquals(readVersion(m_readWorkflowLines), twm.getVersion());
+        assertEquals(readVersion(readWorkflowLines), twm.getVersion());
         assertTrue(twm.getWorkflowSvg().isPresent());
         assertEquals(1301, twm.getWorkflowSvg().get().getWidth().intValue());
         assertEquals(501, twm.getWorkflowSvg().get().getHeight().intValue());
@@ -867,7 +867,7 @@ public class WorkflowalizerTest {
         assertTrue(twm.getUnexpectedFileNames().isEmpty());
 
         // Top-level workflow nodes
-        List<Integer> nodeIds = readNodeIds(m_readWorkflowLines);
+        List<Integer> nodeIds = readNodeIds(readWorkflowLines);
         List<NodeMetadata> nodes = twm.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         int nativeNodeCount = 0;
@@ -900,7 +900,7 @@ public class WorkflowalizerTest {
 
         // Metanode nodes
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
-            new File(m_workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
+            new File(workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
         nodeIds = readNodeIds(readMetaNodeWorkflowLines);
         nodes = mm.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
@@ -930,7 +930,7 @@ public class WorkflowalizerTest {
 
         // Subnode nodes
         final List<String> readSubNodeWorkflowLines = Files.readAllLines(
-            new File(m_workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
+            new File(workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
         nodeIds = readNodeIds(readSubNodeWorkflowLines);
         nodes = sm.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
@@ -975,7 +975,7 @@ public class WorkflowalizerTest {
         assertEquals(1301, wm.getWorkflowSvg().get().getWidth().intValue());
         assertEquals(501, wm.getWorkflowSvg().get().getHeight().intValue());
 
-        final Path svg = m_workflowDir.resolve("workflow.svg");
+        final Path svg = workflowDir.resolve("workflow.svg");
         try (final InputStream readSvg = wm.getSvgInputStream().orElse(null)) {
             assertNotNull(readSvg);
             final byte[] bytes = IOUtils.toByteArray(Files.newInputStream(svg));
@@ -1001,8 +1001,8 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testTemplateStructure() throws Exception {
-        final TemplateMetadata template = Workflowalizer.readTemplate(m_templateDir);
-        final Path t = Paths.get(m_templateDir.toAbsolutePath().toString(), "workflow.knime");
+        final TemplateMetadata template = Workflowalizer.readTemplate(templateDir);
+        final Path t = Paths.get(templateDir.toAbsolutePath().toString(), "workflow.knime");
         testStructure(template, t);
     }
 
@@ -1013,17 +1013,17 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testTemplateMetadata() throws Exception {
-        final TemplateMetadata template = Workflowalizer.readTemplate(m_templateDir);
+        final TemplateMetadata template = Workflowalizer.readTemplate(templateDir);
 
         assertEquals(RepositoryItemType.TEMPLATE, template.getType());
-        assertEquivalentAnnotations(readAnnotations(m_readTemplateWorkflowKnime), template.getAnnotations());
-        assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), template.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), template.getConnections());
-        assertEquals(readCreatedBy(m_readTemplateTemplateKnime), template.getCreatedBy());
-        assertEquals(readCustomDescription(m_readTemplateWorkflowKnime), template.getCustomDescription());
-        assertEquals(m_templateDir.getFileName().toString(), template.getName());
+        assertEquivalentAnnotations(readAnnotations(readTemplateWorkflowKnime), template.getAnnotations());
+        assertEquals(readAuthorInformation(readTemplateWorkflowKnime), template.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(readTemplateWorkflowKnime), template.getConnections());
+        assertEquals(readCreatedBy(readTemplateTemplateKnime), template.getCreatedBy());
+        assertEquals(readCustomDescription(readTemplateWorkflowKnime), template.getCustomDescription());
+        assertEquals(templateDir.getFileName().toString(), template.getName());
 
-        final List<Integer> nodeIds = readNodeIds(m_readTemplateWorkflowKnime);
+        final List<Integer> nodeIds = readNodeIds(readTemplateWorkflowKnime);
         final List<NodeMetadata> nodes = template.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
@@ -1034,8 +1034,8 @@ public class WorkflowalizerTest {
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
-        assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), template.getTemplateInformation());
-        assertEquals(readVersion(m_readTemplateTemplateKnime), template.getVersion());
+        assertEquals(readTemplateInformation(readTemplateTemplateKnime), template.getTemplateInformation());
+        assertEquals(readVersion(readTemplateTemplateKnime), template.getVersion());
         assertTrue(template.getUnexpectedFileNames().isEmpty());
     }
 
@@ -1048,9 +1048,9 @@ public class WorkflowalizerTest {
     public void testReadingTemplateMetadataAuthorInformation() throws Exception {
         final WorkflowalizerConfiguration config =
             WorkflowalizerConfiguration.builder().build();
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_templateDir, config);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir, config);
 
-        assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), tm.getAuthorInformation());
+        assertEquals(readAuthorInformation(readTemplateWorkflowKnime), tm.getAuthorInformation());
 
         assertUOEThrown(tm::getConnections);
         assertUOEThrown(tm::getNodes);
@@ -1066,9 +1066,9 @@ public class WorkflowalizerTest {
     public void testReadingTemplateMetadataTemplateInformation() throws Exception {
         final WorkflowalizerConfiguration config =
             WorkflowalizerConfiguration.builder().build();
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_templateDir, config);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir, config);
 
-        assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), tm.getTemplateInformation());
+        assertEquals(readTemplateInformation(readTemplateTemplateKnime), tm.getTemplateInformation());
 
         assertUOEThrown(tm::getConnections);
         assertUOEThrown(tm::getNodes);
@@ -1085,14 +1085,14 @@ public class WorkflowalizerTest {
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
 
-        assertEquivalentAnnotations(readAnnotations(m_readTemplateWorkflowKnime), tm.getAnnotations());
-        assertEquals(readAuthorInformation(m_readTemplateWorkflowKnime), tm.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(m_readTemplateWorkflowKnime), tm.getConnections());
-        assertEquals(readCreatedBy(m_readTemplateTemplateKnime), tm.getCreatedBy());
-        assertEquals(readCustomDescription(m_readTemplateWorkflowKnime), tm.getCustomDescription());
+        assertEquivalentAnnotations(readAnnotations(readTemplateWorkflowKnime), tm.getAnnotations());
+        assertEquals(readAuthorInformation(readTemplateWorkflowKnime), tm.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(readTemplateWorkflowKnime), tm.getConnections());
+        assertEquals(readCreatedBy(readTemplateTemplateKnime), tm.getCreatedBy());
+        assertEquals(readCustomDescription(readTemplateWorkflowKnime), tm.getCustomDescription());
         assertEquals("Hierarchical Cluster Assignment", tm.getName());
 
-        final List<Integer> nodeIds = readNodeIds(m_readTemplateWorkflowKnime);
+        final List<Integer> nodeIds = readNodeIds(readTemplateWorkflowKnime);
         final List<NodeMetadata> nodes = tm.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
@@ -1103,8 +1103,8 @@ public class WorkflowalizerTest {
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
-        assertEquals(readTemplateInformation(m_readTemplateTemplateKnime), tm.getTemplateInformation());
-        assertEquals(readVersion(m_readTemplateTemplateKnime), tm.getVersion());
+        assertEquals(readTemplateInformation(readTemplateTemplateKnime), tm.getTemplateInformation());
+        assertEquals(readVersion(readTemplateTemplateKnime), tm.getVersion());
         assertTrue(tm.getUnexpectedFileNames().isEmpty());
     }
 
@@ -1117,8 +1117,8 @@ public class WorkflowalizerTest {
     public void testReadingTemplateAsWorkflow()
         throws Exception {
         m_exception.expect(IllegalArgumentException.class);
-        m_exception.expectMessage(m_templateDir + " is a template, not a workflow");
-        Workflowalizer.readWorkflow(m_templateDir);
+        m_exception.expectMessage(templateDir + " is a template, not a workflow");
+        Workflowalizer.readWorkflow(templateDir);
     }
 
     /**
@@ -1129,8 +1129,8 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowAsTemplate() throws Exception {
         m_exception.expect(IllegalArgumentException.class);
-        m_exception.expectMessage(m_workflowDir + " is a workflow, not a template");
-        Workflowalizer.readTemplate(m_workflowDir);
+        m_exception.expectMessage(workflowDir + " is a workflow, not a template");
+        Workflowalizer.readTemplate(workflowDir);
     }
 
     // -- Component Template --
@@ -1143,8 +1143,8 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testComponentTemplateStructure() throws Exception {
-        final TemplateMetadata template = Workflowalizer.readTemplate(m_componentTemplateDir);
-        final Path t = Paths.get(m_componentTemplateDir.toAbsolutePath().toString(), "workflow.knime");
+        final TemplateMetadata template = Workflowalizer.readTemplate(componentTemplateDir);
+        final Path t = Paths.get(componentTemplateDir.toAbsolutePath().toString(), "workflow.knime");
         assertTrue(template instanceof ComponentMetadata);
         testStructure(template, t);
     }
@@ -1157,17 +1157,17 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingComponentTemplateWorkflowFields() throws Exception {
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
 
-        assertEquivalentAnnotations(readAnnotations(m_readComponentTemplateWorkflowKnime), tm.getAnnotations());
-        assertEquals(readAuthorInformation(m_readComponentTemplateWorkflowKnime), tm.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(m_readComponentTemplateWorkflowKnime), tm.getConnections());
-        assertEquals(readCreatedBy(m_readComponentTemplateTemplateKnime), tm.getCreatedBy());
-        assertEquals(readCustomDescription(m_readComponentTemplateWorkflowKnime), tm.getCustomDescription());
+        assertEquivalentAnnotations(readAnnotations(readComponentTemplateWorkflowKnime), tm.getAnnotations());
+        assertEquals(readAuthorInformation(readComponentTemplateWorkflowKnime), tm.getAuthorInformation());
+        assertEquivalentConnections(readConnectionIds(readComponentTemplateWorkflowKnime), tm.getConnections());
+        assertEquals(readCreatedBy(readComponentTemplateTemplateKnime), tm.getCreatedBy());
+        assertEquals(readCustomDescription(readComponentTemplateWorkflowKnime), tm.getCustomDescription());
         assertEquals("Simple-Component", tm.getName());
 
-        final List<Integer> nodeIds = readNodeIds(m_readComponentTemplateWorkflowKnime);
+        final List<Integer> nodeIds = readNodeIds(readComponentTemplateWorkflowKnime);
         final List<NodeMetadata> nodes = tm.getNodes();
         assertEquals(nodeIds.size(), nodes.size());
         for (final NodeMetadata node : nodes) {
@@ -1178,8 +1178,8 @@ public class WorkflowalizerTest {
             }
             assertTrue(nodeIds.contains(Integer.parseInt(id)));
         }
-        assertEquals(readTemplateInformation(m_readComponentTemplateTemplateKnime), tm.getTemplateInformation());
-        assertEquals(readVersion(m_readComponentTemplateTemplateKnime), tm.getVersion());
+        assertEquals(readTemplateInformation(readComponentTemplateTemplateKnime), tm.getTemplateInformation());
+        assertEquals(readVersion(readComponentTemplateTemplateKnime), tm.getVersion());
         assertTrue(tm.getUnexpectedFileNames().isEmpty());
     }
 
@@ -1191,7 +1191,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingComponentTemplatePorts() throws Exception {
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
@@ -1231,7 +1231,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingComponentTemplateViewNodes() throws Exception {
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
@@ -1253,7 +1253,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingComponentTemplateDescription() throws Exception {
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
@@ -1268,7 +1268,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingComponentTemplateDialog() throws Exception {
-        final TemplateMetadata tm = Workflowalizer.readTemplate(m_componentTemplateDir);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
@@ -1431,9 +1431,9 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWorkflowGroup() throws Exception {
-        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile);
-        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
-        final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines);
+        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile);
+        assertEquals(parseWorkflowSetMeta("Author", readWorkflowGroupLines), wsm.getAuthor().orElse(null));
+        final String comments = parseWorkflowSetMeta("Comments", readWorkflowGroupLines);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
@@ -1449,9 +1449,9 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingWorkflowGroupDir() throws Exception {
-        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(m_workflowGroupFile.getParent());
-        assertEquals(parseWorkflowSetMeta("Author", m_readWorkflowGroupLines), wsm.getAuthor().orElse(null));
-        final String comments = parseWorkflowSetMeta("Comments", m_readWorkflowGroupLines);
+        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile.getParent());
+        assertEquals(parseWorkflowSetMeta("Author", readWorkflowGroupLines), wsm.getAuthor().orElse(null));
+        final String comments = parseWorkflowSetMeta("Comments", readWorkflowGroupLines);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
         assertFalse(wsm.getTitle().isPresent());
         assertEquals(comments, wsm.getDescription().orElse(null));
@@ -1488,20 +1488,20 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingRepositoryItem() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
-        RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(m_workflowDir, wc);
+        RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(workflowDir, wc);
         assertEquals(RepositoryItemType.WORKFLOW, rip.getType());
         assertTrue(rip instanceof WorkflowMetadata);
 
-        rip = Workflowalizer.readRepositoryItem(m_templateDir, wc);
+        rip = Workflowalizer.readRepositoryItem(templateDir, wc);
         assertEquals(RepositoryItemType.TEMPLATE, rip.getType());
         assertTrue(rip instanceof TemplateMetadata);
 
-        rip = Workflowalizer.readRepositoryItem(m_workflowGroupFile.getParent(), wc);
+        rip = Workflowalizer.readRepositoryItem(workflowGroupFile.getParent(), wc);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, rip.getType());
         assertTrue(rip instanceof WorkflowGroupMetadata);
 
         try {
-            rip = Workflowalizer.readRepositoryItem(m_nodeDir, wc);
+            rip = Workflowalizer.readRepositoryItem(nodeDir, wc);
             assertTrue("Expected exception was not thrown", false);
         } catch (final IllegalArgumentException ex) {
             assertTrue(ex.getMessage().startsWith("No template, workflow, or workflow group found"));
