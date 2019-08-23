@@ -132,7 +132,9 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         checkPopulated(m_inPorts, "inPorts");
         checkPopulated(m_outPorts, "outPorts");
         checkPopulated(m_dialog, "dialog");
-        checkPopulated(m_workflowSetMeta, "workflow set meta");
+        if (wc.parseWorkflowMeta()) {
+            checkPopulated(m_workflowSetMeta, "workflow set meta");
+        }
         return new ComponentMetadata(this);
     }
 
