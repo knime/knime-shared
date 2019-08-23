@@ -170,7 +170,7 @@ public final class Workflowalizer {
                         return new WorkflowGroupMetadata(readWorkflowSetMeta(is));
                     }
                 } else if (workflowLevel < groupLevel && workflowLevel <= templateLevel) {
-                    readTopLevelWorkflow(workflowPath, zip, config);
+                    return readTopLevelWorkflow(workflowPath, zip, config);
                 }
                 return readTemplateMetadata(templatePath, zip, config);
             }
@@ -1134,6 +1134,7 @@ public final class Workflowalizer {
                 if (name.equals(workflow + "template.knime")) {
                     isTemplate = true;
                     templates.add(workflow + "workflow.knime");
+                    workflow = null;
                     break;
                 }
             }
@@ -1196,6 +1197,7 @@ public final class Workflowalizer {
                     if (name.equals(workflowGroupDir + "workflow.knime")) {
                         isWorkflow = true;
                         workflows.add(workflowgroup);
+                        workflowgroup = null;
                         break;
                     }
                 }
