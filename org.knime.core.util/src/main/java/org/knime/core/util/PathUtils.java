@@ -302,7 +302,9 @@ public final class PathUtils {
     }
 
     /**
-     * Creates a temporary file that is automatically deleted when the JVM shuts down.
+     * Creates a temporary file that is automatically deleted when the JVM shuts down. If you want to explicitly delete
+     * the file in your code please use {@link #deleteFileIfExists(Path)} so that it is removed from the list of files
+     * to delete during shutdown.
      *
      * @param prefix the prefix string to be used in generating the file's name
      * @param suffix the suffix string to be used in generating the file's name
@@ -317,7 +319,9 @@ public final class PathUtils {
     }
 
     /**
-     * Creates a temporary file that is automatically deleted when the JVM shuts down.
+     * Creates a temporary file that is automatically deleted when the JVM shuts down. If you want to explicitly delete
+     * the file in your code please use {@link #deleteFileIfExists(Path)} so that it is removed from the list of files
+     * to delete during shutdown.
      *
      * @param dir the directory in which the file is to be created
      * @param prefix the prefix string to be used in generating the file's name
@@ -798,5 +802,18 @@ public final class PathUtils {
                 PERM_HANDLER.setFileMode(entry, f);
             }
         }
+    }
+
+    /**
+     * Deletes the given file if it exists. In case it's temporary file created by {@link PathUtils} then it's removed
+     * from the list of files to delete during shutdown.
+     *
+     * @param p a path
+     * @throws IOException if an I/O error occurs
+     * @since 5.12
+     */
+    public static void deleteFileIfExists(final Path p) throws IOException {
+        Files.deleteIfExists(p);
+        TEMP_FILES.remove(p);
     }
 }
