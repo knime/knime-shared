@@ -1551,6 +1551,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingRepositoryItemZip() throws Exception {
+        // Test reading group
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(zipFile, wc);
@@ -1565,6 +1566,30 @@ public class WorkflowalizerTest {
         assertFalse(wgm.getTitle().isPresent());
         assertFalse(wgm.getTags().isPresent());
         assertFalse(wgm.getLinks().isPresent());
+
+        // Test reading workflow
+        final Path zipWorkflow = Paths.get(Workflowalizer.class.getResource("/simple-workflow.zip").toURI());
+        final RepositoryItemMetadata workflow = Workflowalizer.readRepositoryItem(zipWorkflow, wc);
+
+        assertEquals(RepositoryItemType.WORKFLOW, workflow.getType());
+        assertTrue(workflow instanceof WorkflowMetadata);
+
+        // Test reading component
+        final Path zipComponent = Paths.get(Workflowalizer.class.getResource("/component-template-simple.zip").toURI());
+        final RepositoryItemMetadata component = Workflowalizer.readRepositoryItem(zipComponent, wc);
+
+        assertEquals(RepositoryItemType.TEMPLATE, component.getType());
+        assertTrue(component instanceof ComponentMetadata);
+
+        // Test zip with no groups, workflows, or components
+        try {
+            final Path noRepoItems = Paths.get(Workflowalizer.class.getResource("/noRepoItems.zip").toURI());
+            Workflowalizer.readRepositoryItem(noRepoItems, wc);
+            assertTrue("No exception thrown for zip archive containing no repository items", false);
+        } catch (final IllegalArgumentException ex) {
+            assertTrue("Incorrect exception message: " + ex.getMessage(),
+                ex.getMessage().startsWith("No template," + " workflow, or workflow group found in zip file at: "));
+        }
     }
 
     // -- Helper methods --
