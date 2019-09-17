@@ -49,10 +49,11 @@
 package org.knime.core.util;
 
 /**
- * Constants used in the KNIME framework. Constants are shared in the KNIME AP code and other,
- * non-OSGI components (server).
+ * Constants used in the KNIME framework. Constants are shared in the KNIME AP code and other, non-OSGI components
+ * (server).
  *
- * <p>Class and fields are not meant as public API and can change between releases.
+ * <p>
+ * Class and fields are not meant as public API and can change between releases.
  *
  * @noreference This class is not intended to be referenced by clients.
  *
@@ -80,4 +81,19 @@ public final class CoreConstants {
      * The id of the KNIME Hub mount point.
      */
     public static final String KNIME_HUB_MOUNT_ID = "My-KNIME-Hub";
+
+    /**
+     * The default view for serializing Jackson Annotated classes. Doesn't need to be specified explicitly because
+     * properties without view annotation are always serialized.
+     */
+    public interface DefaultView {
+    }
+
+    /**
+     * A view for serializing Jackson Annotated classes used to serialize Configuration nodes representations. This view
+     * is meant to be used when sensitive data (e.g. passwords) shouldn't be serialized. The sensitive data should have
+     * Jackson Annotation that only allows {@link DefaultView} to serialize it.
+     */
+    public interface ArtifactsView {
+    }
 }
