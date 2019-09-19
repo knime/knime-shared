@@ -42,7 +42,7 @@ node('maven') {
 
 		stage('Maven Build') {
 			withMaven {
-                withCredentials([
+				withCredentials([
 					usernamePassword(credentialsId: 'SONAR_CREDENTIALS', passwordVariable: 'SONAR_PASSWORD', usernameVariable: 'SONAR_LOGIN'),
 					usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
 				]) {
@@ -63,14 +63,14 @@ node('maven') {
 			if (currentBuild.result != 'UNSTABLE') {
 				stage('Deploy') {
 					withMaven {
-                        withCredentials([
-					        usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
-				        ]) {
+						withCredentials([
+							usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
+						]) {
 						sh '''
 							export PATH="$MVN_CMD_DIR:$PATH"
 							mvn -P SRV -DskipTests=true -DskipITs=true deploy
 						'''
-                        }
+						}
 					}
 				}
 			} else {
