@@ -42,10 +42,18 @@ node('maven') {
 
 		stage('Maven Build') {
 			withMaven {
-				sh '''
-					export PATH="$MVN_CMD_DIR:$PATH"
-					mvn -P SRV -DskipTests=false clean verify
-				'''
+                withCredentials([
+					usernamePassword(credentialsId: 'SONAR_CREDENTIALS', passwordVariable: 'SONAR_PASSWORD', usernameVariable: 'SONAR_LOGIN'),
+					usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
+				]) {
+					sh '''
+						export PATH="$MVN_CMD_DIR:$PATH"
+						if [[ "$BRANCH_NAME" == "master" ]]; then
+							SONAR_ARGS="sonar:sonar -Dsonar.password=$SONAR_PASSWORD -Dsonar.login=$SONAR_LOGIN"
+						fi
+						mvn -P SRV -DskipTests=false -Dmaven.test.redirectTestOutputToFile=true clean verify $SONAR_ARGS
+					'''
+				}
 			}
 
 			junit '**/target/surefire-reports/TEST-*.xml'
@@ -55,10 +63,14 @@ node('maven') {
 			if (currentBuild.result != 'UNSTABLE') {
 				stage('Deploy') {
 					withMaven {
+                        withCredentials([
+					        usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
+				        ]) {
 						sh '''
 							export PATH="$MVN_CMD_DIR:$PATH"
 							mvn -P SRV -DskipTests=true -DskipITs=true deploy
 						'''
+                        }
 					}
 				}
 			} else {
