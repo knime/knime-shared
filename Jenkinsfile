@@ -17,7 +17,7 @@ node('maven') {
 
 	try {
 		stage('Tycho Build') {
-			withMavenJarsignerCredentials {
+		        withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')]) {
 				sh '''
 					export TEMP="${WORKSPACE}/tmp"
 					rm -rf "${TEMP}"; mkdir "${TEMP}"
