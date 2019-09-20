@@ -10,37 +10,17 @@ properties([
 ])
 
 
-node('maven') {
-     stage('Checkout Sources') {
-        checkout scm
-	}
+try {
+	knimetools.defaultTychoBuild('org.knime.update.shared')
 
-	try {
-		stage('Tycho Build') {
-		        withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')]) {
-				sh '''
-					export TEMP="${WORKSPACE}/tmp"
-					rm -rf "${TEMP}"; mkdir "${TEMP}"
-					mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} clean verify
-					rm -rf "${TEMP}"
-				'''
-			}
-
-			// junit '**/target/test-reports/*/TEST-*.xml'
-		}
-
-
-		if (currentBuild.result != 'UNSTABLE') {
-			stage('Deploy p2') {
-				p2Tools.deploy("${WORKSPACE}/org.knime.update.shared/target/repository/")
-			}
-		} else {
-			echo "==============================================\n" +
-				 "| Build unstable, not deploying p2 artifacts.|\n" +
-				 "=============================================="
-		}
+	node('maven') {
+		stage('Checkout Sources') {
+			env.lastStage = env.STAGE_NAME
+			checkout scm
+		}		
 
 		stage('Maven Build') {
+			env.lastStage = env.STAGE_NAME
 			withMaven {
 				withCredentials([
 					usernamePassword(credentialsId: 'SONAR_CREDENTIALS', passwordVariable: 'SONAR_PASSWORD', usernameVariable: 'SONAR_LOGIN'),
@@ -62,6 +42,7 @@ node('maven') {
 		if (BRANCH_NAME == "master" || BRANCH_NAME.startsWith("releases/")) {
 			if (currentBuild.result != 'UNSTABLE') {
 				stage('Deploy') {
+					env.lastStage = env.STAGE_NAME
 					withMaven {
 						withCredentials([
 							usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
@@ -79,11 +60,11 @@ node('maven') {
 					 "==========================================="
 			}
 		}
-    } catch (ex) {
-		currentBuild.result = 'FAILED'
-		throw ex
-	} finally {
-		notifications.notifyBuild(currentBuild.result);
 	}
- }
+} catch (ex) {
+	currentBuild.result = 'FAILED'
+	throw ex
+} finally {
+	notifications.notifyBuild(currentBuild.result);
+}
 /* vim: set ts=4: */
