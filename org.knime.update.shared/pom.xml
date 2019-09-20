@@ -21,7 +21,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-repository-plugin</artifactId>
 				<configuration>
-					<finalName>org.knime.update.shared_${qualifiedVersion}</finalName>
+					<finalName>${project.artifactId}_${qualifiedVersion}</finalName>
 				</configuration>
 			</plugin>
 		</plugins>
