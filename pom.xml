@@ -15,6 +15,11 @@
 	<version>4.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	<properties>
+		<feature-branch-extension.branchListProperty>git.branch</feature-branch-extension.branchListProperty>
+		<feature-branch-extension.appendArtifactoryProperties>false</feature-branch-extension.appendArtifactoryProperties>
+	</properties>
+
 	<profiles>
 		<profile>
 			<id>AP</id>
