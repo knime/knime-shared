@@ -2,6 +2,8 @@
 <site>
     <feature id="org.knime.features.util" version="0.0.0" />
     <feature id="org.knime.features.util.source" version="0.0.0" />
+    <bundle id="org.apache.xmlbeans" version="0.0.0" />
+    <bundle id="org.apache.xmlbeans.source" version="0.0.0" />
 
     <category-def name="knime-shared" label="Build artifacts from knime-shared">
         <description>Build artifacts from knime-shared</description>
