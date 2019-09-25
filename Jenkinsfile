@@ -11,61 +11,64 @@ properties([
 
 
 try {
-	// Tycho build for AP
-	knimetools.defaultTychoBuild('org.knime.update.shared')
+	parallel 'Tycho Build': {
+		// Tycho build for AP
+		knimetools.defaultTychoBuild('org.knime.update.shared')
 
-	stage('Sonarqube analysis') {
-		env.lastStage = env.STAGE_NAME
-		workflowTests.runSonar([])
-	}
-
-	// Pure Maven build for SRV and WH
-	node('maven') {
-		stage('Checkout Sources') {
+		stage('Sonarqube analysis') {
 			env.lastStage = env.STAGE_NAME
-			checkout scm
+			workflowTests.runSonar([])
 		}
-
-        def changelist = knimetools.changelistSuffix()
-
-		stage('Maven Build') {
-			env.lastStage = env.STAGE_NAME
-			withMaven {
-				withCredentials([
-					usernamePassword(credentialsId: 'SONAR_CREDENTIALS', passwordVariable: 'SONAR_PASSWORD', usernameVariable: 'SONAR_LOGIN'),
-					usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
-				]) {
-					sh """
-						export PATH="\$MVN_CMD_DIR:\$PATH"
-						if [[ "\$BRANCH_NAME" == "master" ]]; then
-							SONAR_ARGS="sonar:sonar -Dsonar.password=\$SONAR_PASSWORD -Dsonar.login=\$SONAR_LOGIN"
-						fi
-						mvn -B -P SRV clean verify \$SONAR_ARGS -DskipTests=false -Dmaven.test.failure.ignore=true -Dmaven.test.redirectTestOutputToFile=true -Dchangelist="${changelist}"
-					"""
-				}
+	},
+	'Maven Build': {
+		// Pure Maven build for SRV and WH
+		node('maven') {
+			stage('Checkout Sources') {
+				env.lastStage = env.STAGE_NAME
+				checkout scm
 			}
 
-			junit '**/target/surefire-reports/TEST-*.xml'
-		}
+	        def changelist = knimetools.changelistSuffix()
 
-		if (currentBuild.result != 'UNSTABLE') {
-			stage('Deploy') {
+			stage('Maven Build') {
 				env.lastStage = env.STAGE_NAME
 				withMaven {
 					withCredentials([
+						usernamePassword(credentialsId: 'SONAR_CREDENTIALS', passwordVariable: 'SONAR_PASSWORD', usernameVariable: 'SONAR_LOGIN'),
 						usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
 					]) {
 						sh """
-                            export PATH="\$MVN_CMD_DIR:\$PATH"
-                            mvn -B -P SRV deploy -DskipTests=true -DskipITs=true -Dchangelist="${changelist}"
-                        """
+							export PATH="\$MVN_CMD_DIR:\$PATH"
+							if [[ "\$BRANCH_NAME" == "master" ]]; then
+								SONAR_ARGS="sonar:sonar -Dsonar.password=\$SONAR_PASSWORD -Dsonar.login=\$SONAR_LOGIN"
+							fi
+							mvn -B -P SRV clean verify \$SONAR_ARGS -DskipTests=false -Dmaven.test.failure.ignore=true -Dmaven.test.redirectTestOutputToFile=true -Dchangelist="${changelist}"
+						"""
 					}
 				}
+
+				junit '**/target/surefire-reports/TEST-*.xml'
 			}
-		} else {
-			echo "===========================================\n" +
-				 "| Build unstable, not deploying artifacts.|\n" +
-				 "==========================================="
+
+			if (currentBuild.result != 'UNSTABLE') {
+				stage('Deploy') {
+					env.lastStage = env.STAGE_NAME
+					withMaven {
+						withCredentials([
+							usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')
+						]) {
+							sh """
+	                            export PATH="\$MVN_CMD_DIR:\$PATH"
+	                            mvn -B -P SRV deploy -DskipTests=true -DskipITs=true -Dchangelist="${changelist}"
+	                        """
+						}
+					}
+				}
+			} else {
+				echo "===========================================\n" +
+					 "| Build unstable, not deploying artifacts.|\n" +
+					 "==========================================="
+			}
 		}
 	}
 } catch (ex) {
