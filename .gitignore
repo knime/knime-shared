@@ -2,3 +2,4 @@
 */target/
 */build/
 */.polyglot.build.properties
+**/.flattened-pom.xml
