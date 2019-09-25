@@ -25,26 +25,8 @@ try {
 			env.lastStage = env.STAGE_NAME
 			checkout scm
 		}
-		
-		def commitHash = sh (
-            returnStdout: true,
-            script: 'git rev-parse --short HEAD'
-        ).trim()
-        def commitTs = sh (
-            returnStdout: true,
-            script: 'date -d @$(git show -s --format=format:%ct) +%Y%m%d-%H%M%S'
-        ).trim();
 
-        def changelist
-        if (params.RELEASE_BUILD == true) {
-            changelist = ".${commitHash}"
-        } else if (BRANCH_NAME == "master") {
-            changelist = "-beta-${commitTs}-${commitHash}"
-        } else if (BRANCH_NAME.startsWith("releases/")) {
-            changelist = "-rc-${commitTs}-${commitHash}"
-        } else {
-            changelist = "-alpha-" + BRANCH_NAME.replace("/", "-") + "-${commitTs}-${commitHash}"
-        }
+        def changelist = knimetools.changelistSuffix()
 
 		stage('Maven Build') {
 			env.lastStage = env.STAGE_NAME
@@ -58,7 +40,7 @@ try {
 						if [[ "\$BRANCH_NAME" == "master" ]]; then
 							SONAR_ARGS="sonar:sonar -Dsonar.password=\$SONAR_PASSWORD -Dsonar.login=\$SONAR_LOGIN"
 						fi
-						mvn -B -P SRV clean verify \$SONAR_ARGS -DskipTests=false -Dmaven.test.failure.ignore=true -Dmaven.test.redirectTestOutputToFile=true -Dchangelist="${changelist}" ${dockerTag}
+						mvn -B -P SRV clean verify \$SONAR_ARGS -DskipTests=false -Dmaven.test.failure.ignore=true -Dmaven.test.redirectTestOutputToFile=true -Dchangelist="${changelist}"
 					"""
 				}
 			}
