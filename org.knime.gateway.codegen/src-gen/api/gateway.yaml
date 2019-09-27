@@ -954,8 +954,9 @@ paths:
         '200':
           description: Successful response with a list of the web-resources.
           content:
-            # TODO media type might need to be revisited
-            application/octet-stream:
+            # media type will be guessed and replaced by the framework based
+            # on the file type requested (in the request path)
+            '*/*':
               schema:
                 type: string
                 format: binary
