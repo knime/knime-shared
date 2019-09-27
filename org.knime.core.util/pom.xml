@@ -15,6 +15,7 @@
 	<groupId>org.knime</groupId>
 	<artifactId>core.util</artifactId>
 	<version>${revision}${changelist}</version>
+	<name>KNIME Core Utilities</name>
 	<packaging>jar</packaging>
 
 	<properties>

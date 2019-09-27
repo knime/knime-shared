@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: KNIME Core Utility Plugin
+Bundle-Name: KNIME Core Utilities Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
 Bundle-Version: 5.12.0.qualifier
 Bundle-ClassPath: .
