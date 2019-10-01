@@ -83,6 +83,28 @@ public final class CoreConstants {
     public static final String KNIME_HUB_MOUNT_ID = "My-KNIME-Hub";
 
     /**
+     * Name of the file that contains the configuration parameter names and their default values.
+     */
+    public static final String CONFIGURATION_FILE = "workflow-configuration.json";
+
+    /**
+     * Name of the file that contains the configuration representation.
+     */
+    public static final String CONFIGURATION_REPRESENTATION_FILE = "workflow-configuration-representation.json";
+
+    /** JSON field prefix for the workflow credentials. */
+    public static final String WORKFLOW_CREDENTIALS = "knime.cred.";
+
+    /** JSON field prefix for the workflow variables. */
+    public static final String WORKFLOW_VARIABLES = "knime.var.";
+
+    /**
+     * Since we don't expose the real password to the world, we need to send a magic placeholder instead. When sent back
+     * to the node it indicates that the default password from the node settings should be used.
+     */
+    public static final String MAGIC_DEFAULT_PASSWORD = "*************";
+
+    /**
      * The default view for serializing Jackson Annotated classes. Doesn't need to be specified explicitly because
      * properties without view annotation are always serialized.
      */
