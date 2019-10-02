@@ -1145,7 +1145,7 @@ public class WorkflowalizerTest {
      * Tests that the component template has the correct structure
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testComponentTemplateStructure() throws Exception {
@@ -1159,7 +1159,7 @@ public class WorkflowalizerTest {
      * Tests reading the "workflow" fields of the component template
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateWorkflowFields() throws Exception {
@@ -1193,7 +1193,7 @@ public class WorkflowalizerTest {
      * Tests reading a components ports.
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplatePorts() throws Exception {
@@ -1233,7 +1233,7 @@ public class WorkflowalizerTest {
      * Tests that all "view" (JS views, quickforms, widget, etc.) nodes were read.
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateViewNodes() throws Exception {
@@ -1255,7 +1255,7 @@ public class WorkflowalizerTest {
      * Tests reading the component template's description.
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateDescription() throws Exception {
@@ -1270,7 +1270,7 @@ public class WorkflowalizerTest {
      * Tests reading the component template's dialog.
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateDialog() throws Exception {
@@ -1293,7 +1293,7 @@ public class WorkflowalizerTest {
      * Tests reading a component template with nested elements (i.e. other components or metanodes).
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateNested() throws Exception {
@@ -1350,7 +1350,7 @@ public class WorkflowalizerTest {
      * Tests reading a component template which has no ports.
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateNoPorts() throws Exception {
@@ -1382,7 +1382,7 @@ public class WorkflowalizerTest {
      * Tests reading a component template which has ports but without descriptions.
      *
      * @throws Exception if an error occurs
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentNoPortDescriptions() throws Exception {
@@ -1411,7 +1411,7 @@ public class WorkflowalizerTest {
      * Tests reading a component template whose ports are not all connected.
      *
      * @throws Exception
-     * @since 5.12
+     * @since 5.13
      */
     @Test
     public void testReadingComponentTemplateMissingConnections() throws Exception {
