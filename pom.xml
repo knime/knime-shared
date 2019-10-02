@@ -6,20 +6,23 @@
 
 	<parent>
 		<groupId>org.knime.maven</groupId>
-		<artifactId>parent-pom</artifactId>
-		<version>4.1.0-SNAPSHOT</version>
+		<!-- For some bizarre reason this must be the AP parent otherwise the Tycho build fails. -->
+		<artifactId>ap.parent</artifactId>
+		<version>1.0.0</version>
 	</parent>
 
 	<groupId>org.knime</groupId>
 	<artifactId>knime-shared</artifactId>
 	<version>${revision}${changelist}</version>
 	<packaging>pom</packaging>
+	<name>Aggregator POM for knime-shared</name>
 
 	<properties>
 		<revision>4.1.0</revision>
 		<changelist>-alpha</changelist>
+		<maven.install.skip>true</maven.install.skip>
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
-
 
 	<profiles>
 		<profile>
@@ -36,7 +39,7 @@
 
 			<modules>
 				<module>org.apache.xmlbeans</module>
-				<module>org.knime.core.util/pom-tycho.xml</module>
+				<module>org.knime.core.util/pom-AP.xml</module>
 				<module>org.knime.features.util</module>
 				<module>org.knime.gateway.codegen</module>
 				<module>org.knime.update.shared</module>
@@ -52,9 +55,11 @@
 		</profile>
 		<profile>
 			<id>SRV</id>
+
 			<properties>
 				<feature-branch-extension.appendArtifactoryProperties>true</feature-branch-extension.appendArtifactoryProperties>
 			</properties>
+
 			<modules>
 				<module>org.knime.core.util</module>
 			</modules>

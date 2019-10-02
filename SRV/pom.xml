@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.knime.maven</groupId>
+		<artifactId>server.parent</artifactId>
+		<version>1.0.0</version>
+		<!-- Empty relative path required, otherwise it defaults to ../pom.xml which is wrong. -->
+		<relativePath></relativePath>
+	</parent>
+
+	<groupId>com.knime</groupId>
+	<artifactId>knime-shared</artifactId>
+	<version>${revision}${changelist}</version>
+	<packaging>pom</packaging>
+	<name>Aggregator POM for knime-shared SRV build</name>
+
+	<properties>
+		<revision>4.1.0</revision>
+		<changelist>-alpha</changelist>
+		<feature-branch-extension.appendArtifactoryProperties>true</feature-branch-extension.appendArtifactoryProperties>
+	</properties>
+
+	<modules>
+		<module>../org.knime.core.util</module>
+	</modules>
+</project>
+
+<!-- vim: set ts=4: -->
