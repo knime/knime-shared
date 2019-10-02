@@ -810,7 +810,7 @@ public final class PathUtils {
      *
      * @param p a path
      * @throws IOException if an I/O error occurs
-     * @since 5.12
+     * @since 5.13
      */
     public static void deleteFileIfExists(final Path p) throws IOException {
         Files.deleteIfExists(p);
