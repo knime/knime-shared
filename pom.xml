@@ -19,7 +19,7 @@
 
 	<properties>
 		<revision>4.1.0</revision>
-		<changelist>-alpha</changelist>
+		<changelist>-LOCAL</changelist>
 		<maven.install.skip>true</maven.install.skip>
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>

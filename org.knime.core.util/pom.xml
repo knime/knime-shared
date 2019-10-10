@@ -21,7 +21,7 @@
 
 	<properties>
 		<revision>5.13.0</revision>
-		<changelist>-alpha</changelist>
+		<changelist>-LOCAL</changelist>
 	</properties>
 
 	<dependencies>
