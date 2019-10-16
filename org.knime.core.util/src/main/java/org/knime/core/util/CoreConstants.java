@@ -82,21 +82,45 @@ public final class CoreConstants {
      */
     public static final String KNIME_HUB_MOUNT_ID = "My-KNIME-Hub";
 
-    /**
-     * Name of the file that contains the configuration parameter names and their default values.
-     */
-    public static final String CONFIGURATION_FILE = "workflow-configuration.json";
-
-    /**
-     * Name of the file that contains the configuration representation.
-     */
-    public static final String CONFIGURATION_REPRESENTATION_FILE = "workflow-configuration-representation.json";
-
     /** JSON field prefix for the workflow credentials. */
     public static final String WORKFLOW_CREDENTIALS = "knime.cred.";
 
     /** JSON field prefix for the workflow variables. */
     public static final String WORKFLOW_VARIABLES = "knime.var.";
+
+    /**
+     * Enum used to differentiate between configuration template and configuration representation.
+     *
+     * @author Moritz Heine, KNIME GmbH, Konstanz, Germany
+     */
+    public static enum ConfigurationType {
+        /**
+         * Denotes the configuration template of a workflow containing the configuration parameter names and their
+         * default values.
+         */
+        CONFIGURATION_TEMPLATE("workflow-configuration.json"),
+        /**
+         * Denotes the configuration representation, i.e. the serialized dialog representations of configuration
+         * nodes.
+         */
+        CONFIGURATION_REPRESENTATION("workflow-configuration-representation.json");
+
+        private final String m_fileName;
+
+        private ConfigurationType(final String path) {
+            m_fileName = path;
+        }
+
+        /**
+         * Returns the name of the file that is stored in the artifacts folder containing the json of this configuration
+         * type.
+         *
+         * @return the path to the artifacts file containing the configuration of the specified type.
+         */
+        public String getFileName() {
+            return m_fileName;
+        }
+    }
 
     /**
      * Since we don't expose the real password to the world, we need to send a magic placeholder instead. When sent back
