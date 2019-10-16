@@ -22,6 +22,7 @@
 		<changelist>-LOCAL</changelist>
 		<maven.install.skip>true</maven.install.skip>
 		<maven.deploy.skip>true</maven.deploy.skip>
+		<sonar.projectName>Shared Open Source Libraries</sonar.projectName>
 	</properties>
 
 	<profiles>
