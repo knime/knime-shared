@@ -861,6 +861,9 @@ paths:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidSettings'
         - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
         - $ref: '#/components/x-knime-gateway-executor-exceptions/Timeout'
+      x-knime-gateway-executor-exception-to-server-response-map:
+        - executor-exception: InvalidSettingsException
+          server-response: '406'
       responses:
         '200':
           description: Successful response with the next page's content if async is false. Otherwise an empty response.
@@ -871,6 +874,8 @@ paths:
                 format: binary
         '400':
           $ref: "#/components/responses/GatewayExecutorException"
+        '406':
+          $ref: "#/components/responses/ValidationError"
         '403':
           $ref: '#/components/responses/NoPermission'
         '504':
@@ -1058,21 +1063,13 @@ components:
   # In the generated java-code responses (except 200 and 201 responses) are (optionally) mapped to one or more exceptions
   # that are thrown respectively.
   # The expected exceptions for a response are defined by the response's 'x-knime-gateway-server-exceptions'-extension (see below).
-  # A fully qualified class name must be specified ('fullname'-property) and a respective exception mapper
-  # (http-code to exception) must be provided (TODO: could probably be auto-generated).
+  # A fully qualified class name must be specified ('fullname'-property).
+  # The specified exceptions will, e.g., be added as thrown exceptions in the method signature of the server side endpoint definitions.
   # 
   # The exceptions specified here are only thrown by/in the server and returned as response.
   # Exceptions thrown by/in the executor (see above) are defined and handled differently.
   responses:
-    # server responses/exceptions
-    GatewayExecutorException:
-      description: >-
-        Response returned when a gateway service threw an exception in the executor.
-        The exception is one of the executor-exceptions listed above.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/GatewayException"
+    # server responses
     InternalServerError:
       description: >-
         Internal server error, e.g. if an error occurs while fetching job
@@ -1090,7 +1087,25 @@ components:
       description: If the current user does not have access permissions for the job.
       x-knime-gateway-server-exceptions:
         - fullname: com.knime.enterprise.utility.PermissionException
+        
+    # server responses without exceptions defined
+    GatewayExecutorException:
+      description: >-
+        Response returned when a gateway service threw an exception in the executor.
+        The exception is one of the executor-exceptions listed above.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GatewayException"
+    ValidationError:
+      description: >-
+        Server response returned when wizard page validation failed on the next-page call.
+      content:
+        application/json:
+          schema:
+            type: string
   
+
   requestBodies:
     Bounds:
       content:

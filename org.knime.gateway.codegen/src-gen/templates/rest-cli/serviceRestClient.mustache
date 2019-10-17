@@ -64,7 +64,7 @@ public class {{classname}} extends AbstractGatewayClient<{{baseName}}> implement
             }{{>rest-cli/returnType}});
         } catch (WebApplicationException ex) {
             //executor errors
-            com.knime.gateway.entity.GatewayExceptionEnt gatewayException = readAndParseGatewayExceptionResponse(ex);
+            com.knime.gateway.entity.GatewayExceptionEnt gatewayException = readAndParseGatewayExceptionResponse(ex, "{{baseName}}", "{{nickname}}");
         {{#vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
             if (gatewayException.getExceptionName().equals("{{name}}")) {
                 throw new {{>exceptionName}}(gatewayException.getExceptionMessage());

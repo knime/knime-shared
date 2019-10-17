@@ -18,6 +18,11 @@
                 "templateFile" : "rest-cli/serviceInterface2RestClientMap.mustache",
                 "package" : "com.knime.gateway.rest.client",
                 "destinationFileName" : "ServiceInterface2RestClientMap.java"
+            },
+            {
+                "templateFile" : "rest-cli/responseToExceptionMap.mustache",
+                "package" : "com.knime.gateway.rest.client",
+                "destinationFileName" : "ResponseToExceptionMap.java"
             }
         ]
     }   

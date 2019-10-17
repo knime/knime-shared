@@ -11,6 +11,13 @@
     "additionalProperties" : {
         "codegenName" : "rest-impl",
         "apiTemplateFile" : "rest/impl.mustache",
-        "apiNamePattern" : "##name##Impl"
+        "apiNamePattern" : "##name##Impl",
+        "supportingFiles" : [
+            {
+                "templateFile" : "rest/exceptionToResponseMap.mustache",
+                "package" : "com.knime.enterprise.gateway.rest.impl",
+                "destinationFileName" : "ExceptionToResponseMap.java"
+            }
+        ]
     }
 }

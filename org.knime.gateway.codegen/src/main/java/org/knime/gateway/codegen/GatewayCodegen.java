@@ -71,6 +71,8 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
@@ -103,6 +105,8 @@ public class GatewayCodegen extends AbstractJavaCodegen {
 	private String m_modelPropertyNamePattern;
 
 	private String m_modelPropertyPackage;
+
+    private Map<String, Schema> m_schemas;
 
 	@Override
 	public void processOpts() {
@@ -221,7 +225,30 @@ public class GatewayCodegen extends AbstractJavaCodegen {
         co.vendorExtensions.put("x-knime-gateway-codegen-server-exceptions",
             m_operationServerExceptions.get(operation.getOperationId()));
 
-		super.addOperationToGroup(tag, resourcePath, operation, co, operations);
+        //set 'isResponseBinary' flag if a json schema returned at 200
+        //has the 'x-knime-gateway-binary-response' extension
+        //-> those responses will be transfered as binary json between
+        //the server and the executor
+        ApiResponse apiResponse = operation.getResponses().get("200");
+        if (apiResponse != null) {
+            Content content = apiResponse.getContent();
+            if (content != null) {
+                MediaType mediaType = content.get("application/json");
+                if (mediaType != null) {
+                    String ref = mediaType.getSchema().get$ref();
+                    if (ref != null) {
+                        Map extensions = m_schemas.get(extractNameFromRef(ref)).getExtensions();
+                        if (extensions != null) {
+                            Object extension = extensions.get("x-knime-gateway-binary-response");
+                            if (Boolean.TRUE.equals(extension)) {
+                                co.isResponseBinary = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    	super.addOperationToGroup(tag, resourcePath, operation, co, operations);
 	}
 
 	@Override
@@ -348,6 +375,7 @@ public class GatewayCodegen extends AbstractJavaCodegen {
             resolveAndCollectExecutorExceptionsForOperation(o, executorExceptions);
             collectServerExceptionsForOperation(o);
         });
+        m_schemas = openAPI.getComponents().getSchemas();
     }
 
     /**
@@ -387,6 +415,21 @@ public class GatewayCodegen extends AbstractJavaCodegen {
             op.getExtensions().put("x-knime-gateway-executor-exceptions", replaced);
         }
 
+        //make exception to response mapping available globally
+        List<Map<String, String>> exceptionToResponseMapExt;
+        if (op.getExtensions() != null && (exceptionToResponseMapExt = (List<Map<String, String>>)op.getExtensions()
+            .get("x-knime-gateway-executor-exception-to-server-response-map")) != null) {
+            List list = (List)additionalProperties()
+                .computeIfAbsent("x-knime-gateway-executor-exception-to-server-response-map", k -> new ArrayList());
+            exceptionToResponseMapExt.forEach(m -> {
+                Map<String, String> item = new HashMap<>();
+                item.put("executor-exception", m.get("executor-exception"));
+                item.put("server-response", m.get("server-response"));
+                item.put("service", op.getTags().get(0));
+                item.put("method", op.getOperationId());
+                list.add(item);
+            });
+        }
     }
 
     /**
