@@ -8,9 +8,9 @@
 	<parent>
 		<groupId>com.knime.maven</groupId>
 		<artifactId>server.parent</artifactId>
-		<version>1.0.0</version>
+		<version>4.10.0</version>
 		<!-- Empty relative path required, otherwise it defaults to ../pom.xml which is wrong. -->
-		<relativePath></relativePath>
+		<relativePath>../../knime-maven-parent/com.knime.maven.server.parent</relativePath>
 	</parent>
 
 	<groupId>org.knime</groupId>
