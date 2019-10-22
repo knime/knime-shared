@@ -803,16 +803,13 @@ paths:
       operationId: getCurrentPage
       parameters:
         - $ref: '#/components/parameters/job-id'
-      x-knime-gateway-executor-exceptions:
-         - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
       responses:
         '200':
           description: Successful response with the current page content.
           content:
             application/json:
               schema:
-                type: string 
-                format: binary
+                $ref: "#/components/schemas/WizardPage"
         '400':
           $ref: '#/components/responses/GatewayExecutorException'
         '403':
@@ -870,8 +867,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                format: binary
+                $ref: "#/components/schemas/WizardPage"
         '400':
           $ref: "#/components/responses/GatewayExecutorException"
         '406':
@@ -900,8 +896,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                format: binary
+                $ref: "#/components/schemas/WizardPage"
         '400':
           $ref: "#/components/responses/GatewayExecutorException"
         '403':
@@ -1808,6 +1803,35 @@ components:
         foregroundColor:
           description: Style range foreground color.
           type: integer
+          
+    WizardPage:
+      description: >
+        Wizard page as returned, e.g., by the next-page and current-page endpoints.
+      type: object
+      properties:
+        wizardPageContent:
+          description: >
+            The actual page content as provided by a component.
+            Page content is guaranteed to be not available if wizard execution state is 'executing', 'undefined' or 'execution_failed'.
+          type: string
+        wizardExecutionState:
+          description: >
+            The wizard execution state.
+          type: string
+          enum:
+            - INTERACTION_REQUIRED
+            - EXECUTING
+            - EXECUTION_FINISHED
+            - EXECUTION_FAILED
+            - UNDEFINED
+        nodeMessages:
+          description: The node (name and id) to node message map. Only available if workflow execution finished or failed.
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/NodeMessage'
+        hasPreviousPage:
+          description: Whether there is a previous page available or not.
+          type: boolean
           
     WizardPageInput:
       description: Input data required to execute one wizard page of a workflow.
