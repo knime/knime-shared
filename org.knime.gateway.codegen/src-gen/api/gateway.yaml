@@ -1813,7 +1813,7 @@ components:
           description: >
             The actual page content as provided by a component.
             Page content is guaranteed to be not available if wizard execution state is 'executing', 'undefined' or 'execution_failed'.
-          type: string
+          type: object
         wizardExecutionState:
           description: >
             The wizard execution state.
