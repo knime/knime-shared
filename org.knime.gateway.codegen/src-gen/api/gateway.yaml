@@ -952,14 +952,19 @@ paths:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
       responses:
         '200':
-          description: Successful response with a list of the web-resources.
+          description: Response with the web-resource.
           content:
             # media type will be guessed and replaced by the framework based
             # on the file type requested (in the request path)
             '*/*':
               schema:
                 type: string
+                #NOTE: binary responses will have the Last-Modified header set
+                # -> 304 (not modified) will be returned if the precondition is true!
+                #TODO: introduce an extra property to mark static responses
                 format: binary
+        '304':
+          $ref: "#/components/responses/NotModified" 
         '400':
           $ref: '#/components/responses/GatewayExecutorException'
         '403':
@@ -1082,6 +1087,8 @@ components:
       description: If the current user does not have access permissions for the job.
       x-knime-gateway-server-exceptions:
         - fullname: com.knime.enterprise.utility.PermissionException
+    NotModified:
+      description: If a requested resource hasn't been modified (in case of conditional requests). 
         
     # server responses without exceptions defined
     GatewayExecutorException:
