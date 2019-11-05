@@ -906,6 +906,32 @@ paths:
         '505':
           $ref: '#/components/responses/InternalServerError'
           
+  '/workflow/wizard/execution-statistics':
+    get:
+      tags:
+        - WizardExecution
+      description: Provides statistics on the node execution between wizard pages. 
+      operationId: getExecutionStatistics
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
+      responses:
+        '200':
+          description: 'Successful response with the execution statistics since the last page or last call (if snapshot id is provided).'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionStatistics"
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: "#/components/responses/NoPermission"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
+          
   '/workflow/wizard/web-resources':
     get:
       tags:
@@ -1750,6 +1776,59 @@ components:
         optional:
           description: 'Whether the port is optional, only applies to input ports.'
           type: boolean
+    
+    ExecutionStatistics:
+      description: Statistics and progress on the workflow execution.
+      type: object
+      properties:
+        totalExecutionDuration:
+          description: Total time execution took or is still taking, in milliseconds.
+          type: number 
+        nodesExecuted:
+          description: Nodes executed since the last snapshot (or triggered execution).
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeExecutedStatistics"
+        nodesExecuting:
+          description: Nodes currently executing (TODO since last snapshot), in no particular order.
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeExecutingStatistics"
+     
+    NodeExecutedStatistics:
+      description: Details and statistics on a node already executed.
+      type: object
+      properties:
+        name:
+          type: string
+        annotation:
+          description: The node annotation if set.
+          type: string
+        nodeID:
+          type: string   
+        executionDuration:
+          description: The time it took for the node to finish (ms).
+          type: number
+        runs:
+          description: How often the node has been executed (>1 if node is in a loop)
+          type: number
+          
+    NodeExecutingStatistics:
+      description: Details and statistics on a node still in execution.
+      type: object
+      properties:
+        name:
+          type: string
+        annotation:
+          description: The node annotation if set.
+          type: string
+        nodeID:
+          type: string
+        executionDuration:
+          description: The time the execution took so far (ms).
+          type: number
+        progress:
+          type: number
 
     NodeSettings:
       description: Settings of a node.
