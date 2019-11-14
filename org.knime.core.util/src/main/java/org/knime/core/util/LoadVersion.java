@@ -130,6 +130,12 @@ public enum LoadVersion {
          */
         V3080("3.8.0"),
         /**
+         * Changed variable tree hierarchy in node settings.
+         *
+         * @since 5.13
+         */
+        V4010("4.1.0"),
+        /**
          * Try to be forward compatible.
          *
          * @since 2.8
