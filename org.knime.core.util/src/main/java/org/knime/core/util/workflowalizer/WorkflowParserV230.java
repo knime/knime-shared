@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -122,5 +123,32 @@ final class WorkflowParserV230 extends AbstractWorkflowParser {
             return Optional.ofNullable(settingsXml.getString("node-name"));
         }
         return nodeXml.containsKey("name") ? Optional.ofNullable(nodeXml.getString("name")) : Optional.empty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getComponentTemplateDescription(final ConfigBase inputSettingsXml,
+        final ConfigBase settingsXml) throws InvalidSettingsException {
+        return getComponentDescriptionFromVirtualInputNode(inputSettingsXml);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortNamesFromVirtualNodes(nodeConfiguration);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortDescriptionsFromVirtualNodes(nodeConfiguration);
     }
 }

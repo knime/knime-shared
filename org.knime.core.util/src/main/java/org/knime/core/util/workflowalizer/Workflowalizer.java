@@ -836,12 +836,12 @@ public final class Workflowalizer {
                 if (nn.getNodeConfiguration().isPresent()) {
                     final ConfigBase nodeConfig = nn.getNodeConfiguration().get();
                     if (n.getNodeId().equals(inputId + "")) {
-                        description = parser.getComponentTemplateDescription(nodeConfig);
-                        inportNames = parser.getPortNames(nodeConfig);
-                        inportDescriptions = parser.getPortDescriptions(nodeConfig);
+                        description = parser.getComponentTemplateDescription(nodeConfig, settingsXml);
+                        inportNames = parser.getPortNames(nodeConfig, settingsXml, true);
+                        inportDescriptions = parser.getPortDescriptions(nodeConfig, settingsXml, true);
                     } else if (n.getNodeId().equals(outputId + "")) {
-                        outportNames = parser.getPortNames(nodeConfig);
-                        outportDescriptions = parser.getPortDescriptions(nodeConfig);
+                        outportNames = parser.getPortNames(nodeConfig, settingsXml, false);
+                        outportDescriptions = parser.getPortDescriptions(nodeConfig, settingsXml, false);
                     } else {
                         if (parser.isDialogNode(nodeConfig)) {
                             final Optional<String> fieldName = parser.getDialogFieldName(nodeConfig);

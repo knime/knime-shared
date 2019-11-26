@@ -436,18 +436,6 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Optional<String> getComponentTemplateDescription(final ConfigBase config) throws InvalidSettingsException {
-        if (config.containsKey("sub-node-description")) {
-            final String desc = config.getString("sub-node-description");
-            return StringUtils.isEmpty(desc) ? Optional.empty() : Optional.of(desc);
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isDialogNode(final ConfigBase nodeConfiguration) {
         return nodeConfiguration.containsKey("hideInDialog");
     }
@@ -458,53 +446,6 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     @Override
     public boolean isInteractiveViewNode(final ConfigBase nodeConfiguration) {
         return nodeConfiguration.containsKey("hideInWizard") || nodeConfiguration.containsKey("hide_in_wizard");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration) throws InvalidSettingsException {
-        if (nodeConfiguration.containsKey("port-names")) {
-            final String[] pns = nodeConfiguration.getStringArray("port-names");
-            if (ArrayUtils.isEmpty(pns)) {
-                return Collections.emptyList();
-            }
-            final List<Optional<String>> portNames = new ArrayList<>(pns.length);
-            for (int i = 0; i < pns.length; i++) {
-                if (StringUtils.isEmpty(pns[i])) {
-                    portNames.add(Optional.empty());
-                } else {
-                    portNames.add(Optional.of(pns[i]));
-                }
-            }
-            return portNames;
-        }
-        return Collections.emptyList();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration)
-        throws InvalidSettingsException {
-        if (nodeConfiguration.containsKey("port-descriptions")) {
-            final String[] pds = nodeConfiguration.getStringArray("port-descriptions");
-            if (ArrayUtils.isEmpty(pds)) {
-                return Collections.emptyList();
-            }
-            final List<Optional<String>> portDescriptions = new ArrayList<>(pds.length);
-            for (int i = 0; i < pds.length; i++) {
-                if (StringUtils.isEmpty(pds[i])) {
-                    portDescriptions.add(Optional.empty());
-                } else {
-                    portDescriptions.add(Optional.of(pds[i]));
-                }
-            }
-            return portDescriptions;
-        }
-        return Collections.emptyList();
     }
 
     /**
@@ -702,4 +643,146 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         };
         return files.anyMatch(predicate);
     }
+
+    // -- protected helper methods --
+
+    /**
+     * Returns the port names by extracting them from the node configuration of a component input/output node.
+     *
+     * @param nodeConfiguration the node configuration of a component input/output node
+     * @return the port names
+     * @throws InvalidSettingsException if an exception occurs when accessing fields
+     */
+    protected List<Optional<String>> getPortNamesFromVirtualNodes(final ConfigBase nodeConfiguration)
+        throws InvalidSettingsException {
+        if (nodeConfiguration.containsKey("port-names")) {
+            final String[] pns = nodeConfiguration.getStringArray("port-names");
+            if (ArrayUtils.isEmpty(pns)) {
+                return Collections.emptyList();
+            }
+            final List<Optional<String>> portNames = new ArrayList<>(pns.length);
+            for (int i = 0; i < pns.length; i++) {
+                if (StringUtils.isEmpty(pns[i])) {
+                    portNames.add(Optional.empty());
+                } else {
+                    portNames.add(Optional.of(pns[i]));
+                }
+            }
+            return portNames;
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns the port names by extracting them for a component's settings.xml file.
+     *
+     * @param settingsXml the {@link ConfigBase} the settings.xml file was read into.
+     * @param readInport {@code true} if the inport names should be read, otherwise outport names are read
+     * @return the port names
+     * @throws InvalidSettingsException if an exception occurs when accessing fields
+     */
+    protected List<Optional<String>> getPortNamesFromSettingsXml(final ConfigBase settingsXml, final boolean readInport)
+        throws InvalidSettingsException {
+        return getPortInfoFromSettingsXml(settingsXml, readInport, "name");
+    }
+
+    /**
+     * Returns the port descriptions, as extracted from the node configuration of a component input/output node.
+     *
+     * @param nodeConfiguration the node configuration of a component input/output node
+     * @return the port descriptions
+     * @throws InvalidSettingsException if an exception occurs when accessing fields
+     */
+    protected List<Optional<String>> getPortDescriptionsFromVirtualNodes(final ConfigBase nodeConfiguration)
+        throws InvalidSettingsException {
+        if (nodeConfiguration.containsKey("port-descriptions")) {
+            final String[] pds = nodeConfiguration.getStringArray("port-descriptions");
+            if (ArrayUtils.isEmpty(pds)) {
+                return Collections.emptyList();
+            }
+            final List<Optional<String>> portDescriptions = new ArrayList<>(pds.length);
+            for (int i = 0; i < pds.length; i++) {
+                if (StringUtils.isEmpty(pds[i])) {
+                    portDescriptions.add(Optional.empty());
+                } else {
+                    portDescriptions.add(Optional.of(pds[i]));
+                }
+            }
+            return portDescriptions;
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns the port descriptions by extracting them for a component's settings.xml file.
+     *
+     * @param settingsXml the {@link ConfigBase} the settings.xml file was read into.
+     * @param readInport {@code true} if the inport descriptions should be read, otherwise outport descriptions are read
+     * @return the port descriptions
+     * @throws InvalidSettingsException if an exception occurs when accessing fields
+     */
+    protected List<Optional<String>> getPortDescriptionsFromSettingsXml(final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortInfoFromSettingsXml(settingsXml, readInport, "description");
+    }
+
+    /**
+     * Returns the component's description by extracting it from the component's virtual input node.
+     *
+     * @param virtualInputXml the {@link ConfigBase} the virtual input node's settings.xml was read into
+     * @return the description
+     * @throws InvalidSettingsException if an exception occurs when accessing fields
+     */
+    protected Optional<String> getComponentDescriptionFromVirtualInputNode(final ConfigBase virtualInputXml)
+        throws InvalidSettingsException {
+        if (virtualInputXml.containsKey("sub-node-description")) {
+            final String desc = virtualInputXml.getString("sub-node-description");
+            return StringUtils.isEmpty(desc) ? Optional.empty() : Optional.of(desc);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Returns the component's description by extracting it from the component's settings.xml.
+     *
+     * @param settingsXml the {@link ConfigBase} the settings.xml was read into
+     * @return the description
+     * @throws InvalidSettingsException if an exception occurs when accessing fields
+     */
+    protected Optional<String> getComponentDescriptionFromSettingsXml(final ConfigBase settingsXml)
+        throws InvalidSettingsException {
+        if (settingsXml.containsKey("metadata")) {
+            final ConfigBase metadata = settingsXml.getConfigBase("metadata");
+            final String desc = metadata.getString("description", "");
+            if (!desc.isEmpty()) {
+                return Optional.of(desc);
+            }
+        }
+        return Optional.empty();
+    }
+
+    // -- private helper methods --
+
+    private static List<Optional<String>> getPortInfoFromSettingsXml(final ConfigBase settingsXml,
+        final boolean readInport, final String entityField) throws InvalidSettingsException {
+        List<Optional<String>> fieldValues = Collections.emptyList();
+        if (settingsXml.containsKey("metadata")) {
+            final ConfigBase metadata = settingsXml.getConfigBase("metadata");
+            final String key = readInport ? "inports" : "outports";
+            if (metadata.containsKey(key)) {
+                final ConfigBase ports = metadata.getConfigBase(key);
+                fieldValues = new ArrayList<>(Collections.nCopies(ports.keySet().size(), Optional.empty()));
+                for (final String portKey : ports.keySet()) {
+                    final ConfigBase port = ports.getConfigBase(portKey);
+                    final int index = port.getInt("index", -1);
+                    final String fieldValue = port.getString(entityField, "");
+                    if (!fieldValue.isEmpty()) {
+                        fieldValues.set(index, Optional.of(fieldValue));
+                    }
+                }
+            }
+        }
+        return fieldValues;
+    }
+
 }

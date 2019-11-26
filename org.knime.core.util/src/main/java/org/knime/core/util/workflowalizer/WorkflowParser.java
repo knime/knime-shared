@@ -310,12 +310,14 @@ interface WorkflowParser {
     /**
      * Returns the description for this shared component.
      *
-     * @param config the {@link ConfigBase} the relevant XML was read into. Currently, this would be the settings.xml of
-     *            the component's virtual input node.
+     * @param inputSettingsXml the {@link ConfigBase} which represents settings.xml of the component's virtual input
+     *            node.
+     * @param settingsXml the {@link ConfigBase} which represents the settings.xml of the component.
      * @return the description
      * @throws InvalidSettingsException
      */
-    Optional<String> getComponentTemplateDescription(final ConfigBase config) throws InvalidSettingsException;
+    Optional<String> getComponentTemplateDescription(final ConfigBase inputSettingsXml, final ConfigBase settingsXml)
+        throws InvalidSettingsException;
 
     /**
      * Returns {@code true} if the node is a dialog, {@code false} otherwise.
@@ -336,28 +338,50 @@ interface WorkflowParser {
     boolean isInteractiveViewNode(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
 
     /**
-     * Returns the port names for a component. If these are the names of the inports or outports, depends on the
+     * Returns the port names for a component.
+     *
+     * <p>
+     * For load versions {@code <= 3.8.0}, if these are the names of the inports or outports depends on the
      * {@code nodeConfiguration} passed in. If the virtual input node's model configuration was passed in, then the port
      * names are for the inports.
+     * </p>
+     * <p>
+     * For load versions greater than 3.8.0, the port names can be read from the component's settings.xml file. And
+     * whether or not the inport/outport names are read depends on the value of {@code readInport}
+     * </p>
      *
      * @param nodeConfiguration the {@link ConfigBase} the components virtual input/output node model configuration was
      *            read into
+     * @param settingsXml the {@link ConfigBase} representing the component's settings.xml.
+     * @param readInport if {@code true} the inport names will be read, otherwise the outport names are read. This
+     *            variable is <b>only</b> respected for components with {@code loadVersion > 3.8.0}.
      * @return port names for the component
      * @throws InvalidSettingsException
      */
-    List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+    List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml, final boolean readInport) throws InvalidSettingsException;
 
     /**
-     * Returns the port descriptions for a component. If these are the names of the inports or outports, depends on the
+     * Returns the port descriptions for a component.
+     *
+     * <p>
+     * For load versions {@code <= 3.8.0}, if these are the descriptions of the inports or outports depends on the
      * {@code nodeConfiguration} passed in. If the virtual input node's model configuration was passed in, then the port
-     * description are for the inports.
+     * names are for the inports.
+     * </p>
+     * <p>
+     * For load versions {@code > 3.8.0}, the port descriptions can be read from the component's settings.xml file. And
+     * whether or not the inport/outport names are read depends on the value of {@code readInport}
+     * </p>
      *
      * @param nodeConfiguration the {@link ConfigBase} the components virtual input/output node model configuration was
      *            read into
+     * @param settingsXml the {@link ConfigBase} representing the component's settings.xml.
+     * @param readInport if {@code true} the inport names will be read, otherwise the outport descriptions are read.
+     *            This variable is <b>only</b> respected for components with {@code loadVersion > 3.8.0}.
      * @return port descriptions for the component
      * @throws InvalidSettingsException
      */
-    List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
+    List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml, final boolean readInport) throws InvalidSettingsException;
 
     /**
      * Returns a list of the inport object types, where the indices of the list correspond to the indices of the

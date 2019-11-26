@@ -48,6 +48,9 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
@@ -66,5 +69,32 @@ final class WorkflowParserV280 extends AbstractWorkflowParser {
     public NodeType getType(final ConfigBase config) throws InvalidSettingsException {
         final boolean isMetaNode = config.getBoolean("node_is_meta");
         return isMetaNode ? NodeType.METANODE : NodeType.NATIVE_NODE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getComponentTemplateDescription(final ConfigBase inputSettingsXml,
+        final ConfigBase settingsXml) throws InvalidSettingsException {
+        return getComponentDescriptionFromVirtualInputNode(inputSettingsXml);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortNamesFromVirtualNodes(nodeConfiguration);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortDescriptionsFromVirtualNodes(nodeConfiguration);
     }
 }

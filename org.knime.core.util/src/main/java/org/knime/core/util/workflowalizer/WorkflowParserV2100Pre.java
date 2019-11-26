@@ -49,12 +49,15 @@
 package org.knime.core.util.workflowalizer;
 
 
+import java.util.List;
+import java.util.Optional;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
- * {@code WorkflowParser} for parsing v2.10.0Pre through the current version (3.7.0) files
+ * {@code WorkflowParser} for parsing v2.10.0Pre through v3.8.0 files.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
@@ -75,4 +78,32 @@ final class WorkflowParserV2100Pre extends AbstractWorkflowParser {
         }
         throw new IllegalArgumentException("Unrecognized node type: " + type);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getComponentTemplateDescription(final ConfigBase inputSettingsXml,
+        final ConfigBase settingsXml) throws InvalidSettingsException {
+        return getComponentDescriptionFromVirtualInputNode(inputSettingsXml);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortNamesFromVirtualNodes(nodeConfiguration);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException {
+        return getPortDescriptionsFromVirtualNodes(nodeConfiguration);
+    }
+
 }
