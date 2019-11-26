@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -196,6 +197,8 @@ public final class HostUtils {
                 LOGGER.error("Error while querying host addresses");
                 LOGGER.debug("Error while querying host addresses", ex);
             }
+            LOGGER.debug("Detected the following IP addresses: "
+                + temp.stream().map(i -> i.toString()).collect(Collectors.joining(",")));
         }
 
         return ipAddresses;
@@ -226,6 +229,7 @@ public final class HostUtils {
                 LOGGER.error("Error while querying MAC addresses");
                 LOGGER.debug("Error while querying MAC addresses", ex);
             }
+            LOGGER.debug("Detected the following MAC addresses: " + temp.stream().collect(Collectors.joining(",")));
         }
 
         return macAddresses;
