@@ -56,18 +56,4 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/test/java/org/knime/core/util/workflowalizer/WorkflowalizerTest.java" type="org.knime.core.util.workflowalizer.WorkflowalizerTest">
-        <filter id="305324134">
-            <message_arguments>
-                <message_argument value="org.knime.core.util.workflowalizer.WorkflowalizerTest"/>
-                <message_argument value="org.knime.core.util_5.12.0"/>
-            </message_arguments>
-        </filter>
-        <filter id="305422471">
-            <message_arguments>
-                <message_argument value="org.knime.core.util.workflowalizer.WorkflowalizerTest"/>
-                <message_argument value="org.knime.core_4.0.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
 </component>
