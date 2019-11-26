@@ -105,4 +105,33 @@ final class WorkflowParserV410 extends AbstractWorkflowParser {
         return getPortDescriptionsFromSettingsXml(settingsXml, readInport);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getIcon(final ConfigBase settingsXml) throws InvalidSettingsException {
+        if (settingsXml.containsKey("metadata")) {
+            final ConfigBase metadata = settingsXml.getConfigBase("metadata");
+            final String icon = metadata.getString("icon", "");
+            if (!icon.isEmpty()) {
+                return Optional.of(icon);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getComponentType(final ConfigBase settingsXml) throws InvalidSettingsException {
+        if (settingsXml.containsKey("metadata")) {
+            final ConfigBase metadata = settingsXml.getConfigBase("metadata");
+            final String icon = metadata.getString("type", "");
+            if (!icon.isEmpty()) {
+                return Optional.of(icon);
+            }
+        }
+        return Optional.empty();
+    }
 }

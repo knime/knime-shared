@@ -1290,6 +1290,34 @@ public class WorkflowalizerTest {
     }
 
     /**
+     * Tests reading the component's type, for a component with {@code LoadVersion < 4.1.0}.
+     *
+     * @throws Exception
+     * @since 5.13
+     */
+    @Test
+    public void testReadingComponentType() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+        assertFalse(cm.getComponentType().isPresent());
+    }
+
+    /**
+     * Tests reading the component's icon, for a component with {@code LoadVersion < 4.1.0}.
+     *
+     * @throws Exception
+     * @since 5.13
+     */
+    @Test
+    public void testReadingComponentIcon() throws Exception {
+        final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
+        assertTrue(tm instanceof ComponentMetadata);
+        final ComponentMetadata cm = (ComponentMetadata)tm;
+        assertFalse(cm.getIcon().isPresent());
+    }
+
+    /**
      * Tests reading a component template with nested elements (i.e. other components or metanodes).
      *
      * @throws Exception
@@ -1344,6 +1372,12 @@ public class WorkflowalizerTest {
         assertEquals(2, cm.getViewNodes().size());
         assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
         assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory"));
+
+        // Type
+        assertFalse(cm.getComponentType().isPresent());
+
+        // Icon
+        assertFalse(cm.getIcon().isPresent());
     }
 
     /**
@@ -1376,6 +1410,12 @@ public class WorkflowalizerTest {
 
         // Views - including all nested views
         assertTrue(cm.getViewNodes().isEmpty());
+
+        // Type
+        assertFalse(cm.getComponentType().isPresent());
+
+        // Icon
+        assertFalse(cm.getIcon().isPresent());
     }
 
     /**
@@ -1455,6 +1495,12 @@ public class WorkflowalizerTest {
         // Views - including all nested views
         assertEquals(1, cm.getViewNodes().size());
         assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1d2c1a0e", cm.getViewNodes().get(0));
+
+        // Type
+        assertFalse(cm.getComponentType().isPresent());
+
+        // Icon
+        assertFalse(cm.getIcon().isPresent());
     }
 
     // -- Workflow group --
@@ -1752,6 +1798,7 @@ public class WorkflowalizerTest {
         return ids;
     }
 
+    @SuppressWarnings("hiding")
     private static AuthorInformation readAuthorInformation(final List<String> readWorkflowLines)
         throws IOException, ParseException {
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");

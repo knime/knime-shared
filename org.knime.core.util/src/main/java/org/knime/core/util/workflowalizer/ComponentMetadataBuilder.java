@@ -65,6 +65,8 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
     private List<ComponentPortInfo> m_outPorts;
     private List<ComponentDialogSection> m_dialog;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
+    private Optional<String> m_componentType;
+    private Optional<String> m_icon;
 
     void setDescription(final Optional<String> description) {
         m_description = description;
@@ -88,6 +90,14 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
 
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
         m_workflowSetMeta = workflowSetMeta;
+    }
+
+    void setComponentType(final Optional<String> componentType) {
+        m_componentType = componentType;
+    }
+
+    void setIcon(final Optional<String> icon) {
+        m_icon = icon;
     }
 
     Optional<String> getDescription() {
@@ -114,6 +124,14 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         return m_workflowSetMeta;
     }
 
+    Optional<String> getComponentType() {
+        return m_componentType;
+    }
+
+    Optional<String> getIcon() {
+        return m_icon;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -132,6 +150,8 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         checkPopulated(m_inPorts, "inPorts");
         checkPopulated(m_outPorts, "outPorts");
         checkPopulated(m_dialog, "dialog");
+        checkPopulated(m_componentType, "component type");
+        checkPopulated(m_icon, "icon");
         if (wc.parseWorkflowMeta()) {
             checkPopulated(m_workflowSetMeta, "workflow set meta");
         }

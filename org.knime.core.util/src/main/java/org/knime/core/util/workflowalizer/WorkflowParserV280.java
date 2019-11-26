@@ -97,4 +97,21 @@ final class WorkflowParserV280 extends AbstractWorkflowParser {
         final boolean readInport) throws InvalidSettingsException {
         return getPortDescriptionsFromVirtualNodes(nodeConfiguration);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getIcon(final ConfigBase settingsXml) throws InvalidSettingsException {
+        return Optional.empty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<String> getComponentType(final ConfigBase settingsXml) throws InvalidSettingsException {
+        return Optional.empty();
+    }
+
 }

@@ -89,6 +89,12 @@ public final class ComponentMetadata extends TemplateMetadata {
     @JsonProperty("workflowMeta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
+    @JsonProperty("componentType")
+    private final Optional<String> m_componentType;
+
+    @JsonProperty("icon")
+    private final Optional<String> m_icon;
+
     /**
      * Creates a POJO representing a component's metadata using the information set in the given
      * {@link ComponentMetadataBuilder}
@@ -110,6 +116,8 @@ public final class ComponentMetadata extends TemplateMetadata {
 
         m_dialog = builder.getDialog().stream().filter(dg -> !dg.isEmpty())
             .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        m_componentType = builder.getComponentType();
+        m_icon = builder.getIcon();
     }
 
     /**
@@ -127,6 +135,8 @@ public final class ComponentMetadata extends TemplateMetadata {
         m_outPorts = component.m_outPorts;
         m_dialog = component.m_dialog;
         m_workflowSetMeta = component.m_workflowSetMeta;
+        m_componentType = component.m_componentType;
+        m_icon = component.m_icon;
     }
 
     /**
@@ -185,6 +195,24 @@ public final class ComponentMetadata extends TemplateMetadata {
         return m_workflowSetMeta;
     }
 
+    /**
+     * Returns the type of this component (i.e. "Learner", "Manipulator", etc.).
+     *
+     * @return the component type
+     */
+    public Optional<String> getComponentType() {
+        return m_componentType;
+    }
+
+    /**
+     * Returns the component's icon as a base64 encoded String.
+     *
+     * @return the icon as a base64 encoded String
+     */
+    public Optional<String> getIcon() {
+        return m_icon;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder(super.toString());
@@ -217,6 +245,13 @@ public final class ComponentMetadata extends TemplateMetadata {
         if (!m_workflowSetMeta.isPresent()) {
             builder.append(", workflowSetMeta: { " + m_workflowSetMeta.get().toString() + " }");
         }
+        if (m_componentType.isPresent()) {
+            builder.append(", componentType: " + m_componentType.get());
+        }
+        if (m_icon.isPresent()) {
+            builder.append(", icon: " + m_icon.get());
+        }
+
         return builder.toString();
     }
 

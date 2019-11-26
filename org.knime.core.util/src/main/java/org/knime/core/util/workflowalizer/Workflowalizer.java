@@ -820,6 +820,12 @@ public final class Workflowalizer {
 
         // node.xml and settings.xml were combined into one file BEFORE SubNodes/Components existed
         final MetadataConfig settingsXml = readFile(path, "settings.xml", zip);
+        final Optional<String> type = parser.getComponentType(settingsXml);
+        builder.setComponentType(type);
+
+        final Optional<String> icon = parser.getIcon(settingsXml);
+        builder.setIcon(icon);
+
         final int inputId = parser.getVirtualInId(settingsXml);
         final int outputId = parser.getVirtualOutId(settingsXml);
 

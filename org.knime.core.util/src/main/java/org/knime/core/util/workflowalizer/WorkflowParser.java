@@ -423,6 +423,24 @@ interface WorkflowParser {
      */
     Optional<String> getDialogFieldDescription(final ConfigBase nodeConfiguration) throws InvalidSettingsException;
 
+    /**
+     * Returns the component's icon.
+     *
+     * @param settingsXml the {@link ConfigBase} the component's settings.xml was read into
+     * @return the component's icon as a base64 encoded String
+     * @throws InvalidSettingsException
+     */
+    Optional<String> getIcon(final ConfigBase settingsXml) throws InvalidSettingsException;
+
+    /**
+     * Returns the component type.
+     *
+     * @param settingsXml the {@link ConfigBase} the component's settings.xml was read into
+     * @return the component type
+     * @throws InvalidSettingsException
+     */
+    Optional<String> getComponentType(final ConfigBase settingsXml) throws InvalidSettingsException;
+
     // -- MetaNodes --
 
     /**
