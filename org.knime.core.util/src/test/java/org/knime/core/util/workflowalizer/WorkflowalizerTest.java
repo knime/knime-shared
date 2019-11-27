@@ -60,41 +60,20 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Callable;
 
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.knime.core.node.config.base.ConfigBase;
-import org.knime.core.node.config.base.XMLConfig;
 import org.knime.core.util.PathUtils;
-import org.knime.core.util.Version;
-import org.knime.core.util.XMLUtils;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
 
@@ -104,7 +83,8 @@ import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemT
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-public class WorkflowalizerTest {
+public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
+
     private static Path workspaceDir;
     private static Path workflowDir;
     private static Path nodeDir;
@@ -142,8 +122,7 @@ public class WorkflowalizerTest {
         nodeDir = new File(workflowDir.toFile(), "Column Splitter (#10)").toPath();
         readNodeLines = Files.readAllLines(new File(nodeDir.toFile(), "settings.xml").toPath());
 
-        templateDir =
-            new File(workspaceDir.toFile(), "workflowalizer-test/Hierarchical Cluster Assignment").toPath();
+        templateDir = new File(workspaceDir.toFile(), "workflowalizer-test/Hierarchical Cluster Assignment").toPath();
         readTemplateWorkflowKnime =
             Files.readAllLines(Paths.get(templateDir.toAbsolutePath().toString(), "workflow.knime"));
         readTemplateTemplateKnime =
@@ -188,46 +167,24 @@ public class WorkflowalizerTest {
     @Test
     public void testTopLevelWorkflowMetadata() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
-
         assertEquals(RepositoryItemType.WORKFLOW, wkfMd.getType());
-        assertEquivalentAnnotations(readAnnotations(readWorkflowLines), wkfMd.getAnnotations());
-        assertEquals(readAuthorInformation(readWorkflowLines), wkfMd.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(readWorkflowLines), wkfMd.getConnections());
-        assertEquals(readCreatedBy(readWorkflowLines), wkfMd.getCreatedBy());
-        assertEquals(readCustomDescription(readWorkflowLines), wkfMd.getCustomDescription());
-        assertEquals(workflowDir.getFileName().toString(), wkfMd.getName());
 
-        final List<Integer> nodeIds = readNodeIds(readWorkflowLines);
-        final List<NodeMetadata> nodes = wkfMd.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-        }
-        assertEquals(readVersion(readWorkflowLines), wkfMd.getVersion());
+        testAnnotations(readWorkflowLines, wkfMd);
+        testAuthorInformation(readWorkflowLines, wkfMd);
+        testConnections(readWorkflowLines, wkfMd);
+        testCreatedBy(readWorkflowLines, wkfMd);
+        testCustomDescription(readWorkflowLines, wkfMd);
+        testWorkflowName(workflowDir, wkfMd);
+        testNodeIds(readWorkflowLines, wkfMd, null);
+        testVersion(readWorkflowLines, wkfMd);
+        testSvg(1301, 501, wkfMd);
 
-        assertTrue(wkfMd.getWorkflowSvg().isPresent());
-        assertEquals(1301, wkfMd.getWorkflowSvg().get().getWidth().intValue());
-        assertEquals(501, wkfMd.getWorkflowSvg().get().getHeight().intValue());
         assertEquals(workflowDir
-            .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
-            .toString(), wkfMd.getArtifacts().get().iterator().next());
+            .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath()).toString(),
+            wkfMd.getArtifacts().get().iterator().next());
         assertTrue(wkfMd.getUnexpectedFileNames().isEmpty());
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        assertEquals(parseWorkflowSetMeta("Author", readWorkflowSetLines),
-            wkfMd.getWorkflowSetMetadata().get().getAuthor().orElse(null));
-
-        final String comments = parseWorkflowSetMeta("Comments", readWorkflowSetLines);
-        assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        final WorkflowSetMeta wsm = wkfMd.getWorkflowSetMetadata().get();
-        assertFalse(wsm.getTitle().isPresent());
-        assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().size() == 0);
+        testWorkflowSetMetaSimple(readWorkflowSetLines, wkfMd.getWorkflowSetMetadata().get());
     }
 
     // -- Test reading individual workflow fields --
@@ -241,9 +198,7 @@ public class WorkflowalizerTest {
     public void testReadingSVG() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertTrue(wkfMd.getWorkflowSvg().isPresent());
-        assertEquals(1301, wkfMd.getWorkflowSvg().get().getWidth().intValue());
-        assertEquals(501, wkfMd.getWorkflowSvg().get().getHeight().intValue());
+        testSvg(1301, 501, wkfMd);
 
         final Path svg = workflowDir.resolve("workflow.svg");
         try (final InputStream readSvg = wkfMd.getSvgInputStream().orElse(null)) {
@@ -348,7 +303,7 @@ public class WorkflowalizerTest {
     public void testReadingAnnotations() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquivalentAnnotations(readAnnotations(readWorkflowLines), wkfMd.getAnnotations());
+        testAnnotations(readWorkflowLines, wkfMd);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -365,7 +320,7 @@ public class WorkflowalizerTest {
     public void testReadingAuthorInformation() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquals(readAuthorInformation(readWorkflowLines), wkfMd.getAuthorInformation());
+        testAuthorInformation(readWorkflowLines, wkfMd);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -383,7 +338,7 @@ public class WorkflowalizerTest {
     public void testReadingNodesAndConnections() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodesAndConnections().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquivalentConnections(readConnectionIds(readWorkflowLines), wkfMd.getConnections());
+        testConnections(readWorkflowLines, wkfMd);
 
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
@@ -398,7 +353,7 @@ public class WorkflowalizerTest {
     public void testReadingCreatedBy() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquals(readCreatedBy(readWorkflowLines), wkfMd.getCreatedBy());
+        testCreatedBy(readWorkflowLines, wkfMd);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -415,7 +370,7 @@ public class WorkflowalizerTest {
     public void testReadingCustomDescription() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquals(readCustomDescription(readWorkflowLines), wkfMd.getCustomDescription());
+        testCustomDescription(readWorkflowLines, wkfMd);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -432,7 +387,7 @@ public class WorkflowalizerTest {
     public void testReadingName() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquals(workflowDir.getFileName().toString(), wkfMd.getName());
+        testWorkflowName(workflowDir, wkfMd);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -450,17 +405,7 @@ public class WorkflowalizerTest {
     public void testReadingNodes() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        final List<NodeMetadata> nodes = wkfMd.getNodes();
-        final List<Integer> nodeIds = readNodeIds(readWorkflowLines);
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-        }
+        testNodeIds(readWorkflowLines, wkfMd, null);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
@@ -476,7 +421,7 @@ public class WorkflowalizerTest {
     public void testReadingVersion() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertEquals(readVersion(readWorkflowLines), wkfMd.getVersion());
+        testVersion(readWorkflowLines, wkfMd);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -494,15 +439,7 @@ public class WorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        assertEquals(parseWorkflowSetMeta("Author", readWorkflowSetLines),
-            wkfMd.getWorkflowSetMetadata().get().getAuthor().orElse(null));
-        final String comments = parseWorkflowSetMeta("Comments", readWorkflowSetLines);
-        assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        final WorkflowSetMeta wsm = wkfMd.getWorkflowSetMetadata().get();
-        assertFalse(wsm.getTitle().isPresent());
-        assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().size() == 0);
+        testWorkflowSetMetaSimple(readWorkflowSetLines, wkfMd.getWorkflowSetMetadata().get());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -599,13 +536,12 @@ public class WorkflowalizerTest {
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
-
-        assertEquals(readAnnotationText(readNodeLines), nativeNode.getAnnotationText());
-        assertEquals(readCustomNodeDescription(readNodeLines), nativeNode.getCustomNodeDescription());
-        assertTrue(readNodeConfiguration(new File(nodeDir.toFile(), "settings.xml")).get()
-            .isIdentical(nativeNode.getNodeConfiguration().get()));
-        assertEquals(readNodeAndBundleInformation(false, readNodeLines), nativeNode.getNodeAndBundleInformation());
         assertEquals(NodeType.NATIVE_NODE, node.getType());
+
+        testAnnotationText(readNodeLines, nativeNode);
+        testCustomNodeDescription(readNodeLines, nativeNode);
+        testNodeConfiguration(nodeDir, nativeNode);
+        testNodeAndBundleInformation(readNodeLines, nativeNode);
     }
 
     /**
@@ -616,19 +552,19 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingNodeInMetanode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
-        final MetanodeMetadata mtnMd =
-            (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
-        final NativeNodeMetadata node =
-            (NativeNodeMetadata)mtnMd.getNodes().stream().filter(n -> n.getNodeId().equals(mtnMd.getNodeId() + ":2")).findFirst().get();
+        final MetanodeMetadata mtnMd = (MetanodeMetadata)wkfMd.getNodes().stream()
+            .filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
+        final NativeNodeMetadata node = (NativeNodeMetadata)mtnMd.getNodes().stream()
+            .filter(n -> n.getNodeId().equals(mtnMd.getNodeId() + ":2")).findFirst().get();
         final Path nodePath =
             new File(workflowDir.toFile(), "Hierarchical (#15)/Numeric Distances (#2)/settings.xml").toPath();
         final List<String> readLines = Files.readAllLines(nodePath);
 
         // No need to test ID, since the list was filtered on that
-        assertEquals(readAnnotationText(readLines), node.getAnnotationText());
-        assertEquals(readCustomNodeDescription(readLines), node.getCustomNodeDescription());
-        assertTrue(readNodeConfiguration(nodePath.toFile()).get().isIdentical(node.getNodeConfiguration().get()));
-        assertEquals(readNodeAndBundleInformation(false, readLines), node.getNodeAndBundleInformation());
+        testAnnotationText(readLines, node);
+        testCustomNodeDescription(readLines, node);
+        testNodeConfiguration(nodePath.getParent(), node);
+        testNodeAndBundleInformation(readLines, node);
         assertEquals(NodeType.NATIVE_NODE, node.getType());
     }
 
@@ -641,15 +577,14 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingAnnotationText() throws Exception {
-        final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readAnnotationText(readNodeLines), nativeNode.getAnnotationText());
+        testAnnotationText(readNodeLines, nativeNode);
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -660,15 +595,14 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingCustomNodeDescription() throws Exception {
-        final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readCustomNodeDescription(readNodeLines), nativeNode.getCustomNodeDescription());
+        testCustomNodeDescription(readNodeLines, nativeNode);
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -687,9 +621,7 @@ public class WorkflowalizerTest {
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
-
-        assertTrue(readNodeConfiguration(new File(nodeDir.toFile(), "settings.xml")).get()
-            .isIdentical(nativeNode.getNodeConfiguration().get()));
+        testNodeConfiguration(nodeDir, nativeNode);
     }
 
     /**
@@ -699,15 +631,14 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodeAndBundleInformation() throws Exception {
-        final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
         assertTrue(node instanceof NativeNodeMetadata);
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(readNodeAndBundleInformation(false, readNodeLines), nativeNode.getNodeAndBundleInformation());
+        testNodeAndBundleInformation(readNodeLines, nativeNode);
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -718,8 +649,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingNodeId() throws Exception {
-        final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
 
         // Filter on something that isn't ID, so the ID check actual tests something
@@ -742,8 +672,7 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingType() throws Exception {
-        final WorkflowalizerConfiguration wc =
-            WorkflowalizerConfiguration.builder().readNodes().build();
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
@@ -764,37 +693,27 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingMetaNode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
-        final MetanodeMetadata mtnMtd =
-            (MetanodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
+        final MetanodeMetadata mtnMtd = (MetanodeMetadata)wkfMd.getNodes().stream()
+            .filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
             new File(workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
 
         // Read workflow fields
-        assertEquivalentAnnotations(readAnnotations(readMetaNodeWorkflowLines), mtnMtd.getAnnotations());
-        assertEquivalentConnections(readConnectionIds(readMetaNodeWorkflowLines), mtnMtd.getConnections());
-        assertEquals(readCreatedBy(readMetaNodeWorkflowLines), mtnMtd.getCreatedBy());
-        assertEquals(readCustomDescription(readMetaNodeWorkflowLines), mtnMtd.getCustomDescription());
-        assertEquals(readName(readMetaNodeWorkflowLines), mtnMtd.getName());
+        testAnnotations(readMetaNodeWorkflowLines, mtnMtd);
+        testConnections(readMetaNodeWorkflowLines, mtnMtd);
+        testCreatedBy(readMetaNodeWorkflowLines, mtnMtd);
+        testCustomDescription(readMetaNodeWorkflowLines, mtnMtd);
+        testWorkflowName(readMetaNodeWorkflowLines, mtnMtd);
+        testNodeIds(readMetaNodeWorkflowLines, mtnMtd, "15:");
+        testVersion(readMetaNodeWorkflowLines, mtnMtd);
 
-        final List<Integer> nodeIds = readNodeIds(readMetaNodeWorkflowLines);
-        final List<NodeMetadata> nodes = mtnMtd.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            assertEquals("15" + ":" + id, node.getNodeId());
-        }
-        assertEquals(readVersion(readMetaNodeWorkflowLines), mtnMtd.getVersion());
         assertTrue(mtnMtd.getUnexpectedFileNames().isEmpty());
 
         // Read node fields
         assertEquals("15", mtnMtd.getNodeId());
-        assertEquals(readTemplateLink(readMetaNodeWorkflowLines), mtnMtd.getTemplateLink());
-        assertEquals(readAnnotationText(readMetaNodeWorkflowLines), mtnMtd.getAnnotationText());
+
+        testTemplateLink(readMetaNodeWorkflowLines, mtnMtd);
+        testAnnotationText(readMetaNodeWorkflowLines, mtnMtd);
     }
 
     /**
@@ -805,42 +724,31 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWrappedMetaNode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
-        final SubnodeMetadata mtnMtd =
-            (SubnodeMetadata)wkfMd.getNodes().stream().filter(n -> n.getType().equals(NodeType.SUBNODE)).findFirst().get();
+        final SubnodeMetadata mtnMtd = (SubnodeMetadata)wkfMd.getNodes().stream()
+            .filter(n -> n.getType().equals(NodeType.SUBNODE)).findFirst().get();
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
             new File(workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
         final List<String> readMetaNodeNodeLines = Files.readAllLines(
             new File(workflowDir.toFile(), "Format Outpu (#16)/settings.xml").toPath(), StandardCharsets.UTF_8);
 
         // Read workflow fields
-        assertEquivalentAnnotations(readAnnotations(readMetaNodeWorkflowLines), mtnMtd.getAnnotations());
-        assertEquivalentConnections(readConnectionIds(readMetaNodeWorkflowLines), mtnMtd.getConnections());
-        assertEquals(readCreatedBy(readMetaNodeWorkflowLines), mtnMtd.getCreatedBy());
-        assertEquals(readCustomDescription(readMetaNodeWorkflowLines), mtnMtd.getCustomDescription());
-        assertEquals(readName(readMetaNodeWorkflowLines), mtnMtd.getName());
+        testAnnotations(readMetaNodeWorkflowLines, mtnMtd);
+        testConnections(readMetaNodeWorkflowLines, mtnMtd);
+        testCreatedBy(readMetaNodeWorkflowLines, mtnMtd);
+        testCustomDescription(readMetaNodeWorkflowLines, mtnMtd);
+        testWorkflowName(readMetaNodeWorkflowLines, mtnMtd);
+        testNodeIds(readMetaNodeWorkflowLines, mtnMtd, "16:");
+        testVersion(readMetaNodeWorkflowLines, mtnMtd);
 
-        final List<Integer> nodeIds = readNodeIds(readMetaNodeWorkflowLines);
-        final List<NodeMetadata> nodes = mtnMtd.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            assertEquals("16" + ":" + id, node.getNodeId());
-        }
-        assertEquals(readVersion(readMetaNodeWorkflowLines), mtnMtd.getVersion());
         assertTrue(mtnMtd.getUnexpectedFileNames().isEmpty());
 
         // Read node fields
-        assertEquals(readAnnotationText(readMetaNodeNodeLines), mtnMtd.getAnnotationText());
-        assertEquals(readCustomNodeDescription(readMetaNodeNodeLines), mtnMtd.getCustomNodeDescription());
-        assertTrue(readNodeConfiguration(new File(workflowDir.toFile(), "Format Outpu (#16)/settings.xml")).get()
-            .isIdentical(mtnMtd.getNodeConfiguration().get()));
+        testAnnotationText(readMetaNodeNodeLines, mtnMtd);
+        testCustomNodeDescription(readMetaNodeNodeLines, mtnMtd);
+        testNodeConfiguration(workflowDir.resolve("Format Outpu (#16)"), mtnMtd);
+        testTemplateLink(readMetaNodeNodeLines, mtnMtd);
+
         assertEquals("16", mtnMtd.getNodeId());
-        assertEquals(readTemplateLink(readMetaNodeNodeLines), mtnMtd.getTemplateLink());
     }
 
     // -- Test reading from zip --
@@ -851,118 +759,46 @@ public class WorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    @SuppressWarnings("null")
     public void testReadingZipWorkflow() throws Exception {
         // This zip contains multiple workflows, but only the first should be read
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAll().build();
         final WorkflowMetadata twm = Workflowalizer.readWorkflow(zipFile, wc);
-
-        assertEquivalentAnnotations(readAnnotations(readWorkflowLines), twm.getAnnotations());
-        assertEquals(readAuthorInformation(readWorkflowLines), twm.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(readWorkflowLines), twm.getConnections());
-        assertEquals(readCreatedBy(readWorkflowLines), twm.getCreatedBy());
-        assertEquals(readCustomDescription(readWorkflowLines), twm.getCustomDescription());
         assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
-        assertEquals(readVersion(readWorkflowLines), twm.getVersion());
-        assertTrue(twm.getWorkflowSvg().isPresent());
-        assertEquals(1301, twm.getWorkflowSvg().get().getWidth().intValue());
-        assertEquals(501, twm.getWorkflowSvg().get().getHeight().intValue());
-        assertEquals(".artifacts/openapi-input-parameters.json",
-            twm.getArtifacts().get().iterator().next());
+
+        testAnnotations(readWorkflowLines, twm);
+        testAuthorInformation(readWorkflowLines, twm);
+        testConnections(readWorkflowLines, twm);
+        testCreatedBy(readWorkflowLines, twm);
+        testCustomDescription(readWorkflowLines, twm);
+        testVersion(readWorkflowLines, twm);
+        testSvg(1301, 501, twm);
+
+        assertEquals(".artifacts/openapi-input-parameters.json", twm.getArtifacts().get().iterator().next());
         assertTrue(twm.getUnexpectedFileNames().isEmpty());
 
         // Top-level workflow nodes
-        List<Integer> nodeIds = readNodeIds(readWorkflowLines);
-        List<NodeMetadata> nodes = twm.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        int nativeNodeCount = 0;
-        int subnodeCount = 0;
-        int metanodeCount = 0;
+        testNodeIds(readWorkflowLines, twm, 7, 1, 1);
         MetanodeMetadata mm = null;
         SubnodeMetadata sm = null;
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            if (node.getType().equals(NodeType.NATIVE_NODE)) {
-                nativeNodeCount++;
-            }
+        for (final NodeMetadata node : twm.getNodes()) {
             if (node.getType().equals(NodeType.SUBNODE)) {
-                subnodeCount++;
                 sm = (SubnodeMetadata)node;
             }
             if (node.getType().equals(NodeType.METANODE)) {
-                metanodeCount++;
                 mm = (MetanodeMetadata)node;
             }
         }
-        assertEquals(7, nativeNodeCount);
-        assertEquals(1, subnodeCount);
-        assertEquals(1, metanodeCount);
 
         // Metanode nodes
         final List<String> readMetaNodeWorkflowLines = Files.readAllLines(
             new File(workflowDir.toFile(), "Hierarchical (#15)/workflow.knime").toPath(), StandardCharsets.UTF_8);
-        nodeIds = readNodeIds(readMetaNodeWorkflowLines);
-        nodes = mm.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        nativeNodeCount = 0;
-        subnodeCount = 0;
-        metanodeCount = 0;
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            if (node.getType().equals(NodeType.NATIVE_NODE)) {
-                nativeNodeCount++;
-            }
-            if (node.getType().equals(NodeType.SUBNODE)) {
-                subnodeCount++;
-            }
-            if (node.getType().equals(NodeType.METANODE)) {
-                metanodeCount++;
-            }
-        }
-        assertEquals(3, nativeNodeCount);
-        assertEquals(0, subnodeCount);
-        assertEquals(0, metanodeCount);
+        testNodeIds(readMetaNodeWorkflowLines, mm, 3, 0, 0);
 
         // Subnode nodes
         final List<String> readSubNodeWorkflowLines = Files.readAllLines(
             new File(workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
-        nodeIds = readNodeIds(readSubNodeWorkflowLines);
-        nodes = sm.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        nativeNodeCount = 0;
-        subnodeCount = 0;
-        metanodeCount = 0;
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-            if (node.getType().equals(NodeType.NATIVE_NODE)) {
-                nativeNodeCount++;
-            }
-            if (node.getType().equals(NodeType.SUBNODE)) {
-                subnodeCount++;
-            }
-            if (node.getType().equals(NodeType.METANODE)) {
-                metanodeCount++;
-            }
-        }
-        assertEquals(6, nativeNodeCount);
-        assertEquals(0, subnodeCount);
-        assertEquals(0, metanodeCount);
+        testNodeIds(readSubNodeWorkflowLines, sm, 6, 0, 0);
     }
 
     /**
@@ -976,10 +812,7 @@ public class WorkflowalizerTest {
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
-
-        assertTrue(wm.getWorkflowSvg().isPresent());
-        assertEquals(1301, wm.getWorkflowSvg().get().getWidth().intValue());
-        assertEquals(501, wm.getWorkflowSvg().get().getHeight().intValue());
+        testSvg(1301, 501, wm);
 
         final Path svg = workflowDir.resolve("workflow.svg");
         try (final InputStream readSvg = wm.getSvgInputStream().orElse(null)) {
@@ -1022,27 +855,17 @@ public class WorkflowalizerTest {
         final TemplateMetadata template = Workflowalizer.readTemplate(templateDir);
 
         assertEquals(RepositoryItemType.TEMPLATE, template.getType());
-        assertEquivalentAnnotations(readAnnotations(readTemplateWorkflowKnime), template.getAnnotations());
-        assertEquals(readAuthorInformation(readTemplateWorkflowKnime), template.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(readTemplateWorkflowKnime), template.getConnections());
-        assertEquals(readCreatedBy(readTemplateTemplateKnime), template.getCreatedBy());
-        assertEquals(readCustomDescription(readTemplateWorkflowKnime), template.getCustomDescription());
         assertEquals(templateDir.getFileName().toString(), template.getName());
-
-        final List<Integer> nodeIds = readNodeIds(readTemplateWorkflowKnime);
-        final List<NodeMetadata> nodes = template.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-        }
-        assertEquals(readTemplateInformation(readTemplateTemplateKnime), template.getTemplateInformation());
-        assertEquals(readVersion(readTemplateTemplateKnime), template.getVersion());
         assertTrue(template.getUnexpectedFileNames().isEmpty());
+
+        testAnnotations(readTemplateWorkflowKnime, template);
+        testAuthorInformation(readTemplateWorkflowKnime, template);
+        testConnections(readTemplateWorkflowKnime, template);
+        testCreatedBy(readTemplateTemplateKnime, template);
+        testCustomDescription(readTemplateWorkflowKnime, template);
+        testNodeIds(readTemplateWorkflowKnime, template, null);
+        testTemplateInformation(readTemplateTemplateKnime, template);
+        testVersion(readTemplateTemplateKnime, template);
     }
 
     /**
@@ -1052,11 +875,10 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingTemplateMetadataAuthorInformation() throws Exception {
-        final WorkflowalizerConfiguration config =
-            WorkflowalizerConfiguration.builder().build();
+        final WorkflowalizerConfiguration config = WorkflowalizerConfiguration.builder().build();
         final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir, config);
 
-        assertEquals(readAuthorInformation(readTemplateWorkflowKnime), tm.getAuthorInformation());
+        testAuthorInformation(readTemplateWorkflowKnime, tm);
 
         assertUOEThrown(tm::getConnections);
         assertUOEThrown(tm::getNodes);
@@ -1070,11 +892,10 @@ public class WorkflowalizerTest {
      */
     @Test
     public void testReadingTemplateMetadataTemplateInformation() throws Exception {
-        final WorkflowalizerConfiguration config =
-            WorkflowalizerConfiguration.builder().build();
+        final WorkflowalizerConfiguration config = WorkflowalizerConfiguration.builder().build();
         final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir, config);
 
-        assertEquals(readTemplateInformation(readTemplateTemplateKnime), tm.getTemplateInformation());
+        testTemplateInformation(readTemplateTemplateKnime, tm);
 
         assertUOEThrown(tm::getConnections);
         assertUOEThrown(tm::getNodes);
@@ -1091,27 +912,17 @@ public class WorkflowalizerTest {
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
 
-        assertEquivalentAnnotations(readAnnotations(readTemplateWorkflowKnime), tm.getAnnotations());
-        assertEquals(readAuthorInformation(readTemplateWorkflowKnime), tm.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(readTemplateWorkflowKnime), tm.getConnections());
-        assertEquals(readCreatedBy(readTemplateTemplateKnime), tm.getCreatedBy());
-        assertEquals(readCustomDescription(readTemplateWorkflowKnime), tm.getCustomDescription());
         assertEquals("Hierarchical Cluster Assignment", tm.getName());
-
-        final List<Integer> nodeIds = readNodeIds(readTemplateWorkflowKnime);
-        final List<NodeMetadata> nodes = tm.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-        }
-        assertEquals(readTemplateInformation(readTemplateTemplateKnime), tm.getTemplateInformation());
-        assertEquals(readVersion(readTemplateTemplateKnime), tm.getVersion());
         assertTrue(tm.getUnexpectedFileNames().isEmpty());
+
+        testAnnotations(readTemplateWorkflowKnime, tm);
+        testAuthorInformation(readTemplateWorkflowKnime, tm);
+        testConnections(readTemplateWorkflowKnime, tm);
+        testCreatedBy(readTemplateTemplateKnime, tm);
+        testCustomDescription(readTemplateWorkflowKnime, tm);
+        testNodeIds(readTemplateWorkflowKnime, tm, null);
+        testTemplateInformation(readTemplateTemplateKnime, tm);
+        testVersion(readTemplateTemplateKnime, tm);
     }
 
     /**
@@ -1120,8 +931,7 @@ public class WorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingTemplateAsWorkflow()
-        throws Exception {
+    public void testReadingTemplateAsWorkflow() throws Exception {
         m_exception.expect(IllegalArgumentException.class);
         m_exception.expectMessage(templateDir + " is a template, not a workflow");
         Workflowalizer.readWorkflow(templateDir);
@@ -1165,28 +975,17 @@ public class WorkflowalizerTest {
     public void testReadingComponentTemplateWorkflowFields() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
-
-        assertEquivalentAnnotations(readAnnotations(readComponentTemplateWorkflowKnime), tm.getAnnotations());
-        assertEquals(readAuthorInformation(readComponentTemplateWorkflowKnime), tm.getAuthorInformation());
-        assertEquivalentConnections(readConnectionIds(readComponentTemplateWorkflowKnime), tm.getConnections());
-        assertEquals(readCreatedBy(readComponentTemplateTemplateKnime), tm.getCreatedBy());
-        assertEquals(readCustomDescription(readComponentTemplateWorkflowKnime), tm.getCustomDescription());
         assertEquals("Simple-Component", tm.getName());
-
-        final List<Integer> nodeIds = readNodeIds(readComponentTemplateWorkflowKnime);
-        final List<NodeMetadata> nodes = tm.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
-        for (final NodeMetadata node : nodes) {
-            String id = node.getNodeId();
-            final int index = id.lastIndexOf(':');
-            if (index >= 0) {
-                id = id.substring(index + 1, id.length());
-            }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
-        }
-        assertEquals(readTemplateInformation(readComponentTemplateTemplateKnime), tm.getTemplateInformation());
-        assertEquals(readVersion(readComponentTemplateTemplateKnime), tm.getVersion());
         assertTrue(tm.getUnexpectedFileNames().isEmpty());
+
+        testAnnotations(readComponentTemplateWorkflowKnime, tm);
+        testAuthorInformation(readComponentTemplateWorkflowKnime, tm);
+        testConnections(readComponentTemplateWorkflowKnime, tm);
+        testCreatedBy(readComponentTemplateTemplateKnime, tm);
+        testCustomDescription(readComponentTemplateWorkflowKnime, tm);
+        testNodeIds(readComponentTemplateWorkflowKnime, tm, null);
+        testTemplateInformation(readComponentTemplateTemplateKnime, tm);
+        testVersion(readComponentTemplateTemplateKnime, tm);
     }
 
     /**
@@ -1446,7 +1245,6 @@ public class WorkflowalizerTest {
             is(nullValue()));
     }
 
-
     /**
      * Tests reading a component template whose ports are not all connected.
      *
@@ -1513,13 +1311,9 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowGroup() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile);
-        assertEquals(parseWorkflowSetMeta("Author", readWorkflowGroupLines), wsm.getAuthor().orElse(null));
-        final String comments = parseWorkflowSetMeta("Comments", readWorkflowGroupLines);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
-        assertFalse(wsm.getTitle().isPresent());
-        assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().size() == 0);
+
+        testWorkflowSetMetaSimple(readWorkflowGroupLines, wsm);
     }
 
     /**
@@ -1531,13 +1325,9 @@ public class WorkflowalizerTest {
     @Test
     public void testReadingWorkflowGroupDir() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile.getParent());
-        assertEquals(parseWorkflowSetMeta("Author", readWorkflowGroupLines), wsm.getAuthor().orElse(null));
-        final String comments = parseWorkflowSetMeta("Comments", readWorkflowGroupLines);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
-        assertFalse(wsm.getTitle().isPresent());
-        assertEquals(comments, wsm.getDescription().orElse(null));
-        assertTrue(wsm.getLinks().get().size() == 0);
-        assertTrue(wsm.getTags().get().size() == 0);
+
+        testWorkflowSetMetaSimple(readWorkflowGroupLines, wsm);
     }
 
     /**
@@ -1606,7 +1396,7 @@ public class WorkflowalizerTest {
         assertTrue(rip instanceof WorkflowGroupMetadata);
 
         // Test that is the top-level group
-        final WorkflowGroupMetadata wgm = (WorkflowGroupMetadata) rip;
+        final WorkflowGroupMetadata wgm = (WorkflowGroupMetadata)rip;
         assertFalse(wgm.getAuthor().isPresent());
         assertFalse(wgm.getDescription().isPresent());
         assertFalse(wgm.getTitle().isPresent());
@@ -1635,341 +1425,6 @@ public class WorkflowalizerTest {
         } catch (final IllegalArgumentException ex) {
             assertTrue("Incorrect exception message: " + ex.getMessage(),
                 ex.getMessage().startsWith("No template," + " workflow, or workflow group found in zip file at: "));
-        }
-    }
-
-    // -- Helper methods --
-
-    private static Optional<String> readAnnotationText(final List<String> readLines) {
-        for (int i = 0; i < readLines.size(); i++) {
-            final String line = readLines.get(i);
-            if (line.contains("nodeAnnotation")) {
-                final String annotation = readLines.get(i + 1);
-                return Optional.ofNullable(XMLUtils
-                    .unescape(annotation.substring(annotation.indexOf("value=\"") + 7, annotation.lastIndexOf('"'))));
-            }
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<String> readCustomNodeDescription(final List<String> readLines) {
-        return Optional.ofNullable(XMLUtils.unescape(parseValue(readLines, "customDescription")));
-    }
-
-    private static Optional<ConfigBase> readNodeConfiguration(final File f) throws Exception {
-        final ConfigBase params = new MetadataConfig("settings.xml");
-        try (final FileInputStream in = new FileInputStream(f)) {
-            XMLConfig.load(params, in);
-        }
-        if (!params.containsKey("model")) {
-            return Optional.empty();
-        }
-        final ConfigBase model = params.getConfigBase("model");
-        model.setParent(null);
-        return Optional.ofNullable(model);
-    }
-
-    private static NodeAndBundleInformation readNodeAndBundleInformation(final boolean isMetanode,
-        final List<String> readLines) {
-        if (isMetanode) {
-            return new NodeAndBundleInformation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty());
-        }
-        final Optional<String> nodeName = Optional.ofNullable(parseValue(readLines, "node-name"));
-        final Optional<String> nodeFactory = Optional.ofNullable(parseValue(readLines, "key=\"factory\""));
-        final Optional<String> nodeBundleName = Optional.ofNullable(parseValue(readLines, "node-bundle-name"));
-        final Optional<String> nodeBundleSymbolicName =
-            Optional.ofNullable(parseValue(readLines, "node-bundle-symbolic-name"));
-        final Optional<String> nodeBundleVendor = Optional.ofNullable(parseValue(readLines, "node-bundle-vendor"));
-        final String nodeBundleVersionString = parseValue(readLines, "node-bundle-version");
-        final Optional<Version> nodeBundleVersion = nodeBundleVersionString == null || nodeBundleVersionString.isEmpty()
-            ? Optional.empty() : Optional.ofNullable(new Version(nodeBundleVersionString));
-        final Optional<String> nodeFeatureName = Optional.ofNullable(parseValue(readLines, "node-feature-name"));
-
-        String fsn = parseValue(readLines, "node-feature-symbolic-name");
-        if (fsn != null && fsn.endsWith(".feature.group")) {
-            fsn = fsn.substring(0, fsn.length() - 14);
-        }
-        final Optional<String> nodeFeatureSymbolicName = Optional.ofNullable(fsn);
-
-        final Optional<String> nodeFeatureVendor = Optional.ofNullable(parseValue(readLines, "node-feature-vendor"));
-        final String nodeFeatureVersionString = parseValue(readLines, "node-feature-version");
-        final Optional<Version> nodeFeatureVersion =
-            nodeFeatureVersionString == null || nodeFeatureVersionString.isEmpty() ? Optional.empty()
-                : Optional.ofNullable(new Version(nodeFeatureVersionString));
-        return new NodeAndBundleInformation(nodeFactory, nodeBundleSymbolicName, nodeBundleName, nodeBundleVendor,
-            nodeName, nodeBundleVersion, nodeFeatureSymbolicName, nodeFeatureName, nodeFeatureVendor,
-            nodeFeatureVersion);
-    }
-
-    private static Optional<String> readTemplateLink(final List<String> readLines) {
-        final String r = parseValue(readLines, "sourceURI");
-        if (!StringUtils.isEmpty(r)) {
-            try {
-                final String decoded = java.net.URLDecoder.decode(r, StandardCharsets.UTF_8.name());
-                return Optional.of(decoded);
-            } catch (UnsupportedEncodingException e) {
-                // string can't be decoded, return encoded string
-                return Optional.ofNullable(r);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private static Version readVersion(final List<String> readLines) {
-        final String versionString = parseValue(readLines, "key=\"version\"");
-        return new Version(versionString);
-    }
-
-    private static List<Integer> readNodeIds(final List<String> readLines) {
-        final List<Integer> ids = new ArrayList<>();
-        readLines.stream().filter(line -> line.contains("<config key=\"node_"))
-            .forEach(s -> ids.add(Integer.parseInt(s.substring(s.indexOf("node_") + 5, s.lastIndexOf('"')))));
-        return ids;
-    }
-
-    private static String readName(final List<String> readLines) {
-        return parseValue(readLines, "key=\"name\"");
-    }
-
-    private static Optional<String> readCustomDescription(final List<String> readLines) {
-        return Optional.ofNullable(parseValue(readLines, "customDescription"));
-    }
-
-    private static Version readCreatedBy(final List<String> readLines) {
-        final String createdByString = parseValue(readLines, "created_by");
-        return new Version(createdByString);
-    }
-
-    private static void assertEquivalentConnections(final List<Integer> expectedIds,
-        final List<NodeConnection> actual) {
-        assertEquals(expectedIds.size() / 4, actual.size());
-        for (int i = 0, j = 0; i < actual.size(); i++, j += 4) {
-            final int sourceId = expectedIds.get(j).intValue();
-            final int destId = expectedIds.get(j + 1).intValue();
-            String parsedSource = actual.get(i).getSourceId();
-            String parsedDest = actual.get(i).getDestinationId();
-            final int indexSource = parsedSource.lastIndexOf(':');
-            final int indexDest = parsedDest.lastIndexOf(':');
-            if (indexSource >= 0) {
-                parsedSource = parsedSource.substring(indexSource + 1, parsedSource.length());
-            }
-            if (indexDest >= 0) {
-                parsedDest = parsedDest.substring(indexDest + 1, parsedDest.length());
-            }
-            assertEquals(sourceId, Integer.parseInt(parsedSource));
-            assertEquals(expectedIds.get(j + 1).intValue(), Integer.parseInt(parsedDest));
-            assertEquals(expectedIds.get(j + 2).intValue(), actual.get(i).getSourcePort());
-            assertEquals(expectedIds.get(j + 3).intValue(), actual.get(i).getDestinationPort());
-            if (sourceId == -1) {
-                assertFalse(actual.get(i).getSourceNode().isPresent());
-            } else {
-                assertTrue(actual.get(i).getSourceNode().isPresent());
-            }
-            if (destId == -1) {
-                assertFalse(actual.get(i).getDestinationNode().isPresent());
-            } else {
-                assertTrue(actual.get(i).getDestinationNode().isPresent());
-            }
-        }
-    }
-
-    private static List<Integer> readConnectionIds(final List<String> readLines) throws Exception {
-        final List<Integer> ids = new ArrayList<>();
-        for (int i = 0; i < readLines.size(); i++) {
-            final String line = readLines.get(i);
-            if (line.contains("connection_")) {
-                final String sourceId = readLines.get(i + 1).substring(readLines.get(i + 1).indexOf("value=\"") + 7,
-                    readLines.get(i + 1).lastIndexOf('"'));
-                final String destId = readLines.get(i + 2).substring(readLines.get(i + 2).indexOf("value=\"") + 7,
-                    readLines.get(i + 2).lastIndexOf('"'));
-                final String sourcePort = readLines.get(i + 3).substring(readLines.get(i + 3).indexOf("value=\"") + 7,
-                    readLines.get(i + 3).lastIndexOf('"'));
-                final String destPort = readLines.get(i + 4).substring(readLines.get(i + 4).indexOf("value=\"") + 7,
-                    readLines.get(i + 4).lastIndexOf('"'));
-                ids.add(Integer.parseInt(sourceId));
-                ids.add(Integer.parseInt(destId));
-                ids.add(Integer.parseInt(sourcePort));
-                ids.add(Integer.parseInt(destPort));
-                i += 4;
-            }
-        }
-        return ids;
-    }
-
-    @SuppressWarnings("hiding")
-    private static AuthorInformation readAuthorInformation(final List<String> readWorkflowLines)
-        throws IOException, ParseException {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-        final String author = XMLUtils.unescape(parseValue(readWorkflowLines, "authored-by"));
-        final String authoredString = parseValue(readWorkflowLines, "authored-when");
-        final String lastEditor = XMLUtils.unescape(parseValue(readWorkflowLines, "lastEdited-by"));
-        final String lastEditedString = parseValue(readWorkflowLines, "lastEdited-when");
-        Date lastEdited = null;
-        if (lastEditedString != null && !lastEditedString.isEmpty()) {
-            lastEdited = df.parse(lastEditedString);
-        }
-
-        if (author == null || authoredString == null) {
-            return AuthorInformation.UNKNOWN;
-        }
-        return new AuthorInformation(author, df.parse(authoredString), Optional.ofNullable(lastEditor),
-            Optional.ofNullable(lastEdited));
-    }
-
-    private static TemplateInformation readTemplateInformation(final List<String> readTemplateLines)
-        throws IOException, ParseException {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        final String role = parseValue(readTemplateLines, "role");
-        final Date timeStamp = df.parse(parseValue(readTemplateLines, "timestamp"));
-        final Optional<String> sourceURI = Optional.ofNullable(parseValue(readTemplateLines, "sourceURI"));
-        final String type = parseValue(readTemplateLines, "templateType");
-
-        return new TemplateInformation(role, timeStamp, sourceURI, type);
-    }
-
-    private static void assertEquivalentAnnotations(final Optional<List<String>> expected,
-        final Optional<List<String>> actual) {
-        assertEquals(expected.isPresent(), actual.isPresent());
-        if (!expected.isPresent() || !actual.isPresent()) {
-            return;
-        }
-        final List<String> e = expected.get();
-        final List<String> a = actual.get();
-        assertEquals(e.size(), a.size());
-        for (int i = 0; i < e.size(); i++) {
-            assertEquals(e.get(i), a.get(i));
-        }
-    }
-
-    private static Optional<List<String>> readAnnotations(final List<String> readLines) throws Exception {
-        final List<String> annotations = new ArrayList<>();
-        for (int i = 0; i < readLines.size(); i++) {
-            final String line = readLines.get(i);
-            if (line.contains("key=\"annotation_")) {
-                i++;
-                final String text = readLines.get(i).substring(readLines.get(i).indexOf("value=\"") + 7,
-                    readLines.get(i).indexOf("\"/>"));
-                annotations.add(XMLUtils.unescape(text));
-            }
-        }
-        return annotations.isEmpty() ? Optional.empty() : Optional.ofNullable(annotations);
-    }
-
-    private static String parseValue(final List<String> lines, final String filter) {
-        final Optional<String> potentialMatch = lines.stream().filter(line -> line.contains(filter)).findFirst();
-        if (!potentialMatch.isPresent()) {
-            return null;
-        }
-        final String matchedLine = potentialMatch.get();
-        final String value = matchedLine.substring(matchedLine.indexOf("value=\"") + 7, matchedLine.lastIndexOf('"'));
-        return value.isEmpty() ? null : StringEscapeUtils.unescapeXml(value);
-    }
-
-    private static String parseWorkflowSetMeta(final String fieldName, final List<String> lines) {
-        String value = "";
-        boolean read = false;
-        for (String line : lines) {
-            line += "\n";
-            int start = 0;
-            int end = line.length();
-            if (line.contains("name=\"" + fieldName + "\"")) {
-                read = true;
-            }
-            if (line.contains("<element")) {
-                start = line.indexOf(">") + 1;
-            }
-            if (line.contains("</element>")) {
-                end = line.indexOf("</");
-            }
-            if (read) {
-                String piece = line.substring(start, end);
-                value += piece;
-                if (end != line.length()) {
-                    return value;
-                }
-            }
-        }
-        return null;
-    }
-
-    private void testStructure(final IWorkflowMetadata wkfMd, final Path workflowFile) throws Exception {
-        final List<NodeMetadata> metaNodes = new ArrayList<>();
-        final List<NodeMetadata> wrappedMetaNodes = new ArrayList<>();
-        for (final NodeMetadata nodeMeta : wkfMd.getNodes()) {
-            if (nodeMeta.getType().equals(NodeType.METANODE)) {
-                metaNodes.add(nodeMeta);
-            }
-            if (nodeMeta.getType().equals(NodeType.SUBNODE)) {
-                wrappedMetaNodes.add(nodeMeta);
-            }
-        }
-
-        final List<String> lines = Files.readAllLines(workflowFile);
-        final long nodeCount =
-            lines.stream().filter(line -> line.contains("<entry key=\"node_settings_file\"")).count();
-        final long metaNodeCount = lines.stream()
-            .filter(line -> line.contains("key=\"node_type\"") && line.contains("value=\"MetaNode\"")).count();
-        final long wrappedMetaNodeCount = lines.stream()
-            .filter(line -> line.contains("key=\"node_type\"") && line.contains("value=\"SubNode\"")).count();
-
-        assertEquals(nodeCount, wkfMd.getNodes().size());
-        assertEquals(metaNodeCount, metaNodes.size());
-        assertEquals(wrappedMetaNodeCount, wrappedMetaNodes.size());
-
-        for (final NodeMetadata metaNode : metaNodes) {
-            final String settingsLine = lines.stream()
-                .filter(line -> line.contains("key=\"node_settings_file\"") && line.contains(metaNode.getNodeId() + ""))
-                .findFirst().get();
-            final String settingsPath =
-                settingsLine.substring(settingsLine.indexOf("value=\"") + 7, settingsLine.lastIndexOf('"'));
-            final File metaNodeFile = new File(workflowFile.toFile().getParentFile(), settingsPath);
-            testStructure((IWorkflowMetadata)metaNode, metaNodeFile.toPath());
-        }
-
-        for (final NodeMetadata wrappedMetaNode : wrappedMetaNodes) {
-            final String settingsLine = lines.stream().filter(
-                line -> line.contains("key=\"node_settings_file\"") && line.contains(wrappedMetaNode.getNodeId() + ""))
-                .findFirst().get();
-            final String settingsPath =
-                settingsLine.substring(settingsLine.indexOf("value=\"") + 7, settingsLine.lastIndexOf('"'));
-            final File wMNNodeFile = new File(workflowFile.toFile().getParentFile(), settingsPath);
-            final File wMNWorkflowFile = new File(wMNNodeFile.getParentFile(), "workflow.knime");
-            testStructure((IWorkflowMetadata)wrappedMetaNode, wMNWorkflowFile.toPath());
-        }
-    }
-
-    private static void assertUOEThrown(final Callable<?> c) throws Exception {
-        try {
-            c.call();
-            assertTrue("Expected UnsupportedOperationException was not thrown", false);
-        } catch (final UnsupportedOperationException ex) {
-            // Do nothing, this is expected
-        }
-    }
-
-    /**
-     * Unzips the given zip input to the given folder.
-     *
-     * @param in Non-null input stream.
-     * @param folder Non-null output folder
-     * @throws Exception
-     */
-    private static void unzip(final InputStream in, final File folder) throws Exception {
-        try (ArchiveInputStream ais =
-            new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, in)) {
-            ZipArchiveEntry entry;
-            while ((entry = (ZipArchiveEntry)ais.getNextEntry()) != null) {
-                final File outputFile = new File(folder, entry.getName());
-                if (entry.isDirectory()) {
-                    outputFile.mkdirs();
-                } else {
-                    try (OutputStream os = new FileOutputStream(outputFile)) {
-                        IOUtils.copy(ais, os);
-                    }
-                }
-            }
         }
     }
 }
