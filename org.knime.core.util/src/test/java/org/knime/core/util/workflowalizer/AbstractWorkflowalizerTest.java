@@ -70,6 +70,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -84,8 +85,9 @@ import org.knime.core.util.XMLUtils;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
+ * Abstract base class for {@link Workflowalizer} tests.
  *
- * @author awalter
+ * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.13
  */
 public class AbstractWorkflowalizerTest {
@@ -469,6 +471,111 @@ public class AbstractWorkflowalizerTest {
 
     // -- Component Tests --
 
+    /**
+     * Asserts that the component descriptions match.
+     *
+     * @param rawSettingsXml the raw settings.xml lines
+     * @param cm the {@link ComponentMetadata} returned by the workflowalizer
+     */
+    protected void testComponentDescription(final List<String> rawSettingsXml, final ComponentMetadata cm) {
+        final String rawDescription = readComponentDescription(rawSettingsXml);
+        if (StringUtils.isEmpty(rawDescription)) {
+            assertFalse(cm.getDescription().isPresent());
+        } else {
+            assertTrue(cm.getDescription().isPresent());
+            assertEquals(rawDescription, cm.getDescription().get());
+        }
+    }
+
+    /**
+     * Asserts that the component types match.
+     *
+     * @param rawSettingsXml the raw settings.xml lines
+     * @param cm the {@link ComponentMetadata} returned by the workflowalizer
+     */
+    protected void testComponentType(final List<String> rawSettingsXml, final ComponentMetadata cm) {
+        final String rawType = readComponentType(rawSettingsXml);
+        if (StringUtils.isEmpty(rawType)) {
+            assertFalse(cm.getComponentType().isPresent());
+        } else {
+            assertTrue(cm.getComponentType().isPresent());
+            assertEquals(rawType, cm.getComponentType().get());
+        }
+    }
+
+    /**
+     * Asserts that the component icons match.
+     *
+     * @param rawSettingsXml the raw settings.xml lines
+     * @param cm the {@link ComponentMetadata} returned by the workflowalizer
+     */
+    protected void testComponentIcon(final List<String> rawSettingsXml, final ComponentMetadata cm) {
+        final String rawIcon = readComponentIcon(rawSettingsXml);
+        if (StringUtils.isEmpty(rawIcon)) {
+            assertFalse(cm.getIcon().isPresent());
+        } else {
+            assertTrue(cm.getIcon().isPresent());
+            assertEquals(rawIcon, cm.getIcon().get());
+        }
+    }
+
+    /**
+     * Asserts that the component ports are correct. Specifically tests that there is the expected number of
+     * in/outports, and checks the port object classes, names, and descriptions.
+     *
+     * @param rawSettingsXml the raw settings.xml lines
+     * @param cm the {@link ComponentMetadata} returned by the workflowalizer
+     * @param numInports the expected number of inports
+     * @param numOutports the expected number of outports
+     */
+    protected void testComponentPorts(final List<String> rawSettingsXml, final ComponentMetadata cm,
+        final int numInports, final int numOutports) {
+        final List<ComponentPortInfo> inports = cm.getInPorts();
+        final List<ComponentPortInfo> outports = cm.getOutPorts();
+
+        assertEquals(numInports, inports.size());
+        assertEquals(numOutports, outports.size());
+
+        final List<String> objectClasses = readPortObjectClass(rawSettingsXml);
+        final List<Optional<String>> inportNames =
+            readPortFields(rawSettingsXml, "<config key=\"inport_", "<entry key=\"name\"");
+        final List<Optional<String>> outportNames =
+            readPortFields(rawSettingsXml, "<config key=\"outport_", "<entry key=\"name\"");
+        final List<Optional<String>> inportDescs =
+            readPortFields(rawSettingsXml, "<config key=\"inport_", "<entry key=\"description\"");
+        final List<Optional<String>> outportDescs =
+            readPortFields(rawSettingsXml, "<config key=\"outport_", "<entry key=\"description\"");
+
+        for (int i = 0; i < inports.size(); i++) {
+            final ComponentPortInfo inport = inports.get(i);
+            assertEquals(objectClasses.get(i), inport.getObjectClass());
+
+            assertEquals(inportNames.get(i).isPresent(), inport.getName().isPresent());
+            if (inport.getName().isPresent()) {
+                assertEquals(inportNames.get(i).get(), inport.getName().get());
+            }
+
+            assertEquals(inportDescs.get(i).isPresent(), inport.getDescription().isPresent());
+            if (inport.getDescription().isPresent()) {
+                assertEquals(inportDescs.get(i).get(), inport.getDescription().get());
+            }
+        }
+        for (int i = 0; i < outports.size(); i++) {
+            final ComponentPortInfo outport = outports.get(i);
+            assertEquals(objectClasses.get(i + numInports), outport.getObjectClass());
+
+            assertEquals(outportNames.get(i).isPresent(), outport.getName().isPresent());
+            if (outport.getName().isPresent()) {
+                assertEquals(outportNames.get(i).get(), outport.getName().get());
+            }
+
+            assertEquals(outportDescs.get(i).isPresent(), outport.getDescription().isPresent());
+            if (outport.getDescription().isPresent()) {
+                assertEquals(outportDescs.get(i).get(), outport.getDescription().get());
+            }
+        }
+    }
+
     // -- Helper methods --
 
     private static Optional<String> readAnnotationText(final List<String> readLines) {
@@ -715,5 +822,75 @@ public class AbstractWorkflowalizerTest {
             }
         }
         return null;
+    }
+
+    private static String readComponentDescription(final List<String> rawSettingsXml) {
+        boolean check = false;
+        for (final String line : rawSettingsXml) {
+            if (line.trim().equals("<config key=\"metadata\">")) {
+                check = true;
+            }
+            if (check && line.trim().startsWith("<entry key=\"description\"")) {
+                return line.substring(line.indexOf("value=\"") + 7, line.lastIndexOf('"'));
+            }
+        }
+        return null;
+    }
+
+    private static String readComponentType(final List<String> rawSettingsXml) {
+        boolean check = false;
+        for (final String line : rawSettingsXml) {
+            if (line.trim().equals("<config key=\"metadata\">")) {
+                check = true;
+            }
+            if (check && line.trim().startsWith("<entry key=\"type\"")) {
+                return line.substring(line.indexOf("value=\"") + 7, line.lastIndexOf('"'));
+            }
+        }
+        return null;
+    }
+
+    private static String readComponentIcon(final List<String> rawSettingsXml) {
+        boolean check = false;
+        for (final String line : rawSettingsXml) {
+            if (line.trim().equals("<config key=\"metadata\">")) {
+                check = true;
+            }
+            if (check && line.trim().startsWith("<entry key=\"icon\"")) {
+                return line.substring(line.indexOf("value=\"") + 7, line.lastIndexOf('"'));
+            }
+        }
+        return null;
+    }
+
+    private static List<String> readPortObjectClass(final List<String> settingsXml) {
+        return settingsXml.stream().filter(s -> s.startsWith("<entry key=\"object_class\""))
+            .map(s -> s.substring(s.indexOf("value=\"") + 7, s.lastIndexOf('"'))).collect(Collectors.toList());
+    }
+
+    private static List<Optional<String>> readPortFields(final List<String> settingsXml, final String port,
+        final String field) {
+        final List<Optional<String>> fields = new ArrayList<>();
+        boolean check = false;
+        boolean portConfig = true;
+        for (final String line : settingsXml) {
+            if (line.trim().equals("<config key=\"metadata\">")) {
+                check = true;
+            }
+            if (check && line.startsWith(port)) {
+                portConfig = true;
+                fields.add(Optional.empty());
+            }
+            if (line.trim().equals("</config>") && portConfig) {
+                portConfig = false;
+            }
+            if (portConfig && line.trim().startsWith(field)) {
+                final String value = line.substring(line.indexOf("value=\"") + 7, line.lastIndexOf('"'));
+                if (!StringUtils.isEmpty(value)) {
+                    fields.set(fields.size() - 1, Optional.of(value));
+                }
+            }
+        }
+        return fields;
     }
 }
