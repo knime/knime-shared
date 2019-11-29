@@ -1785,12 +1785,16 @@ components:
           description: Total time execution took or is still taking, in milliseconds.
           type: number 
         nodesExecuted:
-          description: Nodes executed since the last snapshot (or triggered execution).
+          description: >
+            Nodes executed since the last snapshot (or triggered execution).
+            In the order of their end time.
           type: array
           items:
             $ref: "#/components/schemas/NodeExecutedStatistics"
         nodesExecuting:
-          description: Nodes currently executing (TODO since last snapshot), in no particular order.
+          description: >
+            Nodes currently executing.
+            In the order of their start time.
           type: array
           items:
             $ref: "#/components/schemas/NodeExecutingStatistics"
