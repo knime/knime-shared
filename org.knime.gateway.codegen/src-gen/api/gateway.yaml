@@ -1798,6 +1798,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NodeExecutingStatistics"
+        wizardExecutionState:
+          description: >
+            The wizard execution state.
+          type: string
+          enum:
+            - INTERACTION_REQUIRED
+            - EXECUTING
+            - EXECUTION_FINISHED
+            - EXECUTION_FAILED
+            - UNDEFINED
      
     NodeExecutedStatistics:
       description: Details and statistics on a node already executed.
