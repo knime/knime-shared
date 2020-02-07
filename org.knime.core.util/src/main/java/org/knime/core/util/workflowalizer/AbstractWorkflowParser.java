@@ -49,8 +49,6 @@
 package org.knime.core.util.workflowalizer;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -520,13 +518,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     public Optional<String> getTemplateLink(final ConfigBase config) throws InvalidSettingsException {
         if (config.containsKey("workflow_template_information")) {
             final String uri = config.getConfigBase("workflow_template_information").getString("sourceURI");
-            try {
-                final String decoded = java.net.URLDecoder.decode(uri, StandardCharsets.UTF_8.name());
-                return Optional.of(decoded);
-            } catch (UnsupportedEncodingException e) {
-                // string can't be decoded, return encoded string
-                return Optional.ofNullable(uri);
-            }
+            return Optional.ofNullable(uri);
         }
         return Optional.empty();
     }

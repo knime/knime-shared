@@ -58,8 +58,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -644,13 +642,7 @@ public class AbstractWorkflowalizerTest {
     private static Optional<String> readTemplateLink(final List<String> readLines) {
         final String r = parseValue(readLines, "sourceURI");
         if (!StringUtils.isEmpty(r)) {
-            try {
-                final String decoded = java.net.URLDecoder.decode(r, StandardCharsets.UTF_8.name());
-                return Optional.of(decoded);
-            } catch (UnsupportedEncodingException e) {
-                // string can't be decoded, return encoded string
-                return Optional.ofNullable(r);
-            }
+            return Optional.of(r);
         }
         return Optional.empty();
     }
