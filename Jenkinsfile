@@ -23,7 +23,7 @@ try {
 	},
 	'Maven Build': {
 		// Pure Maven build for SRV and WH
-		knimetools.defaultMavenBuild({}, 'SRV')
+		knimetools.defaultMavenBuild(profiles: ['SRV'])
 	}
 } catch (ex) {
 	currentBuild.result = 'FAILED'
