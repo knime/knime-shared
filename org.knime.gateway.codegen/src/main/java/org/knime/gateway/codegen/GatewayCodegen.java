@@ -66,6 +66,7 @@ import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.CodegenType;
 import org.openapitools.codegen.SupportingFile;
 import org.openapitools.codegen.languages.AbstractJavaCodegen;
+import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,6 +247,20 @@ public class GatewayCodegen extends AbstractJavaCodegen {
                         }
                     }
                 }
+                mediaType = content.get("*/*");
+                if (mediaType != null) {
+                    Schema schema = mediaType.getSchema();
+                    if (schema != null) {
+                        Map extensions = schema.getExtensions();
+                        if (extensions != null) {
+                            Object extension = extensions.get("x-knime-gateway-static-response");
+                            if (Boolean.TRUE.equals(extension)) {
+                                co.vendorExtensions.put("x-knime-gateway-static-response", true);
+                            }
+                        }
+                    }
+                }
+
             }
         }
     	super.addOperationToGroup(tag, resourcePath, operation, co, operations);

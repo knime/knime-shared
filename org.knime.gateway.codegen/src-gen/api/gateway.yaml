@@ -985,10 +985,10 @@ paths:
             '*/*':
               schema:
                 type: string
-                #NOTE: binary responses will have the Last-Modified header set
+                #NOTE: static binary responses will have the Last-Modified header set
                 # -> 304 (not modified) will be returned if the precondition is true!
-                #TODO: introduce an extra property to mark static responses
                 format: binary
+                x-knime-gateway-static-response: true
         '304':
           $ref: "#/components/responses/NotModified" 
         '400':
@@ -999,8 +999,7 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
-          
-          
+                  
 servers:
   - url: '/v4/jobs/{job-id}'
     variables:
