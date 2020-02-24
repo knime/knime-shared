@@ -999,6 +999,45 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
+
+  '/workflow/wizard/report':
+    get:
+      tags:
+        - WizardExecution
+      description: >-
+        Renders the report of an executed workflow into a certain format. 
+      operationId: renderReport
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - name: format
+          description: the requested report format
+          in: query
+          required: true
+          schema:
+            type: string
+            default: 'PDF'
+      x-knime-gateway-executor-exceptions:
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/Timeout'
+        # if the workflow does not have a report or is not executed
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
+      responses:
+        '200':
+          description: The rendered report.
+          content:
+            '*/*':
+              schema:
+                type: string
+                #NOTE: binary responses will have the Last-Modified header set
+                # -> 304 (not modified) will be returned if the precondition is true!
+                format: binary
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
                   
 servers:
   - url: '/v4/jobs/{job-id}'

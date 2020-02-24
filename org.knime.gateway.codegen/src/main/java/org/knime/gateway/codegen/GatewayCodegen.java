@@ -326,6 +326,19 @@ public class GatewayCodegen extends AbstractJavaCodegen {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toDefaultValue(final Schema p) {
+        if (ModelUtils.isStringSchema(p)) {
+            if (p.getDefault() != null) {
+                return (String)p.getDefault();
+            }
+        }
+        return super.toDefaultValue(p);
+    }
+
 	@Override
 	public CodegenProperty fromProperty(final String name, final Schema p) {
 		// enables properties to have another name then the property they are
