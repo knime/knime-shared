@@ -47,6 +47,10 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
         {{/isPrimitiveType}}
         {{/isBodyParam}}
         {{/allParams}}
+        {{#vendorExtensions.x-knime-gateway-custom-server-implementation}}
+        return {{vendorExtensions.x-knime-gateway-custom-server-implementation.methodToCall}}(jobId, "{{baseName}}Service.{{nickname}}", params, this);
+        {{/vendorExtensions.x-knime-gateway-custom-server-implementation}}
+        {{^vendorExtensions.x-knime-gateway-custom-server-implementation}}
         {{#isResponseBinary}}
         {{#vendorExtensions.x-knime-gateway-static-response}}
         return sendGenericStaticBinaryJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{{produces.0.mediaType}}}");
@@ -58,6 +62,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
 		{{^isResponseBinary}}
         return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{{produces.0.mediaType}}}");
 		{{/isResponseBinary}}
+        {{/vendorExtensions.x-knime-gateway-custom-server-implementation}}
     }
 {{/operation}}
 

@@ -1020,14 +1020,19 @@ paths:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/Timeout'
         # if the workflow does not have a report or is not executed
         - $ref: '#/components/x-knime-gateway-executor-exceptions/InvalidRequest'
+      # extension to manually intercept the request on the server in order, e.g.,
+      # customize the response. Here: in order to set the correct content type (which depends on the parameter)
+      x-knime-gateway-custom-server-implementation:
+        methodToCall: com.knime.enterprise.gateway.rest.impl.CustomImplementations.renderReport
       responses:
         '200':
           description: The rendered report.
           content:
+            # media type is determined based on the 'format'-parameter via the custom endpoint implementation
             '*/*':
               schema:
                 type: string
-                #NOTE: binary responses will have the Last-Modified header set
+                #NOTE: binary responses will have the ETag header set
                 # -> 304 (not modified) will be returned if the precondition is true!
                 format: binary
         '400':
