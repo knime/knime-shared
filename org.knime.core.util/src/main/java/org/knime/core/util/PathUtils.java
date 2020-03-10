@@ -435,7 +435,7 @@ public final class PathUtils {
      * @throws IOException if an I/O error occurs while copying
      */
     public static void moveDirectory(final Path source, final Path destination) throws IOException {
-        if (!Files.isDirectory(destination)
+        if (!Files.isDirectory(destination) && destination.getParent().toFile().exists() && source.toFile().exists()
             && Files.getFileStore(source).equals(Files.getFileStore(destination.getParent()))) {
             Files.move(source, destination);
         } else {
