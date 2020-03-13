@@ -888,8 +888,18 @@ paths:
       operationId: resetToPreviousPage
       parameters:
         - $ref: '#/components/parameters/job-id'
+        - name: timeout
+          description: >-
+            Time (in milliseconds) to wait for the workflow to be cancelled. The request will return with a
+            timeout-response if  the cancellation didn't succeed before the timeout
+          in: query
+          schema:
+            type: integer
+            format: int64
+            default: 2000
       x-knime-gateway-executor-exceptions:
         - $ref: '#/components/x-knime-gateway-executor-exceptions/NoWizardPage'
+        - $ref: '#/components/x-knime-gateway-executor-exceptions/Timeout'
       responses:
         '200':
           description: Successful response with the previous page's content.
@@ -2011,7 +2021,7 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/Node'
         connections:
-          #string to Connectoin map
+          #string to Connection map
           description: The list of connections.
           type: object
           additionalProperties:
