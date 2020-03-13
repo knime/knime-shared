@@ -1985,6 +1985,12 @@ components:
         hasPreviousPage:
           description: Whether there is a previous page available or not.
           type: boolean
+        hasReport:
+          description: >
+            Whether the workflow provides a report at the end.
+            The property will only be available if this is the very last page
+            (i.e. wizard execution state is 'executed').
+          type: boolean
           
     WizardPageInput:
       description: Input data required to execute one wizard page of a workflow.
