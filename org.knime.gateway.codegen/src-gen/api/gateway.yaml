@@ -1545,18 +1545,21 @@ components:
             - Predictor
             - Manipulator
             - Visualizer
+            - Widget
             - Meta
             - LoopStart
             - LoopEnd
             - ScopeStart
             - ScopeEnd
             - QuickForm
+            - Configuration
             - Other
             - Missing
             - Unknown
             - Subnode
             - VirtualIn
             - VirtualOut
+            - Container
         parentNodeID:
           description: >-
             The parent node id of the node or "root" if it's the root
