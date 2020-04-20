@@ -1837,6 +1837,9 @@ components:
         totalExecutionDuration:
           description: Total time execution took or is still taking, in milliseconds.
           type: number 
+        totalNodeExecutionsCount:
+          description: The number of estimated node executions.
+          type: integer
         nodesExecuted:
           description: >
             Nodes executed since the last snapshot (or triggered execution).
