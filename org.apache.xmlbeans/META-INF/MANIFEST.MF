@@ -8,9 +8,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/xbean.jar,
  lib/xbean_xpath.jar,
  lib/xmlpublic.jar,
- lib/saxon9.jar,
- lib/saxon9-dom.jar,
- lib/saxon9-xpath.jar
+ lib/Saxon-HE-9.4.0.7.jar
 Export-Package: org.apache.xmlbeans,
  org.apache.xmlbeans.impl.common,
  org.apache.xmlbeans.impl.config,
