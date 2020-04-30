@@ -1,0 +1,26 @@
+{
+    "lang" : "org.knime.gateway.codegen.GatewayCodegen",
+    "inputSpec" : "src-gen/api/gateway.yaml",
+    "outputDir" : "../../knime-gateway/org.knime.next",
+    "modelPackage" : "com.knime.gateway.entity",
+    "apiPackage"   : "org.knime.next.api",
+    "fullJavaUtil" : true,
+    "dateLibrary" : "java8",
+    "sourceFolder" : "src/generated",
+    "templateDir" : "src-gen/templates",
+    "additionalProperties" : {
+        "codegenName" : "next",
+        "apiTemplateFile" : "next/api.mustache",
+        "apiNamePattern" : "Next##name##ServiceWrapper",
+        "modelNamePattern" : "##name##Ent",
+        "supportingFiles" : [
+            {
+                "templateFile" : "next/wrapWithNextService.mustache",
+                "destinationFileName" : "WrapWithNextService.java",
+                "package" : "org.knime.next.api.util"
+            }        
+        
+        ]
+        
+    }
+}

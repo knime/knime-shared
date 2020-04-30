@@ -1,0 +1,36 @@
+{{>licenseInfoCom}}
+package {{rest/exceptionToResponseMap.mustache#package}};
+
+import java.util.Optional;
+
+/**
+ * Maps the triple (service, method, exception) to a http-response.
+ *
+ {{>authors}}
+ */
+{{>generatedAnnotation}}
+public class ExceptionToResponseMap {
+
+    private ExceptionToResponseMap() {
+        //utility class
+    }
+
+    /**
+     * Determines for a particular service-method and exception name a (optional) http response code.
+     * 
+     * @param serviceMethod the service method of format "{service-name}.{method-name}"
+     * @param exceptionName the exception name
+     * @return the response status code or an empty optional if there is no mapping
+     */
+   	public static Optional<Integer> getHttpResponseCode(String serviceMethod, String exceptionName) {
+{{#x-knime-gateway-executor-exception-to-server-response-map}}
+		if("{{service}}Service.{{method}}".equals(serviceMethod) && "{{executor-exception}}".equals(exceptionName)) {
+			return Optional.of({{server-response}});
+		} else {
+			return Optional.empty();	
+		}
+{{/x-knime-gateway-executor-exception-to-server-response-map}}
+   	}
+
+
+}

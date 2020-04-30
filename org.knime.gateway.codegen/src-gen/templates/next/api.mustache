@@ -1,0 +1,89 @@
+/*
+ * TODO license header
+ */
+package {{package}};
+
+{{#imports}}
+import {{import}};
+{{/imports}}
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+
+import com.knime.gateway.service.util.ServiceExceptions;
+
+{{#operations}}
+import com.knime.gateway.service.{{baseName}}Service;
+
+{{#appName}}
+/**
+ * {{{appName}}}
+ *
+ {{#appDescription}}
+ * <p>{{{appDescription}}}
+ {{/appDescription}}
+ *
+ * <p> {{x-knime-gateway-codegen-tagDescription}}
+ *
+ {{>authors}}
+ */
+{{/appName}}
+@Path("/workflows/{job-id}")
+{{#addConsumesProducesJson}}
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+{{/addConsumesProducesJson}}
+{{>generatedAnnotation}}
+public class {{classname}} extends AbstractServiceWrapper {
+
+    private final {{baseName}}Service m_service;
+    
+    public {{classname}}({{baseName}}Service service) {
+        m_service = service;
+    }
+
+{{#operation}}
+
+    /**
+     {{#notes}}
+     * {{.}}
+     {{/notes}}
+     *
+     {{#allParams}}
+     * @param {{paramName}} {{description}}
+     {{/allParams}}
+     * @return the response
+     {{#vendorExtensions.x-knime-gateway-executor-exceptions}}
+     * @throws {{>exceptionName}} {{description}}
+     {{/vendorExtensions.x-knime-gateway-executor-exceptions}}
+     */
+    @{{httpMethod}}
+    @Path("{{{path}}}")
+{{#hasConsumes}}
+    @Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} })
+{{/hasConsumes}}
+{{#hasProduces}}
+    @Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
+{{/hasProduces}}
+    public Response {{nickname}}({{#allParams}}{{>next/queryParams}}{{>next/pathParams}}{{>next/headerParams}}{{>next/bodyParams}}{{>next/formParams}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    {{>throwsExecutorExceptions}} {
+    try {
+        {{#returnType}}{{{returnType}}} entity = {{/returnType}}m_service.{{nickname}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});    
+        {{#returnType}}return createResponse(entity);{{/returnType}}    
+        {{^returnType}}return createResponse();{{/returnType}}    
+    }
+	{{#vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
+	catch({{>exceptionName}} e) {
+	    //TODO
+	    return null;
+	}
+	{{/vendorExtensions.x-knime-gateway-codegen-executor-exceptions}}
+	finally {
+		//TODO
+	}
+   
+   }
+{{/operation}}
+}
+{{/operations}}
+

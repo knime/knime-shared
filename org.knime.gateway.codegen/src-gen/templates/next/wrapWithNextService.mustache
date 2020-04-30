@@ -1,0 +1,50 @@
+{{>licenseInfoCom}}
+
+package {{next/wrapWithNextService.mustache#package}};
+
+{{#tags}}
+import org.knime.next.api.Next{{.}}ServiceWrapper;
+import com.knime.gateway.service.{{.}}Service;
+{{/tags}}
+
+import com.knime.gateway.service.GatewayService;
+
+import org.knime.next.api.AbstractServiceWrapper;
+
+import java.lang.reflect.InvocationTargetException;
+
+/**
+ * TODO
+ *
+ {{>authors}}
+ */
+{{>generatedAnnotation}}
+public class WrapWithNextService {
+
+    private WrapWithNextService() {
+        //utility class
+    }
+    
+    /**
+     * TODO
+     *
+     * @param service the service to be wrapped
+     * @param serviceInterface the service interface to select the right wrapper
+     *
+     * @return the service wrapper
+     */
+    public static AbstractServiceWrapper wrap(final GatewayService service, final Class<?> serviceInterface) {
+        try {
+        
+        {{#tags}}
+            if(serviceInterface == {{.}}Service.class) {
+                return Next{{.}}ServiceWrapper.class.getConstructor(serviceInterface).newInstance(service);
+            }
+        {{/tags}}
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException ex) {
+            throw new RuntimeException(ex);
+        }
+        throw new IllegalArgumentException("No wrapper available!");
+    }
+}
