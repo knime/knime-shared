@@ -1929,6 +1929,32 @@ components:
             Property set in the configuration dialog to the node to skip this
             node in the wizard execution.
           type: boolean
+        viewTemplate:
+          $ref: "#/components/schemas/ViewTemplate"
+       
+    ViewTemplate:
+      type: object
+      properties:
+        javascriptLibraries:
+          description: TODO
+          type: array
+          items:
+            type: string
+        stylesheets:
+          description: TODO
+          type: array
+          items:
+            type: string
+        namespace:
+          type: string
+        initMethodName:
+          type: string
+        validateMethodName:
+          type: string
+        setValidationErrorMethodName:
+          type: string
+        getViewValueMethodName:
+          type: string
 
     StyleRange:
       description: Defines the style of a range (e.g. within a workflow annotation).
