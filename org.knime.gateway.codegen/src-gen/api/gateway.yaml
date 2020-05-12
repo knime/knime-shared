@@ -169,6 +169,66 @@ paths:
           $ref: "#/components/responses/InternalServerError"
         '504':
           $ref: "#/components/responses/Timeout"
+          
+  '/workflow/{workflow-id}/undo':
+    post:
+      tags:
+        - Workflow
+      description: TODO
+      operationId: undo
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        # id of the workflow to do the undo on
+        - $ref: "#/components/parameters/workflow-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
+      responses:
+        '200':
+          description: >-
+            TODO
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: "#/components/responses/NoPermission"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
+
+  '/workflow/{workflow-id}/redo':
+    post:
+      tags:
+        - Workflow
+      description: TODO
+      operationId: redo
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        # id of the workflow to do the redo on
+        - $ref: "#/components/parameters/workflow-id"
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
+      responses:
+        '200':
+          description: >-
+            TODO
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: "#/components/responses/NoPermission"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '504':
+          $ref: "#/components/responses/Timeout"
 
   '/workflow/{workflow-id}':
     get:
