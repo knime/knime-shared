@@ -86,8 +86,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-svg-dom</artifactId>
-			<version>1.7</version>
+			<artifactId>batik-anim</artifactId>
+			<version>1.9.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
