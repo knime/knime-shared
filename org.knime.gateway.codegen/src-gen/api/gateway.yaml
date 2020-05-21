@@ -342,6 +342,43 @@ paths:
           $ref: '#/components/responses/Timeout'
         '505':
           $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Node
+      description: >-
+        Replaces the node with the given id and replaces it with a newly created node (supplied node factory).
+        NOTE! The endpoint is not yet fully functional - only works with replacements of nodes with the same factory.
+        See https://knime-com.atlassian.net/browse/SRV-1692 for follow-up.
+      operationId: replaceNode
+      parameters:
+        - $ref: '#/components/parameters/job-id'
+        - $ref: "#/components/parameters/node-id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeFactoryKey'
+        description: The node factory representing the native node replacement.
+        required: true
+      x-knime-gateway-executor-exceptions:
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
+         - $ref: '#/components/x-knime-gateway-executor-exceptions/ActionNotAllowed'
+      responses:
+        '200':
+          description: 'Successful response, with a representation of the Node.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '400':
+          $ref: '#/components/responses/GatewayExecutorException'
+        '403':
+          $ref: '#/components/responses/NoPermission'
+        '504':
+          $ref: '#/components/responses/Timeout'
+        '505':
+          $ref: '#/components/responses/InternalServerError'
+
 
   '/workflow/node/{node-id}/bounds':
     put:
@@ -1631,6 +1668,10 @@ components:
           description: >-
             Additional settings in order to be able to re-create nodes. Only
             required in case of 'dynamic' node factories.
+          type: string
+        nodeCreationConfigSettings:
+          description: >-
+            The json-serialized settings of the configuration that has been used to create a native node.
           type: string
 
     NodeInPort:
