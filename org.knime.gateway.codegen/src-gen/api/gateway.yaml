@@ -363,6 +363,9 @@ paths:
       x-knime-gateway-executor-exceptions:
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NodeNotFound'
          - $ref: '#/components/x-knime-gateway-executor-exceptions/ActionNotAllowed'
+      x-knime-gateway-new-endpoint:
+        sinceVersion: 4.11.0
+        missingMessage: 'Changing ports dynamically and configuring nodes with dynamic ports is not supported'
       responses:
         '200':
           description: 'Successful response, with a representation of the Node.'
