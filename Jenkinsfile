@@ -4,31 +4,33 @@ def BN = BRANCH_NAME == "master" || BRANCH_NAME.startsWith("releases/") ? BRANCH
 library "knime-pipeline@$BN"
 
 properties([
-	pipelineTriggers([upstream('knime-tp/' + env.BRANCH_NAME.replaceAll('/', '%2F'))]),
-	buildDiscarder(logRotator(numToKeepStr: '5')),
-	disableConcurrentBuilds(),
-	parameters([booleanParam(defaultValue: false, description: 'Whether this is a release build', name: 'RELEASE_BUILD')])
+    pipelineTriggers([upstream('knime-tp/' + env.BRANCH_NAME.replaceAll('/', '%2F'))]),
+    buildDiscarder(logRotator(numToKeepStr: '5')),
+    disableConcurrentBuilds(),
+    parameters([booleanParam(defaultValue: false, description: 'Whether this is a release build', name: 'RELEASE_BUILD')])
 ])
 
 
 try {
-	parallel 'Tycho Build': {
-		// Tycho build for AP
-		knimetools.defaultTychoBuild('org.knime.update.shared')
+    parallel 'Tycho Build': {
+        // Tycho build for AP
+        node('maven' {
+            knimetools.defaultTychoBuild(updateSiteProject: 'org.knime.update.shared', disableOWASP: true)
+        }
 
-		stage('Sonarqube analysis') {
-			env.lastStage = env.STAGE_NAME
-			workflowTests.runSonar([])
-		}
-	},
-	'Maven Build': {
-		// Pure Maven build for SRV and WH
-		knimetools.defaultMavenBuild(profiles: ['SRV'])
-	}
+        stage('Sonarqube analysis') {
+            env.lastStage = env.STAGE_NAME
+            workflowTests.runSonar([])
+        }
+    },
+    'Maven Build': {
+        // Pure Maven build for SRV and WH
+        knimetools.defaultMavenBuild(profiles: ['SRV'])
+    }
 } catch (ex) {
-	currentBuild.result = 'FAILED'
-	throw ex
+    currentBuild.result = 'FAILURE'
+    throw ex
 } finally {
-	notifications.notifyBuild(currentBuild.result);
+    notifications.notifyBuild(currentBuild.result);
 }
-/* vim: set ts=4: */
+/* vim: set shiftwidth=4 expandtab smarttab: */
