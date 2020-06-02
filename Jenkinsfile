@@ -14,7 +14,7 @@ properties([
 try {
     parallel 'Tycho Build': {
         // Tycho build for AP
-        node('maven' {
+        node('maven') {
             knimetools.defaultTychoBuild(updateSiteProject: 'org.knime.update.shared', disableOWASP: true)
         }
 
