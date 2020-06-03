@@ -2035,6 +2035,9 @@ components:
         hasPreviousPage:
           description: Whether there is a previous page available or not.
           type: boolean
+        hasNextPage:
+          description: Whether there is a next page available or not.
+          type: boolean
         hasReport:
           description: >
             Whether the workflow provides a report at the end.
