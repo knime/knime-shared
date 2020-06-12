@@ -1,0 +1,6 @@
+# As of KNIME 4.2 batik.ext is a fragment to javax.xml and amends its classpath to be DOM Level 3 
+# (at least the 'new' classes seem to make it the full set of what's defined in DOM Level 3)
+# Details are in AP-14419
+requires.0.name=org.apache.batik.ext
+requires.0.range=[1.9.1, 1.10.0)
+requires.0.namespace=osgi.bundle
