@@ -1427,4 +1427,30 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 ex.getMessage().startsWith("No template," + " workflow, or workflow group found in zip file at: "));
         }
     }
+
+    /**
+     * Tests that nodes in "org.knime.features.testing.core" are instead given the extension symbolic name
+     * "org.knime.features.testing.application".
+     *
+     * @throws Exception
+     * @since 5.13
+     */
+    @Test
+    public void testReadingWorkflowWithTestNodes() throws Exception {
+        final Path zipFile = Paths.get(WorkflowalizerTest.class.getResource("/Testing_nodes_wkfl.knwf").toURI());
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
+
+        for (NodeMetadata nm : wm.getNodes()) {
+            if ((nm instanceof NativeNodeMetadata)) {
+                NativeNodeMetadata nn = (NativeNodeMetadata)nm;
+                if (nn.getFactoryName().equals("org.knime.testing.node.disturber.DisturberNodeFactory") || nn
+                    .getFactoryName().equals("org.knime.testing.internal.nodes.differ.DifferenceCheckerNodeFactory")) {
+                    assertEquals("Testing node '" + nn.getFactoryName() + "' has incorrect extension symbolic name",
+                        "org.knime.features.testing.application",
+                        nn.getNodeAndBundleInformation().getFeatureSymbolicName().orElse(null));
+                }
+            }
+        }
+    }
 }

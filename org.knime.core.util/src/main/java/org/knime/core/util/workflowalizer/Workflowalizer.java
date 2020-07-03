@@ -722,6 +722,10 @@ public final class Workflowalizer {
         Optional<String> featureSymbolicName = parser.getFeatureSymbolicName(settingsXml)
             // Remove extraneously added .feature.group
             .map(s -> s.replaceAll("\\.feature\\.group$", ""));
+        // HACK: See https://knime-com.atlassian.net/browse/AP-13547 for details
+        if (featureSymbolicName.isPresent() && featureSymbolicName.get().equals("org.knime.features.testing.core")) {
+            featureSymbolicName = Optional.of("org.knime.features.testing.application");
+        }
         builder.setFeatureSymbolicName(featureSymbolicName);
 
         final Optional<String> featureVendor = parser.getFeatureVendor(settingsXml);
