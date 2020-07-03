@@ -13,4 +13,12 @@
 	<artifactId>org.knime.core.util</artifactId>
 	<version>5.13.2-SNAPSHOT</version>
 	<packaging>${packaging.default}</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-dependency-tools-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>	
 </project>
