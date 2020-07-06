@@ -67,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.junit.BeforeClass;
@@ -1452,5 +1453,36 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 }
             }
         }
+    }
+
+    /**
+     * Tests reading a component template which does not have the inport/outport configuration objects in the XML, but
+     * does have port objects listed in the XML.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testComponentPortsWithoutText() throws Exception {
+        Path zipFile = Paths.get(Workflowalizer.class.getResource("/Component-No-Port-Text.knwf").toURI());
+        WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
+        TemplateMetadata tm = Workflowalizer.readTemplate(zipFile, wc);
+
+        assertTrue("Template was not read as component", tm instanceof ComponentMetadata);
+        ComponentMetadata cm = (ComponentMetadata)tm;
+
+        assertEquals("Unexpected number of inports", cm.getInPorts().size(), 1);
+        assertEquals("Unexpected number of outports", cm.getOutPorts().size(), 1);
+
+        ComponentPortInfo inport = cm.getInPorts().get(0);
+        assertEquals("Unexpected description for inport", inport.getDescription(), Optional.empty());
+        assertEquals("Unexpected name for inport", inport.getName(), Optional.empty());
+        assertEquals("Unexpected object class for inport", inport.getObjectClass(),
+            "org.knime.core.node.BufferedDataTable");
+
+        ComponentPortInfo outport = cm.getOutPorts().get(0);
+        assertEquals("Unexpected description for outport", outport.getDescription(), Optional.empty());
+        assertEquals("Unexpected name for outport", outport.getName(), Optional.empty());
+        assertEquals("Unexpected object class for outport", outport.getObjectClass(),
+            "org.knime.core.node.BufferedDataTable");
     }
 }

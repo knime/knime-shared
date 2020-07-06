@@ -880,14 +880,18 @@ public final class Workflowalizer {
         final List<String> inportObjects = parser.getInPortObjects(settingsXml);
         final List<ComponentPortInfo> inports = new ArrayList<>(inportObjects.size());
         for (int i = 0; i < inportObjects.size(); i++) {
-            inports.add(new ComponentPortInfo(inportDescriptions.get(i), inportNames.get(i), inportObjects.get(i)));
+            Optional<String> desc = inportDescriptions.size() > i ? inportDescriptions.get(i) : Optional.empty();
+            Optional<String> name = inportNames.size() > i ? inportNames.get(i) : Optional.empty();
+            inports.add(new ComponentPortInfo(desc, name, inportObjects.get(i)));
         }
         builder.setInPorts(inports);
 
         final List<String> outportObjects = parser.getOutPortObjects(settingsXml);
         final List<ComponentPortInfo> outports = new ArrayList<>(outportObjects.size());
         for (int i = 0; i < outportObjects.size(); i++) {
-            outports.add(new ComponentPortInfo(outportDescriptions.get(i), outportNames.get(i), outportObjects.get(i)));
+            Optional<String> desc = outportDescriptions.size() > i ? outportDescriptions.get(i) : Optional.empty();
+            Optional<String> name = outportNames.size() > i ? outportNames.get(i) : Optional.empty();
+            outports.add(new ComponentPortInfo(desc, name, outportObjects.get(i)));
         }
         builder.setOutPorts(outports);
     }
