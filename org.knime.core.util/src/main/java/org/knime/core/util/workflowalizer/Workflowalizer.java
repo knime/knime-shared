@@ -1133,7 +1133,7 @@ public final class Workflowalizer {
                     continue;
                 }
                 final String name = entry.getName();
-                if (name.contains("workflow.knime") && !templates.contains(name)) {
+                if (name.endsWith("workflow.knime") && !templates.contains(name)) {
                     final int matches = StringUtils.countMatches(name, "/");
                     if (matches < numSlashes) {
                         numSlashes = matches;
