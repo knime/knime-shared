@@ -404,7 +404,13 @@ public final class PathUtils {
             public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
                 throws IOException {
                 if (filter.accept(dir)) {
-                    Files.createDirectories(destination.resolve(source.relativize(dir)));
+                    // Walk to the same directory at the destination
+                    // Note that destination.resolve(source.relativize(dir)) does not work for different Path providers
+                    Path destDir = destination;
+                    for (final Path srcNameComp : source.relativize(dir)) {
+                        destDir = destDir.resolve(srcNameComp.toString());
+                    }
+                    Files.createDirectories(destDir);
                     return FileVisitResult.CONTINUE;
                 } else {
                     return FileVisitResult.SKIP_SUBTREE;
@@ -414,7 +420,14 @@ public final class PathUtils {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                 if (filter.accept(file)) {
-                    Files.copy(file, destination.resolve(source.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                    // Walk to the same file at the destination
+                    // Note that destination.resolve(source.relativize(dir)) does not work for different Path providers
+                    Path destFile = destination;
+                    for (final Path srcNameComp : source.relativize(file)) {
+                        destFile = destFile.resolve(srcNameComp.toString());
+                    }
+                    // Note: toString is needed because source and destination can be different/incompatible path implementations
+                    Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
                     copiedFiles.incrementAndGet();
                 }
                 return FileVisitResult.CONTINUE;
