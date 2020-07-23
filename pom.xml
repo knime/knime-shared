@@ -40,7 +40,6 @@
 				<module>org.apache.xmlbeans</module>
 				<module>org.knime.core.util/pom-AP.xml</module>
 				<module>org.knime.features.util</module>
-				<module>org.knime.gateway.codegen</module>
 				<module>org.knime.update.shared</module>
 			</modules>
 
