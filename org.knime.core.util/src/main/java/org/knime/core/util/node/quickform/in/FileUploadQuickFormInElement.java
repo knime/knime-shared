@@ -63,6 +63,7 @@ public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
     private final List<String> m_extensions;
     private File m_file;
     private String m_urlFile;
+    private String m_fileName;
     private boolean m_default = false;
 
     private URI m_uploadUri;
@@ -158,5 +159,21 @@ public class FileUploadQuickFormInElement extends AbstractQuickFormInElement {
      */
     public Optional<URI> getUploadUri() {
         return Optional.ofNullable(m_uploadUri);
+    }
+
+    /**
+     * @param fileName the fileName to set
+     * @since 5.13
+     */
+    public void setFileName(final String fileName) {
+        m_fileName = fileName;
+    }
+
+    /**
+     * @return the fileName
+     * @since 5.13
+     */
+    public Optional<String> getFileName() {
+        return Optional.ofNullable(m_fileName);
     }
 }
