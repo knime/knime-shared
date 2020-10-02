@@ -17,16 +17,17 @@ try {
         node('maven') {
             knimetools.defaultTychoBuild(updateSiteProject: 'org.knime.update.shared', disableOWASP: true)
         }
-
-        stage('Sonarqube analysis') {
-            env.lastStage = env.STAGE_NAME
-            workflowTests.runSonar([])
-        }
     },
     'Maven Build': {
         // Pure Maven build for SRV and WH
-        knimetools.defaultMavenBuild(profiles: ['SRV'])
+        knimetools.defaultMavenBuild(profiles: ['SRV'], skipSonar: true, exportCoverageData: true)
     }
+
+    stage('Sonarqube analysis') {
+        env.lastStage = env.STAGE_NAME
+        workflowTests.runSonar(['maven'])
+    }
+
 } catch (ex) {
     currentBuild.result = 'FAILURE'
     throw ex
