@@ -221,6 +221,31 @@ public class AbstractWorkflowalizerTest {
         assertTrue(workflowSetMeta.getTags().get().size() == 0);
     }
 
+    /**
+     * Asserts that the workflowset.meta information is equivalent.
+     *
+     * <p>
+     * Specifically this assumes that the workflowset.meta has a comment and author field. But no tags, links!
+     * If there is a long comment with an line separator, the first line will be the title and the line after
+     * the line separator the description.
+     * </p>
+     *
+     * @param rawFileLines the raw lines read from the workflowset.meta file
+     * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the workflowalizer
+     */
+    protected void testWorkflowSetMeta(final List<String> rawFileLines, final WorkflowSetMeta workflowSetMeta) {
+        assertEquals(parseWorkflowSetMeta("Author", rawFileLines), workflowSetMeta.getAuthor().orElse(null));
+
+        final String comments = parseWorkflowSetMeta("Comments", rawFileLines);
+        final String[] lines = comments.split(System.getProperty("line.separator"));
+
+        assertTrue(workflowSetMeta.getTitle().isPresent());
+        assertEquals(lines[0], workflowSetMeta.getTitle().orElse(null));
+        assertEquals(lines[2], workflowSetMeta.getDescription().orElse(null));
+        assertTrue(workflowSetMeta.getLinks().get().size() == 0);
+        assertTrue(workflowSetMeta.getTags().get().size() == 0);
+    }
+
     // -- Workflow Tests --
 
     /**

@@ -98,8 +98,7 @@ public class WorkflowSetMeta {
             // one of the special "tags" -> assume the first line is a title
             if (lines.length > 2 && (!lines[0].isEmpty() && lines[1].trim().isEmpty() && !lines[2].isEmpty())
                 && !(lines[2].startsWith("BLOG:") || lines[2].startsWith("URL:") || lines[2].startsWith("VIDEO:")
-                    || lines[2].startsWith("TAG:") || lines[2].startsWith("TAGS:"))
-                && lines[0].split(" ").length < 20) {
+                    || lines[2].startsWith("TAG:") || lines[2].startsWith("TAGS:"))) {
                 title = lines[0];
                 start = 2;
             }

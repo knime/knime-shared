@@ -91,6 +91,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static Path nodeDir;
     private static Path templateDir;
     private static Path workflowGroupFile;
+    private static Path workflowGroupFileLongTitle;
     private static Path componentTemplateDir;
 
     private static List<String> readWorkflowLines;
@@ -99,6 +100,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static List<String> readTemplateTemplateKnime;
     private static List<String> readWorkflowSetLines;
     private static List<String> readWorkflowGroupLines;
+    private static List<String> readWorkflowGroupLinesLongTitle;
     private static List<String> readComponentTemplateWorkflowKnime;
     private static List<String> readComponentTemplateTemplateKnime;
 
@@ -141,7 +143,11 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         readWorkflowSetLines = Files.readAllLines(workflowSetMetaPath);
 
         workflowGroupFile = workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta");
+        workflowGroupFileLongTitle = workspaceDir.resolve("workflowalizer-test/test_group/workflowset_long_title.meta");
+
         readWorkflowGroupLines = Files.readAllLines(workflowGroupFile);
+        readWorkflowGroupLinesLongTitle = Files.readAllLines(workflowGroupFileLongTitle);
+
     }
 
     // -- Test reading workflow --
@@ -1314,7 +1320,20 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
 
-        testWorkflowSetMetaSimple(readWorkflowGroupLines, wsm);
+        testWorkflowSetMeta(readWorkflowGroupLines, wsm);
+    }
+
+    /**
+     * Tests reading a workflow group with a title that has over 20 words
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowGroupWithLongTitle() throws Exception {
+        final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFileLongTitle);
+        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
+
+        testWorkflowSetMeta(readWorkflowGroupLinesLongTitle, wsm);
     }
 
     /**
@@ -1328,7 +1347,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile.getParent());
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
 
-        testWorkflowSetMetaSimple(readWorkflowGroupLines, wsm);
+        testWorkflowSetMeta(readWorkflowGroupLines, wsm);
     }
 
     /**

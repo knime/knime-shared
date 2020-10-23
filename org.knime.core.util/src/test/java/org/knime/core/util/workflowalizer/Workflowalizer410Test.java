@@ -128,7 +128,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
 
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroup);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
-        testWorkflowSetMetaSimple(rawLines, wsm);
+        testWorkflowSetMeta(rawLines, wsm);
     }
 
     /**
