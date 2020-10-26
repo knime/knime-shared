@@ -200,7 +200,8 @@ public class AbstractWorkflowalizerTest {
     // -- Workflow Group Tests --
 
     /**
-     * Asserts that the workflowset.meta information is equivalent.
+     * Asserts that the workflowset.meta information is equivalent. I.e. it compares raw lines from the meta file with the parsed
+     * version from the {@link Workflowalizer}.
      *
      * <p>
      * Specifically this assumes that the workflowset.meta has a comment and author field. But no tags, links, or title!
@@ -209,7 +210,7 @@ public class AbstractWorkflowalizerTest {
      * </p>
      *
      * @param rawFileLines the raw lines read from the workflowset.meta file
-     * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the workflowalizer
+     * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the {@link Workflowalizer}
      */
     protected void testWorkflowSetMetaSimple(final List<String> rawFileLines, final WorkflowSetMeta workflowSetMeta) {
         assertEquals(parseWorkflowSetMeta("Author", rawFileLines), workflowSetMeta.getAuthor().orElse(null));
@@ -222,16 +223,18 @@ public class AbstractWorkflowalizerTest {
     }
 
     /**
-     * Asserts that the workflowset.meta information is equivalent.
+     * Asserts that the workflowset.meta information is equivalent. I.e. it compares raw lines from the meta file with the parsed
+     * version from the {@link Workflowalizer}.
      *
      * <p>
-     * Specifically this assumes that the workflowset.meta has a comment and author field. But no tags, links!
-     * If there is a long comment with an line separator, the first line will be the title and the line after
-     * the line separator the description.
+     * Specifically this assumes that the workflowset.meta has a comment and author field. But no tags and links!
+     *
+     * If the comment has a line separator, the {@link Workflowalizer} parses the text before the line separator as title
+     * and the text after the line separator as the description.
      * </p>
      *
      * @param rawFileLines the raw lines read from the workflowset.meta file
-     * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the workflowalizer
+     * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the {@link Workflowalizer}
      */
     protected void testWorkflowSetMeta(final List<String> rawFileLines, final WorkflowSetMeta workflowSetMeta) {
         assertEquals(parseWorkflowSetMeta("Author", rawFileLines), workflowSetMeta.getAuthor().orElse(null));
