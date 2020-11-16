@@ -241,7 +241,7 @@ public class WorkspaceAnalyzer {
                         analyzeWorkflow(file);
                     } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException ex) {
                         LogFactory.getLog(WorkspaceAnalyzer.this.getClass())
-                            .error("Errow while analyzing workflow file '" + file + "': " + ex.getMessage(), ex);
+                            .error("Error while analyzing workflow file '" + file + "': " + ex.getMessage(), ex);
                     }
                 }
                 return Thread.currentThread().isInterrupted() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
