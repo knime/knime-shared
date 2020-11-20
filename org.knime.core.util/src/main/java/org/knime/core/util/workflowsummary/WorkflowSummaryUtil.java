@@ -139,17 +139,6 @@ public final class WorkflowSummaryUtil {
         getXmlMapper(includeExecutionInfo).writeValue(out, summary);
     }
 
-    /**
-     * Copies a workflow summary object into a new instance.
-     *
-     * @param includeExecutionInfo if <code>true</code> the execution info will be copied, too
-     * @param ws the object to copy
-     * @return the new instance
-     */
-    public static WorkflowSummary copy(final WorkflowSummary ws, final boolean includeExecutionInfo) {
-        return getJsonMapper(includeExecutionInfo).convertValue(ws, WorkflowSummary.class);
-    }
-
     private static XmlMapper getXmlMapper(final boolean includeExecInfo) {
         if (includeExecInfo) {
             if (xmlMapper == null) {
