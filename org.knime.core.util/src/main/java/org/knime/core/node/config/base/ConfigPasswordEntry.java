@@ -107,4 +107,62 @@ public final class ConfigPasswordEntry extends AbstractConfigEntry {
     AbstractJSONEntry toJSONEntry() {
         return new JSONPassword(m_password);
     }
+
+    /* Utility methods for (no-)password validation in configurations, eee AP-15442: A system property that
+     * would forbid to save weakly encrypted passwords in a user configuration.  */
+
+    /**
+     * Traverse the elements in the argument and returns <code>true</code> if any (recursive) child element is of type
+     * {@link ConfigEntries#xpassword}.
+     *
+     * @param config To search (not null).
+     * @param onlyNullPasswords Returns <code>true</code> only if there are passwords and their value is null
+     *            (<code>null</code> can only be set when {@link #replacePasswordsWithNull(ConfigBase)} was called, a
+     *            <code>null</code> password in the user code is encrypted to something non-null)
+     * @return that property
+     * @since 5.15
+     * @noreference This method is not intended to be referenced by clients.
+     */
+    public static boolean containsPassword(final ConfigBase config, final boolean onlyNullPasswords) {
+        for (String key : config) {
+            AbstractConfigEntry entry = config.get(key);
+            switch (entry.getType()) {
+                case config:
+                    ConfigBase c = (ConfigBase)entry;
+                    if (containsPassword(c, onlyNullPasswords)) {
+                        return true;
+                    }
+                    break;
+                case xpassword:
+                    if (!onlyNullPasswords || ((ConfigPasswordEntry)entry).getPassword() == null) {
+                        return true;
+                    }
+                default:
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Recursively visits all entries in the argument and for any password entry ({@link ConfigEntries#xpassword} it
+     * will set the value to <code>null</code>.
+     *
+     * @param config To traverse and 'fix' (not null).
+     * @since 5.15
+     * @noreference This method is not intended to be referenced by clients.
+     */
+    public static void replacePasswordsWithNull(final ConfigBase config) {
+        for (String key : config) {
+            AbstractConfigEntry entry = config.get(key);
+            switch (entry.getType()) {
+                case config:
+                    replacePasswordsWithNull((ConfigBase)entry);
+                    break;
+                case xpassword:
+                    config.put(new ConfigPasswordEntry(key, null));
+                    break;
+                default:
+            }
+        }
+    }
 }
