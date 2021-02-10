@@ -135,7 +135,7 @@ public interface WorkflowSummary {
         WorkflowMetadata getMetadata();
     }
 
-    @JsonPropertyOrder({"id", "name", "type", "state", "graphDepth", "annotation", "metanode", "component",
+    @JsonPropertyOrder({"id", "name", "type", "state", "graphDepth", "annotation", "metanode", "component", "encrypted",
         "factoryKey", "nodeMessage", "settings", "outputs", "subWorkflow", "executionStatistics", "jobManager",
         "deprecated", "parentId", "linkInfo", "flowVariables"})
     public interface Node {
@@ -157,6 +157,9 @@ public interface WorkflowSummary {
 
         @JacksonXmlProperty(isAttribute = true)
         Boolean isComponent();
+
+        @JacksonXmlProperty(isAttribute = true)
+        Boolean isEncrypted();
 
         @JacksonXmlProperty(isAttribute = true)
         String getState();
