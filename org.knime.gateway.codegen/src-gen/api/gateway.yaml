@@ -270,6 +270,9 @@ paths:
       x-knime-gateway-executor-exceptions:
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NotASubWorkflow'
          - $ref: '#/components/x-knime-gateway-executor-exceptions/NotFound'
+      # if a job is swapped, this extension tells the server to return a NotFound executor-exception instead
+      # (which is encoded in the 400-response)
+      x-knime-gateway-executor-exception-if-job-is-swapped: NotFoundException
       responses:
         '200':
           description: 'Successful response, with a patch containing all the changes.'

@@ -60,7 +60,7 @@ public class {{classname}} extends AbstractGatewayRESTService implements {{baseN
         {{/vendorExtensions.x-knime-gateway-static-response}}
 		{{/isResponseBinary}}
 		{{^isResponseBinary}}
-        return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{{produces.0.mediaType}}}");
+		return sendGenericJsonRpcRequest(jobId, "{{baseName}}Service.{{nickname}}", params, "{{{produces.0.mediaType}}}"{{#vendorExtensions.x-knime-gateway-executor-exception-if-job-is-swapped}}, "{{{vendorExtensions.x-knime-gateway-executor-exception-if-job-is-swapped}}}"{{/vendorExtensions.x-knime-gateway-executor-exception-if-job-is-swapped}});
 		{{/isResponseBinary}}
         {{/vendorExtensions.x-knime-gateway-custom-server-implementation}}
     }
