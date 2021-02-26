@@ -88,8 +88,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1092,19 +1090,26 @@ public final class Workflowalizer {
             parser.getWorkflowSVGFileName() + " is not an SVG");
         builder.setSvgFile(svg);
 
-        final String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
-        final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
-        final Document doc = f.createDocument(svg.toUri().toString());
-        final Node svgItem = doc.getElementsByTagName("svg").item(0);
-        if (svgItem != null) {
-            final Node widthNode = svgItem.getAttributes().getNamedItem("width");
-            final Node heightNode = svgItem.getAttributes().getNamedItem("height");
-            if (widthNode != null) {
-                builder.setSvgWidth(Integer.parseInt(widthNode.getNodeValue()));
+        try {
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setValidating(true);
+            factory.setIgnoringElementContentWhitespace(true);
+            final DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            final Document doc = docBuilder.parse(svg.toFile());
+
+            final Node svgItem = doc.getElementsByTagName("svg").item(0);
+            if (svgItem != null) {
+                final Node widthNode = svgItem.getAttributes().getNamedItem("width");
+                final Node heightNode = svgItem.getAttributes().getNamedItem("height");
+                if (widthNode != null) {
+                    builder.setSvgWidth(Integer.parseInt(widthNode.getNodeValue()));
+                }
+                if (heightNode != null) {
+                    builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
+                }
             }
-            if (heightNode != null) {
-                builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
-            }
+        } catch (ParserConfigurationException | SAXException ex) {
+            throw new IOException(ex);
         }
     }
 
@@ -1117,9 +1122,12 @@ public final class Workflowalizer {
         builder.setSvgFile(Paths.get(zip.getName()));
         builder.setSvgZipEntry(path + parser.getWorkflowSVGFileName());
         try (final InputStream stream = zip.getInputStream(svg)) {
-            final String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
-            final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
-            final Document doc = f.createDocument(Paths.get(svg.toString()).toUri().toString(), stream);
+
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setValidating(true);
+            factory.setIgnoringElementContentWhitespace(true);
+            final DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            final Document doc = docBuilder.parse(stream);
             final Node svgItem = doc.getElementsByTagName("svg").item(0);
             if (svgItem != null) {
                 final Node widthNode = svgItem.getAttributes().getNamedItem("width");
@@ -1131,6 +1139,8 @@ public final class Workflowalizer {
                     builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
                 }
             }
+        } catch (ParserConfigurationException | SAXException ex) {
+            throw new IOException(ex);
         }
     }
 
