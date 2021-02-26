@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Apache XMLBeans
 Bundle-SymbolicName: org.apache.xmlbeans;singleton:=true
 Bundle-Version: 2.6.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/xbean.jar,
  lib/xbean_xpath.jar,
@@ -66,3 +66,4 @@ Export-Package: org.apache.xmlbeans,
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Require-Bundle: org.apache.ant;bundle-version="[1.9.4,2.0.0)"
 Eclipse-BundleShape: dir
+Automatic-Module-Name: org.apache.xmlbeans
