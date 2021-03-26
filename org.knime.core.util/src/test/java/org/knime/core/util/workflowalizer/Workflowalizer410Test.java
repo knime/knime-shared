@@ -48,6 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -113,6 +115,24 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir);
         assertEquals("4.1.0", wm.getVersion().toString());
         testStructure(wm, workflowDir.resolve("workflow.knime"));
+        assertThat("Unexpected workflow configuration", "test: value\n", is(wm.getWorkflowConfiguration().get()));
+        assertThat("Unexpected workflow configuration representation", "test: value\n",
+            is(wm.getWorkflowConfigurationRepresentation().get()));
+    }
+
+    /**
+     * Tests that reading the workflow configuration fields without setting them in the
+     * {@link WorkflowalizerConfiguration} results in a {@link UnsupportedOperationException}
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    public void testReadingWorkflowConfigurations() throws Exception {
+        final Path workflowDir = workspaceDir.resolve("workflowalizer-test/Testing_Workflowalizer_360Pre");
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir,
+            WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
+        assertUOEThrown(wm::getWorkflowConfiguration);
+        assertUOEThrown(wm::getWorkflowConfigurationRepresentation);
     }
 
     /**

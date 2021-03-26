@@ -63,6 +63,8 @@ public class WorkflowalizerConfiguration {
     private boolean m_readUnexpectedFiles;
     private boolean m_readNodeConfiguration;
     private boolean m_readWorkflowMeta;
+    private boolean m_readWorkflowConfiguration;
+    private boolean m_readWorkflowConfigurationRepresentation;
 
     private WorkflowalizerConfiguration() {
         // Do nothing
@@ -86,6 +88,14 @@ public class WorkflowalizerConfiguration {
 
     boolean parseWorkflowMeta() {
         return m_readWorkflowMeta;
+    }
+
+    boolean parseWorkflowConfiguration() {
+        return m_readWorkflowConfiguration;
+    }
+
+    boolean parseWorkflowConfigurationRepresentation() {
+        return m_readWorkflowConfigurationRepresentation;
     }
 
     WorkflowFields createWorkflowFields() {
@@ -116,6 +126,8 @@ public class WorkflowalizerConfiguration {
         private boolean m_unexpectedFiles;
         private boolean m_nodeConfiguration;
         private boolean m_workflowMeta;
+        private boolean m_workflowConfiguration;
+        private boolean m_workflowConfigurationRepresentation;
 
         /**
          * Sets the configuration to read the nodes.
@@ -200,6 +212,8 @@ public class WorkflowalizerConfiguration {
             m_unexpectedFiles = true;
             m_nodeConfiguration = true;
             m_workflowMeta = true;
+            m_workflowConfiguration = true;
+            m_workflowConfigurationRepresentation = true;
             return this;
         }
 
@@ -215,6 +229,8 @@ public class WorkflowalizerConfiguration {
             config.m_readUnexpectedFiles = m_unexpectedFiles;
             config.m_readNodeConfiguration = m_nodeConfiguration;
             config.m_readWorkflowMeta = m_workflowMeta;
+            config.m_readWorkflowConfiguration = m_workflowConfiguration;
+            config.m_readWorkflowConfigurationRepresentation = m_workflowConfigurationRepresentation;
             return config;
         }
     }

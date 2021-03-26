@@ -93,6 +93,12 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     @JsonProperty("artifactsFiles")
     private final Optional<Collection<String>> m_artifacts;
 
+    @JsonProperty("workflowConfiguration")
+    private final Optional<String> m_workflowConfiguration;
+
+    @JsonProperty("workflowConfigurationRepresentation")
+    private final Optional<String> m_workflowConfigurationRepresentation;
+
     @JsonProperty("workflowMeta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
@@ -119,6 +125,8 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
             m_svg = Optional.of(new WorkflowSVG(builder.getSvgWidth(), builder.getSvgHeight()));
         }
         m_artifacts = builder.getArtifactsFileNames();
+        m_workflowConfiguration = builder.getWorkflowConfiguration();
+        m_workflowConfigurationRepresentation = builder.getWorkflowConfigurationRepresentation();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
         m_variables = builder.getWorkflowVariables();
@@ -139,6 +147,8 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         super(workflow, excludedFactories);
         m_svg = workflow.m_svg;
         m_artifacts = workflow.m_artifacts;
+        m_workflowConfiguration = workflow.m_workflowConfiguration;
+        m_workflowConfigurationRepresentation = workflow.m_workflowConfigurationRepresentation;
         m_workflowSetMeta = workflow.m_workflowSetMeta;
         m_credentials = workflow.m_credentials;
         m_variables = workflow.m_variables;
@@ -159,6 +169,29 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
      */
     public Optional<Collection<String>> getArtifacts() {
         return m_artifacts;
+    }
+
+    /**
+     * @return the workflow configuration from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getWorkflowConfiguration() {
+        if (m_workflowConfiguration == null) { // NOSONAR
+            throw new UnsupportedOperationException("getWorkflowConfiguration() is unsupported, field was not read");
+        }
+        return m_workflowConfiguration;
+    }
+
+    /**
+     * @return the workflow configuration representation from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getWorkflowConfigurationRepresentation() {
+        if (m_workflowConfigurationRepresentation == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                "getWorkflowConfigurationRepresentation() is unsupported, field was not read");
+        }
+        return m_workflowConfigurationRepresentation;
     }
 
     /**
@@ -218,12 +251,10 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
             wsm = m_workflowSetMeta.isPresent() ? m_workflowSetMeta.toString() : null;
         }
 
-        return super.toString() +
-                ", workflow_svg: " + m_svg.toString() +
-                ", artifacts_files: " + artifacts +
-                ", workflow_meta: " + wsm +
-                ", workflow_credentials: [" + String.join(", ", m_credentials) + "]" +
-                ", workflow_variables: [" + String.join(", ", m_variables) + "]";
+        return super.toString() + ", workflow_svg: " + m_svg.toString() + ", artifacts_files: " + artifacts
+            + ", workflowConfiguration: " + m_workflowConfiguration + ", workflowConfigurationRepresentation: "
+            + m_workflowConfigurationRepresentation + ", workflow_meta: " + wsm + ", workflow_credentials: ["
+            + String.join(", ", m_credentials) + "]" + ", workflow_variables: [" + String.join(", ", m_variables) + "]";
     }
 
     /**
@@ -266,7 +297,8 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     /**
      * Creates a {@code WorkflowMetadata} with a filtered flattened node list for writing to JSON.
      *
-     * @param excludedFatoryNames a list of factoryNames to be excluded from the flattened node list, supports regex matching
+     * @param excludedFatoryNames a list of factoryNames to be excluded from the flattened node list, supports regex
+     *            matching
      * @return a {@code WorkflowMetadata} whose node list is flat (i.e. depth = 1), and whose connections have been set
      *         to {@code null}
      */

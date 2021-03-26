@@ -369,6 +369,22 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return varNames;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getWorkflowConfiguration() {
+        return "workflow-configuration.json";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getWorkflowConfigurationRepresentation() {
+        return "workflow-configuration-representation.json";
+    }
+
     // -- Templates --
 
     /**

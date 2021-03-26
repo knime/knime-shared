@@ -256,6 +256,16 @@ interface WorkflowParser {
      */
     List<String> getWorkflowVariables(final ConfigBase config) throws InvalidSettingsException;
 
+    /**
+     * @return the workflow configuration file name
+     */
+    String getWorkflowConfiguration();
+
+    /**
+     * @return the workflow configuration representations file name
+     */
+    String getWorkflowConfigurationRepresentation();
+
     // -- Template --
 
     /**

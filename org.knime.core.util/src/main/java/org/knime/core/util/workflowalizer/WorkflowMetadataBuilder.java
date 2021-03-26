@@ -68,6 +68,8 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
     private Integer m_svgWidth;
     private Integer m_svgHeight;
     private Optional<Collection<String>> m_artifacts;
+    private Optional<String> m_workflowConfiguration;
+    private Optional<String> m_workflowConfigurationRepresentation;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
     private List<String> m_credentials;
     private List<String> m_variables;
@@ -85,6 +87,14 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
 
     void setArtifactsFileNames(final Optional<Collection<String>> artifactsFileNames) {
         m_artifacts = artifactsFileNames;
+    }
+
+    void setWorkflowConfiguration(final Optional<String> workflowConfiguration) { // NOSONAR
+        m_workflowConfiguration = workflowConfiguration;
+    }
+
+    void setWorkflowConfigurationRepresentation(final Optional<String> workflowConfigurationRepresentation) { // NOSONAR
+        m_workflowConfigurationRepresentation = workflowConfigurationRepresentation;
     }
 
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
@@ -121,6 +131,14 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
 
     Optional<Collection<String>> getArtifactsFileNames() {
         return m_artifacts;
+    }
+
+    Optional<String> getWorkflowConfiguration() {
+        return m_workflowConfiguration;
+    }
+
+    Optional<String> getWorkflowConfigurationRepresentation() {
+        return m_workflowConfigurationRepresentation;
     }
 
     Optional<WorkflowSetMeta> getWorkflowSetMeta() {
@@ -162,6 +180,12 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         checkPopulated(m_hasReport, "has report");
         if (wc.parseWorkflowMeta()) {
             checkPopulated(m_workflowSetMeta, "workflowset.meta");
+        }
+        if (wc.parseWorkflowConfiguration()) {
+            checkPopulated(getWorkflowConfiguration(), "workflow configuration");
+        }
+        if (wc.parseWorkflowConfigurationRepresentation()) {
+            checkPopulated(getWorkflowConfigurationRepresentation(), "workflow configuration representation");
         }
         if (m_svgWidth == null || m_svgHeight == null) {
             LOGGER.warn("Could not extract SVG width/height for workflow: " + getWorkflowFields().getName());

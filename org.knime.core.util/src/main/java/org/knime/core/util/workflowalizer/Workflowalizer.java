@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -72,6 +73,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -108,6 +111,8 @@ import org.xml.sax.SAXException;
  * @since 5.10
  */
 public final class Workflowalizer {
+
+    private static final Logger LOGGER = Logger.getLogger(Workflowalizer.class.getName());
 
     /**
      * Reads the repository item at the given path. All fields for the given item will be read.
@@ -281,7 +286,8 @@ public final class Workflowalizer {
 
         // Validate if it is a workflow
         final Path workflowPath = path.resolve("workflow.knime");
-        CheckUtils.checkArgument(!Files.exists(path.resolve("template.knime")), path + " is a template, not a workflow");
+        CheckUtils.checkArgument(!Files.exists(path.resolve("template.knime")),
+            path + " is a template, not a workflow");
         CheckUtils.checkArgument(Files.exists(workflowPath), path + " is not a workflow");
 
         return readTopLevelWorkflow(path.toAbsolutePath().toString(), null, config);
@@ -456,10 +462,20 @@ public final class Workflowalizer {
         }
         builder.setArtifactsFileNames(artifactsFiles);
 
+        final Path artifatsDir = Paths.get(path).resolve(parser.getArtifactsDirectoryName());
+        if (wc.parseWorkflowConfiguration()) {
+            builder
+                .setWorkflowConfiguration(readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfiguration())));
+        }
+        if (wc.parseWorkflowConfigurationRepresentation()) {
+            builder.setWorkflowConfigurationRepresentation(
+                readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfigurationRepresentation())));
+        }
+
         if (zip == null) {
             svgFile(parser, Paths.get(path), builder);
         } else {
-           svgFile(parser, path, zip, builder);
+            svgFile(parser, path, zip, builder);
         }
 
         if (wc.parseWorkflowMeta()) {
@@ -553,8 +569,7 @@ public final class Workflowalizer {
 
     private static Map<Integer, NodeMetadata> readNodes(final String currentWorkflowDirectory, final ZipFile zip,
         final List<ConfigBase> configs, final WorkflowalizerConfiguration wc, final WorkflowParser parser,
-        final String nodeId)
-        throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
+        final String nodeId) throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final Map<Integer, NodeMetadata> map = new HashMap<>();
         for (final ConfigBase config : configs) {
             final NodeType type = parser.getType(config);
@@ -584,8 +599,7 @@ public final class Workflowalizer {
 
     private static MetanodeMetadata readMetanode(final String parentDirectory, final ZipFile zip,
         final WorkflowalizerConfiguration wc, final ConfigBase configBase, final WorkflowParser parser,
-        final String nodeId)
-        throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
+        final String nodeId) throws InvalidSettingsException, FileNotFoundException, IOException, ParseException {
         final String settings = parser.getNodeSettingsFilePath(configBase);
         final MetanodeMetadataBuilder builder = new MetanodeMetadataBuilder();
 
@@ -1223,4 +1237,20 @@ public final class Workflowalizer {
         return workflowgroup;
     }
 
+    /**
+     * Reads the passed file into a {@link Optional} of type {@link String} and returns it. If the file does not exist, an empty {@link Optional}
+     * is returned
+     *
+     * @param path the {@link Path} to the file
+     * @return the contents of the file
+     * @throws IOException
+     */
+    private static Optional<String> readFileIntoString(final Path path) throws IOException {
+        if (Files.exists(path)) {
+            byte[] encoded = Files.readAllBytes(path);
+            return Optional.ofNullable(new String(encoded, StandardCharsets.UTF_8));
+        }
+        LOGGER.log(Level.WARNING, () -> "File does not exist: " + path.toString());
+        return Optional.empty();
+    }
 }
