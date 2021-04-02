@@ -202,6 +202,22 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
+         * Sets the configuration to read the workflow configurations files.
+         *
+         * <p>
+         * This field will be read for: workflows
+         * </p>
+         *
+         * @return the builder
+         * @since 5.16
+         */
+        public Builder readWorkflowConfigurationFiles() {
+            m_workflowConfiguration = true;
+            m_workflowConfigurationRepresentation = true;
+            return this;
+        }
+
+        /**
          * Sets the configuration to read all the fields.
          *
          * @return the builder

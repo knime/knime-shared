@@ -91,6 +91,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
@@ -464,12 +465,12 @@ public final class Workflowalizer {
 
         final Path artifatsDir = Paths.get(path).resolve(parser.getArtifactsDirectoryName());
         if (wc.parseWorkflowConfiguration()) {
-            builder
-                .setWorkflowConfiguration(readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfiguration())));
+            builder.setWorkflowConfiguration(
+                readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfiguration()), zip));
         }
         if (wc.parseWorkflowConfigurationRepresentation()) {
             builder.setWorkflowConfigurationRepresentation(
-                readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfigurationRepresentation())));
+                readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfigurationRepresentation()), zip));
         }
 
         if (zip == null) {
@@ -1238,19 +1239,59 @@ public final class Workflowalizer {
     }
 
     /**
-     * Reads the passed file into a {@link Optional} of type {@link String} and returns it. If the file does not exist, an empty {@link Optional}
-     * is returned
+     * Reads the passed file into a {@link String} and returns it.
+     *
+     * @param path the {@link Path} to the file
+     * @param zip the {@link ZipFile} of the associated path, or {@code null} if this is not a zip file
+     * @return the contents of the file
+     * @throws IOException
+     * @throws IllegalArgumentException
+     */
+    private static String readFileIntoString(final Path path, final ZipFile zip) throws IOException {
+        if (zip == null) {
+            return readFileIntoString(path);
+        }
+        return readZipFileIntoString(path, zip);
+    }
+
+    /**
+     * Reads the passed file into a {@link String} and returns it. If the file does not exist, null is returned
      *
      * @param path the {@link Path} to the file
      * @return the contents of the file
      * @throws IOException
      */
-    private static Optional<String> readFileIntoString(final Path path) throws IOException {
+    private static String readFileIntoString(final Path path) throws IOException {
         if (Files.exists(path)) {
             byte[] encoded = Files.readAllBytes(path);
-            return Optional.ofNullable(new String(encoded, StandardCharsets.UTF_8));
+            return new String(encoded, StandardCharsets.UTF_8);
         }
         LOGGER.log(Level.WARNING, () -> "File does not exist: " + path.toString());
-        return Optional.empty();
+        return null;
+    }
+
+    /**
+     * Reads the passed file into a {@link String} and returns it. If the zip entry does not exist, null is returned. If
+     * the entry is a directory a {@link IllegalArgumentException} is thrown.
+     *
+     * @param path the {@link Path} to the file
+     * @param zip the {@link ZipFile} of the associated path
+     * @return the contents of the file
+     * @throws IOException
+     * @throws IllegalArgumentException
+     */
+    private static String readZipFileIntoString(final Path path, final ZipFile zip) throws IOException {
+        final String entryName = path.toString();
+        final ZipEntry entry = zip.getEntry(entryName);
+        if (entry == null) {
+            return null;
+        }
+        CheckUtils.checkArgument(!entry.isDirectory(), entryName + " is a directory");
+
+        String contents;
+        try (InputStream is = zip.getInputStream(entry)) {
+            contents = IOUtils.toString(is, StandardCharsets.UTF_8);
+        }
+        return contents;
     }
 }

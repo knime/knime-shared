@@ -186,12 +186,36 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testVersion(readWorkflowLines, wkfMd);
         testSvg(1301, 501, wkfMd);
 
-        assertEquals(workflowDir
-            .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath()).toString(),
-            wkfMd.getArtifacts().get().iterator().next());
         assertTrue(wkfMd.getUnexpectedFileNames().isEmpty());
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
         testWorkflowSetMetaSimple(readWorkflowSetLines, wkfMd.getWorkflowSetMetadata().get());
+
+        assertTrue("Expected artifacts file",
+            wkfMd.getArtifacts().get()
+                .contains(workflowDir
+                    .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
+                    .toString()));
+
+        String testFile = "{\n"
+                + "  \"test\": \"value\",\n"
+                + "  \"test\": \"two\"\n"
+                + "}\n";
+        assertEquals("Unexpected workflow configuration", testFile, wkfMd.getWorkflowConfiguration().get());
+        assertEquals("Unexpected workflow configuration representation", testFile,
+            wkfMd.getWorkflowConfigurationRepresentation().get());
+    }
+
+    /**
+     * Tests that reading the workflow configuration fields without setting them in the
+     * {@link WorkflowalizerConfiguration} results in a {@link UnsupportedOperationException}
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    public void testReadingWorkflowConfigurations() throws Exception {
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
+        assertUOEThrown(wm::getWorkflowConfiguration);
+        assertUOEThrown(wm::getWorkflowConfigurationRepresentation);
     }
 
     // -- Test reading individual workflow fields --
@@ -235,8 +259,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
-        assertEquals(1, wkfMd.getArtifacts().get().size());
-        assertEquals(workflowDir.relativize(test.toPath()).toString(), wkfMd.getArtifacts().get().iterator().next());
+        assertEquals(3, wkfMd.getArtifacts().get().size());
+        assertTrue("Expected artifacts file",wkfMd.getArtifacts().get().contains(workflowDir.relativize(test.toPath()).toString()));
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -280,7 +304,6 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             assertUOEThrown(wkfMd::getConnections);
             assertUOEThrown(wkfMd::getNodes);
             assertUOEThrown(wkfMd::getWorkflowSetMetadata);
-
         } finally {
             // remove the unexpected files
             if (emptyDir != null) {
@@ -451,6 +474,24 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
+    }
+
+    /**
+     * Test reading workflow configuration files for a workflow
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowConfigurationFiles() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowConfigurationFiles().build();
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertTrue(wkfMd.getWorkflowConfiguration().isPresent());
+        assertTrue(wkfMd.getWorkflowConfigurationRepresentation().isPresent());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
     }
 
     /**
@@ -806,6 +847,14 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final List<String> readSubNodeWorkflowLines = Files.readAllLines(
             new File(workflowDir.toFile(), "Format Outpu (#16)/workflow.knime").toPath(), StandardCharsets.UTF_8);
         testNodeIds(readSubNodeWorkflowLines, sm, 6, 0, 0);
+
+        // Configuration files
+        String testFile = "{\n"
+                + "  \"test\": \"value\",\n"
+                + "  \"test\": \"two\"\n"
+                + "}\n";
+        assertEquals("Unexpected workflow configuration", testFile, twm.getWorkflowConfiguration().get());
+        assertEquals("Unexpected workflow configuration representation", testFile, twm.getWorkflowConfigurationRepresentation().get());
     }
 
     /**

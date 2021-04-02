@@ -172,6 +172,8 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     }
 
     /**
+     * Returns the workflow configuration from the artifacts folder, if it exists.
+     *
      * @return the workflow configuration from the artifacts folder, if it exists
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
@@ -183,6 +185,8 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     }
 
     /**
+     * Returns the workflow configuration representation from the artifacts folder, if it exists.
+     *
      * @return the workflow configuration representation from the artifacts folder, if it exists
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
@@ -199,7 +203,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     public Optional<WorkflowSetMeta> getWorkflowSetMetadata() {
-        if (m_workflowSetMeta == null) {
+        if (m_workflowSetMeta == null) { // NOSONAR
             throw new UnsupportedOperationException("getWorkflowSetMetadata() is unsupported, field was not read");
         }
         return m_workflowSetMeta;

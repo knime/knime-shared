@@ -53,6 +53,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -89,12 +90,20 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         m_artifacts = artifactsFileNames;
     }
 
-    void setWorkflowConfiguration(final Optional<String> workflowConfiguration) { // NOSONAR
-        m_workflowConfiguration = workflowConfiguration;
+    void setWorkflowConfiguration(final String workflowConfiguration) {
+        if (StringUtils.isEmpty(workflowConfiguration)) {
+            m_workflowConfiguration = Optional.empty();
+        } else {
+            m_workflowConfiguration = Optional.of(workflowConfiguration);
+        }
     }
 
-    void setWorkflowConfigurationRepresentation(final Optional<String> workflowConfigurationRepresentation) { // NOSONAR
-        m_workflowConfigurationRepresentation = workflowConfigurationRepresentation;
+    void setWorkflowConfigurationRepresentation(final String workflowConfigurationRepresentation) {
+        if (StringUtils.isEmpty(workflowConfigurationRepresentation)) {
+            m_workflowConfigurationRepresentation = Optional.empty();
+        } else {
+            m_workflowConfigurationRepresentation = Optional.of(workflowConfigurationRepresentation);
+        }
     }
 
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
