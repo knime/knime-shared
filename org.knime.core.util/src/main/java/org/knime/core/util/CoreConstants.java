@@ -99,7 +99,7 @@ public final class CoreConstants {
      *
      * @author Moritz Heine, KNIME GmbH, Konstanz, Germany
      */
-    public static enum ConfigurationType {
+    public enum ConfigurationType {
         /**
          * Denotes the configuration template of a workflow containing the configuration parameter names and their
          * default values.
