@@ -88,6 +88,12 @@ public final class CoreConstants {
     /** JSON field prefix for the workflow variables. */
     public static final String WORKFLOW_VARIABLES = "knime.var.";
 
+    /** Identifier for the job ID inside the MDC. */
+    public static final String JOB_ID_MDC = "knime.job-id";
+
+    /** Identifier for the correlation ID inside the MDC. */
+    public static final String CORRELATION_ID_MDC = "knime.correlation-id";
+
     /**
      * Enum used to differentiate between configuration template and configuration representation.
      *
