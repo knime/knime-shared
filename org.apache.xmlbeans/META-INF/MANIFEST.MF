@@ -2,34 +2,20 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache XMLBeans
 Bundle-SymbolicName: org.apache.xmlbeans;singleton:=true
-Bundle-Version: 2.6.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: lib/xbean.jar,
- lib/xbean_xpath.jar,
- lib/xmlpublic.jar,
- lib/Saxon-HE-9.4.0.7.jar
+Bundle-ClassPath: lib/log4j-api-2.14.0.jar,
+ lib/log4j-core-2.14.0.jar,
+ lib/xmlbeans-5.0.0.jar,
+ lib/Saxon-HE-10.2.jar
 Export-Package: org.apache.xmlbeans,
  org.apache.xmlbeans.impl.common,
  org.apache.xmlbeans.impl.config,
  org.apache.xmlbeans.impl.inst2xsd,
  org.apache.xmlbeans.impl.inst2xsd.util,
- org.apache.xmlbeans.impl.jam,
- org.apache.xmlbeans.impl.jam.annotation,
- org.apache.xmlbeans.impl.jam.internal,
- org.apache.xmlbeans.impl.jam.internal.classrefs,
- org.apache.xmlbeans.impl.jam.internal.elements,
- org.apache.xmlbeans.impl.jam.internal.javadoc,
- org.apache.xmlbeans.impl.jam.internal.parser,
- org.apache.xmlbeans.impl.jam.internal.reflect,
- org.apache.xmlbeans.impl.jam.mutable,
- org.apache.xmlbeans.impl.jam.provider,
- org.apache.xmlbeans.impl.jam.visitor,
- org.apache.xmlbeans.impl.jam.xml,
- org.apache.xmlbeans.impl.piccolo.io,
- org.apache.xmlbeans.impl.piccolo.util,
- org.apache.xmlbeans.impl.piccolo.xml,
  org.apache.xmlbeans.impl.regex,
+ org.apache.xmlbeans.impl.repackage,
  org.apache.xmlbeans.impl.richParser,
  org.apache.xmlbeans.impl.schema,
  org.apache.xmlbeans.impl.soap,
@@ -50,20 +36,18 @@ Export-Package: org.apache.xmlbeans,
  org.apache.xmlbeans.impl.xb.xsdownload.impl,
  org.apache.xmlbeans.impl.xb.xsdschema,
  org.apache.xmlbeans.impl.xb.xsdschema.impl,
+ org.apache.xmlbeans.impl.xpath,
  org.apache.xmlbeans.impl.xpath.saxon,
+ org.apache.xmlbeans.impl.xpath.xmlbeans,
  org.apache.xmlbeans.impl.xpathgen,
- org.apache.xmlbeans.impl.xquery.saxon,
  org.apache.xmlbeans.impl.xsd2inst,
+ org.apache.xmlbeans.metadata.system.sXMLCONFIG,
+ org.apache.xmlbeans.metadata.system.sXMLLANG,
+ org.apache.xmlbeans.metadata.system.sXMLSCHEMA,
+ org.apache.xmlbeans.metadata.system.sXMLTOOLS,
  org.apache.xmlbeans.soap,
  org.apache.xmlbeans.xml.stream,
- org.apache.xmlbeans.xml.stream.events,
- org.apache.xmlbeans.xml.stream.utils,
- repackage,
- schemaorg_apache_xmlbeans.system.sXMLCONFIG,
- schemaorg_apache_xmlbeans.system.sXMLLANG,
- schemaorg_apache_xmlbeans.system.sXMLSCHEMA,
- schemaorg_apache_xmlbeans.system.sXMLTOOLS
+ org.apache.xmlbeans.xml.stream.events
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Require-Bundle: org.apache.ant;bundle-version="[1.9.4,2.0.0)"
 Eclipse-BundleShape: dir
 Automatic-Module-Name: org.apache.xmlbeans
