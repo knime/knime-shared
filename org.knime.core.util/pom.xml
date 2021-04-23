@@ -115,5 +115,10 @@
                 </exclusion>
             </exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.annotation</artifactId>
+			<version>2.2.600</version>
+		</dependency>
 	</dependencies>
 </project>

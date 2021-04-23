@@ -55,6 +55,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -525,6 +527,7 @@ public final class ReportingConstants {
      * @return the default reporting options
      * @since 5.7
      */
+    @NonNull
     public static RptOutputOptions getDefaultReportOptions(final RptOutputFormat format) {
         RptOutputOptions renderOptions = new RptOutputOptions();
         if (RptOutputFormat.HTML.equals(format)) {

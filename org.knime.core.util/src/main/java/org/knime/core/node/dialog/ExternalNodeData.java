@@ -62,6 +62,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.knime.core.node.util.CheckUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -331,6 +332,7 @@ public class ExternalNodeData {
          *
          * @return a new external node data
          */
+        @NonNull
         public ExternalNodeData build() {
             return new ExternalNodeData(this);
         }
