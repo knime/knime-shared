@@ -56,6 +56,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -71,6 +73,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
  *
  * @author Dominik Morent, KNIME AG, Zurich, Switzerland
  */
+@NonNullByDefault
 public final class ReportingConstants {
 
     private ReportingConstants() {
@@ -223,6 +226,7 @@ public final class ReportingConstants {
          * @param name the name of the format
          * @return the RptOutput format for the name (or null)
          */
+        @Nullable
         static RptOutputFormat getByString(final String name) {
             return NAMES.get(name);
         }
@@ -231,6 +235,7 @@ public final class ReportingConstants {
          * @param extension the file name extension of the format
          * @return the RptOutput format for the extension (or null)
          */
+        @Nullable
         public static RptOutputFormat getByExtension(final String extension) {
             return EXTENSIONS.get(extension.toLowerCase());
         }
