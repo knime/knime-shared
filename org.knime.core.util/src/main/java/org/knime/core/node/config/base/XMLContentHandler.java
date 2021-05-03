@@ -180,8 +180,7 @@ class XMLContentHandler extends DefaultHandler {
             try {
                 configEntryType = ConfigEntries.valueOf(type);
             } catch (IllegalArgumentException iae) {
-                throw new SAXException("Invalid type ('" + type
-                        + "') for key '" + key + "' in XML file.");
+                throw new SAXException("Invalid type ('" + type + "') for key '" + key + "' in XML file.", iae);
             }
             // handle null values and be backward compatible
             boolean isNull = "true".equals(attributes.getValue("isnull"));
