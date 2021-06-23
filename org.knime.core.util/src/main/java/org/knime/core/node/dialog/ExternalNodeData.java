@@ -63,6 +63,8 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.knime.core.node.util.CheckUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -79,6 +81,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  * @since 2.12
  */
+@NonNullByDefault
 public class ExternalNodeData {
     /**
      * A pattern to parse a URL or REST parameter or a batch argument. It reads the
@@ -125,17 +128,20 @@ public class ExternalNodeData {
     /**
      * The inline JSON output, may be <code>null</code>.
      */
+    @Nullable
     protected JsonValue m_jsonValue;
 
     /**
      * The inline plain string output, may be <code>null</code>.
      */
+    @Nullable
     protected String m_stringValue;
 
     /**
      * URI to a output resource, may be <code>null</code>.
      * @since 5.7
      */
+    @Nullable
     protected URI m_uri;
 
 
@@ -143,6 +149,7 @@ public class ExternalNodeData {
      * Description, may be <code>null</code>.
      * @since 5.7
      */
+    @Nullable
     protected String m_description;
 
     /**
@@ -170,7 +177,7 @@ public class ExternalNodeData {
      *
      * @return unique ID for the data object, never <code>null</code>
      */
-    @JsonProperty("id")
+    @JsonProperty("id") @NonNull
     public String getID() {
         return m_id;
     }
@@ -185,13 +192,13 @@ public class ExternalNodeData {
      * @return a JSON value, may be <code>null</code>
      */
     @JsonProperty("jsonValue")
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(Include.NON_NULL) @Nullable
     public JsonValue getJSONValue() {
         return m_jsonValue;
     }
 
     @JsonProperty("jsonValue")
-    private void setJSONValue(final JsonValue value) {
+    private void setJSONValue(@Nullable final JsonValue value) {
         m_jsonValue = value;
     }
 
@@ -205,13 +212,13 @@ public class ExternalNodeData {
      * @return a string, may be <code>null</code>
      */
     @JsonProperty("stringValue")
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(Include.NON_NULL) @Nullable
     public String getStringValue() {
         return m_stringValue;
     }
 
     @JsonProperty("stringValue")
-    private void setStringValue(final String s) {
+    private void setStringValue(@Nullable final String s) {
         m_stringValue = s;
     }
 
@@ -226,19 +233,19 @@ public class ExternalNodeData {
      * @since 5.7
      */
     @JsonProperty("resource")
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(Include.NON_NULL) @Nullable
     public URI getResource() {
         return m_uri;
     }
 
     @JsonProperty("resource")
-    private void setResource(final URI uri) {
+    private void setResource(@Nullable final URI uri) {
         m_uri = uri;
     }
 
 
     @JsonProperty("description")
-    private void setDescription(final String s) {
+    private void setDescription(@Nullable final String s) {
         m_description = s;
     }
 
@@ -269,12 +276,16 @@ public class ExternalNodeData {
     public static class ExternalNodeDataBuilder {
         final String m_id;
 
+        @Nullable
         JsonValue m_jsonValue;
 
+        @Nullable
         String m_stringValue;
 
+        @Nullable
         URI m_uri;
 
+        @Nullable
         String m_description;
 
         ExternalNodeDataBuilder(final String id) {
@@ -287,7 +298,7 @@ public class ExternalNodeData {
          * @param jsonValue a JSON value; may be <code>null</code>
          * @return the updated builder
          */
-        public ExternalNodeDataBuilder jsonValue(final JsonValue jsonValue) {
+        public ExternalNodeDataBuilder jsonValue(@Nullable final JsonValue jsonValue) {
             m_jsonValue = jsonValue;
             return this;
         }
@@ -298,7 +309,7 @@ public class ExternalNodeData {
          * @param stringValue a string value; may be <code>null</code>
          * @return the updated builder
          */
-        public ExternalNodeDataBuilder stringValue(final String stringValue) {
+        public ExternalNodeDataBuilder stringValue(@Nullable final String stringValue) {
             m_stringValue = stringValue;
             return this;
         }
@@ -310,7 +321,7 @@ public class ExternalNodeData {
          * @return the updated builder
          * @since 5.7
          */
-        public ExternalNodeDataBuilder resource(final URI uri) {
+        public ExternalNodeDataBuilder resource(@Nullable final URI uri) {
             m_uri = uri;
             return this;
         }
@@ -322,7 +333,7 @@ public class ExternalNodeData {
          * @return the updated builder
          * @since 5.7
          */
-        public ExternalNodeDataBuilder description(final String description) {
+        public ExternalNodeDataBuilder description(@Nullable final String description) {
             m_description = description;
             return this;
         }
