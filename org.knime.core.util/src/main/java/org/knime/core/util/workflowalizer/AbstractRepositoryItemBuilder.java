@@ -48,7 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
@@ -59,15 +59,15 @@ import java.util.Optional;
 abstract class AbstractRepositoryItemBuilder<R extends RepositoryItemMetadata> extends AbstractWorkflowBuilder<R> {
 
     private String m_author;
-    private Date m_authorDate;
+    private OffsetDateTime m_authorDate;
     private Optional<String> m_lastEditor;
-    private Optional<Date> m_lastEditDate;
+    private Optional<OffsetDateTime> m_lastEditDate;
 
     void setAuthor(final String author) {
         m_author = author;
     }
 
-    void setAuthorDate(final Date authorDate) {
+    void setAuthorDate(final OffsetDateTime authorDate) {
         m_authorDate = authorDate;
     }
 
@@ -75,7 +75,7 @@ abstract class AbstractRepositoryItemBuilder<R extends RepositoryItemMetadata> e
         m_lastEditor = lastEditor;
     }
 
-    void setLastEditDate(final Optional<Date> lastEditDate) {
+    void setLastEditDate(final Optional<OffsetDateTime> lastEditDate) {
         m_lastEditDate = lastEditDate;
     }
 
@@ -83,7 +83,7 @@ abstract class AbstractRepositoryItemBuilder<R extends RepositoryItemMetadata> e
         return m_author;
     }
 
-    Date getAuthorDate() {
+    OffsetDateTime getAuthorDate() {
         return m_authorDate;
     }
 
@@ -91,8 +91,7 @@ abstract class AbstractRepositoryItemBuilder<R extends RepositoryItemMetadata> e
         return m_lastEditor;
     }
 
-    Optional<Date> getLastEditDate() {
+    Optional<OffsetDateTime> getLastEditDate() {
         return m_lastEditDate;
     }
-
 }

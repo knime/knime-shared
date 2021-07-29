@@ -50,7 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -71,33 +71,33 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class AuthorInformation {
     /** Info for workflows created prior 2.8. */
     public static final AuthorInformation UNKNOWN =
-        new AuthorInformation("<unknown>", new Date(0), Optional.empty(), Optional.empty());
+        new AuthorInformation("<unknown>", OffsetDateTime.MIN, Optional.empty(), Optional.empty());
 
     @JsonProperty("author")
     private final String m_author;
 
     @JsonProperty("authoredDate")
-    private final Date m_authoredDate;
+    private final OffsetDateTime m_authoredDate;
 
     @JsonProperty("lastEditor")
     private final Optional<String> m_lastEditor;
 
     @JsonProperty("lastEditedDate")
-    private final Optional<Date> m_lastEditDate;
+    private final Optional<OffsetDateTime> m_lastEditDate;
 
     /**
      * Creates AuthorInformatio using "user.name" property as author and current system time as authored date. The edit
      * fields are empty.
      */
     public AuthorInformation() {
-        this(System.getProperty("user.name"), new Date(), Optional.empty(), Optional.empty());
+        this(System.getProperty("user.name"), OffsetDateTime.now(), Optional.empty(), Optional.empty());
     }
 
     /**
      * @param past used to provide author name and authored date, edit fields use system properties
      */
     public AuthorInformation(final AuthorInformation past) {
-        this(past.m_author, past.m_authoredDate, System.getProperty("user.name"), new Date());
+        this(past.m_author, past.m_authoredDate, System.getProperty("user.name"), OffsetDateTime.now());
     }
 
     /**
@@ -106,13 +106,13 @@ public final class AuthorInformation {
      * @param lastEditor Name of last editor.
      * @param lastEditDate Date of last edit.
      */
-    public AuthorInformation(final String author, final Date authoredDate, final String lastEditor,
-        final Date lastEditDate) {
+    public AuthorInformation(final String author, final OffsetDateTime authoredDate, final String lastEditor,
+        final OffsetDateTime lastEditDate) {
         this(author, authoredDate, Optional.ofNullable(lastEditor), Optional.ofNullable(lastEditDate));
     }
 
-    AuthorInformation(final String author, final Date authoredDate, final Optional<String> lastEditor,
-        final Optional<Date> lastEditDate) {
+    AuthorInformation(final String author, final OffsetDateTime authoredDate, final Optional<String> lastEditor,
+        final Optional<OffsetDateTime> lastEditDate) {
         m_author = author;
         m_authoredDate = authoredDate;
         m_lastEditor = lastEditor;
@@ -125,7 +125,7 @@ public final class AuthorInformation {
     }
 
     /** @return Date when the workflow was saved the first time. Can be null. */
-    public Date getAuthoredDate() {
+    public OffsetDateTime getAuthoredDate() {
         return m_authoredDate;
     }
 
@@ -138,7 +138,7 @@ public final class AuthorInformation {
     }
 
     /** @return Date when workflow was saved last. */
-    public Optional<Date> getLastEditDate() {
+    public Optional<OffsetDateTime> getLastEditDate() {
         if (m_lastEditDate == null) {
             throw new UnsupportedOperationException("getLastEditDate() is not supported, field was not read");
         }

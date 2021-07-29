@@ -60,9 +60,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -70,7 +68,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -757,21 +754,22 @@ public class AbstractWorkflowalizerTest {
 
     private static AuthorInformation readAuthorInformation(final List<String> readWorkflowLines)
         throws IOException, ParseException {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
         final String author = XMLUtils.unescape(parseValue(readWorkflowLines, "authored-by"));
         final String authoredString = parseValue(readWorkflowLines, "authored-when");
         final String lastEditor = XMLUtils.unescape(parseValue(readWorkflowLines, "lastEdited-by"));
         final String lastEditedString = parseValue(readWorkflowLines, "lastEdited-when");
-        Date lastEdited = null;
+        OffsetDateTime lastEdited = null;
         if (lastEditedString != null && !lastEditedString.isEmpty()) {
-            lastEdited = df.parse(lastEditedString);
+            lastEdited = OffsetDateTime.from(df.parse(lastEditedString));
         }
 
         if (author == null || authoredString == null) {
             return AuthorInformation.UNKNOWN;
         }
-        return new AuthorInformation(author, df.parse(authoredString), Optional.ofNullable(lastEditor),
-            Optional.ofNullable(lastEdited));
+        return new AuthorInformation(author, OffsetDateTime.from(df.parse(authoredString)),
+            Optional.ofNullable(lastEditor), Optional.ofNullable(lastEdited));
     }
 
     private static TemplateInformation readTemplateInformation(final List<String> readTemplateLines)

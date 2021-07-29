@@ -50,9 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -62,7 +60,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -298,13 +295,13 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Date getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
+    public OffsetDateTime getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
         if (!config.containsKey("authorInformation")) {
-            return new Date(0);
+            return OffsetDateTime.MIN;
         }
         final String s = config.getConfigBase("authorInformation").getString("authored-when");
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-        return df.parse(s);
+
+        return OffsetDateTime.from(DATE_FORMAT.parse(s));
     }
 
     /**
@@ -322,13 +319,12 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Date> getEditedDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
+    public Optional<OffsetDateTime> getEditedDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
         if (!config.containsKey("authorInformation")) {
             return Optional.empty();
         }
         final String s = config.getConfigBase("authorInformation").getString("lastEdited-when");
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-        return s == null || s.isEmpty() ? Optional.empty() : Optional.ofNullable(df.parse(s));
+        return s == null || s.isEmpty() ? Optional.empty() : Optional.of(OffsetDateTime.from(DATE_FORMAT.parse(s)));
     }
 
     @Override
@@ -400,12 +396,6 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     @Override
     public String getRole(final ConfigBase config) throws InvalidSettingsException {
         return config.getConfigBase("workflow_template_information").getString("role");
-    }
-
-    @Override
-    @Deprecated
-    public Date getTimeStamp(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        return Date.from(getComponentTimestamp(config).toInstant());
     }
 
     @Override

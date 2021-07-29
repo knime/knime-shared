@@ -68,7 +68,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -445,10 +444,10 @@ public final class Workflowalizer {
         final String author = parser.getAuthorName(workflowKnime);
         builder.setAuthor(author);
 
-        final Date authoredDate = parser.getAuthoredDate(workflowKnime);
+        final OffsetDateTime authoredDate = parser.getAuthoredDate(workflowKnime);
         builder.setAuthorDate(authoredDate);
 
-        final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
+        final Optional<OffsetDateTime> lastEditedDate = parser.getEditedDate(workflowKnime);
         builder.setLastEditDate(lastEditedDate);
 
         final Optional<String> lastEditor = parser.getEditorName(workflowKnime);
@@ -546,10 +545,10 @@ public final class Workflowalizer {
         final String author = parser.getAuthorName(workflowKnime);
         builder.setAuthor(author);
 
-        final Date authoredDate = parser.getAuthoredDate(workflowKnime);
+        final OffsetDateTime authoredDate = parser.getAuthoredDate(workflowKnime);
         builder.setAuthorDate(authoredDate);
 
-        final Optional<Date> lastEditedDate = parser.getEditedDate(workflowKnime);
+        final Optional<OffsetDateTime> lastEditedDate = parser.getEditedDate(workflowKnime);
         builder.setLastEditDate(lastEditedDate);
 
         final Optional<String> lastEditor = parser.getEditorName(workflowKnime);

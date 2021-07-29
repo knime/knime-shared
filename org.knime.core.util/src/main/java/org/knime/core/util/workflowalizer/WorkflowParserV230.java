@@ -49,7 +49,7 @@
 package org.knime.core.util.workflowalizer;
 
 import java.text.ParseException;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,8 +85,8 @@ final class WorkflowParserV230 extends AbstractWorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Date getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        return new Date(0);
+    public OffsetDateTime getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
+        return OffsetDateTime.MIN;
     }
 
     /**
@@ -101,7 +101,8 @@ final class WorkflowParserV230 extends AbstractWorkflowParser {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Date> getEditedDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
+    public Optional<OffsetDateTime> getEditedDate(final ConfigBase config)
+        throws InvalidSettingsException, ParseException {
         return Optional.empty();
     }
 
