@@ -53,6 +53,12 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -78,6 +84,7 @@ import org.knime.core.util.report.ReportingConstants;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
 abstract class AbstractWorkflowParser implements WorkflowParser {
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[ Z]");
 
     // -- Workflow --
 
@@ -395,14 +402,23 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return config.getConfigBase("workflow_template_information").getString("role");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
+    @Deprecated
     public Date getTimeStamp(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        final String readDate = config.getConfigBase("workflow_template_information").getString("timestamp");
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return df.parse(readDate);
+        return Date.from(getComponentTimestamp(config).toInstant());
+    }
+
+    @Override
+    public OffsetDateTime getComponentTimestamp(final ConfigBase config)
+        throws InvalidSettingsException, ParseException {
+        String readDate = config.getConfigBase("workflow_template_information").getString("timestamp");
+
+        TemporalAccessor tempAccessor = DATE_FORMAT.parse(readDate);
+        if (tempAccessor.isSupported(ChronoField.OFFSET_SECONDS)) {
+            return OffsetDateTime.from(tempAccessor);
+        } else {
+            return LocalDateTime.from(tempAccessor).atOffset(ZoneOffset.UTC);
+        }
     }
 
     /**

@@ -64,6 +64,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -557,7 +558,7 @@ public final class Workflowalizer {
         final String role = parser.getRole(templateKnime);
         builder.setRole(role);
 
-        final Date timeStamp = parser.getTimeStamp(templateKnime);
+        final OffsetDateTime timeStamp = parser.getComponentTimestamp(templateKnime);
         builder.setTimeStamp(timeStamp);
 
         final Optional<String> sourceURI = parser.getSourceURI(templateKnime);

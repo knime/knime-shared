@@ -48,7 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
@@ -59,7 +59,7 @@ import java.util.Optional;
 class TemplateMetadataBuilder extends AbstractRepositoryItemBuilder<TemplateMetadata> {
 
     private String m_role;
-    private Date m_timeStamp;
+    private OffsetDateTime m_timeStamp;
     private Optional<String> m_sourceURI;
     private String m_type;
 
@@ -67,7 +67,7 @@ class TemplateMetadataBuilder extends AbstractRepositoryItemBuilder<TemplateMeta
         m_role = role;
     }
 
-    void setTimeStamp(final Date timeStamp) {
+    void setTimeStamp(final OffsetDateTime timeStamp) {
         m_timeStamp = timeStamp;
     }
 
@@ -83,7 +83,7 @@ class TemplateMetadataBuilder extends AbstractRepositoryItemBuilder<TemplateMeta
         return m_role;
     }
 
-    Date getTimeStamp() {
+    OffsetDateTime getTimeStamp() {
         return m_timeStamp;
     }
 

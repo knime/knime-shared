@@ -50,7 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -75,7 +75,7 @@ public final class TemplateInformation {
     private final String m_role;
 
     @JsonProperty("timeStamp")
-    private final Date m_timeStamp;
+    private final OffsetDateTime m_timeStamp;
 
     @JsonProperty("sourceURI")
     private final Optional<String> m_sourceURI;
@@ -83,7 +83,8 @@ public final class TemplateInformation {
     @JsonProperty("templateType")
     private final String m_type;
 
-    TemplateInformation(final String role, final Date timeStamp, final Optional<String> sourceURI, final String type) {
+    TemplateInformation(final String role, final OffsetDateTime timeStamp, final Optional<String> sourceURI,
+        final String type) {
         m_role = role;
         m_timeStamp = timeStamp;
         m_sourceURI = sourceURI;
@@ -103,7 +104,7 @@ public final class TemplateInformation {
     /**
      * @return the template time stamp
      */
-    public Date getTimeStamp() {
+    public OffsetDateTime getTimeStamp() {
         if (m_timeStamp == null) {
             throw new UnsupportedOperationException("getTimeStamp() is not supported, field was not read");
         }

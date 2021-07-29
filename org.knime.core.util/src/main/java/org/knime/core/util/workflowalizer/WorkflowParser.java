@@ -49,6 +49,7 @@
 package org.knime.core.util.workflowalizer;
 
 import java.text.ParseException;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -284,8 +285,23 @@ interface WorkflowParser {
      * @return the template time stamp
      * @throws InvalidSettingsException
      * @throws ParseException
+     *
+     * @deprecated use {@link #getComponentTimestamp(ConfigBase)} instead, it supports time zones properly
      */
+    @Deprecated
     Date getTimeStamp(final ConfigBase config) throws InvalidSettingsException, ParseException;
+
+
+    /**
+     * Reads the timestamp from a metanode/component template. If no timezone is available (for metanodes/components
+     * created before 4.4.1) UTC will be assumed.
+     *
+     * @param config the metanode/component configuration
+     * @return the timestamp
+     * @throws InvalidSettingsException if an expected configuration value is missing
+     * @throws ParseException if the timestamp could not be parsed
+     */
+    OffsetDateTime getComponentTimestamp(final ConfigBase config) throws InvalidSettingsException, ParseException;
 
     /**
      * @param config the {@link ConfigBase} the xml was read into

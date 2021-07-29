@@ -90,6 +90,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static Path workflowDir;
     private static Path nodeDir;
     private static Path templateDir;
+    private static Path templateDirWithTimezone;
     private static Path workflowGroupFile;
     private static Path workflowGroupFileLongTitle;
     private static Path componentTemplateDir;
@@ -98,6 +99,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static List<String> readNodeLines;
     private static List<String> readTemplateWorkflowKnime;
     private static List<String> readTemplateTemplateKnime;
+    private static List<String> readTemplateTemplateKnimeWithTimezone;
     private static List<String> readWorkflowSetLines;
     private static List<String> readWorkflowGroupLines;
     private static List<String> readWorkflowGroupLinesLongTitle;
@@ -130,6 +132,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             Files.readAllLines(Paths.get(templateDir.toAbsolutePath().toString(), "workflow.knime"));
         readTemplateTemplateKnime =
             Files.readAllLines(Paths.get(templateDir.toAbsolutePath().toString(), "template.knime"));
+
+        templateDirWithTimezone =
+            workspaceDir.resolve("workflowalizer-test/Hierarchical Cluster Assignment with timezone");
+        readTemplateTemplateKnimeWithTimezone = Files.readAllLines(templateDirWithTimezone.resolve("template.knime"));
 
         componentTemplateDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-simple.zip")) {
@@ -922,6 +928,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testNodeIds(readTemplateWorkflowKnime, template, null);
         testTemplateInformation(readTemplateTemplateKnime, template);
         testVersion(readTemplateTemplateKnime, template);
+
+        testTemplateInformation(readTemplateTemplateKnimeWithTimezone,
+            Workflowalizer.readTemplate(templateDirWithTimezone));
     }
 
     /**

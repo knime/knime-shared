@@ -63,6 +63,12 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -770,9 +776,17 @@ public class AbstractWorkflowalizerTest {
 
     private static TemplateInformation readTemplateInformation(final List<String> readTemplateLines)
         throws IOException, ParseException {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String role = parseValue(readTemplateLines, "role");
-        final Date timeStamp = df.parse(parseValue(readTemplateLines, "timestamp"));
+
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[ Z]");
+        TemporalAccessor tempAccessor = df.parse(parseValue(readTemplateLines, "timestamp"));
+        OffsetDateTime timeStamp;
+        if (tempAccessor.isSupported(ChronoField.OFFSET_SECONDS)) {
+            timeStamp = OffsetDateTime.from(tempAccessor);
+        } else {
+            timeStamp = LocalDateTime.from(tempAccessor).atOffset(ZoneOffset.UTC);
+        }
+
         final Optional<String> sourceURI = Optional.ofNullable(parseValue(readTemplateLines, "sourceURI"));
         final String type = parseValue(readTemplateLines, "templateType");
 
