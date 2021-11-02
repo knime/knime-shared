@@ -60,6 +60,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.knime.core.util.User;
+import org.knime.core.util.auth.Authenticator;
+import org.knime.core.util.auth.SimpleTokenAuthenticator;
 
 /**
  * This class holds information about the context in which a workflows currently resides. It includes information such
@@ -104,6 +106,8 @@ public class WorkflowContext implements Externalizable {
 
         boolean m_isTempCopy;
 
+        Authenticator m_authenticator;
+
         /**
          * Creates a new factory for workflow contexts.
          *
@@ -141,6 +145,7 @@ public class WorkflowContext implements Externalizable {
             m_relativeRemotePath = origContext.m_relativeRemotePath;
             m_isTempCopy = origContext.m_isTempCopy;
             m_jobId = origContext.m_jobId;
+            m_authenticator = origContext.m_authenticator;
         }
 
         /**
@@ -240,9 +245,24 @@ public class WorkflowContext implements Externalizable {
          *
          * @param token a JWT, may be <code>null</code>
          * @return the updated factory
+         * @deprecated use {@link #setRemoteAuthenticator(Authenticator)}
          */
+        @Deprecated(since = "5.19")
         public Factory setRemoteAuthToken(final String token) {
             m_remoteAuthToken = token;
+            return this;
+        }
+
+        /**
+         * Sets the authenticator that should be used when talking to the server specified via
+         * {@link #setRemoteAddress(URI, String)}.
+         *
+         * @param authenticator the authenticator
+         * @return the updated factory
+         * @since 5.19
+         */
+        public Factory setRemoteAuthenticator(final Authenticator authenticator) {
+            m_authenticator = authenticator;
             return this;
         }
 
@@ -312,6 +332,8 @@ public class WorkflowContext implements Externalizable {
 
     private String m_remoteMountId;
 
+    private Authenticator m_authenticator;
+
     /**
      * Only used in the executor and therefore, it is is not included in
      * {@link WorkflowContext#readExternal(ObjectInput)} and {@link WorkflowContext#writeExternal(ObjectInput)} .
@@ -358,6 +380,8 @@ public class WorkflowContext implements Externalizable {
         m_remoteMountId = factory.m_remoteMountId;
         m_jobId = factory.m_jobId;
         m_isTempCopy = factory.m_isTempCopy;
+        m_authenticator = factory.m_authenticator == null && factory.m_remoteAuthToken != null
+            ? new SimpleTokenAuthenticator(m_remoteAuthToken) : factory.m_authenticator;
     }
 
     /**
@@ -444,9 +468,22 @@ public class WorkflowContext implements Externalizable {
      * . This value is only set if the workflow is executed in a server executor.
      *
      * @return an authentication token or an empty optional
+     * @deprecated use {@link #getServerAuthenticator()} instead
      */
+    @Deprecated(since = "5.19")
     public Optional<String> getServerAuthToken() {
         return Optional.ofNullable(m_remoteAuthToken);
+    }
+
+    /**
+     * Returns the authenticator that should be used when talking to the server specified by
+     * {@link #getRemoteRepositoryAddress()}. This value is only set if the workflow is executed in a server executor.
+     *
+     * @return the authenticator or an empty optional
+     * @since 5.19
+     */
+    public Optional<Authenticator> getServerAuthenticator() {
+        return Optional.ofNullable(m_authenticator);
     }
 
     /**
@@ -584,20 +621,9 @@ public class WorkflowContext implements Externalizable {
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + m_currentLocation.hashCode();
-        result = prime * result + ((m_mountpointRoot == null) ? 0 : m_mountpointRoot.hashCode());
-        result = prime * result + ((m_originalLocation == null) ? 0 : m_originalLocation.hashCode());
-        result = prime * result + ((m_tempLocation == null) ? 0 : m_tempLocation.hashCode());
-        result = prime * result + ((m_userid == null) ? 0 : m_userid.hashCode());
-        result = prime * result + ((m_mountpointUri == null) ? 0 : m_mountpointUri.hashCode());
-        result = prime * result + ((m_remoteRepositoryAddress == null) ? 0 : m_remoteRepositoryAddress.hashCode());
-        result = prime * result + ((m_relativeRemotePath == null) ? 0 : m_relativeRemotePath.hashCode());
-        result = prime * result + ((m_remoteAuthToken == null) ? 0 : m_remoteAuthToken.hashCode());
-        result = prime * result + ((m_jobId == null) ? 0 : m_jobId.hashCode());
-        result = prime * result + (m_isTempCopy ? 77 : 0);
-        return result;
+        return Objects.hash(m_currentLocation, m_mountpointRoot, m_originalLocation, m_tempLocation, m_userid,
+            m_mountpointUri, m_relativeRemotePath, m_remoteRepositoryAddress, m_remoteAuthToken, m_jobId, m_isTempCopy,
+            m_authenticator);
     }
 
     /**
@@ -655,6 +681,6 @@ public class WorkflowContext implements Externalizable {
                 && Objects.equals(m_remoteAuthToken, other.m_remoteAuthToken)
                 && Objects.equals(m_remoteRepositoryAddress, other.m_remoteRepositoryAddress)
                 && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath) && (m_isTempCopy == other.m_isTempCopy)
-                && Objects.equals(m_jobId, other.m_jobId);
+                && Objects.equals(m_jobId, other.m_jobId) && Objects.equals(m_authenticator, other.m_authenticator);
     }
 }

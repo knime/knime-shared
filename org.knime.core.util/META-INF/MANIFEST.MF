@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Core Utilities Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
-Bundle-Version: 5.18.0.qualifier
+Bundle-Version: 5.19.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Export-Package: org.apache.commons.io,
@@ -25,7 +25,8 @@ Export-Package: org.apache.commons.io,
  org.knime.core.util.node.quickform.out,
  org.knime.core.util.report,
  org.knime.core.util.workflowalizer,
- org.knime.core.util.workflowsummary
+ org.knime.core.util.workflowsummary,
+ org.knime.core.util.auth
 Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  org.glassfish.javax.json;bundle-version="[1.0.4,2.0.0)",
  org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
@@ -43,7 +44,8 @@ Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  com.fasterxml.jackson.module.jackson-module-mrbean;bundle-version="[2.11.0,3.0.0)",
  com.fasterxml.woodstox.woodstox-core;bundle-version="[6.2.3,7.0.0)",
  stax2-api;bundle-version="[4.2.0,5.0.0)",
- org.eclipse.jdt.annotation;bundle-version="[2.2.0,3.0.0)"
+ org.eclipse.jdt.annotation;bundle-version="[2.2.0,3.0.0)",
+ org.apache.httpcomponents.httpcore;bundle-version="[4.4.12,5.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
