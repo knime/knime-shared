@@ -153,6 +153,13 @@ public class ExternalNodeData {
     protected String m_description;
 
     /**
+     * The content type.
+     * @since 5.18
+     */
+    @Nullable
+    protected String m_contentType;
+
+    /**
      * May be used by subclasses.
      */
     protected ExternalNodeData() {
@@ -170,6 +177,7 @@ public class ExternalNodeData {
         m_uri = builder.m_uri;
         m_stringValue = builder.m_stringValue;
         m_description = builder.m_description;
+        m_contentType = builder.m_contentType;
     }
 
     /**
@@ -260,6 +268,22 @@ public class ExternalNodeData {
         return Optional.ofNullable(m_description);
     }
 
+    @JsonProperty("contentType")
+    private void setContentType(@Nullable final String contentType) {
+        m_contentType = contentType;
+    }
+
+    /**
+     * Returns an optional content type for this external node data.
+     *
+     * @return the content type or an empty optional
+     * @since 5.18
+     */
+    @JsonProperty("contentType")
+    public Optional<String> getContentType() {
+        return Optional.ofNullable(m_contentType);
+    }
+
     /**
      * Creates a new builder for an external node data.
      *
@@ -287,6 +311,9 @@ public class ExternalNodeData {
 
         @Nullable
         String m_description;
+
+        @Nullable
+        String m_contentType;
 
         ExternalNodeDataBuilder(final String id) {
             m_id = Objects.requireNonNull(id, "ID must not be null");
@@ -339,6 +366,18 @@ public class ExternalNodeData {
         }
 
         /**
+         * Sets the content type for the external data.
+         *
+         * @param contentType the content type, may be <code>null</code>
+         * @return the updated builder
+         * @since 5.18
+         */
+        public ExternalNodeDataBuilder contentType(@Nullable final String contentType) {
+            m_contentType = contentType;
+            return this;
+        }
+
+        /**
          * Builds a new external node data with the values from this builder.
          *
          * @return a new external node data
@@ -374,6 +413,7 @@ public class ExternalNodeData {
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
         result = prime * result + ((m_uri == null) ? 0 : m_uri.hashCode());
         result = prime * result + ((m_description == null) ? 0 : m_description.hashCode());
+        result = prime * result + ((m_contentType == null) ? 0 : m_contentType.hashCode());
         return result;
     }
 
@@ -416,7 +456,7 @@ public class ExternalNodeData {
         if (!Objects.equals(this.m_description, other.m_description)) {
             return false;
         }
-        return true;
+        return Objects.equals(m_contentType, other.m_contentType);
     }
 
     /**
@@ -471,6 +511,7 @@ public class ExternalNodeData {
         clone.m_id = this.m_id;
         clone.m_jsonValue = this.m_jsonValue;
         clone.m_uri = this.m_uri;
+        clone.m_contentType = this.m_contentType;
         return clone;
     }
 }
