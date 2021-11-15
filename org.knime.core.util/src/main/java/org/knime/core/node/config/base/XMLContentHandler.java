@@ -49,6 +49,7 @@ package org.knime.core.node.config.base;
 
 import java.io.IOException;
 import java.util.Stack;
+import java.util.function.Consumer;
 
 import org.knime.core.util.XMLUtils;
 import org.xml.sax.Attributes;
@@ -85,13 +86,19 @@ class XMLContentHandler extends DefaultHandler {
         m_fileName = fileName;
     }
 
+    // for testing purposes only
+    static Consumer<char[]> charactersConsumer = null;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void characters(final char[] ch, final int start, final int length)
             throws SAXException {
-        // empty
+        // for testing purposes only
+        if (charactersConsumer != null) {
+            charactersConsumer.accept(ch);
+        }
     }
 
     /**
@@ -200,7 +207,7 @@ class XMLContentHandler extends DefaultHandler {
      */
     @Override
     public InputSource resolveEntity(final String publicId, final String systemId) throws IOException, SAXException {
-        return XMLConfig.DTD_RESOLVER.resolveEntity(publicId, systemId);
+        throw new UnsupportedOperationException();
     }
 
     /**

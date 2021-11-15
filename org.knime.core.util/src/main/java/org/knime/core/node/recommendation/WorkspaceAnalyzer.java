@@ -84,9 +84,9 @@ import org.apache.commons.logging.LogFactory;
 import org.knime.core.node.NodeFrequencies;
 import org.knime.core.node.NodeInfo;
 import org.knime.core.node.NodeTriple;
-import org.knime.core.node.config.base.XMLConfigEntityResolver;
 import org.knime.core.util.PathFilter;
 import org.knime.core.util.PathFilters;
+import org.knime.core.util.xml.NoExternalEntityResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -172,9 +172,9 @@ public class WorkspaceAnalyzer {
     }
 
     private static DocumentBuilder createParser() throws ParserConfigurationException {
-        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        parser.setEntityResolver(XMLConfigEntityResolver.getInstance());
-        return parser;
+        var docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        docBuilder.setEntityResolver(NoExternalEntityResolver.getInstance());
+        return docBuilder;
     }
 
     /**

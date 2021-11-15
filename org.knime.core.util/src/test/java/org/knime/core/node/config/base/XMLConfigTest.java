@@ -44,55 +44,62 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   16.03.2016 (thor): created
+ *   Nov 16, 2021 (hornm): created
  */
 package org.knime.core.node.config.base;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.junit.Assert;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 /**
- * Resolver for the XMLConfig DTDs.
+ * Tests for {@link XMLConfig}.
  *
- * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
- * @since 5.4
+ * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  */
-public class XMLConfigEntityResolver implements EntityResolver {
-    private static final XMLConfigEntityResolver INSTANCE = new XMLConfigEntityResolver();
+public class XMLConfigTest {
 
     /**
-     * Returns a singleton instance of this resolver.
+     * Makes sure that DOCTYPE declarations are ignored in xml-files read via
+     * {@link XMLConfig#load(ConfigBase, InputStream)}.
      *
-     * @return a resolver, never <code>null</code>
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
      */
-    public static EntityResolver getInstance() {
-        return INSTANCE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-        // XMLConfig.dtd was moved some time ago but old workflows still reference it
-        if ((systemId != null)
-            && (systemId.endsWith(XMLConfig.DTD_NAME)
-                || systemId.replaceAll("(org/knime/core/node/config)/(?!base/)", "$1/base/")
-                    .endsWith(XMLConfig.DTD_NAME)
-                || systemId.replace("de/unikn/knime/core/node/config/", "org/knime/core/node/config/base/")
-                    .endsWith(XMLConfig.DTD_NAME))) {
-            // gets URL for systemId which specifies the dtd file+path
-            ClassLoader classLoader = XMLConfig.class.getClassLoader();
-            URL dtdURL = classLoader.getResource(XMLConfig.DTD_NAME);
-            InputStream is = dtdURL.openStream();
-            return new InputSource(is);
-        } else {
-            return null;
+    @Test
+    public void testDisallowedDoctypeEntityDeclaration()
+        throws SAXException, IOException, ParserConfigurationException {
+        try (InputStream is =
+            XMLConfig.class.getResourceAsStream("/XMLConfigTest/workflow.knime_with_entity_declaration")) {
+            TestConfig config = new TestConfig("");
+            XMLContentHandler.charactersConsumer = ch -> {
+                if (new String(ch).contains("sensitive information")) {
+                    Assert.fail(
+                        "DOCTYPE declaration has been interpreted. It makes it susceptible to XML External Entity (XXE) attacks.");
+                }
+            };
+            XMLConfig.load(config, is);
         }
     }
+
+    @SuppressWarnings("serial")
+    private class TestConfig extends ConfigBase {
+
+        private TestConfig(final String key) {
+            super(key);
+        }
+
+        @Override
+        public ConfigBase getInstance(final String key) {
+            return new TestConfig(key);
+        }
+
+    }
+
 }

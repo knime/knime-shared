@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,7 +65,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.xml.sax.EntityResolver;
+import org.knime.core.util.xml.NoExternalEntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -96,35 +95,6 @@ public final class XMLConfig {
         }
     }
 
-    /** dtd name from class name. */
-    public static final String DTD_NAME =
-            XMLConfig.class.getName().replace('.', '/') + ".dtd";
-
-    /**
-     * Entity resolver for the XMLConfig.dtd file used in some old config files.
-     * @since 5.4
-     */
-    public static final EntityResolver DTD_RESOLVER = new EntityResolver() {
-        @Override
-        public InputSource resolveEntity(final String publicId, final String systemId)
-            throws SAXException, IOException {
-            // XMLConfig.dtd was moved some time ago but old workflows still reference it
-            if ((systemId != null) && (systemId.endsWith(XMLConfig.DTD_NAME)
-                || systemId.replaceAll("(org/knime/core/node/config)/(?!base/)", "$1/base/")
-                    .endsWith(XMLConfig.DTD_NAME)
-                || systemId.replace("de/unikn/knime/core/node/config/", "org/knime/core/node/config/base/")
-                    .endsWith(XMLConfig.DTD_NAME))) {
-                // gets URL for systemId which specifies the dtd file+path
-                ClassLoader classLoader = XMLConfig.class.getClassLoader();
-                URL dtdURL = classLoader.getResource(XMLConfig.DTD_NAME);
-                InputStream is = dtdURL.openStream();
-                return new InputSource(is);
-            } else {
-                return null;
-            }
-        }
-    };
-
     private XMLConfig() {
         // empty
     }
@@ -146,7 +116,15 @@ public final class XMLConfig {
         XMLContentHandler xmlContentHandler =
                 new XMLContentHandler(c, in.toString());
         reader.setContentHandler(xmlContentHandler);
-        reader.setEntityResolver(xmlContentHandler);
+
+        // The NoOpEntityResolver is a measure necessary to prevent XXE attacks.
+        // See https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
+        // The following would also completely disable DOCTYPE declarations and prevent XXE attacks:
+        //   parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+        // However, old workflow files are referencing a XMLConfig.dtd file and, hence, would not load anymore.
+        // That's why we do it this way. Any DOCTYPE declarations in the xml file are ignored.
+        reader.setEntityResolver(NoExternalEntityResolver.getInstance());
+
         reader.setErrorHandler(xmlContentHandler);
 
         BufferedReader buf = new BufferedReader(
