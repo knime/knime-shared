@@ -1420,8 +1420,7 @@ public abstract class ConfigBase extends AbstractConfigEntry
     @Override
     public void addPassword(final String key, final String encryptionKey, final String value) {
         try {
-            put(new ConfigPasswordEntry(key,
-                createEncrypter(encryptionKey).encrypt(value, value == null ? 0 : value.length())));
+            put(new ConfigPasswordEntry(key, createEncrypter(encryptionKey).encrypt(value)));
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
                 | InvalidAlgorithmParameterException ex) {
             throw new RuntimeException("Error while encrypting password: " + ex.getMessage(), ex);
