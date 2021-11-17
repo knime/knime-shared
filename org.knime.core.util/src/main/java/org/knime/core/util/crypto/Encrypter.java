@@ -20,13 +20,16 @@
 package org.knime.core.util.crypto;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
@@ -34,9 +37,12 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-
 
 /**
  * Simple class to en-/decrypt strings with a fixed key.
@@ -45,66 +51,175 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 5.0
  */
 public final class Encrypter implements IEncrypter {
-    // must be 16 bytes line
-    private static final IvParameterSpec IV = new IvParameterSpec(new byte[]{-45, 34, 88, -7, 99, 41, 78, 12, 11, 120,
-        67, 111, 103, 65, 1, -113});
+    // This class is used for decrypting old data only
+    private static final class V1Encrypter implements IEncrypter {
+        // must be 16 bytes line
+        private static final IvParameterSpec IV =
+            new IvParameterSpec(new byte[]{-45, 34, 88, -7, 99, 41, 78, 12, 11, 120, 67, 111, 103, 65, 1, -113});
 
-    private static final String DEFAULT_ENCRYPTION_METHOD = "AES/CBC/PKCS5Padding";
+        private final Cipher m_cipher;
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+        private final SecretKey m_key;
 
-    private final Cipher m_cipher;
+        /**
+         * Creates a new encrypter using the given key for en- and decryption.
+         *
+         * @param key the secret key. Ideally it should have at least 128bits or 16 characters
+         * @throws NoSuchAlgorithmException is for some strange reason the AES cipher implementation cannot be found
+         * @throws NoSuchPaddingException if the padding algorithm is unknown
+         */
+        V1Encrypter(final String key) throws NoSuchAlgorithmException, NoSuchPaddingException {
+            // we assume that the key has already been checked by the outer class
+            m_cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
-    private final SecretKey m_key;
+            var keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            var sha = MessageDigest.getInstance("SHA-1");
+            keyBytes = sha.digest(keyBytes);
+            m_key = new SecretKeySpec(Arrays.copyOf(keyBytes, 16), "AES"); // 128bits
+        }
 
-    private final Random m_random = new Random();
+        @Override
+        public synchronized String encrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
+            InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new UnsupportedOperationException("Encrypting with version 1 is not supported any more");
+        }
+
+        @Override
+        public synchronized String encrypt(final String data, final int salt) throws BadPaddingException,
+            IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new UnsupportedOperationException("Encrypting with version 1 is not supported any more");
+        }
+
+        @Override
+        public synchronized String decrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
+            InvalidKeyException, IOException, InvalidAlgorithmParameterException {
+            var decoded = HexUtils.hexToBytes(data);
+            m_cipher.init(Cipher.DECRYPT_MODE, m_key, IV);
+            // first byte is the version (unencrypted), the following four bytes the salt which can be ignored
+            byte[] decryptedText = m_cipher.doFinal(decoded, 1, decoded.length - 1);
+            return new String(decryptedText, 4, decryptedText.length - 4, StandardCharsets.UTF_8);
+        }
+    }
+
+    private static final class V2Encrypter implements IEncrypter {
+        private final Cipher m_cipher;
+
+        private final SecretKey m_key;
+
+        private final Random m_random = new SecureRandom();
+
+        /**
+         * Creates a new encrypter using the given key for en- and decryption.
+         *
+         * @param key the secret key. Ideally it should have at least 128bits or 16 characters
+         * @throws NoSuchAlgorithmException is for some strange reason the AES cipher implementation cannot be found
+         * @throws NoSuchPaddingException if the padding algorithm is unknown
+         * @throws InvalidKeySpecException if they key specification is invalid
+         */
+        V2Encrypter(final String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
+            // we assume that the key has already been checked by the outer class
+            m_cipher = Cipher.getInstance("AES/GCM/NoPadding");
+
+            // we can not use a random salt here otherwise we would not be able to decrypt other data
+            var spec = new PBEKeySpec(key.toCharArray(), new byte[] {1, -6, 127, 98}, 100000, 256); // AES-256
+            var keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            m_key = new SecretKeySpec(keyFactory.generateSecret(spec).getEncoded(), "AES");
+        }
+
+        private String encrypt(final String data, final byte[] salt) throws InvalidKeyException,
+            InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+            if (data == null) {
+                return null;
+            }
+
+            var iv = new byte[]{-45, 34, 28, -7, 99, 42, -3, 12, 111, 120, -67, 111, 103, 65, 1, -113};
+            System.arraycopy(salt, 0, iv, 0, Math.min(iv.length, salt.length));
+            var gcmSpec = new GCMParameterSpec(iv.length * 8, iv);
+            m_cipher.init(Cipher.ENCRYPT_MODE, m_key, gcmSpec);
+
+            var input = ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8));
+            var output = ByteBuffer.allocate(iv.length + iv.length + input.capacity()); // iv + authTag + data
+            output.put(iv);
+
+            try {
+                m_cipher.doFinal(input, output);
+            } catch (ShortBufferException ex) {
+                throw new IllegalStateException(ex); // this should never happen because the buffer has the right size
+            }
+            return "02" + Base64.getUrlEncoder().encodeToString(output.array());
+        }
+
+        @Override
+        public synchronized String encrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
+            InvalidKeyException, InvalidAlgorithmParameterException {
+            var salt = new byte[16];
+            m_random.nextBytes(salt);
+            return encrypt(data, salt);
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public synchronized String encrypt(final String data, final int salt) throws BadPaddingException,
+            IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+            return encrypt(data, new byte[]{(byte)(salt & 255), (byte)((salt >> 8) & 255), (byte)((salt >> 16) & 255),
+                (byte)((salt >> 24) & 255)});
+        }
+
+        @Override
+        public synchronized String decrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
+            InvalidKeyException, IOException, InvalidAlgorithmParameterException {
+            // we assume the correct version has already been checked by the outer class
+            var decoded = Base64.getUrlDecoder().decode(data.substring(2));
+
+            // first 16 bytes are the IV
+            var iv = new GCMParameterSpec(16 * 8, decoded, 0, 16);
+
+            try {
+                var cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                cipher.init(Cipher.DECRYPT_MODE, m_key, iv);
+                // first 16 bytes are the IV, then the actual data
+                var decryptedText = cipher.doFinal(decoded, 16, decoded.length - 16);
+                return new String(decryptedText, StandardCharsets.UTF_8);
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
+                throw new IllegalArgumentException(
+                    "Could not decrypt data. Maybe it's not a valid encrypted string or the decryption key is wrong.",
+                    ex);
+            }
+        }
+    }
+
+    private final IEncrypter[] m_encrypters = new IEncrypter[2];
 
     /**
      * Creates a new encrypter using the given key for en- and decryption.
      *
      * @param key the secret key. Ideally it should have at least 128bits or 16 characters
      * @throws NoSuchAlgorithmException is for some strange reason the AES cipher implementation cannot be found
-     * @throws InvalidKeySpecException if the public key contained in the license is invalid
      * @throws NoSuchPaddingException if the padding algorithm is unknown
+     * @throws InvalidKeySpecException if they key specification is invalid
      */
-    public Encrypter(final String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
+    public Encrypter(final String key)
+        throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
         if ((key == null) || key.isEmpty()) {
             throw new IllegalArgumentException("The encryption key must not be null or empty");
         }
 
-        m_cipher = Cipher.getInstance(DEFAULT_ENCRYPTION_METHOD);
-
-        byte[] keyBytes = key.getBytes(UTF8);
-        MessageDigest sha = MessageDigest.getInstance("SHA-1");
-        keyBytes = sha.digest(keyBytes);
-        m_key = new SecretKeySpec(Arrays.copyOf(keyBytes, 16), "AES"); // 128bits
+        m_encrypters[0] = new V1Encrypter(key);
+        m_encrypters[1] = new V2Encrypter(key);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public synchronized String encrypt(final String data) throws BadPaddingException, IllegalBlockSizeException,
-    InvalidKeyException, InvalidAlgorithmParameterException {
-        return encrypt(data, m_random.nextInt());
+    public synchronized String encrypt(final String data)
+        throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+        return m_encrypters[m_encrypters.length - 1].encrypt(data);
     }
 
-    /** {@inheritDoc} */
+    @Deprecated
     @Override
-    public synchronized String encrypt(final String data, final int salt) throws BadPaddingException,
-        IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
-        if (data == null) {
-            return null;
-        }
-        m_cipher.init(Cipher.ENCRYPT_MODE, m_key, IV);
-        byte[] dataBytes = data.getBytes(UTF8);
-        byte[] unencrypted = new byte[dataBytes.length + 4]; // 4 bytes salt
-        unencrypted[0] = (byte)(salt & 0xff);
-        unencrypted[1] = (byte)((salt >> 8) & 0xff);
-        unencrypted[2] = (byte)((salt >> 16) & 0xff);
-        unencrypted[3] = (byte)((salt >> 24) & 0xff);
-        System.arraycopy(dataBytes, 0, unencrypted, 4, dataBytes.length);
-
-        byte[] ciphertext = m_cipher.doFinal(unencrypted);
-        return "01" + HexUtils.bytesToHex(ciphertext); // "01" is the version, also hex-encoded
+    public synchronized String encrypt(final String data, final int salt)
+        throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+        return m_encrypters[m_encrypters.length - 1].encrypt(data, salt);
     }
 
     /**
@@ -116,12 +231,11 @@ public final class Encrypter implements IEncrypter {
         if (data == null) {
             return null;
         } else if (data.isEmpty()) {
+            // This is for backwards compatibility with V1. V2 does not create empty strings even for empty input.
             return "";
         }
-        byte[] pw = HexUtils.hexToBytes(data);
-        m_cipher.init(Cipher.DECRYPT_MODE, m_key, IV);
-        // first byte is the version (unencrypted), the following four bytes the salt which can be ignored
-        byte[] decryptedText = m_cipher.doFinal(pw, 1, pw.length - 1);
-        return new String(decryptedText, 4, decryptedText.length - 4, UTF8);
+
+        var version = HexUtils.hexToBytes(data.substring(0, 2));
+        return m_encrypters[version[0] - 1].decrypt(data);
     }
 }

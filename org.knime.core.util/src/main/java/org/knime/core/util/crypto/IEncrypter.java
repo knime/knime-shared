@@ -79,8 +79,8 @@ public interface IEncrypter {
 
     /**
      * Encrypts strings and returns a Base64 string. If the input string is <code>null</code>, the output will be
-     * <code>null</code>, too. This implementation uses the argument salt (some random number) - the same
-     * method arguments will return the same encrypted data.
+     * <code>null</code>, too. This implementation uses the argument salt (some random number) - the same method
+     * arguments will return the same encrypted data.
      *
      * @param data as string
      * @param salt The (random or fixed) salt.
@@ -90,7 +90,10 @@ public interface IEncrypter {
      * @throws InvalidKeyException {@link InvalidKeyException}
      * @throws InvalidAlgorithmParameterException {@link InvalidAlgorithmParameterException}
      * @since 2.12
+     * @deprecated use {@link #encrypt(String)} instead and the implementation will choose a random salt with an
+     *             appropriate size for you. There is usually no reason why the caller should provide the salt.
      */
+    @Deprecated(since = "5.19.0")
     String encrypt(final String data, final int salt) throws BadPaddingException, IllegalBlockSizeException,
         InvalidKeyException, InvalidAlgorithmParameterException;
 

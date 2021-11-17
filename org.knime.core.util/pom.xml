@@ -105,5 +105,11 @@
 			<artifactId>org.eclipse.jdt.annotation</artifactId>
 			<version>2.2.600</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.assertj</groupId>
+		    <artifactId>assertj-core</artifactId>
+		    <version>3.19.0</version>
+		    <scope>test</scope>
+		</dependency>		
 	</dependencies>
 </project>
