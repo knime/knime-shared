@@ -181,8 +181,8 @@ public final class Encrypter implements IEncrypter {
                 var decryptedData = cipher.doFinal(decoded, 16, decoded.length - 16);
                 var decryptedText = new String(decryptedData, 0, decryptedData.length - 4, StandardCharsets.UTF_8);
 
-                if ((decryptedData[decryptedData.length - 4] + decryptedData[decryptedData.length - 3]
-                    + decryptedData[decryptedData.length - 2] + decryptedData[decryptedData.length - 1]) != 0) {
+                if ((decryptedData[decryptedData.length - 4] | decryptedData[decryptedData.length - 3]
+                    | decryptedData[decryptedData.length - 2] | decryptedData[decryptedData.length - 1]) != 0) {
                     throw new IllegalArgumentException("Could not decrypt data. Maybe it's not a valid encrypted string"
                         + " or the decryption key is wrong.");
                 }
