@@ -39,7 +39,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.ShortBufferException;
-import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -118,7 +117,7 @@ public final class Encrypter implements IEncrypter {
          */
         V2Encrypter(final String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
             // we assume that the key has already been checked by the outer class
-            m_cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            m_cipher = Cipher.getInstance("AES/CFB/NoPadding");
 
             // we can not use a random salt here otherwise we would not be able to decrypt other data
             var spec = new PBEKeySpec(key.toCharArray(), new byte[] {1, -6, 127, 98}, 100000, 256); // AES-256
@@ -134,15 +133,16 @@ public final class Encrypter implements IEncrypter {
 
             var iv = new byte[]{-45, 34, 28, -7, 99, 42, -3, 12, 111, 120, -67, 111, 103, 65, 1, -113};
             System.arraycopy(salt, 0, iv, 0, Math.min(iv.length, salt.length));
-            var gcmSpec = new GCMParameterSpec(iv.length * 8, iv);
-            m_cipher.init(Cipher.ENCRYPT_MODE, m_key, gcmSpec);
+            var ivSpec = new IvParameterSpec(iv);
+            m_cipher.init(Cipher.ENCRYPT_MODE, m_key, ivSpec);
 
             var input = ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8));
-            var output = ByteBuffer.allocate(iv.length + iv.length + input.capacity()); // iv + authTag + data
+            var output = ByteBuffer.allocate(iv.length + input.capacity() + 4); // IV + data + auth tag
             output.put(iv);
 
             try {
-                m_cipher.doFinal(input, output);
+                m_cipher.update(input, output);
+                m_cipher.doFinal(ByteBuffer.wrap(new byte[] {0, 0, 0, 0}), output);
             } catch (ShortBufferException ex) {
                 throw new IllegalStateException(ex); // this should never happen because the buffer has the right size
             }
@@ -172,14 +172,21 @@ public final class Encrypter implements IEncrypter {
             var decoded = Base64.getUrlDecoder().decode(data.substring(2));
 
             // first 16 bytes are the IV
-            var iv = new GCMParameterSpec(16 * 8, decoded, 0, 16);
+            var iv = new IvParameterSpec(decoded, 0, 16);
 
             try {
-                var cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                var cipher = Cipher.getInstance("AES/CFB/NoPadding");
                 cipher.init(Cipher.DECRYPT_MODE, m_key, iv);
-                // first 16 bytes are the IV, then the actual data
-                var decryptedText = cipher.doFinal(decoded, 16, decoded.length - 16);
-                return new String(decryptedText, StandardCharsets.UTF_8);
+                // first 16 bytes are the IV, then the actual data, then four bytes of auth tag
+                var decryptedData = cipher.doFinal(decoded, 16, decoded.length - 16);
+                var decryptedText = new String(decryptedData, 0, decryptedData.length - 4, StandardCharsets.UTF_8);
+
+                if ((decryptedData[decryptedData.length - 4] + decryptedData[decryptedData.length - 3]
+                    + decryptedData[decryptedData.length - 2] + decryptedData[decryptedData.length - 1]) != 0) {
+                    throw new IllegalArgumentException("Could not decrypt data. Maybe it's not a valid encrypted string"
+                        + " or the decryption key is wrong.");
+                }
+                return decryptedText;
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
                 throw new IllegalArgumentException(
