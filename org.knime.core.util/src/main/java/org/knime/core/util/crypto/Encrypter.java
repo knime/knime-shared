@@ -242,7 +242,12 @@ public final class Encrypter implements IEncrypter {
             return "";
         }
 
-        var version = HexUtils.hexToBytes(data.substring(0, 2));
-        return m_encrypters[version[0] - 1].decrypt(data);
+        // one-based encryption scheme version number
+        int version = data.length() >= 2 ? HexUtils.hexToBytes(data.substring(0, 2))[0] : -1;
+        if (version < 1 || version > m_encrypters.length) {
+            throw new IllegalArgumentException("Could not decrypt data. It is not a valid encrypted string.");
+        }
+        return m_encrypters[version - 1].decrypt(data);
     }
+
 }

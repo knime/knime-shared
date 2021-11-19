@@ -54,6 +54,8 @@ import static org.junit.Assert.assertThrows;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import javax.crypto.IllegalBlockSizeException;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -156,6 +158,18 @@ public class EncrypterTest {
         }
     }
 
+    /**
+     * Test that passing invalid inputs to the decrypt method is handled gracefully.
+     * @throws Exception
+     */
+    @Test
+    public void invalidDecryptionInput() throws Exception {
+        IEncrypter enc = new Encrypter("AKeyForTestingTheEncrypter");
+        assertThrows(IllegalArgumentException.class, () -> enc.decrypt("z"));
+        assertThrows(IllegalArgumentException.class, () -> enc.decrypt("something"));
+        assertThrows(IllegalBlockSizeException.class, () -> enc.decrypt("01something"));
+        assertThrows(IllegalArgumentException.class, () -> enc.decrypt("02something"));
+    }
 
     /**
      * Test whether encryption with fixed salt produces the same encrypted string.
