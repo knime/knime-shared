@@ -155,4 +155,35 @@ public class EncrypterTest {
             assertThat(encrypter.decrypt(enc)).as("Reading version %d failed", i).isEqualTo(plain);
         }
     }
+
+
+    /**
+     * Test whether encryption with fixed salt produces the same encrypted string.
+     *
+     * @throws Exception if an error occurs
+     */
+    @Test
+    public void testFixSalt_Bug5813() throws Exception {
+        IEncrypter enc = new Encrypter("AKeyForTestingTheEncrypter");
+
+        String text = null;
+        String encryptedText = enc.encrypt(text, 27);
+        String encryptedText2 = enc.encrypt(text, 27);
+        assertThat(encryptedText2).as("Unexpected result for null text").isEqualTo(encryptedText);
+
+        text = "";
+        encryptedText = enc.encrypt(text, 27);
+        encryptedText2 = enc.encrypt(text, 27);
+        assertThat(encryptedText2).as("Unexpected result for empty text").isEqualTo(encryptedText);
+
+        text = "äüößjjjhdshvoihgudfhgdfbv";
+        encryptedText = enc.encrypt(text, 27);
+        encryptedText2 = enc.encrypt(text, 27);
+        assertThat(encryptedText2).as("Unexpected result for real text").isEqualTo(encryptedText);
+
+        text = "äüößjjjhdshvoihgudfhgdfbv";
+        encryptedText = enc.encrypt(text, 27);
+        encryptedText2 = enc.encrypt(text, 28);
+        assertThat(encryptedText2).as("Unexpected result for different salts").isNotEqualTo(encryptedText);
+    }
 }

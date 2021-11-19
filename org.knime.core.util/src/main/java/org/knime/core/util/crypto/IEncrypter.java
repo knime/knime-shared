@@ -91,7 +91,8 @@ public interface IEncrypter {
      * @throws InvalidAlgorithmParameterException {@link InvalidAlgorithmParameterException}
      * @since 2.12
      * @deprecated use {@link #encrypt(String)} instead and the implementation will choose a random salt with an
-     *             appropriate size for you. There is usually no reason why the caller should provide the salt.
+     *             appropriate size for you. There is usually no reason why the caller should provide the salt. If you
+     *             reuse the same salt twice in a row it will even fail.
      */
     @Deprecated(since = "5.19.0")
     String encrypt(final String data, final int salt) throws BadPaddingException, IllegalBlockSizeException,
