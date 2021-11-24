@@ -183,15 +183,13 @@ public final class Encrypter implements IEncrypter {
 
                 if ((decryptedData[decryptedData.length - 4] | decryptedData[decryptedData.length - 3]
                     | decryptedData[decryptedData.length - 2] | decryptedData[decryptedData.length - 1]) != 0) {
-                    throw new IllegalArgumentException("Could not decrypt data. Maybe it's not a valid encrypted string"
+                    throw new InvalidKeyException("Could not decrypt data. Maybe it's not a valid encrypted string"
                         + " or the decryption key is wrong.");
                 }
                 return decryptedText;
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
-                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
-                throw new IllegalArgumentException(
-                    "Could not decrypt data. Maybe it's not a valid encrypted string or the decryption key is wrong.",
-                    ex);
+            } catch (NoSuchPaddingException | NoSuchAlgorithmException ex) {
+                // does not happen in reality
+                throw new IllegalArgumentException(ex);
             }
         }
     }
