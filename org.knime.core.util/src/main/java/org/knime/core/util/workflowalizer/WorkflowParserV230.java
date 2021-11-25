@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.text.ParseException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +87,8 @@ final class WorkflowParserV230 extends AbstractWorkflowParser {
      */
     @Override
     public OffsetDateTime getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        return OffsetDateTime.MIN;
+        // 1970-01-01 00:00:00 +00:00 -> previously we used new Date(0) for unknown dates, so we use the same value
+        return OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     }
 
     /**

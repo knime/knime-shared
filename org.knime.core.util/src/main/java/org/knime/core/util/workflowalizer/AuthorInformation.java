@@ -51,6 +51,7 @@ package org.knime.core.util.workflowalizer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -70,8 +71,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class AuthorInformation {
     /** Info for workflows created prior 2.8. */
-    public static final AuthorInformation UNKNOWN =
-        new AuthorInformation("<unknown>", OffsetDateTime.MIN, Optional.empty(), Optional.empty());
+    // 1970-01-01 00:00:00 +00:00 -> previously we used new Date(0) for unknown dates, so we use the same value
+    public static final AuthorInformation UNKNOWN = new AuthorInformation("<unknown>",
+        OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), Optional.empty(), Optional.empty());
 
     @JsonProperty("author")
     private final String m_author;

@@ -297,7 +297,8 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     @Override
     public OffsetDateTime getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
         if (!config.containsKey("authorInformation")) {
-            return OffsetDateTime.MIN;
+            // 1970-01-01 00:00:00 +00:00 -> previously we used new Date(0) for unknown dates, so we use the same value
+            return OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
         }
         final String s = config.getConfigBase("authorInformation").getString("authored-when");
 
