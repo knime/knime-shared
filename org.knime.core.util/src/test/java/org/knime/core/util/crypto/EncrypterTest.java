@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.util.UUID;
 
 import javax.crypto.IllegalBlockSizeException;
@@ -131,7 +132,7 @@ public class EncrypterTest {
         var encrypted = encrypter.encrypt(plain);
 
         var encrypter2 = new Encrypter("some other key");
-        assertThrows(IllegalArgumentException.class, () -> encrypter2.decrypt(encrypted));
+        assertThrows(InvalidKeyException.class, () -> encrypter2.decrypt(encrypted));
     }
 
     /**
