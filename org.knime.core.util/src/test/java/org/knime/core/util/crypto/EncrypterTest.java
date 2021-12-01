@@ -136,6 +136,20 @@ public class EncrypterTest {
     }
 
     /**
+     * Tests runtime behavior when using small key iteration count, accepting weak encrypting (came up as part of
+     * https://knime-com.atlassian.net/browse/AP-17592)
+     *
+     * @throws Exception if an error occurs
+     */
+    @Test(timeout = 1000)
+    public void testSpeedyWeakEncryption() throws Exception { // NOSONAR timeout is checked in method annotation
+        for (int i = 0; i < 1000; i++) {
+            var encrypter = new Encrypter("key " + i, 100);
+            encrypter.encrypt("some string", 42);
+        }
+    }
+
+    /**
      * Test decryption of data encrypted with a previos version.
      *
      * @throws Exception if an error occurs

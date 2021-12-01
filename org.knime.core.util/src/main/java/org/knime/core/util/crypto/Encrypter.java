@@ -111,16 +111,18 @@ public final class Encrypter implements IEncrypter {
          * Creates a new encrypter using the given key for en- and decryption.
          *
          * @param key the secret key. Ideally it should have at least 128bits or 16 characters
+         * @param keyInitIterCount Number of iterations for {@link PBEKeySpec} initialization
          * @throws NoSuchAlgorithmException is for some strange reason the AES cipher implementation cannot be found
          * @throws NoSuchPaddingException if the padding algorithm is unknown
          * @throws InvalidKeySpecException if they key specification is invalid
          */
-        V2Encrypter(final String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
+        V2Encrypter(final String key, final int keyInitIterCount)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
             // we assume that the key has already been checked by the outer class
             m_cipher = Cipher.getInstance("AES/CFB/NoPadding");
 
             // we can not use a random salt here otherwise we would not be able to decrypt other data
-            var spec = new PBEKeySpec(key.toCharArray(), new byte[] {1, -6, 127, 98}, 100000, 256); // AES-256
+            var spec = new PBEKeySpec(key.toCharArray(), new byte[] {1, -6, 127, 98}, keyInitIterCount, 256); // AES-256
             var keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             m_key = new SecretKeySpec(keyFactory.generateSecret(spec).getEncoded(), "AES");
         }
@@ -206,12 +208,30 @@ public final class Encrypter implements IEncrypter {
      */
     public Encrypter(final String key)
         throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
+        this(key, 100000);
+    }
+
+    /**
+     * Creates a new encrypter using the given key for en- and decryption. The number of iterations for secret key
+     * initialization can be specified.
+     *
+     * @param key the secret key. Ideally it should have at least 128bits or 16 characters
+     * @param keyInitIterationCount The number of iterations for secret key initialization (as per
+     *            {@link PBEKeySpec#PBEKeySpec(char[], byte[], int, int)}). Some client will use a low number (100) here
+     *            as they only use weak password encryption
+     * @throws NoSuchAlgorithmException is for some strange reason the AES cipher implementation cannot be found
+     * @throws NoSuchPaddingException if the padding algorithm is unknown
+     * @throws InvalidKeySpecException if they key specification is invalid
+     * @since 5.19
+     */
+    public Encrypter(final String key, final int keyInitIterationCount)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
         if ((key == null) || key.isEmpty()) {
             throw new IllegalArgumentException("The encryption key must not be null or empty");
         }
 
         m_encrypters[0] = new V1Encrypter(key);
-        m_encrypters[1] = new V2Encrypter(key);
+        m_encrypters[1] = new V2Encrypter(key, keyInitIterationCount);
     }
 
     @Override

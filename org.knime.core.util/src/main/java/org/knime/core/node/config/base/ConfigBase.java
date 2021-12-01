@@ -96,7 +96,9 @@ public abstract class ConfigBase extends AbstractConfigEntry
         implements ConfigBaseRO, ConfigBaseWO {
     private static IEncrypter createEncrypter(final String key ) {
         try {
-            return new Encrypter(key);
+        	// limit key strength using small iteration count -- gives performance boost but doesn't lose a lot
+        	// of security since encryption in this class is weak anyway (static password), see #addPassword
+            return new Encrypter(key, 100);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException ex) {
             throw new RuntimeException("Could not create encrypter: " + ex.getMessage(), ex);
         }
