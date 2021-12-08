@@ -128,7 +128,7 @@ public final class Encrypter implements IEncrypter {
         }
 
         @Override
-        public String encrypt(final String data, final byte[] salt) throws InvalidKeyException,
+        public synchronized String encrypt(final String data, final byte[] salt) throws InvalidKeyException,
             InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
             if (data == null) {
                 return null;
@@ -249,7 +249,7 @@ public final class Encrypter implements IEncrypter {
     }
 
     @Override
-    public String encrypt(final String data, final byte[] salt)
+    public synchronized String encrypt(final String data, final byte[] salt)
         throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
         return m_encrypters[m_encrypters.length - 1].encrypt(data, salt);
     }
