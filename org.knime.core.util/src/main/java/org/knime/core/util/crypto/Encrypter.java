@@ -127,7 +127,8 @@ public final class Encrypter implements IEncrypter {
             m_key = new SecretKeySpec(keyFactory.generateSecret(spec).getEncoded(), "AES");
         }
 
-        private String encrypt(final String data, final byte[] salt) throws InvalidKeyException,
+        @Override
+        public String encrypt(final String data, final byte[] salt) throws InvalidKeyException,
             InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
             if (data == null) {
                 return null;
@@ -243,6 +244,12 @@ public final class Encrypter implements IEncrypter {
     @Deprecated
     @Override
     public synchronized String encrypt(final String data, final int salt)
+        throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+        return m_encrypters[m_encrypters.length - 1].encrypt(data, salt);
+    }
+
+    @Override
+    public String encrypt(final String data, final byte[] salt)
         throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
         return m_encrypters[m_encrypters.length - 1].encrypt(data, salt);
     }

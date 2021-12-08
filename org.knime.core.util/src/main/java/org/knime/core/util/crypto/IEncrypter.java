@@ -97,6 +97,30 @@ public interface IEncrypter {
     String encrypt(final String data, final int salt) throws BadPaddingException, IllegalBlockSizeException,
         InvalidKeyException, InvalidAlgorithmParameterException;
 
+
+    /**
+     * Encrypts strings and returns a Base64 string. If the input string is <code>null</code>, the output will be
+     * <code>null</code>, too. This implementation uses a provided salt so that the same method arguments will return
+     * the same encrypted data.
+     *
+     * @param data as string
+     * @param salt the salt
+     * @return the encrypted data or <code>null</code>
+     * @throws IllegalBlockSizeException {@link IllegalBlockSizeException}
+     * @throws BadPaddingException {@link BadPaddingException}
+     * @throws InvalidKeyException {@link InvalidKeyException}
+     * @throws InvalidAlgorithmParameterException {@link InvalidAlgorithmParameterException}
+     * @since 5.20
+     */
+    default String encrypt(final String data, final byte[] salt) throws BadPaddingException, IllegalBlockSizeException,
+        InvalidKeyException, InvalidAlgorithmParameterException {
+        var s = 0;
+        for (var i = 0; i < salt.length; i++) {
+            s += 31 * salt[i];
+        }
+        return encrypt(data, s);
+    }
+
     /**
      * Decrypts strings. If the input string is <code>null</code>, the output will be <code>null</code>, too.
      *

@@ -116,6 +116,9 @@ public class EncrypterTest {
         var plain = UUID.randomUUID().toString();
 
         assertThat(encrypter.encrypt(plain)).as("No salt used").isNotEqualTo(encrypter.encrypt(plain));
+
+        byte[] salt = { 1, -56, 88, 51, 98, 0, 0, -127, 111, 99, -4, -73, 56, 88, 100, 75, -71, -8, 0, 0, -1 };
+        assertThat(encrypter.encrypt(plain, salt)).as("No salt used").isEqualTo(encrypter.encrypt(plain, salt));
     }
 
 
