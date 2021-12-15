@@ -4,7 +4,7 @@ def BN = (BRANCH_NAME == 'master' || BRANCH_NAME.startsWith('releases/')) ? BRAN
 library "knime-pipeline@$BN"
 
 properties([
-    pipelineTriggers([upstream('knime-tp/' + env.BRANCH_NAME.replaceAll('/', '%2F'))]),
+    pipelineTriggers([upstream('knime-tp/' + knimetools.CURRENT_BRANCH.replaceAll('/', '%2F'))]),
     buildDiscarder(logRotator(numToKeepStr: '5')),
     disableConcurrentBuilds(),
     parameters([booleanParam(defaultValue: false, description: 'Whether this is a release build', name: 'RELEASE_BUILD')])
