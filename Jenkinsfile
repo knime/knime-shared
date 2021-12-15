@@ -20,14 +20,8 @@ try {
     },
     'Maven Build': {
         // Pure Maven build for SRV and WH
-        knimetools.defaultMavenBuild(profiles: ['SRV'], skipSonar: true, exportCoverageData: true)
+        knimetools.defaultMavenBuild(profiles: ['SRV'])
     }
-
-    stage('Sonarqube analysis') {
-        env.lastStage = env.STAGE_NAME
-        workflowTests.runSonar(['maven'])
-    }
-
 } catch (ex) {
     currentBuild.result = 'FAILURE'
     throw ex
