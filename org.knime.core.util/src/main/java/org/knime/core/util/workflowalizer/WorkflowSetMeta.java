@@ -71,6 +71,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class WorkflowSetMeta {
 
+    private static final String LINE_SEPARATOR_REGEX = "\r?\n";
+
     @JsonProperty("author")
     private final Optional<String> m_author;
 
@@ -90,7 +92,7 @@ public class WorkflowSetMeta {
         m_author = author;
 
         if (comments.isPresent()) {
-            final String[] lines = comments.get().split(System.getProperty("line.separator"));
+            final String[] lines = comments.get().split(LINE_SEPARATOR_REGEX);
 
             String title = null;
             int start = 0;

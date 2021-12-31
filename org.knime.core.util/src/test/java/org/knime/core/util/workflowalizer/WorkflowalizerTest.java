@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -56,7 +57,6 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.IOUtils;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -965,6 +966,28 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertUOEThrown(tm::getConnections);
         assertUOEThrown(tm::getNodes);
         assertUOEThrown(tm::getUnexpectedFileNames);
+    }
+
+    /**
+     * Tests reading the 'comments' (aka description) in the workflowset.meta file (workflow(-group) metadata) and makes
+     * sure that the 'line.separator'-system property is NOT being used.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testLineSeparatorMetadata() throws Exception {
+        var lineSeparatorKey = "line.separator";
+        var lineSeparator = System.getProperty(lineSeparatorKey);
+        System.setProperty(lineSeparatorKey, "nonesense");
+        try {
+            var metadata = Workflowalizer.readWorkflowGroup(workflowGroupFile);
+            var title = metadata.getTitle().orElse(null);
+            var description = metadata.getDescription().orElse(null);
+            assertThat(title, is("Title"));
+            assertThat(description, Matchers.startsWith("Lorem ipsum dolor sit amet"));
+        } finally {
+            System.setProperty(lineSeparatorKey, lineSeparator);
+        }
     }
 
     /**
