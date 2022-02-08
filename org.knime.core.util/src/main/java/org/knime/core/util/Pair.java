@@ -47,6 +47,8 @@ package org.knime.core.util;
 
 import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * This class is a simple pair of objects.
  *
@@ -127,7 +129,8 @@ public final class Pair<T, M> {
      * @param <M> Type of second element
      * @since 2.9
      */
-    public static final <T, M> Pair<T, M> create(final T first, final M second) {
-        return new Pair<T, M>(first, second);
+    @NonNull
+    public static <T, M> Pair<T, M> create(final T first, final M second) {
+        return new Pair<>(first, second);
     }
 }
