@@ -52,11 +52,16 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -103,5 +108,26 @@ public class PathUtilsTest {
         assertThat("Unexpected permission for text file",
             PosixFilePermissions.toString(Files.getPosixFilePermissions(destDir.resolve("sub").resolve("text.txt"))),
             is("rw-rw----"));
+    }
+
+    /**
+     * Try to extract a workflow from a zip file with a special character in the file name.
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @Test
+    public void testUnzipUTF8Filename() throws IOException, URISyntaxException {
+        Path temp = PathUtils.createTempDir(PathUtilsTest.class.getName());
+        String workflowPath = "/😅.knwf";
+        try (InputStream in = PathUtilsTest.class.getResourceAsStream(workflowPath);
+                var zipInputStream = new ZipInputStream(in)) {
+            PathUtils.unzip(zipInputStream, temp);
+        }
+        assertTrue(Files.isDirectory(temp.resolve(Path.of("😅"))));
+        assertTrue(Files.exists(temp.resolve(Path.of("😅", "workflow.knime"))));
+        assertTrue(Files.exists(temp.resolve(Path.of("😅", "workflow.svg"))));
+
+        assertTrue(Files.isDirectory(temp.resolve(Path.of("😅", "Workflow Input (#3)"))));
+        assertTrue(Files.exists(temp.resolve(Path.of("😅", "Workflow Input (#3)", "settings.xml"))));
     }
 }
