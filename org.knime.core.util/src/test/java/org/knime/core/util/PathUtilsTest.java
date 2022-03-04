@@ -53,6 +53,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
@@ -112,22 +113,35 @@ public class PathUtilsTest {
 
     /**
      * Try to extract a workflow from a zip file with a special character in the file name.
+     *
      * @throws IOException
      * @throws URISyntaxException
      */
     @Test
     public void testUnzipUTF8Filename() throws IOException, URISyntaxException {
         Path temp = PathUtils.createTempDir(PathUtilsTest.class.getName());
-        String workflowPath = "/😅.knwf";
-        try (InputStream in = PathUtilsTest.class.getResourceAsStream(workflowPath);
-                var zipInputStream = new ZipInputStream(in)) {
-            PathUtils.unzip(zipInputStream, temp);
-        }
-        assertTrue(Files.isDirectory(temp.resolve(Path.of("😅"))));
-        assertTrue(Files.exists(temp.resolve(Path.of("😅", "workflow.knime"))));
-        assertTrue(Files.exists(temp.resolve(Path.of("😅", "workflow.svg"))));
+        String[] workflowPaths = new String[]{
+            "/UnicodeCharactersInWorkflowName/👿🤐🤑🤒🤓🤔🤕🤗🤠🤢🤣🤤🤥🤧🤨🤩🤪🤫🤬🤭🤮🤯🥰🥱🥲🥳🥴🥵🥶🥸☹⟕⚡️⌝🐙㋉-zipped-on-mac.knwf",
+            "/UnicodeCharactersInWorkflowName/👿🤐🤑🤒🤓🤔🤕🤗🤠🤢🤣🤤🤥🤧🤨🤩🤪🤫🤬🤭🤮🤯🥰🥱🥲🥳🥴🥵🥶🥸☹⟕⚡️⌝🐙㋉-zipped-on-windows.knwf"};
 
-        assertTrue(Files.isDirectory(temp.resolve(Path.of("😅", "Workflow Input (#3)"))));
-        assertTrue(Files.exists(temp.resolve(Path.of("😅", "Workflow Input (#3)", "settings.xml"))));
+        for (String workflowPath : workflowPaths) {
+
+            // the workflow did named -zipped
+            final String extractedName = "👿🤐🤑🤒🤓🤔🤕🤗🤠🤢🤣🤤🤥🤧🤨🤩🤪🤫🤬🤭🤮🤯🥰🥱🥲🥳🥴🥵🥶🥸☹⟕⚡️⌝🐙㋉";
+
+            try (InputStream in = PathUtilsTest.class.getResourceAsStream(workflowPath);
+                    var zipInputStream = new ZipInputStream(in)) {
+                PathUtils.unzip(zipInputStream, temp);
+            } catch(IOException e) {
+                fail("An error occured during unzipping the workflow " + workflowPath + ": " + e);
+            }
+            assertTrue(Files.isDirectory(temp.resolve(Path.of(extractedName))));
+            assertTrue(Files.exists(temp.resolve(Path.of(extractedName, "workflow.knime"))));
+            assertTrue(Files.exists(temp.resolve(Path.of(extractedName, "workflow.svg"))));
+
+            assertTrue(Files.isDirectory(temp.resolve(Path.of(extractedName, "Component (#3)"))));
+            assertTrue(Files.exists(temp.resolve(Path.of(extractedName, "Component (#3)", "settings.xml"))));
+
+        }
     }
 }
