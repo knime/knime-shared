@@ -7,7 +7,10 @@ properties([
     pipelineTriggers([upstream('knime-tp/' + knimetools.CURRENT_BRANCH.replaceAll('/', '%2F'))]),
     buildDiscarder(logRotator(numToKeepStr: '5')),
     disableConcurrentBuilds(),
-    parameters([booleanParam(defaultValue: false, description: 'Whether this is a release build', name: 'RELEASE_BUILD')])
+    parameters([
+        booleanParam(defaultValue: false, description: 'Whether this is a release build', name: 'RELEASE_BUILD'),
+        p2Tools.getP2pruningParameter()
+    ])
 ])
 
 
