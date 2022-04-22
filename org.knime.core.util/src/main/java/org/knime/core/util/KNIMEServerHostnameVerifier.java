@@ -48,6 +48,9 @@
  */
 package org.knime.core.util;
 
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
@@ -84,13 +87,16 @@ public final class KNIMEServerHostnameVerifier implements HostnameVerifier {
     public boolean verify(final String hostname, final SSLSession session) {
         // we accept if the certificate hostname does not match the actual hostname but the certificate was
         // signed by us; this is for default server installations that all use a common certificate
+        if (m_defaultVerifier.verify(hostname, session)) {
+            return true;
+        }
         try {
-            return m_defaultVerifier.verify(hostname, session)
-                || session.getPeerCertificateChain()[0].getSubjectDN().toString().equals(
-                    "CN=default-server-installation.knime.local, O=KNIME.com AG, L=Atlantis, ST=Utopia, C=AA");
+            return Arrays.stream(session.getPeerCertificates()).filter(X509Certificate.class::isInstance)
+                .map(c -> ((X509Certificate)c).getSubjectX500Principal().getName())
+                .anyMatch(
+                    "CN=default-server-installation.knime.local,O=KNIME.com AG,L=Atlantis,ST=Utopia,C=AA"::equals);
         } catch (SSLPeerUnverifiedException ex) {
             return false;
         }
     }
-
 }
