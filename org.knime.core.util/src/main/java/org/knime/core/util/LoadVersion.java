@@ -148,9 +148,23 @@ public enum LoadVersion {
         m_versionString = str;
     }
 
-    /** @return The String representing the LoadVersion (workflow.knime). */
+    /** @return The String representing the LoadVersion. */
     public String getVersionString() {
         return m_versionString;
+    }
+
+    /**
+     * @param versionString a string representation of a load version, e.g., created when saving a workflow.
+     * @return the LoadVersion corresponding to the string or {@link #FUTURE} if
+     */
+    public static LoadVersion fromVersionString(final String versionString) {
+        boolean isBeforeV2 = versionString.equals("0.9.0");
+        isBeforeV2 |= versionString.equals("1.0");
+        isBeforeV2 |= versionString.matches("1\\.[01234]\\.[0-9].*");
+        if (isBeforeV2) {
+            return LoadVersion.UNKNOWN;
+        }
+        return LoadVersion.get(versionString).orElse(LoadVersion.FUTURE);
     }
 
     /**
@@ -179,4 +193,10 @@ public enum LoadVersion {
         return Optional.empty();
     }
 
+    /**
+     * @return the highest non-future version.
+     */
+    public static LoadVersion latest() {
+        return LoadVersion.values()[FUTURE.ordinal()-1];
+    }
 }

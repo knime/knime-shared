@@ -738,4 +738,18 @@ propagated with or for interoperation with KNIME.
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="org.knime.core.workflow.def"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.knime.core.workflow.loader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

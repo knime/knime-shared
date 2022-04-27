@@ -8,7 +8,7 @@
    </feature>
    <bundle id="org.apache.xmlbeans5">
       <category name="knime-shared"/>
-	</bundle>
+   </bundle>
    <category-def name="knime-shared" label="Build artifacts from knime-shared">
       <description>
          Build artifacts from knime-shared
