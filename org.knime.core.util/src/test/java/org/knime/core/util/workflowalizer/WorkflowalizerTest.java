@@ -48,16 +48,15 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.compress.utils.IOUtils;
+import org.hamcrest.Matchers;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.knime.core.util.PathUtils;
+import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
+import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
 
 import java.io.File;
 import java.io.InputStream;
@@ -69,15 +68,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.compress.utils.IOUtils;
-import org.hamcrest.Matchers;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.knime.core.util.PathUtils;
-import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
-import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for {@link Workflowalizer}.
@@ -1553,6 +1553,23 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 }
             }
         }
+    }
+
+    /**
+     * Tests that any extra empty lines around title and description
+     * does not fail to workflow metadata parsing
+     * @throws Exception
+     */
+    @Test
+    public void testCheckWorkflowWithRedundantEmptyLine() throws Exception {
+        final Path zipFile = Paths.get(WorkflowalizerTest.class.getResource("/TestExtendedExtraEmptyLineWorkflow.knwf").toURI());
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
+
+        assertEquals("Unexpected workflow title", wm.getWorkflowSetMetadata().get().getTitle().get(),
+                "Foo - title");
+        assertEquals("Unexpected workflow description", wm.getWorkflowSetMetadata().get().getDescription().get(),
+                "Wibble wobble wubble flob. - description");
     }
 
     /**

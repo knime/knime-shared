@@ -71,7 +71,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class WorkflowSetMeta {
 
-    private static final String LINE_SEPARATOR_REGEX = "\r?\n";
+    private static final String LINE_SEPARATOR_REGEX = "\r?\n+";
 
     @JsonProperty("author")
     private final Optional<String> m_author;
@@ -92,17 +92,26 @@ public class WorkflowSetMeta {
         m_author = author;
 
         if (comments.isPresent()) {
+            // Several successive empty lines are treated as one line separator
             final String[] lines = comments.get().split(LINE_SEPARATOR_REGEX);
 
             String title = null;
             int start = 0;
-            // If the first line is less than 20 words, followed by a blank line, then another line which isn't
-            // one of the special "tags" -> assume the first line is a title
-            if (lines.length > 2 && (!lines[0].isEmpty() && lines[1].trim().isEmpty() && !lines[2].isEmpty())
-                && !(lines[2].startsWith("BLOG:") || lines[2].startsWith("URL:") || lines[2].startsWith("VIDEO:")
-                    || lines[2].startsWith("TAG:") || lines[2].startsWith("TAGS:"))) {
-                title = lines[0];
-                start = 2;
+            if (lines.length > 1 && !lines[1].isEmpty()
+                    && !(lines[1].startsWith("BLOG:") || lines[1].startsWith("URL:") || lines[1].startsWith("VIDEO:")
+                    || lines[1].startsWith("TAG:") || lines[1].startsWith("TAGS:"))) {
+                if (lines[0].isEmpty()) {
+                    // Catch if the comments starts with: emptyLines-Title-emptyLines-Description
+                    // lines contain: emptyLine-Title-Description
+                    //  -> assume the second line is a title
+                    title = lines[1];
+                    start = 2;
+                } else {
+                    // If the first line is less than 20 words, followed by a blank line, then another line which isn't
+                    // one of the special "tags" -> assume the first line is a title
+                    title = lines[0];
+                    start = 1;
+                }
             }
             m_title = Optional.ofNullable(title);
 
