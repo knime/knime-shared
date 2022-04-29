@@ -183,6 +183,7 @@ public class FallibleCipherDef implements CipherDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -262,12 +263,14 @@ public class FallibleCipherDef implements CipherDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleCipherDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleCipherDef other = (FallibleCipherDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_passwordDigest, other.m_passwordDigest);
         equalsBuilder.append(m_encryptionKey, other.m_encryptionKey);
         equalsBuilder.append(m_passwordHint, other.m_passwordHint);

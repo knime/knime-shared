@@ -192,6 +192,7 @@ public class FallibleComponentMetadataDef implements ComponentMetadataDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -397,12 +398,14 @@ public class FallibleComponentMetadataDef implements ComponentMetadataDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleComponentMetadataDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleComponentMetadataDef other = (FallibleComponentMetadataDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_description, other.m_description);
         equalsBuilder.append(m_inPortNames, other.m_inPortNames);
         equalsBuilder.append(m_outPortNames, other.m_outPortNames);

@@ -92,6 +92,14 @@ public class TemplateInfoDefBuilder {
     public TemplateInfoDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public TemplateInfoDefBuilder(final TemplateInfoDef toCopy) {
+        m_uri = toCopy.getUri();
+        m_updatedAt = toCopy.getUpdatedAt();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for uri
     // -----------------------------------------------------------------------------------------------------------------

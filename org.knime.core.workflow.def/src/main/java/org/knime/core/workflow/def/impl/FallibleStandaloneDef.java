@@ -85,7 +85,7 @@ public class FallibleStandaloneDef implements StandaloneDef {
     protected CreatorDef m_creator;
 
     /** 
-     * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. 
+     * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content.  
      */
     @JsonProperty("contents")
     protected Object m_contents;
@@ -181,6 +181,7 @@ public class FallibleStandaloneDef implements StandaloneDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -273,12 +274,14 @@ public class FallibleStandaloneDef implements StandaloneDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleStandaloneDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleStandaloneDef other = (FallibleStandaloneDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_creator, other.m_creator);
         equalsBuilder.append(m_contents, other.m_contents);
         equalsBuilder.append(m_contentType, other.m_contentType);

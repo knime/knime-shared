@@ -193,6 +193,7 @@ public class FallibleConnectionDef implements ConnectionDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -327,12 +328,14 @@ public class FallibleConnectionDef implements ConnectionDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConnectionDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConnectionDef other = (FallibleConnectionDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_sourceID, other.m_sourceID);
         equalsBuilder.append(m_destID, other.m_destID);
         equalsBuilder.append(m_sourcePort, other.m_sourcePort);

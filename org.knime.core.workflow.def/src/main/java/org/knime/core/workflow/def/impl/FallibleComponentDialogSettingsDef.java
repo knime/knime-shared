@@ -180,6 +180,7 @@ public class FallibleComponentDialogSettingsDef implements ComponentDialogSettin
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -273,12 +274,14 @@ public class FallibleComponentDialogSettingsDef implements ComponentDialogSettin
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleComponentDialogSettingsDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleComponentDialogSettingsDef other = (FallibleComponentDialogSettingsDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_layoutJSON, other.m_layoutJSON);
         equalsBuilder.append(m_configurationLayoutJSON, other.m_configurationLayoutJSON);
         equalsBuilder.append(m_hideInWizard, other.m_hideInWizard);

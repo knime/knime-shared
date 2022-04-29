@@ -166,6 +166,7 @@ public class FallibleConfigValueDoubleDef extends FallibleConfigValueDef impleme
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -231,12 +232,14 @@ public class FallibleConfigValueDoubleDef extends FallibleConfigValueDef impleme
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigValueDoubleDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigValueDoubleDef other = (FallibleConfigValueDoubleDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_value, other.m_value);
         return equalsBuilder.isEquals();
     }

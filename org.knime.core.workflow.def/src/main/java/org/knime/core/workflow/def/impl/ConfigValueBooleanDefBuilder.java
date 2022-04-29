@@ -92,6 +92,14 @@ public class ConfigValueBooleanDefBuilder {
     public ConfigValueBooleanDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueBooleanDefBuilder(final ConfigValueBooleanDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_value = toCopy.isValue();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

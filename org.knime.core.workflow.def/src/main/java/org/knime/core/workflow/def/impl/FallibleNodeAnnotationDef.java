@@ -169,6 +169,7 @@ public class FallibleNodeAnnotationDef implements NodeAnnotationDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -247,12 +248,14 @@ public class FallibleNodeAnnotationDef implements NodeAnnotationDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleNodeAnnotationDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleNodeAnnotationDef other = (FallibleNodeAnnotationDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_annotationDefault, other.m_annotationDefault);
         equalsBuilder.append(m_data, other.m_data);
         return equalsBuilder.isEquals();

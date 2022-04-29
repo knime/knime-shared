@@ -94,6 +94,15 @@ public class NodeLocksDefBuilder {
     public NodeLocksDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public NodeLocksDefBuilder(final NodeLocksDef toCopy) {
+        m_hasDeleteLock = toCopy.hasDeleteLock();
+        m_hasResetLock = toCopy.hasResetLock();
+        m_hasConfigureLock = toCopy.hasConfigureLock();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for hasDeleteLock
     // -----------------------------------------------------------------------------------------------------------------

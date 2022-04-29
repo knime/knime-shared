@@ -138,12 +138,14 @@ public class FallibleConfigValueDef extends FallibleConfigDef implements ConfigV
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigValueDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigValueDef other = (FallibleConfigValueDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         return equalsBuilder.isEquals();
     }
 

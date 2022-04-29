@@ -141,6 +141,26 @@ public class MetaNodeDefBuilder {
     public MetaNodeDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public MetaNodeDefBuilder(final MetaNodeDef toCopy) {
+        m_id = toCopy.getId();
+        m_nodeType = toCopy.getNodeType();
+        m_customDescription = toCopy.getCustomDescription();
+        m_annotation = toCopy.getAnnotation();
+        m_uiInfo = toCopy.getUiInfo();
+        m_locks = toCopy.getLocks();
+        m_jobManager = toCopy.getJobManager();
+        m_workflow = toCopy.getWorkflow();
+        m_inPorts = toCopy.getInPorts();
+        m_outPorts = toCopy.getOutPorts();
+        m_cipher = toCopy.getCipher();
+        m_link = toCopy.getLink();
+        m_inPortsBarUIInfo = toCopy.getInPortsBarUIInfo();
+        m_outPortsBarUIInfo = toCopy.getOutPortsBarUIInfo();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for id
     // -----------------------------------------------------------------------------------------------------------------

@@ -138,12 +138,14 @@ public class FallibleConfigValueArrayDef extends FallibleConfigDef implements Co
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigValueArrayDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigValueArrayDef other = (FallibleConfigValueArrayDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         return equalsBuilder.isEquals();
     }
 

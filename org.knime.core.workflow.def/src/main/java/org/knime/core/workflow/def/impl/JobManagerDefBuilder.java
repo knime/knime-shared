@@ -91,6 +91,14 @@ public class JobManagerDefBuilder {
     public JobManagerDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public JobManagerDefBuilder(final JobManagerDef toCopy) {
+        m_factory = toCopy.getFactory();
+        m_settings = toCopy.getSettings();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for factory
     // -----------------------------------------------------------------------------------------------------------------

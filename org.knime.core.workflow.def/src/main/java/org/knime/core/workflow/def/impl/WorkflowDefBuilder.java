@@ -127,6 +127,18 @@ public class WorkflowDefBuilder {
     public WorkflowDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public WorkflowDefBuilder(final WorkflowDef toCopy) {
+        m_name = toCopy.getName();
+        m_authorInformation = toCopy.getAuthorInformation();
+        m_nodes = toCopy.getNodes();
+        m_connections = toCopy.getConnections();
+        m_annotations = toCopy.getAnnotations();
+        m_workflowEditorSettings = toCopy.getWorkflowEditorSettings();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for name
     // -----------------------------------------------------------------------------------------------------------------

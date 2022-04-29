@@ -92,6 +92,14 @@ public class ConfigValueShortDefBuilder {
     public ConfigValueShortDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueShortDefBuilder(final ConfigValueShortDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_value = toCopy.getValue();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

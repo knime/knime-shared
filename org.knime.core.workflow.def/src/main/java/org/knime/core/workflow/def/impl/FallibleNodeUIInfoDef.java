@@ -175,6 +175,7 @@ public class FallibleNodeUIInfoDef implements NodeUIInfoDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -267,12 +268,14 @@ public class FallibleNodeUIInfoDef implements NodeUIInfoDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleNodeUIInfoDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleNodeUIInfoDef other = (FallibleNodeUIInfoDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_hasAbsoluteCoordinates, other.m_hasAbsoluteCoordinates);
         equalsBuilder.append(m_symbolRelative, other.m_symbolRelative);
         equalsBuilder.append(m_bounds, other.m_bounds);

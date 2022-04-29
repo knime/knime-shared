@@ -91,6 +91,14 @@ public class FilestoreDefBuilder {
     public FilestoreDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public FilestoreDefBuilder(final FilestoreDef toCopy) {
+        m_id = toCopy.getId();
+        m_location = toCopy.getLocation();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for id
     // -----------------------------------------------------------------------------------------------------------------

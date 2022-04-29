@@ -96,6 +96,13 @@ public class ConnectionUISettingsDefBuilder {
     public ConnectionUISettingsDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConnectionUISettingsDefBuilder(final ConnectionUISettingsDef toCopy) {
+        m_bendPoints = toCopy.getBendPoints();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for bendPoints
     // -----------------------------------------------------------------------------------------------------------------

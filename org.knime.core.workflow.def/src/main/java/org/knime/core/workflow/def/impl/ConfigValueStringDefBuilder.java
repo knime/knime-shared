@@ -92,6 +92,14 @@ public class ConfigValueStringDefBuilder {
     public ConfigValueStringDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueStringDefBuilder(final ConfigValueStringDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_value = toCopy.getValue();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

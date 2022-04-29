@@ -92,6 +92,14 @@ public class ConfigValueDoubleDefBuilder {
     public ConfigValueDoubleDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueDoubleDefBuilder(final ConfigValueDoubleDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_value = toCopy.getValue();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

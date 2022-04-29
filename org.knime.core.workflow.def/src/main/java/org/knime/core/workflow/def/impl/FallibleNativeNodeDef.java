@@ -243,6 +243,7 @@ public class FallibleNativeNodeDef extends FallibleConfigurableNodeDef implement
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -674,12 +675,14 @@ public class FallibleNativeNodeDef extends FallibleConfigurableNodeDef implement
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleNativeNodeDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleNativeNodeDef other = (FallibleNativeNodeDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_nodeName, other.m_nodeName);
         equalsBuilder.append(m_factory, other.m_factory);
         equalsBuilder.append(m_factorySettings, other.m_factorySettings);

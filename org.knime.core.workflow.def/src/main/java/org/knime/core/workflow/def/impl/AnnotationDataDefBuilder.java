@@ -126,6 +126,23 @@ public class AnnotationDataDefBuilder {
     public AnnotationDataDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public AnnotationDataDefBuilder(final AnnotationDataDef toCopy) {
+        m_text = toCopy.getText();
+        m_location = toCopy.getLocation();
+        m_textAlignment = toCopy.getTextAlignment();
+        m_borderSize = toCopy.getBorderSize();
+        m_borderColor = toCopy.getBorderColor();
+        m_bgcolor = toCopy.getBgcolor();
+        m_width = toCopy.getWidth();
+        m_annotationVersion = toCopy.getAnnotationVersion();
+        m_defaultFontSize = toCopy.getDefaultFontSize();
+        m_styles = toCopy.getStyles();
+        m_height = toCopy.getHeight();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for text
     // -----------------------------------------------------------------------------------------------------------------

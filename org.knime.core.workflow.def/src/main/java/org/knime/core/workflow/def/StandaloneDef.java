@@ -72,7 +72,7 @@ public interface StandaloneDef {
           */
          CREATOR,
          /**  
-          * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType.
+          * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
           *
           * The type of this data attribute is {@link Object}.
           * Is is returned by {@link StandaloneDef#getContents} 
@@ -93,6 +93,8 @@ public interface StandaloneDef {
    */
   public enum ContentTypeEnum {
     WORKFLOW("Workflow"),
+    
+    ROOT_WORKFLOW("Root Workflow"),
     
     METANODE("Metanode"),
     
@@ -118,7 +120,7 @@ public interface StandaloneDef {
   public CreatorDef getCreator();
 
   /**
-   * @return This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType.
+   * @return This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
    **/
   public Object getContents();
 

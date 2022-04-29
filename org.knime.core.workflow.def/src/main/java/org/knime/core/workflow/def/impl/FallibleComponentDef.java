@@ -255,6 +255,7 @@ public class FallibleComponentDef extends FallibleConfigurableNodeDef implements
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -736,12 +737,14 @@ public class FallibleComponentDef extends FallibleConfigurableNodeDef implements
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleComponentDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleComponentDef other = (FallibleComponentDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_workflow, other.m_workflow);
         equalsBuilder.append(m_inPorts, other.m_inPorts);
         equalsBuilder.append(m_outPorts, other.m_outPorts);

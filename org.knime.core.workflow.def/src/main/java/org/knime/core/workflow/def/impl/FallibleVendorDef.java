@@ -200,6 +200,7 @@ public class FallibleVendorDef implements VendorDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -293,12 +294,14 @@ public class FallibleVendorDef implements VendorDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleVendorDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleVendorDef other = (FallibleVendorDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_name, other.m_name);
         equalsBuilder.append(m_symbolicName, other.m_symbolicName);
         equalsBuilder.append(m_vendor, other.m_vendor);

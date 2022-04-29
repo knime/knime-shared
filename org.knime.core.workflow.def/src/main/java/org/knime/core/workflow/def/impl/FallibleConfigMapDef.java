@@ -173,6 +173,7 @@ public class FallibleConfigMapDef extends FallibleConfigDef implements ConfigMap
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -263,12 +264,14 @@ public class FallibleConfigMapDef extends FallibleConfigDef implements ConfigMap
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigMapDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigMapDef other = (FallibleConfigMapDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_key, other.m_key);
         equalsBuilder.append(m_children, other.m_children);
         return equalsBuilder.isEquals();

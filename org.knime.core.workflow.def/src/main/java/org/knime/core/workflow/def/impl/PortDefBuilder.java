@@ -94,6 +94,15 @@ public class PortDefBuilder {
     public PortDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public PortDefBuilder(final PortDef toCopy) {
+        m_index = toCopy.getIndex();
+        m_portType = toCopy.getPortType();
+        m_name = toCopy.getName();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for index
     // -----------------------------------------------------------------------------------------------------------------

@@ -242,12 +242,14 @@ public class FallibleConfigDef implements ConfigDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigDef other = (FallibleConfigDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_configType, other.m_configType);
         return equalsBuilder.isEquals();
     }

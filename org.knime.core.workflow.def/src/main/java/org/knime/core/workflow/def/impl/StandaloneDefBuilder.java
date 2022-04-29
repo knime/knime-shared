@@ -94,6 +94,15 @@ public class StandaloneDefBuilder {
     public StandaloneDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public StandaloneDefBuilder(final StandaloneDef toCopy) {
+        m_creator = toCopy.getCreator();
+        m_contents = toCopy.getContents();
+        m_contentType = toCopy.getContentType();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for creator
     // -----------------------------------------------------------------------------------------------------------------
@@ -148,7 +157,7 @@ public class StandaloneDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param contents This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType.
+     * @param contents This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
      * @return this builder for fluent API.
      */ 
     public StandaloneDefBuilder setContents(final Object contents) {

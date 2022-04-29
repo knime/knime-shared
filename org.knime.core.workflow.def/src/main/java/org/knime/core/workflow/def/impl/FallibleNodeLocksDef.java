@@ -183,6 +183,7 @@ public class FallibleNodeLocksDef implements NodeLocksDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -262,12 +263,14 @@ public class FallibleNodeLocksDef implements NodeLocksDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleNodeLocksDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleNodeLocksDef other = (FallibleNodeLocksDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_hasDeleteLock, other.m_hasDeleteLock);
         equalsBuilder.append(m_hasResetLock, other.m_hasResetLock);
         equalsBuilder.append(m_hasConfigureLock, other.m_hasConfigureLock);

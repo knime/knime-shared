@@ -103,6 +103,18 @@ public class ConnectionDefBuilder {
     public ConnectionDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConnectionDefBuilder(final ConnectionDef toCopy) {
+        m_sourceID = toCopy.getSourceID();
+        m_destID = toCopy.getDestID();
+        m_sourcePort = toCopy.getSourcePort();
+        m_destPort = toCopy.getDestPort();
+        m_deletable = toCopy.isDeletable();
+        m_uiSettings = toCopy.getUiSettings();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for sourceID
     // -----------------------------------------------------------------------------------------------------------------

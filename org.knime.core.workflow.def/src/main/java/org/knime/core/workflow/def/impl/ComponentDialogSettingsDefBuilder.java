@@ -97,6 +97,16 @@ public class ComponentDialogSettingsDefBuilder {
     public ComponentDialogSettingsDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ComponentDialogSettingsDefBuilder(final ComponentDialogSettingsDef toCopy) {
+        m_layoutJSON = toCopy.getLayoutJSON();
+        m_configurationLayoutJSON = toCopy.getConfigurationLayoutJSON();
+        m_hideInWizard = toCopy.isHideInWizard();
+        m_cssStyles = toCopy.getCssStyles();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for layoutJSON
     // -----------------------------------------------------------------------------------------------------------------

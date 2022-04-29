@@ -192,6 +192,7 @@ public class FallibleStyleRangeDef implements StyleRangeDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -313,12 +314,14 @@ public class FallibleStyleRangeDef implements StyleRangeDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleStyleRangeDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleStyleRangeDef other = (FallibleStyleRangeDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_fontSize, other.m_fontSize);
         equalsBuilder.append(m_color, other.m_color);
         equalsBuilder.append(m_start, other.m_start);

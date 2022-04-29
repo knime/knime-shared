@@ -103,6 +103,18 @@ public class PortTypeDefBuilder {
     public PortTypeDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public PortTypeDefBuilder(final PortTypeDef toCopy) {
+        m_portObjectClass = toCopy.getPortObjectClass();
+        m_portObjectSpecClass = toCopy.getPortObjectSpecClass();
+        m_color = toCopy.getColor();
+        m_hidden = toCopy.isHidden();
+        m_optional = toCopy.isOptional();
+        m_name = toCopy.getName();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for portObjectClass
     // -----------------------------------------------------------------------------------------------------------------

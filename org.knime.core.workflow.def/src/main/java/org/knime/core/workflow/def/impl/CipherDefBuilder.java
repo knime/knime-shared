@@ -94,6 +94,15 @@ public class CipherDefBuilder {
     public CipherDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public CipherDefBuilder(final CipherDef toCopy) {
+        m_passwordDigest = toCopy.getPasswordDigest();
+        m_encryptionKey = toCopy.getEncryptionKey();
+        m_passwordHint = toCopy.getPasswordHint();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for passwordDigest
     // -----------------------------------------------------------------------------------------------------------------

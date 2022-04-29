@@ -92,6 +92,14 @@ public class ConfigValueFloatDefBuilder {
     public ConfigValueFloatDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueFloatDefBuilder(final ConfigValueFloatDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_value = toCopy.getValue();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

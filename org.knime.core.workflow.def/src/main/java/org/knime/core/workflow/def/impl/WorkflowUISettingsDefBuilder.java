@@ -46,14 +46,15 @@ package org.knime.core.workflow.def.impl;
 
 import java.util.Map;
 
+
+// for the Attribute enum and javadoc references
+import org.knime.core.workflow.def.WorkflowUISettingsDef;
+// for types that define enums
+import org.knime.core.workflow.def.WorkflowUISettingsDef.*;
+import org.knime.core.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
-// for the Attribute enum and javadoc references
-import org.knime.core.workflow.def.WorkflowUISettingsDef;
-
-
-
 /**
  * WorkflowUISettingsDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -62,8 +63,6 @@ import org.knime.core.workflow.def.WorkflowUISettingsDef;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.impl.def-builder-config.json"})
 public class WorkflowUISettingsDefBuilder {
-
-    org.knime.core.util.crypto.Encrypter e;
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -75,31 +74,31 @@ public class WorkflowUISettingsDefBuilder {
      * {@link LoadException}s associated to their loading. Instead, separate {@link LoadExceptionTree} instances are
      * referenced in this map.
      */
-    Map<WorkflowUISettingsDef.Attribute, org.knime.core.util.workflow.def.LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>(WorkflowUISettingsDef.Attribute.class);
+    Map<WorkflowUISettingsDef.Attribute, LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>(WorkflowUISettingsDef.Attribute.class);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
     Boolean m_snapToGrid;
-
+    
 
     Boolean m_showGrid;
-
+    
 
     Integer m_gridX;
-
+    
 
     Integer m_gridY;
-
+    
 
     Double m_zoomLevel;
-
+    
 
     Boolean m_curvedConnections;
-
+    
 
     Integer m_connectionLineWidth;
-
+    
 
     /**
      * Create a new builder.
@@ -107,31 +106,44 @@ public class WorkflowUISettingsDefBuilder {
     public WorkflowUISettingsDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public WorkflowUISettingsDefBuilder(final WorkflowUISettingsDef toCopy) {
+        m_snapToGrid = toCopy.isSnapToGrid();
+        m_showGrid = toCopy.isShowGrid();
+        m_gridX = toCopy.getGridX();
+        m_gridY = toCopy.getGridY();
+        m_zoomLevel = toCopy.getZoomLevel();
+        m_curvedConnections = toCopy.isCurvedConnections();
+        m_connectionLineWidth = toCopy.getConnectionLineWidth();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for snapToGrid
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
      * @param snapToGrid Whether nodes moved in the editor are aligned to the nearest grid point.
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setSnapToGrid(final Boolean snapToGrid) {
         setSnapToGrid(() -> snapToGrid, snapToGrid);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID)} will return the exception.
-     *
+     * 
      * @param snapToGrid see {@link WorkflowUISettingsDef#isSnapToGrid}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setSnapToGrid(Boolean)
      */
-    public WorkflowUISettingsDefBuilder setSnapToGrid(final FallibleSupplier<Boolean> snapToGrid, final Boolean defaultValue) {
+    public WorkflowUISettingsDefBuilder setSnapToGrid(final FallibleSupplier<Boolean> snapToGrid, Boolean defaultValue) {
         java.util.Objects.requireNonNull(snapToGrid, () -> "No supplier for snapToGrid provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID);
@@ -139,37 +151,37 @@ public class WorkflowUISettingsDefBuilder {
             m_snapToGrid = snapToGrid.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_snapToGrid = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for showGrid
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
      * @param showGrid Whether to show a grid in the workflow editor background.
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setShowGrid(final Boolean showGrid) {
         setShowGrid(() -> showGrid, showGrid);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.SHOW_GRID)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.SHOW_GRID)} will return the exception.
-     *
+     * 
      * @param showGrid see {@link WorkflowUISettingsDef#isShowGrid}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setShowGrid(Boolean)
      */
-    public WorkflowUISettingsDefBuilder setShowGrid(final FallibleSupplier<Boolean> showGrid, final Boolean defaultValue) {
+    public WorkflowUISettingsDefBuilder setShowGrid(final FallibleSupplier<Boolean> showGrid, Boolean defaultValue) {
         java.util.Objects.requireNonNull(showGrid, () -> "No supplier for showGrid provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.SHOW_GRID);
@@ -177,37 +189,37 @@ public class WorkflowUISettingsDefBuilder {
             m_showGrid = showGrid.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_showGrid = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.SHOW_GRID, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for gridX
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
-     * @param gridX
+     * @param gridX 
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setGridX(final Integer gridX) {
         setGridX(() -> gridX, gridX);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.GRID_X)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.GRID_X)} will return the exception.
-     *
+     * 
      * @param gridX see {@link WorkflowUISettingsDef#getGridX}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setGridX(Integer)
      */
-    public WorkflowUISettingsDefBuilder setGridX(final FallibleSupplier<Integer> gridX, final Integer defaultValue) {
+    public WorkflowUISettingsDefBuilder setGridX(final FallibleSupplier<Integer> gridX, Integer defaultValue) {
         java.util.Objects.requireNonNull(gridX, () -> "No supplier for gridX provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.GRID_X);
@@ -215,37 +227,37 @@ public class WorkflowUISettingsDefBuilder {
             m_gridX = gridX.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_gridX = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.GRID_X, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for gridY
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
-     * @param gridY
+     * @param gridY 
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setGridY(final Integer gridY) {
         setGridY(() -> gridY, gridY);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.GRID_Y)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.GRID_Y)} will return the exception.
-     *
+     * 
      * @param gridY see {@link WorkflowUISettingsDef#getGridY}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setGridY(Integer)
      */
-    public WorkflowUISettingsDefBuilder setGridY(final FallibleSupplier<Integer> gridY, final Integer defaultValue) {
+    public WorkflowUISettingsDefBuilder setGridY(final FallibleSupplier<Integer> gridY, Integer defaultValue) {
         java.util.Objects.requireNonNull(gridY, () -> "No supplier for gridY provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.GRID_Y);
@@ -253,37 +265,37 @@ public class WorkflowUISettingsDefBuilder {
             m_gridY = gridY.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_gridY = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.GRID_Y, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for zoomLevel
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
      * @param zoomLevel The current magnification of the workflow in the workflow editor.
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setZoomLevel(final Double zoomLevel) {
         setZoomLevel(() -> zoomLevel, zoomLevel);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL)} will return the exception.
-     *
+     * 
      * @param zoomLevel see {@link WorkflowUISettingsDef#getZoomLevel}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setZoomLevel(Double)
      */
-    public WorkflowUISettingsDefBuilder setZoomLevel(final FallibleSupplier<Double> zoomLevel, final Double defaultValue) {
+    public WorkflowUISettingsDefBuilder setZoomLevel(final FallibleSupplier<Double> zoomLevel, Double defaultValue) {
         java.util.Objects.requireNonNull(zoomLevel, () -> "No supplier for zoomLevel provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL);
@@ -291,37 +303,37 @@ public class WorkflowUISettingsDefBuilder {
             m_zoomLevel = zoomLevel.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_zoomLevel = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for curvedConnections
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
      * @param curvedConnections Whether to use straight or curved segments to connect a connection&#39;s bend points.
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setCurvedConnections(final Boolean curvedConnections) {
         setCurvedConnections(() -> curvedConnections, curvedConnections);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS)} will return the exception.
-     *
+     * 
      * @param curvedConnections see {@link WorkflowUISettingsDef#isCurvedConnections}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setCurvedConnections(Boolean)
      */
-    public WorkflowUISettingsDefBuilder setCurvedConnections(final FallibleSupplier<Boolean> curvedConnections, final Boolean defaultValue) {
+    public WorkflowUISettingsDefBuilder setCurvedConnections(final FallibleSupplier<Boolean> curvedConnections, Boolean defaultValue) {
         java.util.Objects.requireNonNull(curvedConnections, () -> "No supplier for curvedConnections provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS);
@@ -329,37 +341,37 @@ public class WorkflowUISettingsDefBuilder {
             m_curvedConnections = curvedConnections.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_curvedConnections = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for connectionLineWidth
     // -----------------------------------------------------------------------------------------------------------------
-
+    
     /**
      * @param connectionLineWidth The width of the lines connecting a workflow&#39;s nodes in the workflow editor.
      * @return this builder for fluent API.
-     */
+     */ 
     public WorkflowUISettingsDefBuilder setConnectionLineWidth(final Integer connectionLineWidth) {
         setConnectionLineWidth(() -> connectionLineWidth, connectionLineWidth);
         return this;
     }
-
+ 
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH)} will return the exception.
-     *
+     * 
      * @param connectionLineWidth see {@link WorkflowUISettingsDef#getConnectionLineWidth}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setConnectionLineWidth(Integer)
      */
-    public WorkflowUISettingsDefBuilder setConnectionLineWidth(final FallibleSupplier<Integer> connectionLineWidth, final Integer defaultValue) {
+    public WorkflowUISettingsDefBuilder setConnectionLineWidth(final FallibleSupplier<Integer> connectionLineWidth, Integer defaultValue) {
         java.util.Objects.requireNonNull(connectionLineWidth, () -> "No supplier for connectionLineWidth provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH);
@@ -367,24 +379,24 @@ public class WorkflowUISettingsDefBuilder {
             m_connectionLineWidth = connectionLineWidth.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
-
+                                     
             m_connectionLineWidth = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH, supplyException);
-	    }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Build method
     // -----------------------------------------------------------------------------------------------------------------
     /**
-	 * @return the {@link WorkflowUISettingsDef} created from the data passed to the setters. Implements
+	 * @return the {@link WorkflowUISettingsDef} created from the data passed to the setters. Implements 
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
     public FallibleWorkflowUISettingsDef build() {
-
-
+        
+    	
         return new FallibleWorkflowUISettingsDef(this);
-    }
+    }    
 
 }

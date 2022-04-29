@@ -91,6 +91,14 @@ public class CoordinateDefBuilder {
     public CoordinateDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public CoordinateDefBuilder(final CoordinateDef toCopy) {
+        m_x = toCopy.getX();
+        m_y = toCopy.getY();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for x
     // -----------------------------------------------------------------------------------------------------------------

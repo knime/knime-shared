@@ -197,12 +197,14 @@ public class FallibleConfigurableNodeDef extends FallibleBaseNodeDef implements 
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigurableNodeDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigurableNodeDef other = (FallibleConfigurableNodeDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_modelSettings, other.m_modelSettings);
         equalsBuilder.append(m_internalNodeSubSettings, other.m_internalNodeSubSettings);
         equalsBuilder.append(m_variableSettings, other.m_variableSettings);

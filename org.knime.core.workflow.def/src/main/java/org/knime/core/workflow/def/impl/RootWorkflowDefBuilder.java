@@ -156,6 +156,22 @@ public class RootWorkflowDefBuilder {
     public RootWorkflowDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public RootWorkflowDefBuilder(final RootWorkflowDef toCopy) {
+        m_name = toCopy.getName();
+        m_authorInformation = toCopy.getAuthorInformation();
+        m_nodes = toCopy.getNodes();
+        m_connections = toCopy.getConnections();
+        m_annotations = toCopy.getAnnotations();
+        m_workflowEditorSettings = toCopy.getWorkflowEditorSettings();
+        m_tableBackendSettings = toCopy.getTableBackendSettings();
+        m_flowVariables = toCopy.getFlowVariables();
+        m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
+        m_workflow = toCopy.getWorkflow();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for name
     // -----------------------------------------------------------------------------------------------------------------

@@ -213,6 +213,7 @@ public class FallibleWorkflowUISettingsDef implements WorkflowUISettingsDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -348,12 +349,14 @@ public class FallibleWorkflowUISettingsDef implements WorkflowUISettingsDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleWorkflowUISettingsDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleWorkflowUISettingsDef other = (FallibleWorkflowUISettingsDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_snapToGrid, other.m_snapToGrid);
         equalsBuilder.append(m_showGrid, other.m_showGrid);
         equalsBuilder.append(m_gridX, other.m_gridX);

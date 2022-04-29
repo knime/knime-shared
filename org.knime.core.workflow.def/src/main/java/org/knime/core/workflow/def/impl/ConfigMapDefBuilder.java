@@ -103,6 +103,15 @@ public class ConfigMapDefBuilder {
     public ConfigMapDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigMapDefBuilder(final ConfigMapDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_key = toCopy.getKey();
+        m_children = toCopy.getChildren();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

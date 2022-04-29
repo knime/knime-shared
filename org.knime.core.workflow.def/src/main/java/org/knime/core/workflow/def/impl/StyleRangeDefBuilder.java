@@ -103,6 +103,18 @@ public class StyleRangeDefBuilder {
     public StyleRangeDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public StyleRangeDefBuilder(final StyleRangeDef toCopy) {
+        m_fontSize = toCopy.getFontSize();
+        m_color = toCopy.getColor();
+        m_start = toCopy.getStart();
+        m_fontName = toCopy.getFontName();
+        m_fontStyle = toCopy.getFontStyle();
+        m_length = toCopy.getLength();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for fontSize
     // -----------------------------------------------------------------------------------------------------------------

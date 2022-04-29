@@ -94,6 +94,15 @@ public class NodeUIInfoDefBuilder {
     public NodeUIInfoDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public NodeUIInfoDefBuilder(final NodeUIInfoDef toCopy) {
+        m_hasAbsoluteCoordinates = toCopy.hasAbsoluteCoordinates();
+        m_symbolRelative = toCopy.isSymbolRelative();
+        m_bounds = toCopy.getBounds();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for hasAbsoluteCoordinates
     // -----------------------------------------------------------------------------------------------------------------

@@ -181,6 +181,7 @@ public class FallibleAuthorInformationDef implements AuthorInformationDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -274,12 +275,14 @@ public class FallibleAuthorInformationDef implements AuthorInformationDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleAuthorInformationDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleAuthorInformationDef other = (FallibleAuthorInformationDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_authoredBy, other.m_authoredBy);
         equalsBuilder.append(m_authoredWhen, other.m_authoredWhen);
         equalsBuilder.append(m_lastEditedBy, other.m_lastEditedBy);

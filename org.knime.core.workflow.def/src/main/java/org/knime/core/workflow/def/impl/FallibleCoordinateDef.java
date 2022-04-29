@@ -174,6 +174,7 @@ public class FallibleCoordinateDef implements CoordinateDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -239,12 +240,14 @@ public class FallibleCoordinateDef implements CoordinateDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleCoordinateDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleCoordinateDef other = (FallibleCoordinateDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_x, other.m_x);
         equalsBuilder.append(m_y, other.m_y);
         return equalsBuilder.isEquals();

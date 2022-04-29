@@ -91,6 +91,14 @@ public class CredentialPlaceholderDefBuilder {
     public CredentialPlaceholderDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public CredentialPlaceholderDefBuilder(final CredentialPlaceholderDef toCopy) {
+        m_name = toCopy.getName();
+        m_login = toCopy.getLogin();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for name
     // -----------------------------------------------------------------------------------------------------------------

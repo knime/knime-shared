@@ -97,6 +97,16 @@ public class VendorDefBuilder {
     public VendorDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public VendorDefBuilder(final VendorDef toCopy) {
+        m_name = toCopy.getName();
+        m_symbolicName = toCopy.getSymbolicName();
+        m_vendor = toCopy.getVendor();
+        m_version = toCopy.getVersion();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for name
     // -----------------------------------------------------------------------------------------------------------------

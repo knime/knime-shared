@@ -102,6 +102,14 @@ public class ConfigValueCharArrayDefBuilder {
     public ConfigValueCharArrayDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueCharArrayDefBuilder(final ConfigValueCharArrayDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_array = toCopy.getArray();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------

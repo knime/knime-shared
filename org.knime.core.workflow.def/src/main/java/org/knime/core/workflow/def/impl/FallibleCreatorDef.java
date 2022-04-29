@@ -176,6 +176,7 @@ public class FallibleCreatorDef implements CreatorDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -241,12 +242,14 @@ public class FallibleCreatorDef implements CreatorDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleCreatorDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleCreatorDef other = (FallibleCreatorDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_savedWithVersion, other.m_savedWithVersion);
         equalsBuilder.append(m_nightly, other.m_nightly);
         return equalsBuilder.isEquals();

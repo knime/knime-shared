@@ -143,6 +143,18 @@ public class ComponentMetadataDefBuilder {
     public ComponentMetadataDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ComponentMetadataDefBuilder(final ComponentMetadataDef toCopy) {
+        m_description = toCopy.getDescription();
+        m_inPortNames = toCopy.getInPortNames();
+        m_outPortNames = toCopy.getOutPortNames();
+        m_inPortDescriptions = toCopy.getInPortDescriptions();
+        m_outPortDescriptions = toCopy.getOutPortDescriptions();
+        m_icon = toCopy.getIcon();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for description
     // -----------------------------------------------------------------------------------------------------------------

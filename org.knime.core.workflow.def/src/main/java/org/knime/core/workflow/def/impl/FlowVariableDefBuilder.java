@@ -94,6 +94,15 @@ public class FlowVariableDefBuilder {
     public FlowVariableDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public FlowVariableDefBuilder(final FlowVariableDef toCopy) {
+        m_name = toCopy.getName();
+        m_propertyClass = toCopy.getPropertyClass();
+        m_value = toCopy.getValue();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for name
     // -----------------------------------------------------------------------------------------------------------------

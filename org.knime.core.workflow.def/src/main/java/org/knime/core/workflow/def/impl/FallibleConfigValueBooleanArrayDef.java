@@ -166,6 +166,7 @@ public class FallibleConfigValueBooleanArrayDef extends FallibleConfigValueArray
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -252,12 +253,14 @@ public class FallibleConfigValueBooleanArrayDef extends FallibleConfigValueArray
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleConfigValueBooleanArrayDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleConfigValueBooleanArrayDef other = (FallibleConfigValueBooleanArrayDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_array, other.m_array);
         return equalsBuilder.isEquals();
     }

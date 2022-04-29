@@ -94,6 +94,15 @@ public class BoundsDefBuilder {
     public BoundsDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public BoundsDefBuilder(final BoundsDef toCopy) {
+        m_location = toCopy.getLocation();
+        m_width = toCopy.getWidth();
+        m_height = toCopy.getHeight();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for location
     // -----------------------------------------------------------------------------------------------------------------

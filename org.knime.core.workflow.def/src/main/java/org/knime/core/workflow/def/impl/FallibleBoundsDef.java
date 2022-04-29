@@ -181,6 +181,7 @@ public class FallibleBoundsDef implements BoundsDef {
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -273,12 +274,14 @@ public class FallibleBoundsDef implements BoundsDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleBoundsDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleBoundsDef other = (FallibleBoundsDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_location, other.m_location);
         equalsBuilder.append(m_width, other.m_width);
         equalsBuilder.append(m_height, other.m_height);

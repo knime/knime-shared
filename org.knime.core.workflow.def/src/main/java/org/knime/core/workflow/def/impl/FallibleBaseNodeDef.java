@@ -217,12 +217,14 @@ public class FallibleBaseNodeDef implements BaseNodeDef {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleBaseNodeDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleBaseNodeDef other = (FallibleBaseNodeDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_id, other.m_id);
         equalsBuilder.append(m_nodeType, other.m_nodeType);
         equalsBuilder.append(m_customDescription, other.m_customDescription);

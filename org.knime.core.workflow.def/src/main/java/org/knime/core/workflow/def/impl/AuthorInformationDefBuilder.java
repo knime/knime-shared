@@ -98,6 +98,16 @@ public class AuthorInformationDefBuilder {
     public AuthorInformationDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public AuthorInformationDefBuilder(final AuthorInformationDef toCopy) {
+        m_authoredBy = toCopy.getAuthoredBy();
+        m_authoredWhen = toCopy.getAuthoredWhen();
+        m_lastEditedBy = toCopy.getLastEditedBy();
+        m_lastEditedWhen = toCopy.getLastEditedWhen();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for authoredBy
     // -----------------------------------------------------------------------------------------------------------------

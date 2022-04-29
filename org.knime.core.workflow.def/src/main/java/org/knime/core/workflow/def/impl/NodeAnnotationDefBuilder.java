@@ -91,6 +91,14 @@ public class NodeAnnotationDefBuilder {
     public NodeAnnotationDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public NodeAnnotationDefBuilder(final NodeAnnotationDef toCopy) {
+        m_annotationDefault = toCopy.isAnnotationDefault();
+        m_data = toCopy.getData();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for annotationDefault
     // -----------------------------------------------------------------------------------------------------------------

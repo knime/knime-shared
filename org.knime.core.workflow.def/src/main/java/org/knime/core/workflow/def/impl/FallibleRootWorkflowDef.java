@@ -211,6 +211,7 @@ public class FallibleRootWorkflowDef extends FallibleWorkflowDef implements Root
     /**
      * @return the load exceptions for this instance and its descendants
      */
+    @JsonIgnore
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
         return m_exceptionTree;
     }
@@ -495,12 +496,14 @@ public class FallibleRootWorkflowDef extends FallibleWorkflowDef implements Root
         if (o == this) {
             return true;
         }
-        if (!(o instanceof FallibleRootWorkflowDef)) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
         FallibleRootWorkflowDef other = (FallibleRootWorkflowDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.appendSuper(super.equals(other));
         equalsBuilder.append(m_tableBackendSettings, other.m_tableBackendSettings);
         equalsBuilder.append(m_flowVariables, other.m_flowVariables);
         equalsBuilder.append(m_credentialPlaceholders, other.m_credentialPlaceholders);

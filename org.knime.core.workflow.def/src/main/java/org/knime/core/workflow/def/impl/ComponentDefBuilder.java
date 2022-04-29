@@ -156,6 +156,31 @@ public class ComponentDefBuilder {
     public ComponentDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ComponentDefBuilder(final ComponentDef toCopy) {
+        m_id = toCopy.getId();
+        m_nodeType = toCopy.getNodeType();
+        m_customDescription = toCopy.getCustomDescription();
+        m_annotation = toCopy.getAnnotation();
+        m_uiInfo = toCopy.getUiInfo();
+        m_locks = toCopy.getLocks();
+        m_jobManager = toCopy.getJobManager();
+        m_modelSettings = toCopy.getModelSettings();
+        m_internalNodeSubSettings = toCopy.getInternalNodeSubSettings();
+        m_variableSettings = toCopy.getVariableSettings();
+        m_workflow = toCopy.getWorkflow();
+        m_inPorts = toCopy.getInPorts();
+        m_outPorts = toCopy.getOutPorts();
+        m_cipher = toCopy.getCipher();
+        m_virtualInNodeId = toCopy.getVirtualInNodeId();
+        m_virtualOutNodeId = toCopy.getVirtualOutNodeId();
+        m_metadata = toCopy.getMetadata();
+        m_templateInfo = toCopy.getTemplateInfo();
+        m_dialogSettings = toCopy.getDialogSettings();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for id
     // -----------------------------------------------------------------------------------------------------------------

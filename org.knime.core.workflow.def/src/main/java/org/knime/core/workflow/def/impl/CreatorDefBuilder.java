@@ -91,6 +91,14 @@ public class CreatorDefBuilder {
     public CreatorDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public CreatorDefBuilder(final CreatorDef toCopy) {
+        m_savedWithVersion = toCopy.getSavedWithVersion();
+        m_nightly = toCopy.isNightly();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for savedWithVersion
     // -----------------------------------------------------------------------------------------------------------------

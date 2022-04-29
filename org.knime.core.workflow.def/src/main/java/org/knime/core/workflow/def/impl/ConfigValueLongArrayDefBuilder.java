@@ -102,6 +102,14 @@ public class ConfigValueLongArrayDefBuilder {
     public ConfigValueLongArrayDefBuilder() {
     }
 
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public ConfigValueLongArrayDefBuilder(final ConfigValueLongArrayDef toCopy) {
+        m_configType = toCopy.getConfigType();
+        m_array = toCopy.getArray();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for configType
     // -----------------------------------------------------------------------------------------------------------------
