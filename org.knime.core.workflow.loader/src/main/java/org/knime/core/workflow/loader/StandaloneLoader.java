@@ -70,8 +70,8 @@ import org.knime.core.workflow.def.impl.FallibleStandaloneDef;
 import org.knime.core.workflow.def.impl.FlowVariableDefBuilder;
 import org.knime.core.workflow.def.impl.RootWorkflowDefBuilder;
 import org.knime.core.workflow.def.impl.StandaloneDefBuilder;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Loads the description of stand alone units, a stand alone unit could be a Component, Metanode or Workflow
@@ -129,9 +129,9 @@ public final class StandaloneLoader {
     }
 
     private static StandaloneDef.ContentTypeEnum getStandaloneType(final File directory) {
-        if (new File(directory, Const.NODE_SETTINGS_FILE_NAME.get()).exists()) {
+        if (new File(directory, IOConst.NODE_SETTINGS_FILE_NAME.get()).exists()) {
             return StandaloneDef.ContentTypeEnum.COMPONENT;
-        } else if (new File(directory, Const.TEMPLATE_FILE_NAME.get()).exists()) {
+        } else if (new File(directory, IOConst.TEMPLATE_FILE_NAME.get()).exists()) {
             return StandaloneDef.ContentTypeEnum.METANODE;
         } else {
             return StandaloneDef.ContentTypeEnum.WORKFLOW;
@@ -168,7 +168,7 @@ public final class StandaloneLoader {
             builder.setCredentialPlaceholders(List.of());
         }
         try {
-            var credentialSettings = workflowConfig.getConfigBase(Const.CREDENTIAL_PLACEHOLDERS_KEY.get());
+            var credentialSettings = workflowConfig.getConfigBase(IOConst.CREDENTIAL_PLACEHOLDERS_KEY.get());
             if (credentialSettings != null) {
                 credentialSettings.keySet() //
                     .forEach(key -> builder.addToCredentialPlaceholders(
@@ -191,8 +191,8 @@ public final class StandaloneLoader {
      */
     private static ConfigMapDef loadTableBackendSettings(final ConfigBaseRO workflowConfig)
         throws InvalidSettingsException {
-        if (workflowConfig.containsKey(Const.TABLE_BACKEND_KEY.get())) {
-            return LoaderUtils.toConfigMapDef(workflowConfig.getConfigBase(Const.TABLE_BACKEND_KEY.get()));
+        if (workflowConfig.containsKey(IOConst.TABLE_BACKEND_KEY.get())) {
+            return LoaderUtils.toConfigMapDef(workflowConfig.getConfigBase(IOConst.TABLE_BACKEND_KEY.get()));
         }
         return null;
     }
@@ -207,11 +207,11 @@ public final class StandaloneLoader {
     private static void setWorkflowVariables(final RootWorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
         final LoadVersion loadVersion) {
         if (loadVersion.isOlderThan(LoadVersion.V200)
-            || !workflowConfig.containsKey(Const.WORKFLOW_VARIABLES_KEY.get())) {
+            || !workflowConfig.containsKey(IOConst.WORKFLOW_VARIABLES_KEY.get())) {
             builder.setFlowVariables(List.of());
         }
         try {
-            var workflowVarSettings = workflowConfig.getConfigBase(Const.WORKFLOW_VARIABLES_KEY.get());
+            var workflowVarSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_VARIABLES_KEY.get());
             if (workflowVarSettings != null) {
                 workflowVarSettings.keySet() //
                     .forEach(key -> builder.addToFlowVariables(
@@ -226,16 +226,16 @@ public final class StandaloneLoader {
 
     private static FlowVariableDef loadFlowVariable(final ConfigBaseRO workflowVarSettings) {
         return new FlowVariableDefBuilder() //
-            .setName(workflowVarSettings.getString(Const.FLOW_VARIABLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))//
+            .setName(workflowVarSettings.getString(IOConst.FLOW_VARIABLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))//
             .setValue(() -> loadFlowVariableValue(workflowVarSettings), null) //
-            .setPropertyClass(workflowVarSettings.getString(Const.FLOW_VARIABLE_CLASS_KEY.get(), DEFAULT_EMPTY_STRING))//
+            .setPropertyClass(workflowVarSettings.getString(IOConst.FLOW_VARIABLE_CLASS_KEY.get(), DEFAULT_EMPTY_STRING))//
             .build();
     }
 
     private static ConfigMapDef loadFlowVariableValue(final ConfigBaseRO workflowConfig)
         throws InvalidSettingsException {
-        if (workflowConfig.containsKey(Const.FLOW_VARIABLE_VALUE_KEY.get())) {
-            return LoaderUtils.toConfigMapDef(workflowConfig.getConfigBase(Const.FLOW_VARIABLE_VALUE_KEY.get()));
+        if (workflowConfig.containsKey(IOConst.FLOW_VARIABLE_VALUE_KEY.get())) {
+            return LoaderUtils.toConfigMapDef(workflowConfig.getConfigBase(IOConst.FLOW_VARIABLE_VALUE_KEY.get()));
         }
         return null;
     }
@@ -243,8 +243,8 @@ public final class StandaloneLoader {
     private static CredentialPlaceholderDef loadCredentialPlaceholder(final ConfigBaseRO credentialConfig)
         throws InvalidSettingsException {
         return new CredentialPlaceholderDefBuilder()//
-            .setName(credentialConfig.getString(Const.CREDENTIAL_PLACEHOLDER_NAME_KEY.get()))//
-            .setLogin(credentialConfig.getString(Const.CREDENTIAL_PLACEHOLDER_LOGIN_KEY.get()))//
+            .setName(credentialConfig.getString(IOConst.CREDENTIAL_PLACEHOLDER_NAME_KEY.get()))//
+            .setLogin(credentialConfig.getString(IOConst.CREDENTIAL_PLACEHOLDER_LOGIN_KEY.get()))//
             .build();
     }
 }

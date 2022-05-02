@@ -46,7 +46,7 @@
  * History
  *   28 Feb 2022 (Dionysios Stolis): created
  */
-package org.knime.core.node.workflow.loader;
+package org.knime.core.workflow.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -63,7 +63,6 @@ import org.knime.core.util.LoadVersion;
 import org.knime.core.workflow.def.JobManagerDef;
 import org.knime.core.workflow.def.NodeAnnotationDef;
 import org.knime.core.workflow.def.NodeUIInfoDef;
-import org.knime.core.workflow.loader.MetaNodeLoader;
 
 /**
  *

@@ -69,8 +69,8 @@ import org.knime.core.workflow.def.impl.JobManagerDefBuilder;
 import org.knime.core.workflow.def.impl.NodeAnnotationDefBuilder;
 import org.knime.core.workflow.def.impl.NodeLocksDefBuilder;
 import org.knime.core.workflow.def.impl.NodeUIInfoDefBuilder;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Loads the description of the Node into a {@link BaseNodeDef}. The BaseNodeDef is the bootstrap node of the
@@ -101,7 +101,7 @@ final class BaseNodeLoader {
      */
     static Integer loadNodeId(final ConfigBaseRO settings) throws InvalidSettingsException {
         try {
-            return Optional.ofNullable(settings.getInt(Const.ID_KEY.get())).orElse(getRandomNodeID());
+            return Optional.ofNullable(settings.getInt(IOConst.ID_KEY.get())).orElse(getRandomNodeID());
         } catch (InvalidSettingsException e) { //NOSONAR
             var errorMessage =
                 String.format("Unable to load node ID (internal id \"%s\"), trying random number", settings.getKey());
@@ -124,7 +124,7 @@ final class BaseNodeLoader {
     static NodeAnnotationDef loadAnnotation(final ConfigBaseRO nodeSettings,
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V250)) {
-            var customName = nodeSettings.getString(Const.CUSTOM_NAME_KEY.get(), DEFAULT_EMPTY_STRING);
+            var customName = nodeSettings.getString(IOConst.CUSTOM_NAME_KEY.get(), DEFAULT_EMPTY_STRING);
             var isDefault = customName == null;
             return new NodeAnnotationDefBuilder() //
                 .setAnnotationDefault(isDefault) //
@@ -133,8 +133,8 @@ final class BaseNodeLoader {
                     .build()) //
                 .build();
         } else {
-            if (nodeSettings.containsKey(Const.NODE_ANNOTATION_KEY.get())) {
-                var nodeAnnotationSettings = nodeSettings.getConfigBase(Const.NODE_ANNOTATION_KEY.get());
+            if (nodeSettings.containsKey(IOConst.NODE_ANNOTATION_KEY.get())) {
+                var nodeAnnotationSettings = nodeSettings.getConfigBase(IOConst.NODE_ANNOTATION_KEY.get());
                 var isDefault = nodeAnnotationSettings == null;
                 return new NodeAnnotationDefBuilder() //
                     .setAnnotationDefault(isDefault) //
@@ -155,14 +155,14 @@ final class BaseNodeLoader {
      */
     static JobManagerDef loadJobManager(final ConfigBaseRO settings) throws InvalidSettingsException {
         try {
-            if (!settings.containsKey(Const.JOB_MANAGER_KEY.get())) {
+            if (!settings.containsKey(IOConst.JOB_MANAGER_KEY.get())) {
                 return DEFAULT_JOB_MANAGER;
             }
-            var jobManagerSettings = settings.getConfigBase(Const.JOB_MANAGER_KEY.get());
+            var jobManagerSettings = settings.getConfigBase(IOConst.JOB_MANAGER_KEY.get());
             return new JobManagerDefBuilder()//
-                .setFactory(jobManagerSettings.getString(Const.JOB_MANAGER_FACTORY_ID_KEY.get()))//
+                .setFactory(jobManagerSettings.getString(IOConst.JOB_MANAGER_FACTORY_ID_KEY.get()))//
                 .setSettings(
-                    LoaderUtils.toConfigMapDef(jobManagerSettings.getConfigBase(Const.JOB_MANAGER_SETTINGS_KEY.get())))
+                    LoaderUtils.toConfigMapDef(jobManagerSettings.getConfigBase(IOConst.JOB_MANAGER_SETTINGS_KEY.get())))
                 .build();
         } catch (InvalidSettingsException e) {
             var errorMessage = "Can't restore node execution job manager: " + e.getMessage();
@@ -182,19 +182,19 @@ final class BaseNodeLoader {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
             isDeletable = true;
         } else {
-            isDeletable = settings.getBoolean(Const.IS_DELETABLE_KEY.get(), true);
+            isDeletable = settings.getBoolean(IOConst.IS_DELETABLE_KEY.get(), true);
         }
         boolean hasResetLock;
         if (workflowFormatVersion.isOlderThan(LoadVersion.V3010)) {
             hasResetLock = false;
         } else {
-            hasResetLock = settings.getBoolean(Const.HAS_RESET_LOCK_KEY.get(), false);
+            hasResetLock = settings.getBoolean(IOConst.HAS_RESET_LOCK_KEY.get(), false);
         }
         boolean hasConfigureLock;
         if (workflowFormatVersion.isOlderThan(LoadVersion.V3010)) {
             hasConfigureLock = false;
         } else {
-            hasConfigureLock = settings.getBoolean(Const.HAS_CONFIGURE_LOCK_KEY.get(), false);
+            hasConfigureLock = settings.getBoolean(IOConst.HAS_CONFIGURE_LOCK_KEY.get(), false);
         }
 
         return new NodeLocksDefBuilder() //
@@ -217,17 +217,17 @@ final class BaseNodeLoader {
     static String loadCustomDescription(final ConfigBaseRO workflowConfig, final ConfigBaseRO settings,
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
-            if (!workflowConfig.containsKey(Const.CUSTOM_DESCRIPTION_KEY.get())) {
+            if (!workflowConfig.containsKey(IOConst.CUSTOM_DESCRIPTION_KEY.get())) {
                 return DEFAULT_EMPTY_STRING;
             }
-            return workflowConfig.getString(Const.CUSTOM_DESCRIPTION_KEY.get());
+            return workflowConfig.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get());
         } else {
             // custom description was not saved in v2.5.0 (but again in v2.5.1)
             // see bug 3034
-            if (!settings.containsKey(Const.CUSTOM_DESCRIPTION_KEY.get())) {
+            if (!settings.containsKey(IOConst.CUSTOM_DESCRIPTION_KEY.get())) {
                 return DEFAULT_EMPTY_STRING;
             }
-            return settings.getString(Const.CUSTOM_DESCRIPTION_KEY.get());
+            return settings.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get());
         }
     }
 
@@ -249,11 +249,11 @@ final class BaseNodeLoader {
     }
 
     private static FallibleBoundsDef loadBoundsDef(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (!settings.containsKey(Const.EXTRA_NODE_INFO_BOUNDS_KEY.get())) {
+        if (!settings.containsKey(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get())) {
             return (FallibleBoundsDef)DEFAULT_BOUNDS;
         }
         try {
-            var bounds = settings.getIntArray(Const.EXTRA_NODE_INFO_BOUNDS_KEY.get());
+            var bounds = settings.getIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get());
             if (bounds.length == 0 || bounds.length < 4) {
                 return (FallibleBoundsDef)DEFAULT_BOUNDS;
             }
@@ -281,8 +281,8 @@ final class BaseNodeLoader {
         throws InvalidSettingsException {
         try {
             if (loadVersion.isOlderThan(LoadVersion.V200)) {
-                if (settings.containsKey(Const.EXTRA_INFO_CLASS_NAME_KEY.get())) {
-                    return settings.getString(Const.EXTRA_INFO_CLASS_NAME_KEY.get());
+                if (settings.containsKey(IOConst.EXTRA_INFO_CLASS_NAME_KEY.get())) {
+                    return settings.getString(IOConst.EXTRA_INFO_CLASS_NAME_KEY.get());
                 }
             } else {
                 if (settings.containsKey("ui_classname")) {

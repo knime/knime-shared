@@ -73,8 +73,8 @@ import org.knime.core.workflow.def.impl.ConnectionUISettingsDefBuilder;
 import org.knime.core.workflow.def.impl.NativeNodeDefBuilder;
 import org.knime.core.workflow.def.impl.WorkflowDefBuilder;
 import org.knime.core.workflow.def.impl.WorkflowUISettingsDefBuilder;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Recursively walks through the legacy directory structure, loading the workflow settings into the {@link WorkflowDef}.
@@ -154,7 +154,7 @@ public class WorkflowLoader {
     private static void setNodes(final WorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
         final File directory, final LoadVersion loadVersion) {
         try {
-            var nodesSettings = workflowConfig.getConfigBase(Const.WORKFLOW_NODES_KEY.get());
+            var nodesSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get());
             if (nodesSettings != null) {
                 nodesSettings.keySet()
                     .forEach(key -> builder.putToNodes(key,
@@ -171,7 +171,7 @@ public class WorkflowLoader {
     private static void setConnections(final WorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
         final LoadVersion loadVersion) {
         try {
-            var connectionsSettings = workflowConfig.getConfigBase(Const.WORKFLOW_CONNECTIONS_KEY.get());
+            var connectionsSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_CONNECTIONS_KEY.get());
             if (connectionsSettings != null) {
                 connectionsSettings.keySet()
                     .forEach(key -> builder.addToConnections(
@@ -188,11 +188,11 @@ public class WorkflowLoader {
     private static void setAnnotations(final WorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
         final LoadVersion loadVersion) {
         if (loadVersion.isOlderThan(LoadVersion.V230)
-            || !workflowConfig.containsKey(Const.WORKFLOW_ANNOTATIONS_KEY.get())) {
+            || !workflowConfig.containsKey(IOConst.WORKFLOW_ANNOTATIONS_KEY.get())) {
             builder.setAnnotations(List.of());
         } else {
             try {
-                var annoSettings = workflowConfig.getConfigBase(Const.WORKFLOW_ANNOTATIONS_KEY.get());
+                var annoSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_ANNOTATIONS_KEY.get());
                 if (annoSettings != null) {
                     annoSettings.keySet()
                         .forEach(key -> builder.addToAnnotations(
@@ -271,12 +271,12 @@ public class WorkflowLoader {
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         String className = null;
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
-            if (settings.containsKey(Const.EXTRA_INFO_CLASS_NAME_KEY.get())) {
-                className = settings.getString(Const.EXTRA_INFO_CLASS_NAME_KEY.get());
+            if (settings.containsKey(IOConst.EXTRA_INFO_CLASS_NAME_KEY.get())) {
+                className = settings.getString(IOConst.EXTRA_INFO_CLASS_NAME_KEY.get());
             }
         } else {
-            if (settings.containsKey(Const.UI_CLASSNAME_KEY.get())) {
-                className = settings.getString(Const.UI_CLASSNAME_KEY.get());
+            if (settings.containsKey(IOConst.UI_CLASSNAME_KEY.get())) {
+                className = settings.getString(IOConst.UI_CLASSNAME_KEY.get());
             }
         }
         return Optional.ofNullable(className == null || className.equals(CONNECTION_UI_CLASSNAME) ? null : className);
@@ -335,10 +335,10 @@ public class WorkflowLoader {
         var uiBuilder = new ConnectionUISettingsDefBuilder();
         try {
             var subSettings = loadVersion.isOlderThan(LoadVersion.V200) ? connectionConfig
-                : connectionConfig.getConfigBase(Const.UI_SETTINGS_KEY.get());
-            var size = subSettings.getInt(Const.EXTRA_INFO_CONNECTION_BENDPOINTS_KEY.get() + "_size");
+                : connectionConfig.getConfigBase(IOConst.UI_SETTINGS_KEY.get());
+            var size = subSettings.getInt(IOConst.EXTRA_INFO_CONNECTION_BENDPOINTS_KEY.get() + "_size");
             for (var i = 0; i < size; i++) {
-                var tmp = subSettings.getIntArray(Const.EXTRA_INFO_CONNECTION_BENDPOINTS_KEY.get() + "_" + i);
+                var tmp = subSettings.getIntArray(IOConst.EXTRA_INFO_CONNECTION_BENDPOINTS_KEY.get() + "_" + i);
                 uiBuilder.addToBendPoints(LoaderUtils.loadCoordinate(tmp[0], tmp[1]));
             }
         } catch (InvalidSettingsException e) {
@@ -382,20 +382,20 @@ public class WorkflowLoader {
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         var builder = new WorkflowUISettingsDefBuilder();
         if (workflowFormatVersion.isOlderThan(LoadVersion.V260)
-            || !workflowConfig.containsKey(Const.WORKFLOW_EDITOR_SETTINGS_KEY.get())) {
+            || !workflowConfig.containsKey(IOConst.WORKFLOW_EDITOR_SETTINGS_KEY.get())) {
             return builder.build();
         }
-        var editorCfg = workflowConfig.getConfigBase(Const.WORKFLOW_EDITOR_SETTINGS_KEY.get());
-        builder.setSnapToGrid(editorCfg.getBoolean(Const.WORKFLOW_EDITOR_SNAPTOGRID_KEY.get()))//
-            .setShowGrid(editorCfg.getBoolean(Const.WORKFLOW_EDITOR_SHOWGRID_KEY.get()))//
-            .setGridX(editorCfg.getInt(Const.WORKFLOW_EDITOR_GRID_X_KEY.get()))//
-            .setGridY(editorCfg.getInt(Const.WORKFLOW_EDITOR_GRID_Y_KEY.get()))//
-            .setZoomLevel(editorCfg.getDouble(Const.WORKFLOW_EDITOR_ZOOM_LEVEL_KEY.get()));
-        if (editorCfg.containsKey(Const.WORKFLOW_EDITOR_CURVED_CONNECTIONS_KEY.get())) {
-            builder.setCurvedConnections((editorCfg.getBoolean(Const.WORKFLOW_EDITOR_CURVED_CONNECTIONS_KEY.get())));
+        var editorCfg = workflowConfig.getConfigBase(IOConst.WORKFLOW_EDITOR_SETTINGS_KEY.get());
+        builder.setSnapToGrid(editorCfg.getBoolean(IOConst.WORKFLOW_EDITOR_SNAPTOGRID_KEY.get()))//
+            .setShowGrid(editorCfg.getBoolean(IOConst.WORKFLOW_EDITOR_SHOWGRID_KEY.get()))//
+            .setGridX(editorCfg.getInt(IOConst.WORKFLOW_EDITOR_GRID_X_KEY.get()))//
+            .setGridY(editorCfg.getInt(IOConst.WORKFLOW_EDITOR_GRID_Y_KEY.get()))//
+            .setZoomLevel(editorCfg.getDouble(IOConst.WORKFLOW_EDITOR_ZOOM_LEVEL_KEY.get()));
+        if (editorCfg.containsKey(IOConst.WORKFLOW_EDITOR_CURVED_CONNECTIONS_KEY.get())) {
+            builder.setCurvedConnections((editorCfg.getBoolean(IOConst.WORKFLOW_EDITOR_CURVED_CONNECTIONS_KEY.get())));
         }
-        if (editorCfg.containsKey(Const.WORKFLOW_EDITOR_CONNECTION_WIDTH_KEY.get())) {
-            builder.setConnectionLineWidth(editorCfg.getInt(Const.WORKFLOW_EDITOR_CONNECTION_WIDTH_KEY.get()));
+        if (editorCfg.containsKey(IOConst.WORKFLOW_EDITOR_CONNECTION_WIDTH_KEY.get())) {
+            builder.setConnectionLineWidth(editorCfg.getInt(IOConst.WORKFLOW_EDITOR_CONNECTION_WIDTH_KEY.get()));
         }
         return builder.build();
     }
@@ -403,17 +403,17 @@ public class WorkflowLoader {
     private static AuthorInformationDef loadAuthorInformation(final ConfigBaseRO settings,
         final LoadVersion loadVersion) throws InvalidSettingsException {
         if (loadVersion.ordinal() >= LoadVersion.V280.ordinal()
-            && settings.containsKey(Const.AUTHOR_INFORMATION_KEY.get())) {
-            final var sub = settings.getConfigBase(Const.AUTHOR_INFORMATION_KEY.get());
+            && settings.containsKey(IOConst.AUTHOR_INFORMATION_KEY.get())) {
+            final var sub = settings.getConfigBase(IOConst.AUTHOR_INFORMATION_KEY.get());
             if (sub == null) {
                 return DEFAULT_AUTHOR_INFORMATION;
             }
             return new AuthorInformationDefBuilder()//
-                .setAuthoredBy(() -> loadAuthorSetting(sub, Const.AUTHORED_BY_KEY.get()), "<unknown>")//
-                .setAuthoredWhen(() -> loadAuthorInformationDate(sub, Const.AUTHORED_WHEN_KEY.get()),
+                .setAuthoredBy(() -> loadAuthorSetting(sub, IOConst.AUTHORED_BY_KEY.get()), "<unknown>")//
+                .setAuthoredWhen(() -> loadAuthorInformationDate(sub, IOConst.AUTHORED_WHEN_KEY.get()),
                     OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC))//
-                .setLastEditedBy(() -> loadAuthorSetting(sub, Const.LAST_EDITED_BY_KEY.get()), "<unknown>")//
-                .setLastEditedWhen(() -> loadAuthorInformationDate(sub, Const.LAST_EDITED_WHEN_KEY.get()),
+                .setLastEditedBy(() -> loadAuthorSetting(sub, IOConst.LAST_EDITED_BY_KEY.get()), "<unknown>")//
+                .setLastEditedWhen(() -> loadAuthorInformationDate(sub, IOConst.LAST_EDITED_WHEN_KEY.get()),
                     OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC))//
                 .build();
         } else {

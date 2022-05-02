@@ -46,7 +46,7 @@
  * History
  *   1 Mar 2022 (Dionysios Stolis): created
  */
-package org.knime.core.node.workflow.loader;
+package org.knime.core.workflow.loader;
 
 import java.io.File;
 import java.io.IOException;

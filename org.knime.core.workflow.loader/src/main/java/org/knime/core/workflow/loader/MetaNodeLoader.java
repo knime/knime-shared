@@ -69,8 +69,8 @@ import org.knime.core.workflow.def.impl.NodeUIInfoDefBuilder;
 import org.knime.core.workflow.def.impl.PortDefBuilder;
 import org.knime.core.workflow.def.impl.PortTypeDefBuilder;
 import org.knime.core.workflow.def.impl.WorkflowDefBuilder;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Loads the description of a MetaNode into {@link MetaNodeDef}.
@@ -108,10 +108,10 @@ public final class MetaNodeLoader {
             .setWorkflow(() -> WorkflowLoader.load(nodeDirectory, workflowFormatVersion),
                 new WorkflowDefBuilder().build())//
             .setInPortsBarUIInfo(
-                () -> loadPortsBarUIInfo(metaNodeConfig, Const.META_IN_PORTS_KEY.get(), workflowFormatVersion),
+                () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_IN_PORTS_KEY.get(), workflowFormatVersion),
                 DEFAULT_NODE_UI)//
             .setOutPortsBarUIInfo(
-                () -> loadPortsBarUIInfo(metaNodeConfig, Const.META_OUT_PORTS_KEY.get(), workflowFormatVersion),
+                () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_OUT_PORTS_KEY.get(), workflowFormatVersion),
                 DEFAULT_NODE_UI)//
             .setLink(() -> LoaderUtils.loadTemplateLink(templateConfig), LoaderUtils.DEFAULT_TEMPLATE_LINK) //
             // base node properties
@@ -213,17 +213,17 @@ public final class MetaNodeLoader {
     }
 
     private static ConfigBaseRO loadPortsSettingsEnum(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (settings == null || !settings.containsKey(Const.PORT_ENUM_KEY.get())) {
+        if (settings == null || !settings.containsKey(IOConst.PORT_ENUM_KEY.get())) {
             return null;
         } else {
-            return settings.getConfigBase(Const.PORT_ENUM_KEY.get());
+            return settings.getConfigBase(IOConst.PORT_ENUM_KEY.get());
         }
     }
 
     private static void setInPorts(final MetaNodeDefBuilder builder, final ConfigBaseRO settings,
         final LoadVersion loadVersion) {
         try {
-            var inPortsSettings = loadSetting(settings, Const.META_IN_PORTS_KEY.get(), loadVersion);
+            var inPortsSettings = loadSetting(settings, IOConst.META_IN_PORTS_KEY.get(), loadVersion);
             if (inPortsSettings == null) {
                 builder.setInPorts(List.of());
             }
@@ -242,7 +242,7 @@ public final class MetaNodeLoader {
     private static void setOutPorts(final MetaNodeDefBuilder builder, final ConfigBaseRO settings,
         final LoadVersion loadVersion) {
         try {
-            var inPortsSettings = loadSetting(settings, Const.META_OUT_PORTS_KEY.get(), loadVersion);
+            var inPortsSettings = loadSetting(settings, IOConst.META_OUT_PORTS_KEY.get(), loadVersion);
             if (inPortsSettings == null) {
                 builder.setOutPorts(List.of());
             }
@@ -287,16 +287,16 @@ public final class MetaNodeLoader {
             return DEFAULT_PORT_DEF;
         }
         return new PortDefBuilder()//
-            .setIndex(() -> settings.getInt(Const.PORT_INDEX_KEY.get()), -1) // Negative default index
-            .setName(() -> settings.getString(Const.PORT_NAME_KEY.get()), DEFAULT_EMPTY_STRING)//
+            .setIndex(() -> settings.getInt(IOConst.PORT_INDEX_KEY.get()), -1) // Negative default index
+            .setName(() -> settings.getString(IOConst.PORT_NAME_KEY.get()), DEFAULT_EMPTY_STRING)//
             .setPortType(() -> loadPortTypeDef(settings), new PortTypeDefBuilder().build()) //
             .build();
     }
 
     private static PortTypeDef loadPortTypeDef(final ConfigBaseRO settings) throws InvalidSettingsException {
         return new PortTypeDefBuilder()//
-            .setPortObjectClass(settings.getConfigBase(Const.PORT_TYPE_KEY.get()) //
-                .getString(Const.PORT_OBJECT_CLASS_KEY.get()))//
+            .setPortObjectClass(settings.getConfigBase(IOConst.PORT_TYPE_KEY.get()) //
+                .getString(IOConst.PORT_OBJECT_CLASS_KEY.get()))//
             .build();
     }
 
@@ -312,10 +312,10 @@ public final class MetaNodeLoader {
         if (loadVersion.isOlderThan(LoadVersion.V200)) {
             return BaseNodeLoader.loadUIInfo(portSettings, loadVersion);
         } else {
-            if (!portSettings.containsKey(Const.UI_SETTINGS_KEY.get())) {
+            if (!portSettings.containsKey(IOConst.UI_SETTINGS_KEY.get())) {
                 return DEFAULT_NODE_UI;
             } else {
-                return BaseNodeLoader.loadUIInfo(portSettings.getConfigBase(Const.UI_SETTINGS_KEY.get()), loadVersion);
+                return BaseNodeLoader.loadUIInfo(portSettings.getConfigBase(IOConst.UI_SETTINGS_KEY.get()), loadVersion);
             }
         }
     }

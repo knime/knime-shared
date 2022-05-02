@@ -46,7 +46,7 @@
  * History
  *   28 Feb 2022 (Dionysios Stolis): created
  */
-package org.knime.core.node.workflow.loader;
+package org.knime.core.workflow.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,7 +60,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.workflow.def.FilestoreDef;
-import org.knime.core.workflow.loader.NativeNodeLoader;
 
 
 

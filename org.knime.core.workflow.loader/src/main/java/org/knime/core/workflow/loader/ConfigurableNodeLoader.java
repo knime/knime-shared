@@ -54,8 +54,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.workflow.def.ConfigMapDef;
 import org.knime.core.workflow.def.ConfigurableNodeDef;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Loads the description of a ConfigurableNode into {@link ConfigurableNodeDef}. ConfigurableNode are internally also
@@ -80,10 +80,10 @@ final class ConfigurableNodeLoader {
      */
     static ConfigMapDef loadInternalNodeSubSettings(final ConfigBaseRO settings)
         throws InvalidSettingsException {
-        if (!settings.containsKey(Const.INTERNAL_NODE_SUBSETTINGS.get())) {
+        if (!settings.containsKey(IOConst.INTERNAL_NODE_SUBSETTINGS.get())) {
             return DEFAULT_CONFIG_MAP;
         }
-        return LoaderUtils.toConfigMapDef(settings.getConfigBase(Const.INTERNAL_NODE_SUBSETTINGS.get()));
+        return LoaderUtils.toConfigMapDef(settings.getConfigBase(IOConst.INTERNAL_NODE_SUBSETTINGS.get()));
     }
 
     /**
@@ -94,10 +94,10 @@ final class ConfigurableNodeLoader {
      * @throws InvalidSettingsException
      */
     static ConfigMapDef loadVariableSettings(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (!settings.containsKey(Const.VARIABLES_KEY.get())) {
+        if (!settings.containsKey(IOConst.VARIABLES_KEY.get())) {
             return DEFAULT_CONFIG_MAP;
         }
-        return LoaderUtils.toConfigMapDef(settings.getConfigBase(Const.VARIABLES_KEY.get()));
+        return LoaderUtils.toConfigMapDef(settings.getConfigBase(IOConst.VARIABLES_KEY.get()));
     }
 
     /**
@@ -108,12 +108,12 @@ final class ConfigurableNodeLoader {
      * @throws InvalidSettingsException
      */
     static ConfigMapDef loadModelSettings(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (!settings.containsKey(Const.MODEL_KEY.get())) {
+        if (!settings.containsKey(IOConst.MODEL_KEY.get())) {
             return DEFAULT_CONFIG_MAP;
         }
         // settings not present if node never had settings (different since 2.8 -- before the node always had settings,
         // defined by NodeModel#saveSettings -- these settings were never confirmed through validate/load though)
-        return LoaderUtils.toConfigMapDef(settings.getConfigBase(Const.MODEL_KEY.get()));
+        return LoaderUtils.toConfigMapDef(settings.getConfigBase(IOConst.MODEL_KEY.get()));
     }
 
 //    /**

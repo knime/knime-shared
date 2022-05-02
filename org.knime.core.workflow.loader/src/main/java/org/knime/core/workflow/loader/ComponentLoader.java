@@ -76,8 +76,8 @@ import org.knime.core.workflow.def.impl.FallibleComponentDef;
 import org.knime.core.workflow.def.impl.PortDefBuilder;
 import org.knime.core.workflow.def.impl.PortTypeDefBuilder;
 import org.knime.core.workflow.def.impl.WorkflowDefBuilder;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Loads the description of a Component into {@link ComponentDef}. Components are internally also referred to as
@@ -151,7 +151,7 @@ public final class ComponentLoader {
      */
     private static void setInPorts(final ComponentDefBuilder builder, final ConfigBaseRO componentConfig) {
         try {
-            var inPortsSettings = loadSetting(componentConfig, Const.INPORTS_KEY.get());
+            var inPortsSettings = loadSetting(componentConfig, IOConst.INPORTS_KEY.get());
             if (inPortsSettings != null) {
                 inPortsSettings.keySet() //
                     .forEach(key -> builder.addToInPorts(() -> loadPort(inPortsSettings.getConfigBase(key)),
@@ -172,7 +172,7 @@ public final class ComponentLoader {
      */
     private static void setOutPorts(final ComponentDefBuilder builder, final ConfigBaseRO componentConfig) {
         try {
-            var inPortsSettings = loadSetting(componentConfig, Const.OUTPORTS_KEY.get());
+            var inPortsSettings = loadSetting(componentConfig, IOConst.OUTPORTS_KEY.get());
             if (inPortsSettings != null) {
                 inPortsSettings.keySet() //
                     .forEach(key -> builder.addToOutPorts(() -> loadPort(inPortsSettings.getConfigBase(key)),
@@ -193,11 +193,11 @@ public final class ComponentLoader {
      */
     private static ComponentDialogSettingsDef loadDialogSettings(final ConfigBaseRO settings) {
         return new ComponentDialogSettingsDefBuilder() //
-            .setLayoutJSON(settings.getString(Const.LAYOUT_JSON_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setLayoutJSON(settings.getString(IOConst.LAYOUT_JSON_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .setConfigurationLayoutJSON(
-                settings.getString(Const.CONFIGURATION_LAYOUT_JSON_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setCssStyles(settings.getString(Const.CUSTOM_CSS_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setHideInWizard(settings.getBoolean(Const.HIDE_IN_WIZARD_KEY.get(), false)) //
+                settings.getString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setCssStyles(settings.getString(IOConst.CUSTOM_CSS_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setHideInWizard(settings.getBoolean(IOConst.HIDE_IN_WIZARD_KEY.get(), false)) //
             .build();
     }
 
@@ -209,7 +209,7 @@ public final class ComponentLoader {
      * @throws InvalidSettingsException when the virtual input id is less than zero.
      */
     private static Integer loadVirtualInNodeId(final ConfigBaseRO settings) throws InvalidSettingsException {
-        var virtualId = settings.getInt(Const.VIRTUAL_IN_ID_KEY.get());
+        var virtualId = settings.getInt(IOConst.VIRTUAL_IN_ID_KEY.get());
         return virtualId;
     }
 
@@ -221,7 +221,7 @@ public final class ComponentLoader {
      * @throws InvalidSettingsException when the virtual output id is less than zero.
      */
     private static Integer loadVirtualOutNodeId(final ConfigBaseRO settings) throws InvalidSettingsException {
-        var virtualId = settings.getInt(Const.VIRTUAL_OUT_ID_KEY.get());
+        var virtualId = settings.getInt(IOConst.VIRTUAL_OUT_ID_KEY.get());
         return virtualId;
     }
 
@@ -233,22 +233,22 @@ public final class ComponentLoader {
      * @throws InvalidSettingsException
      */
     private static ComponentMetadataDef loadMetadata(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (!settings.containsKey(Const.DESCRIPTION_KEY.get())) {
+        if (!settings.containsKey(IOConst.DESCRIPTION_KEY.get())) {
             return new ComponentMetadataDefBuilder().build();
         }
 
-        var metadataSettings = settings.getConfigBase(Const.METADATA_KEY.get());
+        var metadataSettings = settings.getConfigBase(IOConst.METADATA_KEY.get());
         return new ComponentMetadataDefBuilder() //
-            .setDescription(() -> metadataSettings.getString(Const.DESCRIPTION_KEY.get()), DEFAULT_EMPTY_STRING) //
+            .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()), DEFAULT_EMPTY_STRING) //
             .setIcon(() -> loadIcon(metadataSettings), DEFAULT_ICON) //
             .setInPortDescriptions(
-                () -> loadPortsProperties(metadataSettings, Const.INPORTS_KEY.get(), Const.DESCRIPTION_KEY.get())) //
+                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get())) //
             .setInPortNames(
-                () -> loadPortsProperties(metadataSettings, Const.INPORTS_KEY.get(), Const.METADATA_NAME_KEY.get())) //
+                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.METADATA_NAME_KEY.get())) //
             .setOutPortDescriptions(
-                () -> loadPortsProperties(metadataSettings, Const.OUTPORTS_KEY.get(), Const.DESCRIPTION_KEY.get())) //
+                () -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get())) //
             .setOutPortNames(
-                () -> loadPortsProperties(metadataSettings, Const.OUTPORTS_KEY.get(), Const.METADATA_NAME_KEY.get())) //
+                () -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(), IOConst.METADATA_NAME_KEY.get())) //
             .build();
     }
 
@@ -263,7 +263,7 @@ public final class ComponentLoader {
         var treeMap = new TreeMap<>();
         for (var key : inportsSetting.keySet()) {
             var portSetting = inportsSetting.getConfigBase(key);
-            var index = portSetting.getInt(Const.PORT_INDEX_KEY.get(), DEFAULT_NEGATIVE_INDEX);
+            var index = portSetting.getInt(IOConst.PORT_INDEX_KEY.get(), DEFAULT_NEGATIVE_INDEX);
             treeMap.put(index, portSetting.getString(propertyKey));
         }
         return treeMap.values().stream() //
@@ -301,10 +301,10 @@ public final class ComponentLoader {
     }
 
     private static byte[] loadIcon(final ConfigBaseRO sub) throws InvalidSettingsException {
-        if (sub.containsKey(Const.ICON_KEY.get())) {
+        if (sub.containsKey(IOConst.ICON_KEY.get())) {
             return DEFAULT_ICON;
         }
-        return Base64.getDecoder().decode(sub.getString(Const.ICON_KEY.get()));
+        return Base64.getDecoder().decode(sub.getString(IOConst.ICON_KEY.get()));
     }
 
     private static PortDef loadPort(final ConfigBaseRO settings) {
@@ -312,11 +312,11 @@ public final class ComponentLoader {
             return DEFAULT_PORT_DEF;
         }
         return new PortDefBuilder() //
-            .setIndex(() -> settings.getInt(Const.PORT_INDEX_KEY.get()), DEFAULT_NEGATIVE_INDEX) //
+            .setIndex(() -> settings.getInt(IOConst.PORT_INDEX_KEY.get()), DEFAULT_NEGATIVE_INDEX) //
             .setName(() -> settings.getKey(), DEFAULT_EMPTY_STRING) //
             .setPortType(() -> new PortTypeDefBuilder() //
-                .setPortObjectClass(settings.getConfigBase(Const.PORT_TYPE_KEY.get()) //
-                    .getString(Const.PORT_OBJECT_CLASS_KEY.get()))
+                .setPortObjectClass(settings.getConfigBase(IOConst.PORT_TYPE_KEY.get()) //
+                    .getString(IOConst.PORT_OBJECT_CLASS_KEY.get()))
                 .build(), new PortTypeDefBuilder().build()) //
             .build();
     }

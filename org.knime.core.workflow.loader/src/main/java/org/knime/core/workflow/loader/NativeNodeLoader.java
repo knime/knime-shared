@@ -71,8 +71,8 @@ import org.knime.core.workflow.def.impl.FallibleNativeNodeDef;
 import org.knime.core.workflow.def.impl.FilestoreDefBuilder;
 import org.knime.core.workflow.def.impl.NativeNodeDefBuilder;
 import org.knime.core.workflow.def.impl.VendorDefBuilder;
+import org.knime.core.workflow.util.IOConst;
 import org.knime.core.workflow.util.LoaderUtils;
-import org.knime.core.workflow.util.LoaderUtils.Const;
 
 /**
  * Loads the description of a Native Node. Native node are also referred as KNIME Nodes.
@@ -136,7 +136,7 @@ public final class NativeNodeLoader {
             .setNodeType(BaseNodeDef.NodeTypeEnum.NATIVE_NODE) //
             .setFactory(() -> loadFactory(workflowConfig, nodeConfig, workflowFormatVersion), DEFAULT_EMPTY_STRING) //
             .setFactorySettings(() -> loadFactorySettings(nodeConfig), DEFAULT_CONFIG_MAP) //
-            .setNodeName(() -> nodeConfig.getString(Const.NODE_NAME_KEY.get()), DEFAULT_EMPTY_STRING) //
+            .setNodeName(() -> nodeConfig.getString(IOConst.NODE_NAME_KEY.get()), DEFAULT_EMPTY_STRING) //
             .setBundle(() -> loadBundle(nodeConfig), DEFAULT_VENDOR_DEF) //
             .setFeature(() -> loadFeature(nodeConfig), DEFAULT_VENDOR_DEF) //
             .setNodeCreationConfig(() -> loadCreationConfig(nodeConfig), DEFAULT_CONFIG_MAP)
@@ -167,8 +167,8 @@ public final class NativeNodeLoader {
      * @throws InvalidSettingsException
      */
     private static ConfigMapDef loadFactorySettings(final ConfigBaseRO settings) throws InvalidSettingsException {
-        var factorySettings = settings.containsKey(Const.FACTORY_SETTINGS_KEY.get())
-            ? settings.getConfigBase(Const.FACTORY_SETTINGS_KEY.get()) : null;
+        var factorySettings = settings.containsKey(IOConst.FACTORY_SETTINGS_KEY.get())
+            ? settings.getConfigBase(IOConst.FACTORY_SETTINGS_KEY.get()) : null;
 
         return LoaderUtils.toConfigMapDef(factorySettings);
     }
@@ -182,8 +182,8 @@ public final class NativeNodeLoader {
      * @since 4.2
      */
     private static ConfigMapDef loadCreationConfig(final ConfigBaseRO settings) throws InvalidSettingsException {
-        var nodeCreationSettings = settings.containsKey(Const.NODE_CREATION_CONFIG_KEY.get())
-            ? settings.getConfigBase(Const.NODE_CREATION_CONFIG_KEY.get()) : null;
+        var nodeCreationSettings = settings.containsKey(IOConst.NODE_CREATION_CONFIG_KEY.get())
+            ? settings.getConfigBase(IOConst.NODE_CREATION_CONFIG_KEY.get()) : null;
         return LoaderUtils.toConfigMapDef(nodeCreationSettings);
     }
 
@@ -201,7 +201,7 @@ public final class NativeNodeLoader {
     private static String loadFactory(final ConfigBaseRO workflowConfig, final ConfigBaseRO nodeConfig,
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
-            var factoryName = workflowConfig.getString(Const.FACTORY_KEY.get());
+            var factoryName = workflowConfig.getString(IOConst.FACTORY_KEY.get());
             // This is a hack to load old J48 Nodes Model from pre-2.0 workflows
             if ("org.knime.ext.weka.j48_2.WEKAJ48NodeFactory2".equals(factoryName)
                 || "org.knime.ext.weka.j48.WEKAJ48NodeFactory".equals(factoryName)) {
@@ -209,7 +209,7 @@ public final class NativeNodeLoader {
             }
             return factoryName;
         } else {
-            return nodeConfig.getString(Const.FACTORY_KEY.get());
+            return nodeConfig.getString(IOConst.FACTORY_KEY.get());
         }
     }
 
@@ -221,11 +221,11 @@ public final class NativeNodeLoader {
      */
     private static VendorDef loadBundle(final ConfigBaseRO settings) {
         return new VendorDefBuilder() //
-            .setName(settings.getString(Const.NODE_BUNDLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setName(settings.getString(IOConst.NODE_BUNDLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .setSymbolicName(
-                fixExtensionName(settings.getString(Const.NODE_BUNDLE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING))) //
-            .setVendor(settings.getString(Const.NODE_BUNDLE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setVersion(settings.getString(Const.NODE_BUNDLE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)) //
+                fixExtensionName(settings.getString(IOConst.NODE_BUNDLE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING))) //
+            .setVendor(settings.getString(IOConst.NODE_BUNDLE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setVersion(settings.getString(IOConst.NODE_BUNDLE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .build();
     }
 
@@ -237,11 +237,11 @@ public final class NativeNodeLoader {
      */
     private static VendorDef loadFeature(final ConfigBaseRO settings) {
         return new VendorDefBuilder() //
-            .setName(settings.getString(Const.NODE_FEATURE_NAME_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setName(settings.getString(IOConst.NODE_FEATURE_NAME_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .setSymbolicName(
-                fixExtensionName(settings.getString(Const.NODE_FEATURE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING))) //
-            .setVendor(settings.getString(Const.NODE_FEATURE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setVersion(settings.getString(Const.NODE_FEATURE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)) //
+                fixExtensionName(settings.getString(IOConst.NODE_FEATURE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING))) //
+            .setVendor(settings.getString(IOConst.NODE_FEATURE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setVersion(settings.getString(IOConst.NODE_FEATURE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .build();
     }
 
@@ -255,13 +255,13 @@ public final class NativeNodeLoader {
      */
     private static FilestoreDef loadFilestore(final ConfigBaseRO settings, final LoadVersion loadVersion)
         throws InvalidSettingsException {
-        if (loadVersion.isOlderThan(LoadVersion.V260) || !settings.containsKey(Const.FILESTORES_KEY.get())) {
+        if (loadVersion.isOlderThan(LoadVersion.V260) || !settings.containsKey(IOConst.FILESTORES_KEY.get())) {
             return DEFAULT_FILE_STORE_DEF;
         }
-        var filestoreSettings = settings.getConfigBase(Const.FILESTORES_KEY.get());
+        var filestoreSettings = settings.getConfigBase(IOConst.FILESTORES_KEY.get());
         return new FilestoreDefBuilder()
-            .setLocation(() -> filestoreSettings.getString(Const.FILESTORES_LOCATION_KEY.get()), DEFAULT_EMPTY_STRING) //
-            .setId(() -> filestoreSettings.getString(Const.FILESTORES_ID_KEY.get()), DEFAULT_EMPTY_STRING) //
+            .setLocation(() -> filestoreSettings.getString(IOConst.FILESTORES_LOCATION_KEY.get()), DEFAULT_EMPTY_STRING) //
+            .setId(() -> filestoreSettings.getString(IOConst.FILESTORES_ID_KEY.get()), DEFAULT_EMPTY_STRING) //
             .build();
     }
 

@@ -44,46 +44,44 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   11 Mar 2022 (Dionysios Stolis): created
+ *   5 Apr 2022 (carlwitt): created
  */
-package org.knime.core.node.workflow.loader;
+package org.knime.core.workflow.saver;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.util.LoadVersion;
-import org.knime.core.workflow.def.AuthorInformationDef;
-import org.knime.core.workflow.def.WorkflowUISettingsDef;
-import org.knime.core.workflow.def.impl.FallibleWorkflowDef;
-import org.knime.core.workflow.loader.WorkflowLoader;
+import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.workflow.def.ConfigurableNodeDef;
+import org.knime.core.workflow.util.IOConst;
+import org.knime.core.workflow.util.SaverUtils;
 
 /**
+ * This class holds methods that extend given settings by the attributes of a {@link ConfigurableNodeDef}
  *
- * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @author Jasper Krauter, KNIME GmbH, Konstanz, Germany
  */
-class WorkflowLoaderTest {
+abstract class ConfigurableNodeSaver extends BaseNodeSaver {
 
-    @Test
-    void simpleMetaNodetLoaderTest() throws InvalidSettingsException, IOException {
-        // given
-        var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");
-        // when
-        var workflowDef = (FallibleWorkflowDef)WorkflowLoader.load(file, LoadVersion.FUTURE);
+    private ConfigurableNodeDef m_configurableNode;
 
-        // then
-        assertThat(workflowDef.getAnnotations()).hasSize(3).extracting(a -> !a.getText().isEmpty()).containsOnly(true);
-        assertThat(workflowDef.getAuthorInformation()).isInstanceOf(AuthorInformationDef.class);
-        //        assertThat(workflowDef.getCipher()).isNull();
-        assertThat(workflowDef.getConnections()).hasSize(6).extracting(c -> c.getDestID() != null
-            && c.getDestPort() != null && c.getSourceID() != null && c.getSourcePort() != null).containsOnly(true);
-        assertThat(workflowDef.getName()).isNull();
-        assertThat(workflowDef.getNodes()).hasSize(7).containsKeys("node_14", "node_13", "node_12", "node_7", "node_11",
-            "node_8", "node_10");
-        assertThat(workflowDef.getWorkflowEditorSettings()).isInstanceOf(WorkflowUISettingsDef.class);
-     // TODO enable when load handling is fixed
-//        assertThat(workflowDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+    ConfigurableNodeSaver(final ConfigurableNodeDef configurableNode) {
+        super(configurableNode);
+        m_configurableNode = configurableNode;
     }
+
+    /**
+     * Extends the node settings to include the properties of the configurable node
+     */
+    @Override
+    void addNodeSettings(final ConfigBase nodeSettings) {
+        nodeSettings.addString(IOConst.NODE_FILE_KEY.get(), IOConst.NODE_SETTINGS_FILE_NAME.get());
+        nodeSettings.addEntry(SaverUtils.toConfigBase(m_configurableNode.getInternalNodeSubSettings(),
+            IOConst.INTERNAL_NODE_SUBSETTINGS.get()));
+        nodeSettings.addEntry(SaverUtils.toConfigBase(m_configurableNode.getModelSettings(), IOConst.MODEL_KEY.get()));
+        if (!m_configurableNode.getVariableSettings().getChildren().isEmpty()) {
+            nodeSettings.addEntry(
+                SaverUtils.toConfigBase(m_configurableNode.getVariableSettings(), IOConst.VARIABLES_KEY.get()));
+        }
+
+        super.addNodeSettings(nodeSettings);
+    }
+
 }
