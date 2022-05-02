@@ -54,16 +54,23 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.util.PathUtils;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -1556,20 +1563,35 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     }
 
     /**
-     * Tests that any extra empty lines around title and description
+     * Tests that any extra empty lines around any lines in comments
      * does not fail to workflow metadata parsing
      * @throws Exception
      */
     @Test
-    public void testCheckWorkflowWithRedundantEmptyLine() throws Exception {
-        final Path zipFile = Paths.get(WorkflowalizerTest.class.getResource("/TestExtendedExtraEmptyLineWorkflow.knwf").toURI());
+    public void testCheckWorkflowWithRedundantEmptyLines() throws Exception {
+        // case Title-emptyLines-Description-URL-TAGS
+        testCheckWorkflowMetadata("/TestExtralinesBetween.knwf");
+
+        // case emptyLines-Title-emptyLines-Description-URL-TAGS
+        testCheckWorkflowMetadata("/TestExtralinesAround.knwf");
+    }
+
+    private void testCheckWorkflowMetadata(final String filename) throws URISyntaxException, IOException, InvalidSettingsException, ParseException, XPathExpressionException, ParserConfigurationException, SAXException {
+        final String expectedTitle = "Foo - title";
+        final String expectedDescription = "Wibble wobble wubble flob. - description";
+        final String expectedLinksUrl = "http://www.example.com";
+        final String expectedLinksText = "example.com";
+        final String expectedTags = "Hi";
+
+        final Path zipFile = Paths.get(WorkflowalizerTest.class.getResource(filename).toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
 
-        assertEquals("Unexpected workflow title", wm.getWorkflowSetMetadata().get().getTitle().get(),
-                "Foo - title");
-        assertEquals("Unexpected workflow description", wm.getWorkflowSetMetadata().get().getDescription().get(),
-                "Wibble wobble wubble flob. - description");
+        assertEquals("Unexpected title", expectedTitle, wm.getWorkflowSetMetadata().get().getTitle().get());
+        assertEquals("Unexpected description", expectedDescription, wm.getWorkflowSetMetadata().get().getDescription().get());
+        assertEquals("Unexpected links URL", expectedLinksUrl, wm.getWorkflowSetMetadata().get().getLinks().get().get(0).getUrl());
+        assertEquals("Unexpected links Text", expectedLinksText, wm.getWorkflowSetMetadata().get().getLinks().get().get(0).getText());
+        assertEquals("Unexpected tags", expectedTags, wm.getWorkflowSetMetadata().get().getTags().get().get(0));
     }
 
     /**
