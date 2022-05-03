@@ -68,8 +68,6 @@ final class SingleNodeLoader {
     private SingleNodeLoader() {
     }
 
-//    private static final FlowObjectDef DEFAULT_FLOW_OBJECT = new FlowObjectDefBuilder().build();
-
     /**
      * Loads the internal node sub settings (e.g memory_policy) from the {@code settings}.
      *
@@ -114,107 +112,4 @@ final class SingleNodeLoader {
         // defined by NodeModel#saveSettings -- these settings were never confirmed through validate/load though)
         return LoaderUtils.toConfigMapDef(settings.getConfigBase(IOConst.MODEL_KEY.get()));
     }
-
-//    /**
-//     * Loads a list of the flow stack object from the {@code settings}.
-//     *
-//     * @param settings a read only representation of the node's settings.xml.
-//     * @return either a list of {@link FlowObjectDef} or an empty list.
-//     * @throws InvalidSettingsException
-//     */
-//    private static List<FlowObjectDef> loadFlowStackObjects(final ConfigBaseRO settings, final LoadVersion loadVersion)
-//        throws InvalidSettingsException {
-//        if (loadVersion.isOlderThan(LoadVersion.V200)) {
-//            return List.of();
-//        }
-//        var stackSet = loadVersion.isOlderThan(LoadVersion.V220) ? settings.getConfigBase(Const.SCOPE_STACK_KEY.get())
-//            : settings.getConfigBase(Const.FLOW_STACK_KEY.get());
-//
-//        return stackSet.keySet().stream() //
-//            .map(key -> {
-//                try {
-//                    if (stackSet.containsKey(key)) {
-//                        return stackSet.getConfigBase(key);
-//                    } else {
-//                        return null;
-//                    }
-//                } catch (InvalidSettingsException e) {
-//                    throw new RuntimeException(e); //NOSONAR
-//                }
-//            }) //
-//            .map(t -> {
-//                try {
-//                    return loadFlowObjectDef(t);
-//                } catch (InvalidSettingsException ex) {
-//                    throw new RuntimeException(ex); //NOSONAR
-//                }
-//            }) //
-//            .collect(Collectors.toList());
-//    }
-//
-//    /**
-//     * Loads the flow stack objects, either flow variable or flow context.
-//     *
-//     * @param settings a representation of the node's settings.xml file.
-//     * @return a {@link FlowObjectDef}
-//     * @throws InvalidSettingsException
-//     */
-//    private static FlowObjectDef loadFlowObjectDef(final ConfigBaseRO sub) throws InvalidSettingsException {
-//        if (sub == null) {
-//            return DEFAULT_FLOW_OBJECT;
-//        }
-//        try {
-//            var type = sub.getString(Const.TYPE_KEY.get());
-//            return Const.VARIABLE.get().equals(type) ? loadFlowVariableDef(sub) : loadFlowContextDef(type);
-//        } catch (InvalidSettingsException e) { //NOSONAR
-//            // Provides a default def, doesn't want to interrupt of loading the other flow objects
-//            return DEFAULT_FLOW_OBJECT;
-//        }
-//    }
-//
-//    /**
-//     * Loads the flow context.
-//     *
-//     * @param type the loaded context type
-//     * @return a {@link FlowContextDef}
-//     * @throws InvalidSettingsException
-//     */
-//    private static FlowContextDef loadFlowContextDef(final String type) {
-//
-//        boolean isActive = !type.toUpperCase().endsWith(Const.INACTIVE.get());
-//
-//        return new FlowContextDefBuilder() //
-//            .setActive(isActive) //
-//            //TODO Which is the default context type?
-//            .setContextType(loadFlowContextType(type)) //
-//            .build();
-//    }
-//
-//    private static ContextTypeEnum loadFlowContextType(final String type) {
-//        ContextTypeEnum contextType = null;
-//
-//        if (type.toUpperCase().startsWith(Const.LOOP.get())) {
-//            contextType = ContextTypeEnum.LOOP;
-//        } else if (type.toUpperCase().startsWith(Const.FLOW.get())) {
-//            contextType = ContextTypeEnum.FLOWCAPTURE;
-//        } else if (type.toUpperCase().startsWith(Const.SCOPE.get())) {
-//            contextType = ContextTypeEnum.SCOPE;
-//        }
-//
-//        return contextType;
-//    }
-//
-//    /**
-//     * Loads the flow variable
-//     *
-//     * @param sub
-//     * @return
-//     * @throws InvalidSettingsException
-//     */
-//    private static FlowVariableDef loadFlowVariableDef(final ConfigBaseRO sub) {
-//        return new FlowVariableDefBuilder() //
-//            .setValue(() -> LoaderUtils.toConfigMapDef(sub), DEFAULT_CONFIG_MAP) //
-//            .build();
-//    }
-
 }

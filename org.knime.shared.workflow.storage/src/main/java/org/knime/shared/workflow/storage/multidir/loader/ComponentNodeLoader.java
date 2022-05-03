@@ -209,8 +209,7 @@ public final class ComponentNodeLoader {
      * @throws InvalidSettingsException when the virtual input id is less than zero.
      */
     private static Integer loadVirtualInNodeId(final ConfigBaseRO settings) throws InvalidSettingsException {
-        var virtualId = settings.getInt(IOConst.VIRTUAL_IN_ID_KEY.get());
-        return virtualId;
+        return settings.getInt(IOConst.VIRTUAL_IN_ID_KEY.get());
     }
 
     /**
@@ -221,8 +220,7 @@ public final class ComponentNodeLoader {
      * @throws InvalidSettingsException when the virtual output id is less than zero.
      */
     private static Integer loadVirtualOutNodeId(final ConfigBaseRO settings) throws InvalidSettingsException {
-        var virtualId = settings.getInt(IOConst.VIRTUAL_OUT_ID_KEY.get());
-        return virtualId;
+        return settings.getInt(IOConst.VIRTUAL_OUT_ID_KEY.get());
     }
 
     /**
@@ -239,22 +237,22 @@ public final class ComponentNodeLoader {
 
         var metadataSettings = settings.getConfigBase(IOConst.METADATA_KEY.get());
         return new ComponentMetadataDefBuilder() //
-            .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()), DEFAULT_EMPTY_STRING) //
-            .setIcon(() -> loadIcon(metadataSettings), DEFAULT_ICON) //
-            .setInPortDescriptions(
-                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get())) //
-            .setInPortNames(
-                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.METADATA_NAME_KEY.get())) //
-            .setOutPortDescriptions(
-                () -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get())) //
-            .setOutPortNames(
-                () -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(), IOConst.METADATA_NAME_KEY.get())) //
+            .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()), DEFAULT_EMPTY_STRING)
+            .setIcon(() -> loadIcon(metadataSettings), DEFAULT_ICON)
+            .setInPortDescriptions(() -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(),
+                    IOConst.DESCRIPTION_KEY.get()))
+            .setInPortNames(() -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(),
+                IOConst.METADATA_NAME_KEY.get()))
+            .setOutPortDescriptions(() -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(),
+                IOConst.DESCRIPTION_KEY.get()))
+            .setOutPortNames(() -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(),
+                IOConst.METADATA_NAME_KEY.get()))
             .build();
     }
 
     private static List<String> loadPortsProperties(final ConfigBaseRO sub, final String portsKey,
         final String propertyKey) throws InvalidSettingsException {
-        //        try {
+
         var inportsSetting = loadSetting(sub, portsKey);
         if (inportsSetting == null) {
             return List.of();
@@ -268,23 +266,7 @@ public final class ComponentNodeLoader {
         }
         return treeMap.values().stream() //
             .map(Object::toString).collect(Collectors.toList());
-        //
-        //            String[] properties = new String[inportsSetting.keySet().size()]; //NOSONAR
-        //            inportsSetting.keySet().stream().forEach(key -> {
-        //                try {
-        //                    var portSetting = inportsSetting.getConfigBase(key);
-        //                    var index = portSetting.getInt(Const.PORT_INDEX_KEY.get(), DEFAULT_NEGATIVE_INDEX);
-        //                    properties[index] = portSetting.getString(propertyKey);
-        //                } catch (InvalidSettingsException ex) {
-        //                    throw new RuntimeException(ex);
-        //                }
-        //            });
-        //            return List.of(properties);
-        //        } catch (Exception e) {
-        //            var errorMessage =
-        //                String.format("Unable to load the component's %s %s: %s", portsKey, propertyKey, e.getMessage());
-        //            throw new InvalidSettingsException(errorMessage, e);
-        //        }
+
     }
 
     private static ConfigBaseRO loadSetting(final ConfigBaseRO sub, final String key) throws InvalidSettingsException {
@@ -313,7 +295,7 @@ public final class ComponentNodeLoader {
         }
         return new PortDefBuilder() //
             .setIndex(() -> settings.getInt(IOConst.PORT_INDEX_KEY.get()), DEFAULT_NEGATIVE_INDEX) //
-            .setName(() -> settings.getKey(), DEFAULT_EMPTY_STRING) //
+            .setName(settings::getKey, DEFAULT_EMPTY_STRING) //
             .setPortType(() -> new PortTypeDefBuilder() //
                 .setPortObjectClass(settings.getConfigBase(IOConst.PORT_TYPE_KEY.get()) //
                     .getString(IOConst.PORT_OBJECT_CLASS_KEY.get()))

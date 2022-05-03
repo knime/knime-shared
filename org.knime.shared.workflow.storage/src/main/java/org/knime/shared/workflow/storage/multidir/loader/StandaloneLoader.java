@@ -182,10 +182,10 @@ public final class StandaloneLoader {
     }
 
     /**
-     * TODO
+     * Loads the table backend settings from the {@code settings} to a {@link ConfigMapDef}
      *
-     * @param workflowConfig
-     * @return
+     * @param workflowConfig a read-only representation of the node's settings.xml
+     * @return The generated {@link ConfigMapDef}
      * @throws InvalidSettingsException
      */
     private static ConfigMapDef loadTableBackendSettings(final ConfigBaseRO workflowConfig)
@@ -227,7 +227,8 @@ public final class StandaloneLoader {
         return new FlowVariableDefBuilder() //
             .setName(workflowVarSettings.getString(IOConst.FLOW_VARIABLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))//
             .setValue(() -> loadFlowVariableValue(workflowVarSettings), null) //
-            .setPropertyClass(workflowVarSettings.getString(IOConst.FLOW_VARIABLE_CLASS_KEY.get(), DEFAULT_EMPTY_STRING))//
+            .setPropertyClass(
+                workflowVarSettings.getString(IOConst.FLOW_VARIABLE_CLASS_KEY.get(), DEFAULT_EMPTY_STRING))//
             .build();
     }
 

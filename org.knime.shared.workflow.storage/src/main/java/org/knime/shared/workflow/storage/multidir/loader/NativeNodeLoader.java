@@ -56,6 +56,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -111,9 +113,9 @@ public final class NativeNodeLoader {
                 "org.knime.features.personalproductivity$1");
             map.put(Pattern.compile("^com\\.knime\\.explorer\\.nodes"), "org.knime.explorer.nodes"); // NOSONAR
         } catch (PatternSyntaxException e) {
+            // TODO proper error handling
             map.clear(); // if one fails, all fail
-            // TODO error handling
-            //NodeLogger.getLogger(NodeAndBundleInformationPersistor.class).coding(e.getMessage(), e);
+            Logger.getLogger(NativeNodeLoader.class.getName()).log(Level.WARNING, e.getMessage(), e);
         }
         EXTENSION_RENAME_MAP = Collections.unmodifiableMap(map);
     }
@@ -220,13 +222,12 @@ public final class NativeNodeLoader {
      * @return a {@link VendorDef}
      */
     private static VendorDef loadBundle(final ConfigBaseRO settings) {
-        return new VendorDefBuilder() //
-            .setName(settings.getString(IOConst.NODE_BUNDLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING)) //
+        return new VendorDefBuilder()
+            .setName(settings.getString(IOConst.NODE_BUNDLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))
             .setSymbolicName(
-                fixExtensionName(settings.getString(IOConst.NODE_BUNDLE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING))) //
-            .setVendor(settings.getString(IOConst.NODE_BUNDLE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setVersion(settings.getString(IOConst.NODE_BUNDLE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .build();
+                fixExtensionName(settings.getString(IOConst.NODE_BUNDLE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING)))
+            .setVendor(settings.getString(IOConst.NODE_BUNDLE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING))
+            .setVersion(settings.getString(IOConst.NODE_BUNDLE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)).build();
     }
 
     /**
@@ -237,12 +238,11 @@ public final class NativeNodeLoader {
      */
     private static VendorDef loadFeature(final ConfigBaseRO settings) {
         return new VendorDefBuilder() //
-            .setName(settings.getString(IOConst.NODE_FEATURE_NAME_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setSymbolicName(
-                fixExtensionName(settings.getString(IOConst.NODE_FEATURE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING))) //
-            .setVendor(settings.getString(IOConst.NODE_FEATURE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setVersion(settings.getString(IOConst.NODE_FEATURE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .build();
+            .setName(settings.getString(IOConst.NODE_FEATURE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))
+            .setSymbolicName(fixExtensionName(
+                settings.getString(IOConst.NODE_FEATURE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING)))
+            .setVendor(settings.getString(IOConst.NODE_FEATURE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING))
+            .setVersion(settings.getString(IOConst.NODE_FEATURE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)).build();
     }
 
     /**
@@ -260,8 +260,8 @@ public final class NativeNodeLoader {
         }
         var filestoreSettings = settings.getConfigBase(IOConst.FILESTORES_KEY.get());
         return new FilestoreDefBuilder()
-            .setLocation(() -> filestoreSettings.getString(IOConst.FILESTORES_LOCATION_KEY.get()), DEFAULT_EMPTY_STRING) //
-            .setId(() -> filestoreSettings.getString(IOConst.FILESTORES_ID_KEY.get()), DEFAULT_EMPTY_STRING) //
+            .setLocation(() -> filestoreSettings.getString(IOConst.FILESTORES_LOCATION_KEY.get()), DEFAULT_EMPTY_STRING)
+            .setId(() -> filestoreSettings.getString(IOConst.FILESTORES_ID_KEY.get()), DEFAULT_EMPTY_STRING)
             .build();
     }
 

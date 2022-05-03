@@ -53,12 +53,12 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
-import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.AuthorInformationDef;
 import org.knime.shared.workflow.def.BaseNodeDef;
@@ -84,10 +84,13 @@ import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
 @SuppressWarnings("javadoc")
-public class WorkflowLoader {
+public final class WorkflowLoader {
+
+    private WorkflowLoader() {
+    }
 
     private static final List<String> OLD_META_NODES =
-            Collections.unmodifiableList(Arrays.asList(new String[]{
+            Collections.unmodifiableList(Arrays.asList(
                 "org.knime.base.node.meta.MetaNodeFactory01",
                 "org.knime.base.node.meta.MetaNodeFactory11",
                 "org.knime.base.node.meta.MetaNodeFactory21",
@@ -102,9 +105,7 @@ public class WorkflowLoader {
                 "de.unikn.knime.core.node.meta.MetaNodeFactory22",
                 "de.unikn.knime.dev.node.xvalidation.XValidateNodeFactory",
                 "de.unikn.knime.dev.node.looper.LooperFactory"
-            }));
-
-    private static final ConfigBaseRO EMPTY_SETTINGS = new SimpleConfig("<<empty>>");
+            ));
 
     private static final String DEFAULT_WORKFLOW_NAME = "Workflow";
 
@@ -259,8 +260,8 @@ public class WorkflowLoader {
         }
     }
 
-    private static NodeTypeEnum getNodeType(final String nodeType) throws InvalidSettingsException {
-        switch (nodeType.toLowerCase()) {
+    private static NodeTypeEnum getNodeType(final String nodeType) {
+        switch (nodeType.toLowerCase(Locale.ENGLISH)) {
             case "metanode":
                 return NodeTypeEnum.METANODE;
             case "subnode":
@@ -353,10 +354,11 @@ public class WorkflowLoader {
     }
 
     /**
-     * TODO
+     * Adds UI settings to a {@link ConnectionDefBuilder} based on a provided excerpt of the {@code settings.xml}
      *
-     * @param connectionConfig the part of the workflow configurations that describes one particular connection
-     * @param workflowFormatVersion the version of the workflow format that was used to write the workflow to load
+     * @param builder The connection builder
+     * @param connectionConfig The {@code settings} of the connection
+     * @param loadVersion The version of the workflow format that was used to write the workflow to load
      */
     private static void setConnectionUISettings(final ConnectionDefBuilder builder, final ConfigBaseRO connectionConfig,
         final LoadVersion loadVersion) {

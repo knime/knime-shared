@@ -69,6 +69,7 @@ import org.knime.shared.workflow.storage.multidir.loader.MetaNodeLoader;
  *
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
+@SuppressWarnings("squid:S2698")
 class MetaNodeLoaderTest {
 
     private ConfigBaseRO m_configBaseRO;

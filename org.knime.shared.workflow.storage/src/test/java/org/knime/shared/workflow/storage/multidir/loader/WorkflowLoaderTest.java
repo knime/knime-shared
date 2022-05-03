@@ -63,6 +63,7 @@ import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
  *
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
+@SuppressWarnings("squid:S2698")
 class WorkflowLoaderTest {
 
     //@Test

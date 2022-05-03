@@ -92,6 +92,8 @@ final class BaseNodeLoader {
 
     private static final BoundsDef DEFAULT_BOUNDS = new BoundsDefBuilder().build();
 
+    private static final Random RANDOM = new Random();
+
     /**
      * Loads the node's id from the {@code settings}.
      *
@@ -110,7 +112,7 @@ final class BaseNodeLoader {
     }
 
     static Integer getRandomNodeID() {
-        return 10000 + new Random().nextInt(10000);
+        return 10000 + RANDOM.nextInt(10000);
     }
 
     /**
@@ -121,8 +123,8 @@ final class BaseNodeLoader {
      * @return a {@link NodeAnnotationDef}
      * @throws InvalidSettingsException
      */
-    static NodeAnnotationDef loadAnnotation(final ConfigBaseRO nodeSettings,
-        final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
+    static NodeAnnotationDef loadAnnotation(final ConfigBaseRO nodeSettings, final LoadVersion workflowFormatVersion)
+        throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V250)) {
             var customName = nodeSettings.getString(IOConst.CUSTOM_NAME_KEY.get(), DEFAULT_EMPTY_STRING);
             var isDefault = customName == null;
@@ -161,8 +163,8 @@ final class BaseNodeLoader {
             var jobManagerSettings = settings.getConfigBase(IOConst.JOB_MANAGER_KEY.get());
             return new JobManagerDefBuilder()//
                 .setFactory(jobManagerSettings.getString(IOConst.JOB_MANAGER_FACTORY_ID_KEY.get()))//
-                .setSettings(
-                    LoaderUtils.toConfigMapDef(jobManagerSettings.getConfigBase(IOConst.JOB_MANAGER_SETTINGS_KEY.get())))
+                .setSettings(LoaderUtils
+                    .toConfigMapDef(jobManagerSettings.getConfigBase(IOConst.JOB_MANAGER_SETTINGS_KEY.get())))
                 .build();
         } catch (InvalidSettingsException e) {
             var errorMessage = "Can't restore node execution job manager: " + e.getMessage();

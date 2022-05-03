@@ -132,58 +132,6 @@ public final class MetaNodeLoader {
     }
 
     /**
-     * Loads the MetaNode's input ports from the {@code settings}.
-     *
-     * @param settings a read only representation of the node's settings.xml.
-     * @param workflowFormatVersion an {@link LoadVersion}.
-     * @return a list of {@link PortDef}.
-     * @throws InvalidSettingsException
-     */
-    //    private static List<PortDef> loadInPorts(final ConfigBaseRO settings, final LoadVersion workflowFormatVersion)
-    //        throws InvalidSettingsException {
-    //        var inPortsSettings = loadSetting(settings, Const.META_IN_PORTS_KEY.get(), workflowFormatVersion);
-    //        if (inPortsSettings == null || inPortsSettings.keySet().isEmpty()) {
-    //            return List.of();
-    //        }
-    //        var inPortsEnum = loadPortsSettingsEnum(inPortsSettings);
-    //        return loadPorts(inPortsEnum);
-    //    }
-
-    /**
-     * Loads the MetaNode's output ports from the {@code settings}.
-     *
-     * @param settings a read only representation of the node's settings.xml.
-     * @param workflowFormatVersion an {@link LoadVersion}.
-     * @return a list of {@link PortDef}.
-     * @throws InvalidSettingsException
-     */
-    //    private static List<PortDef> loadOutPorts(final ConfigBaseRO settings, final LoadVersion loadVersion)
-    //        throws InvalidSettingsException {
-    //        var inPortsSettings = loadSetting(settings, Const.META_OUT_PORTS_KEY.get(), loadVersion);
-    //        if (inPortsSettings == null || inPortsSettings.keySet().isEmpty()) {
-    //            return List.of();
-    //        }
-    //
-    //        var outPortsEnum = loadPortsSettingsEnum(inPortsSettings);
-    //        return loadPorts(outPortsEnum);
-    //    }
-
-    //    private static ConfigBaseRO loadPortsSettingsEnum(final ConfigBaseRO settings, final Const key,
-    //        final LoadVersion loadVersion) throws InvalidSettingsException {
-    //        try {
-    //            var inPortsSettings = loadSetting(settings, key.get(), loadVersion);
-    //            if (inPortsSettings == null || inPortsSettings.keySet().isEmpty() || !settings.containsKey(key.get())) {
-    //                return null;
-    //            }
-    //
-    //            return settings.getConfigBase(Const.PORT_ENUM_KEY.get());
-    //        } catch (InvalidSettingsException e) {
-    //            var errorMessage = "Can't load ports enum: " + e.getMessage();
-    //            throw new InvalidSettingsException(errorMessage, e);
-    //        }
-    //    }
-
-    /**
      * Load the input/output ports bar ui info from the {@code settings}.
      *
      * @param settings
@@ -258,30 +206,6 @@ public final class MetaNodeLoader {
         }
     }
 
-    //    private static List<PortDef> loadPorts(final ConfigBaseRO portsEnum) {
-    //        Set<String> keySet = portsEnum == null ? Set.of() : portsEnum.keySet();
-    //        var portCount = portsEnum == null ? 0 : keySet.size();
-    //        var portDefs = new PortDef[portCount];
-    //        for (String key : keySet) {
-    //            if (portsEnum != null) {
-    //                ConfigBase portConfig;
-    //                try {
-    //                    portConfig = portsEnum.getConfigBase(key);
-    //                    PortDef port = loadPort(portConfig);
-    //                    if (port.getIndex() >= 0 && port.getIndex() < portCount) {
-    //                        portDefs[port.getIndex()] = port;
-    //                    }
-    //                } catch (InvalidSettingsException ex) {
-    //                    //TODO Shall i follow the m_metaNodeBuilder.addToInPorts(portDef) ?
-    //                    //TODO How can i put to the load problems the exceptions from the higher layer?
-    //                }
-    //
-    //            }
-    //        }
-    //
-    //        return List.of(portDefs);
-    //    }
-
     private static PortDef loadPort(final ConfigBaseRO settings) {
         if (settings == null) {
             return DEFAULT_PORT_DEF;
@@ -315,7 +239,8 @@ public final class MetaNodeLoader {
             if (!portSettings.containsKey(IOConst.UI_SETTINGS_KEY.get())) {
                 return DEFAULT_NODE_UI;
             } else {
-                return BaseNodeLoader.loadUIInfo(portSettings.getConfigBase(IOConst.UI_SETTINGS_KEY.get()), loadVersion);
+                return BaseNodeLoader.loadUIInfo(portSettings.getConfigBase(IOConst.UI_SETTINGS_KEY.get()),
+                    loadVersion);
             }
         }
     }

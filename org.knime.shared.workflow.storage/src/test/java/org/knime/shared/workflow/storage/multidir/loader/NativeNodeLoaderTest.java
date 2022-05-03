@@ -68,6 +68,7 @@ import org.knime.shared.workflow.storage.multidir.loader.NativeNodeLoader;
  *
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
+@SuppressWarnings("squid:S2698")
 class NativeNodeLoaderTest {
 
     private ConfigBaseRO m_configBaseRO;
@@ -140,6 +141,8 @@ class NativeNodeLoaderTest {
 
         // when
         var nativeNodeDef = NativeNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);
+
+        assertThat(nativeNodeDef).isNotNull();
 
         // then
      // TODO enable when load handling is fixed
