@@ -39,7 +39,7 @@
 				<module>org.apache.xmlbeans</module>
 				<module>org.knime.core.util/pom-AP.xml</module>
 				<module>org.knime.core.workflow.def/pom-AP.xml</module>
-				<module>org.knime.core.workflow.loader/pom-AP.xml</module>
+				<module>org.knime.shared.workflow.storage/pom-AP.xml</module>
 				<module>org.knime.features.util</module>
 				<module>org.knime.update.shared</module>
 			</modules>
@@ -62,7 +62,7 @@
 			<modules>
 				<module>org.knime.core.util</module>
 				<module>org.knime.core.workflow.def</module>
-				<module>org.knime.core.workflow.loader</module>
+				<module>org.knime.shared.workflow.storage</module>
 			</modules>
 		</profile>
 	</profiles>
