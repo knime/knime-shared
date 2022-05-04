@@ -123,11 +123,13 @@ class ComponentLoaderTest {
     @Test
     void multiPortComponentTest() throws InvalidSettingsException, IOException {
         // given
-        var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/Component__Link");
+        var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/Component (#14)");
 
         var workflowConfig = new SimpleConfig("mock");
         workflowConfig.addInt("id", 431);
-        workflowConfig.addIntArray("extrainfo.node.bounds", new int[]{2541, 1117, 122, 65});
+        var uiSettings = new SimpleConfig("ui_settings");
+        uiSettings.addIntArray("extrainfo.node.bounds", new int[]{2541, 1117, 122, 65});
+        workflowConfig.addEntry(uiSettings);
 
         // when
         var componentDef = ComponentNodeLoader.load(workflowConfig, file, LoadVersion.FUTURE);

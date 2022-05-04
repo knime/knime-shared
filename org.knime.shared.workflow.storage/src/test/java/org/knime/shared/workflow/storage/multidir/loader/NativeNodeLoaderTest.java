@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -59,9 +60,9 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
+import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.shared.workflow.def.FilestoreDef;
-import org.knime.shared.workflow.storage.multidir.loader.NativeNodeLoader;
-
+import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 
 
 /**
@@ -116,7 +117,8 @@ class NativeNodeLoaderTest {
 
         // Assert NodeLoader
         assertThat(nativeNodeDef.getId()).isEqualTo(1);
-        assertThat(nativeNodeDef.getAnnotation().getData()).extracting(a -> a.getText().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, 16777215);
+        assertThat(nativeNodeDef.getAnnotation().getData())
+            .extracting(a -> a.getText().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, 16777215);
         assertThat(nativeNodeDef.getCustomDescription()).isEqualTo("test");
         assertThat(nativeNodeDef.getJobManager().getFactory()).isEmpty();
         assertThat(nativeNodeDef.getLocks()) //
@@ -125,8 +127,41 @@ class NativeNodeLoaderTest {
         assertThat(nativeNodeDef.getUiInfo()).extracting(n -> n.hasAbsoluteCoordinates(), n -> n.isSymbolRelative(),
             n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
             .contains(false, true);
-     // TODO enable when load handling is fixed
-//        assertThat(nativeNodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        // TODO enable when load handling is fixed
+        //        assertThat(nativeNodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+    }
+
+    @Test
+    void testNativeNodeLoadFromWorkflow() throws IOException, InvalidSettingsException {
+        // given
+        var workflowDir = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");
+        var nativeNodeDir = new File(workflowDir, "Concatenate (#11)");
+
+        var workflowConfig = LoaderUtils.parseWorkflowConfig(workflowDir);
+        var workflowNodeConfig = workflowConfig.getConfigBase("nodes").getConfigBase("node_11");
+
+        // when
+        var nativeNodeDef = NativeNodeLoader.load(workflowNodeConfig, nativeNodeDir, LoadVersion.FUTURE);
+
+        // then
+        assertThat(nativeNodeDef.getId()).isEqualTo(11);
+        assertThat(nativeNodeDef.getNodeType()).isEqualTo(NodeTypeEnum.NATIVENODE);
+        assertThat(nativeNodeDef.getCustomDescription()).isNullOrEmpty();
+        assertThat(nativeNodeDef.getAnnotation().isAnnotationDefault()).isTrue();
+        assertThat(nativeNodeDef.getInternalNodeSubSettings().getChildren()).hasSize(1);
+        assertThat(nativeNodeDef.getModelSettings().getChildren()).hasSize(5)
+            .containsKeys("fail_on_duplicates", "append_suffix", "intersection_of_columns", "suffix", "enable_hiliting")
+            .doesNotContainValue(null);
+        assertThat(nativeNodeDef.getNodeName()).isEqualTo("Concatenate");
+        assertThat(nativeNodeDef.getBundle())
+            .extracting(b -> b.getName(), b -> b.getSymbolicName(), b -> b.getVendor(), b -> b.getVersion())
+            .containsExactly("KNIME Base Nodes", "org.knime.base", "KNIME AG, Zurich, Switzerland",
+                "4.5.1.v202201171147");
+        assertThat(nativeNodeDef.getFeature())
+            .extracting(f -> f.getName(), f -> f.getSymbolicName(), f -> f.getVendor(), f -> f.getVersion())
+            .containsExactly("KNIME Base nodes", "org.knime.features.base.feature.group", "KNIME AG, Zurich, Switzerland",
+                "4.5.1.v202201171200");
+
     }
 
     @Test
@@ -145,7 +180,7 @@ class NativeNodeLoaderTest {
         assertThat(nativeNodeDef).isNotNull();
 
         // then
-     // TODO enable when load handling is fixed
+        // TODO enable when load handling is fixed
 //        assertThat(nativeNodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
 //        assertThat(nodeDef.getSuppliers()).containsOnlyKeys(BaseNodeDef.Attribute.UI_INFO);
 //        assertThat(nodeDef.getSuppliers().get(BaseNodeDef.Attribute.UI_INFO)).singleElement()// list with one LoadExceptionSupplier
@@ -157,6 +192,7 @@ class NativeNodeLoaderTest {
 //            .isExactlyInstanceOf(LoadExceptionSupplier.class)//
 //            .extracting(les -> les.getLoadException().get())//
 //            .isExactlyInstanceOf(InvalidSettingsException.class);
+
     }
 
 }

@@ -56,9 +56,11 @@ import java.io.IOException;
 import java.util.List;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.workflow.def.FallibleSupplier;
+import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
@@ -71,6 +73,7 @@ import org.knime.shared.workflow.def.impl.RootWorkflowDefBuilder;
 import org.knime.shared.workflow.def.impl.StandaloneDefBuilder;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
+import org.knime.shared.workflow.storage.util.PasswordRedactor;
 
 /**
  * Loads the description of stand alone units, a stand alone unit could be a Component, Metanode or Workflow
@@ -99,13 +102,16 @@ public final class StandaloneLoader {
     public static DefaultStandaloneDef load(final File directory) throws IOException {
         var builder = new StandaloneDefBuilder();
         var workflowConfig = LoaderUtils.readWorkflowConfigFromFile(directory);
+        var templateConfig = LoaderUtils.readTemplateConfigFromFile(directory);
         try {
             //TODO Use the uknownpolicy here
             var contentType = getStandaloneType(directory);
-            var loadVersion = LoadVersion.valueOf(workflowConfig.getString("version"));
+            var loadVersion = LoadVersion.fromVersionString((templateConfig.isPresent())
+                ? templateConfig.get().getString("version") : workflowConfig.getString("version"));
 
             builder.setContentType(contentType) //
-                .setCreator(CreatorLoader.loadCreator(workflowConfig)); //
+                .setCreator(
+                    CreatorLoader.loadCreator((templateConfig.isPresent()) ? templateConfig.get() : workflowConfig)); //
             switch (contentType) {
                 case COMPONENT:
                     builder.setContents(ComponentNodeLoader.load(workflowConfig, directory, loadVersion));
@@ -113,8 +119,8 @@ public final class StandaloneLoader {
                 case METANODE:
                     builder.setContents(MetaNodeLoader.load(workflowConfig, directory, loadVersion));
                     break;
-                case WORKFLOW:
-                    builder.setContents(loadRootWorkflow(workflowConfig, loadVersion));
+                case ROOT_WORKFLOW:
+                    builder.setContents(loadRootWorkflow(workflowConfig, directory, loadVersion));
                     break;
                 default:
                     throw new InvalidSettingsException(String.format("Content type %s is not supported", contentType));
@@ -133,7 +139,7 @@ public final class StandaloneLoader {
         } else if (new File(directory, IOConst.TEMPLATE_FILE_NAME.get()).exists()) {
             return StandaloneDef.ContentTypeEnum.METANODE;
         } else {
-            return StandaloneDef.ContentTypeEnum.WORKFLOW;
+            return StandaloneDef.ContentTypeEnum.ROOT_WORKFLOW;
         }
     }
 
@@ -146,11 +152,22 @@ public final class StandaloneLoader {
      * @return a {@link RootWorkflowDef}.
      * @throws InvalidSettingsException
      */
-    private static RootWorkflowDef loadRootWorkflow(final ConfigBaseRO workflowConfig, final LoadVersion loadVersion) {
+    private static RootWorkflowDef loadRootWorkflow(final ConfigBaseRO workflowConfig, final File directory,
+        final LoadVersion loadVersion) {
         var builder = new RootWorkflowDefBuilder() //
             .setTableBackendSettings(() -> loadTableBackendSettings(workflowConfig), DEFAULT_CONFIG_MAP);
         setCredentialPlaceholders(builder, workflowConfig, loadVersion);
         setWorkflowVariables(builder, workflowConfig, loadVersion);
+
+        // copy properties of workflow
+        var workflow = WorkflowLoader.load(directory, workflowConfig, loadVersion);
+        builder.setName(workflow.getName()) //
+            .setAuthorInformation(workflow.getAuthorInformation()) //
+            .setWorkflowEditorSettings(workflow.getWorkflowEditorSettings());
+        workflow.getConnections().forEach(builder::addToConnections);
+        workflow.getAnnotations().forEach(builder::putToAnnotations);
+        workflow.getNodes().forEach(builder::putToNodes);
+
         return builder.build();
     }
 
@@ -223,7 +240,7 @@ public final class StandaloneLoader {
         }
     }
 
-    private static FlowVariableDef loadFlowVariable(final ConfigBaseRO workflowVarSettings) {
+    private static FlowVariableDef loadFlowVariable(final ConfigBase workflowVarSettings) {
         return new FlowVariableDefBuilder() //
             .setName(workflowVarSettings.getString(IOConst.FLOW_VARIABLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))//
             .setValue(() -> loadFlowVariableValue(workflowVarSettings), null) //
@@ -232,10 +249,11 @@ public final class StandaloneLoader {
             .build();
     }
 
-    private static ConfigMapDef loadFlowVariableValue(final ConfigBaseRO workflowConfig)
+    private static ConfigDef loadFlowVariableValue(final ConfigBase workflowConfig)
         throws InvalidSettingsException {
         if (workflowConfig.containsKey(IOConst.FLOW_VARIABLE_VALUE_KEY.get())) {
-            return LoaderUtils.toConfigMapDef(workflowConfig.getConfigBase(IOConst.FLOW_VARIABLE_VALUE_KEY.get()));
+            var valueKey = IOConst.FLOW_VARIABLE_VALUE_KEY.get();
+            return LoaderUtils.toConfigDef(workflowConfig.getEntry(valueKey), valueKey, PasswordRedactor.unsafe());
         }
         return null;
     }

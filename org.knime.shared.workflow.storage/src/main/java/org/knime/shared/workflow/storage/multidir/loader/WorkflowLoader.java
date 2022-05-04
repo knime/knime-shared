@@ -89,23 +89,21 @@ public final class WorkflowLoader {
     private WorkflowLoader() {
     }
 
-    private static final List<String> OLD_META_NODES =
-            Collections.unmodifiableList(Arrays.asList(
-                "org.knime.base.node.meta.MetaNodeFactory01",
-                "org.knime.base.node.meta.MetaNodeFactory11",
-                "org.knime.base.node.meta.MetaNodeFactory21",
-                "org.knime.base.node.meta.MetaNodeFactory12",
-                "org.knime.base.node.meta.MetaNodeFactory22",
-                "org.knime.base.node.meta.xvalidation.XValidateNodeFactory",
-                "org.knime.base.node.meta.looper.LooperFactory",
-                "de.unikn.knime.core.node.meta.MetaNodeFactory01",
-                "de.unikn.knime.core.node.meta.MetaNodeFactory11",
-                "de.unikn.knime.core.node.meta.MetaNodeFactory21",
-                "de.unikn.knime.core.node.meta.MetaNodeFactory12",
-                "de.unikn.knime.core.node.meta.MetaNodeFactory22",
-                "de.unikn.knime.dev.node.xvalidation.XValidateNodeFactory",
-                "de.unikn.knime.dev.node.looper.LooperFactory"
-            ));
+    private static final List<String> OLD_META_NODES = Collections.unmodifiableList(Arrays.asList(//
+        "org.knime.base.node.meta.MetaNodeFactory01", //
+        "org.knime.base.node.meta.MetaNodeFactory11", //
+        "org.knime.base.node.meta.MetaNodeFactory21", //
+        "org.knime.base.node.meta.MetaNodeFactory12", //
+        "org.knime.base.node.meta.MetaNodeFactory22", //
+        "org.knime.base.node.meta.xvalidation.XValidateNodeFactory", //
+        "org.knime.base.node.meta.looper.LooperFactory", //
+        "de.unikn.knime.core.node.meta.MetaNodeFactory01", //
+        "de.unikn.knime.core.node.meta.MetaNodeFactory11", //
+        "de.unikn.knime.core.node.meta.MetaNodeFactory21", //
+        "de.unikn.knime.core.node.meta.MetaNodeFactory12", //
+        "de.unikn.knime.core.node.meta.MetaNodeFactory22", //
+        "de.unikn.knime.dev.node.xvalidation.XValidateNodeFactory", //
+        "de.unikn.knime.dev.node.looper.LooperFactory"));
 
     private static final String DEFAULT_WORKFLOW_NAME = "Workflow";
 
@@ -160,7 +158,7 @@ public final class WorkflowLoader {
             if (nodesSettings != null) {
                 nodesSettings.keySet()
                     .forEach(key -> builder.putToNodes(key,
-                        () -> loadNode(nodesSettings.getConfigBase(key), workflowConfig, directory, loadVersion),
+                        () -> loadNode(nodesSettings.getConfigBase(key), directory, loadVersion),
                         new NativeNodeDefBuilder().build()));
             }
         } catch (InvalidSettingsException ex) {
@@ -219,19 +217,19 @@ public final class WorkflowLoader {
      * @param workflowFormatVersion
      * @return a node describing what's behind the given node id (might be a metanode, component, or native node).
      */
-    private static BaseNodeDef loadNode(final ConfigBaseRO nodeConfig, final ConfigBaseRO workflowConfig,
-        final File workflowDir, final LoadVersion workflowFormatVersion) throws InvalidSettingsException, IOException {
+    private static BaseNodeDef loadNode(final ConfigBaseRO nodeConfig, final File workflowDir,
+        final LoadVersion workflowFormatVersion) throws InvalidSettingsException, IOException {
 
         var settingsFile = LoaderUtils.loadNodeFile(nodeConfig, workflowDir);
         var nodeDirectory = settingsFile.getParentFile();
 
         switch (loadNodeType(nodeConfig, workflowFormatVersion)) {
             case METANODE:
-                return MetaNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
+                return MetaNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion);
             case NATIVENODE:
-                return NativeNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
+                return NativeNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion);
             case COMPONENT:
-                return ComponentNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
+                return ComponentNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion);
             default:
                 throw new IllegalStateException("Unknown node type");
         }

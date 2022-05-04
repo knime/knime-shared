@@ -54,7 +54,10 @@ import java.io.IOException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.shared.workflow.def.BaseNodeDef;
-import org.knime.shared.workflow.def.BoundsDef;
+import org.knime.shared.workflow.def.ComponentNodeDef;
+import org.knime.shared.workflow.def.CreatorDef;
+import org.knime.shared.workflow.def.MetaNodeDef;
+import org.knime.shared.workflow.def.NativeNodeDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 
@@ -65,55 +68,74 @@ import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
  */
 abstract class BaseNodeSaver {
 
-    private BaseNodeDef m_baseNode;
+    private final BaseNodeDef m_baseNode;
 
     BaseNodeSaver(final BaseNodeDef baseNode) {
         m_baseNode = baseNode;
     }
 
     /**
-     * Saves the description of the node to disk
+     * Get an instance of either a NativeNode-, MetaNode- or ComponentNodeSaver, depending on the provided node type
      *
-     * @param workflowDirectory The parent workflow directory
-     * @param workflowNodeSettings The parent workflow settings entry corresponding to the node
-     * @throws IOException If there's a problem with writing to disk
+     * @param node The input node that should be saved
+     * @param creator Creator information that will be added to the MetaNode- and ComponentNodeSaver
+     * @return A saver instance
      */
-    abstract void save(final File workflowDirectory, final ConfigBase workflowNodeSettings) throws IOException;
+    static BaseNodeSaver getInstance(final BaseNodeDef node, final CreatorDef creator) {
+        var type = node.getNodeType();
+        if (type != null) {
+            switch (type) {
+                case NATIVENODE:
+                    return new NativeNodeSaver((NativeNodeDef)node);
+                case METANODE:
+                    return new MetaNodeSaver((MetaNodeDef)node, creator);
+                case COMPONENT:
+                    return new ComponentNodeSaver((ComponentNodeDef)node, creator);
+            }
+            throw new IllegalStateException("Unknown node type " + type.toString() + " -- cannot instantiate saver");
+        }
+        throw new IllegalStateException("Node type cannot be null of node with id " + node.getId());
+    }
 
     /**
-     * Extends the node settings to include the properties of the base node
+     * Saves the description of the node to disk
+     *
+     * @param nodeDirectory An already created node directory
+     * @param parentWorkflowNodeSettings The parent workflow settings entry corresponding to the node (can be null for
+     *            standalones)
+     * @throws IOException If there's a problem with writing to disk
+     */
+    abstract void save(final File nodeDirectory, final ConfigBase parentWorkflowNodeSettings) throws IOException;
+
+    /**
+     * Extends the node settings to include the properties of the node
+     *
+     * @param nodeSettings The {@link ConfigBase} of the settings.xml (or workflow.knime in case of meta node) file
      */
     void addNodeSettings(final ConfigBase nodeSettings) {
-        addAnnotationData(nodeSettings);
+        SaverUtils.addAnnotationData(nodeSettings, m_baseNode.getAnnotation());
         nodeSettings.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), m_baseNode.getCustomDescription());
         addJobManager(nodeSettings);
         addLocks(nodeSettings);
     }
 
-    void addWorkflowNodeSettings(final ConfigBase workflowNodeSettings) {
-        workflowNodeSettings.addInt(IOConst.ID_KEY.get(), m_baseNode.getId());
-        addUiInfo(workflowNodeSettings);
-    }
-
-    private void addUiInfo(final ConfigBase workflowNodeSettings) {
-        workflowNodeSettings.addString(IOConst.UI_CLASSNAME_KEY.get(), IOConst.UI_INFORMATION_CLASSNAME.get());
-
-        var uiInfo = m_baseNode.getUiInfo();
-        ConfigBase nodeUIConfig = new SimpleConfig(IOConst.UI_SETTINGS_KEY.get());
-
-        BoundsDef bounds = uiInfo.getBounds();
-        if (bounds != null) {
-            var boundsArray = new int[4];
-            boundsArray[0] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getX();
-            boundsArray[1] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getY();
-            boundsArray[2] = (bounds.getHeight() == null) ? 0 : bounds.getHeight();
-            boundsArray[3] = (bounds.getWidth() == null) ? 0 : bounds.getWidth();
-            nodeUIConfig.addIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get(), boundsArray);
-        }
-        workflowNodeSettings.addEntry(nodeUIConfig);
+    /**
+     * Extends the entry in the parent workflow.knime file to contain the properties of the node
+     *
+     * @param parentWorkflowNodeSettings The {@link ConfigBase} of the corresponding entry (key is e.g. "node_42")
+     */
+    void addParentWorkflowNodeSettings(final ConfigBase parentWorkflowNodeSettings) {
+        parentWorkflowNodeSettings.addInt(IOConst.ID_KEY.get(), m_baseNode.getId());
+        var nodeType = m_baseNode.getNodeType();
+        parentWorkflowNodeSettings.addString(IOConst.WORKFLOW_NODES_NODE_TYPE_KEY.get(),
+            SaverUtils.nodeTypeString.get(nodeType));
+        parentWorkflowNodeSettings.addBoolean(IOConst.WORKFLOW_NODES_NODE_IS_META_KEY.get(),
+            SaverUtils.isNodeTypeMeta.get(nodeType));
+        SaverUtils.addUiInfo(parentWorkflowNodeSettings, m_baseNode.getUiInfo());
     }
 
     private void addLocks(final ConfigBase nodeSettings) {
+        // no sonar here because we assume the Boolean values to be non-null. Suppressing rule java:S5411.
         var nodeLocks = m_baseNode.getLocks();
         if (nodeLocks.hasConfigureLock()) {//NOSONAR
             nodeSettings.addBoolean(IOConst.HAS_CONFIGURE_LOCK_KEY.get(), true);
@@ -126,22 +148,13 @@ abstract class BaseNodeSaver {
         }
     }
 
-    private void addAnnotationData(final ConfigBase nodeSettings) {
-        var annotation = m_baseNode.getAnnotation();
-        var annotationData = annotation.getData();
-        if (annotationData != null && !annotation.isAnnotationDefault()) {
-            nodeSettings
-                .addEntry(SaverUtils.annotationToConfig(annotation.getData(), IOConst.NODE_ANNOTATION_KEY.get()));
-        }
-    }
-
     private void addJobManager(final ConfigBase nodeSettings) {
         var jobManager = m_baseNode.getJobManager();
         if (jobManager.getSettings() != null) {
             var jobManagerSettings = new SimpleConfig(IOConst.JOB_MANAGER_KEY.get());
             jobManagerSettings.addString(IOConst.JOB_MANAGER_FACTORY_ID_KEY.get(), jobManager.getFactory());
             jobManagerSettings
-                .addEntry(SaverUtils.toConfigBase(jobManager.getSettings(), IOConst.JOB_MANAGER_SETTINGS_KEY.get()));
+                .addEntry(SaverUtils.toConfigEntry(jobManager.getSettings(), IOConst.JOB_MANAGER_SETTINGS_KEY.get()));
             nodeSettings.addEntry(jobManagerSettings);
         }
     }

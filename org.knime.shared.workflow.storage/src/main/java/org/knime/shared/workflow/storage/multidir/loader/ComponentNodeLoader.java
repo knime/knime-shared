@@ -226,25 +226,25 @@ public final class ComponentNodeLoader {
     /**
      * Loads the component's metadata from the {@code settings}
      *
-     * @param settings a read only representation of the node's settings.xml.
+     * @param metadataSettings a read only representation of the node's settings.xml.
      * @return a {@link ComponenetMetadataDef}
      * @throws InvalidSettingsException
      */
     private static ComponentMetadataDef loadMetadata(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (!settings.containsKey(IOConst.DESCRIPTION_KEY.get())) {
+        var metadataSettings = settings.getConfigBase(IOConst.METADATA_KEY.get());
+        if (!metadataSettings.containsKey(IOConst.DESCRIPTION_KEY.get())) {
             return new ComponentMetadataDefBuilder().build();
         }
 
-        var metadataSettings = settings.getConfigBase(IOConst.METADATA_KEY.get());
         return new ComponentMetadataDefBuilder() //
             .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()), DEFAULT_EMPTY_STRING)
             .setIcon(() -> loadIcon(metadataSettings), DEFAULT_ICON)
-            .setInPortDescriptions(() -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(),
-                    IOConst.DESCRIPTION_KEY.get()))
-            .setInPortNames(() -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(),
-                IOConst.METADATA_NAME_KEY.get()))
-            .setOutPortDescriptions(() -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(),
-                IOConst.DESCRIPTION_KEY.get()))
+            .setInPortDescriptions(
+                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get()))
+            .setInPortNames(
+                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.METADATA_NAME_KEY.get()))
+            .setOutPortDescriptions(
+                () -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get()))
             .setOutPortNames(() -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(),
                 IOConst.METADATA_NAME_KEY.get()))
             .build();

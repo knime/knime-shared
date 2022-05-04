@@ -60,26 +60,24 @@ import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
  */
 abstract class SingleNodeSaver extends BaseNodeSaver {
 
-    private ConfigurableNodeDef m_configurableNode;
+    private final ConfigurableNodeDef m_singleNode;
 
-    SingleNodeSaver(final ConfigurableNodeDef configurableNode) {
-        super(configurableNode);
-        m_configurableNode = configurableNode;
+    SingleNodeSaver(final ConfigurableNodeDef singleNode) {
+        super(singleNode);
+        m_singleNode = singleNode;
     }
 
     /**
-     * Extends the node settings to include the properties of the configurable node
+     * {@inheritDoc}
      */
     @Override
     void addNodeSettings(final ConfigBase nodeSettings) {
         nodeSettings.addString(IOConst.NODE_FILE_KEY.get(), IOConst.NODE_SETTINGS_FILE_NAME.get());
-        nodeSettings.addEntry(SaverUtils.toConfigBase(m_configurableNode.getInternalNodeSubSettings(),
+        nodeSettings.addEntry(SaverUtils.toConfigEntry(m_singleNode.getInternalNodeSubSettings(),
             IOConst.INTERNAL_NODE_SUBSETTINGS.get()));
-        nodeSettings.addEntry(SaverUtils.toConfigBase(m_configurableNode.getModelSettings(), IOConst.MODEL_KEY.get()));
-        if (!m_configurableNode.getVariableSettings().getChildren().isEmpty()) {
-            nodeSettings.addEntry(
-                SaverUtils.toConfigBase(m_configurableNode.getVariableSettings(), IOConst.VARIABLES_KEY.get()));
-        }
+        nodeSettings.addEntry(SaverUtils.toConfigEntry(m_singleNode.getModelSettings(), IOConst.MODEL_KEY.get()));
+        nodeSettings
+            .addEntry(SaverUtils.toConfigEntry(m_singleNode.getVariableSettings(), IOConst.VARIABLES_KEY.get()));
 
         super.addNodeSettings(nodeSettings);
     }

@@ -59,11 +59,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
+import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
-import org.knime.shared.workflow.storage.multidir.loader.MetaNodeLoader;
 
 /**
  *
@@ -120,14 +120,15 @@ class MetaNodeLoaderTest {
     @Test
     void linkMetaNodetLoaderTest() throws IOException, InvalidSettingsException {
         // given
-        var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/Metanode_Link");
+        var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/MetanodeTest (#12)");
 
         when(m_configBaseRO.getInt("id")).thenReturn(431);
         when(m_configBaseRO.containsKey("customDescription")).thenReturn(false);
         when(m_configBaseRO.containsKey("annotations")).thenReturn(false);
-        when(m_configBaseRO.containsKey("extrainfo.node.bounds")).thenReturn(true);
-        when(m_configBaseRO.getIntArray("extrainfo.node.bounds")) //
-            .thenReturn(new int[]{2541, 1117, 122, 65});
+        when(m_configBaseRO.containsKey("ui_settings")).thenReturn(true);
+        var uiSettings = new SimpleConfig("ui_settings");
+        uiSettings.addIntArray("extrainfo.node.bounds", new int[]{2541, 1117, 122, 65});
+        when(m_configBaseRO.getConfigBase("ui_settings")).thenReturn(uiSettings);
 
         // when
         var metanodeDef = MetaNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);

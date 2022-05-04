@@ -149,7 +149,7 @@ public final class LoaderUtils {
 
     public static final ConfigMapDef DEFAULT_CONFIG_MAP = new ConfigMapDefBuilder().build();
 
-    public static final TemplateInfoDef DEFAULT_TEMPLATE_LINK = new TemplateInfoDefBuilder().setUri("TEST").build();
+    public static final TemplateInfoDef DEFAULT_TEMPLATE_LINK = new TemplateInfoDefBuilder().build();
 
     public static OffsetDateTime parseDate(final String s) {
         synchronized (DATE_FORMAT) {
@@ -354,15 +354,15 @@ public final class LoaderUtils {
 
 
     /**
-     * Recursive function to create a node settings tree (comprising {@link AbstractConfigEntry}s) from a
-     * {@link ConfigDef} tree.
+     * Create a {@link ConfigDef} tree from a {@link ConfigBase} tree.
      *
-     * @param settings an entity containing the recursive node settings
+     * @param settings either a primitive value (float, boolean, int, etc.) or a recursive key-value map.
      * @param key the name of this subtree
      * @param passwordHandler post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
+     * @return a POJO representation of the key-value map
      * @throws InvalidSettingsException
      */
-    private static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key,
+    public static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key,
         final PasswordRedactor passwordHandler) throws InvalidSettingsException {
 
         if (settings instanceof ConfigBase) {

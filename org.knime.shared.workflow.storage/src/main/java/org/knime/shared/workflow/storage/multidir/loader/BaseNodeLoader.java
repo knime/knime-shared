@@ -251,11 +251,12 @@ final class BaseNodeLoader {
     }
 
     private static DefaultBoundsDef loadBoundsDef(final ConfigBaseRO settings) throws InvalidSettingsException {
-        if (!settings.containsKey(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get())) {
+        var uiSettings = settings.getConfigBase(IOConst.UI_SETTINGS_KEY.get());
+        if (!uiSettings.containsKey(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get())) {
             return (DefaultBoundsDef)DEFAULT_BOUNDS;
         }
         try {
-            var bounds = settings.getIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get());
+            var bounds = uiSettings.getIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get());
             if (bounds.length == 0 || bounds.length < 4) {
                 return (DefaultBoundsDef)DEFAULT_BOUNDS;
             }

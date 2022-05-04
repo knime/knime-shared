@@ -50,14 +50,31 @@ package org.knime.shared.workflow.storage.multidir.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.knime.core.node.config.base.AbstractConfigEntry;
 import org.knime.core.node.config.base.ConfigBase;
+import org.knime.core.node.config.base.ConfigBaseWO;
+import org.knime.core.node.config.base.ConfigBooleanEntry;
+import org.knime.core.node.config.base.ConfigByteEntry;
+import org.knime.core.node.config.base.ConfigCharEntry;
+import org.knime.core.node.config.base.ConfigDoubleEntry;
+import org.knime.core.node.config.base.ConfigFloatEntry;
+import org.knime.core.node.config.base.ConfigIntEntry;
+import org.knime.core.node.config.base.ConfigLongEntry;
+import org.knime.core.node.config.base.ConfigShortEntry;
+import org.knime.core.node.config.base.ConfigStringEntry;
 import org.knime.core.node.config.base.SimpleConfig;
+import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.AnnotationDataDef;
+import org.knime.shared.workflow.def.BaseNodeDef;
 import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
+import org.knime.shared.workflow.def.BoundsDef;
+import org.knime.shared.workflow.def.ComponentNodeDef;
 import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.ConfigValueArrayDef;
@@ -80,6 +97,16 @@ import org.knime.shared.workflow.def.ConfigValueShortArrayDef;
 import org.knime.shared.workflow.def.ConfigValueShortDef;
 import org.knime.shared.workflow.def.ConfigValueStringArrayDef;
 import org.knime.shared.workflow.def.ConfigValueStringDef;
+import org.knime.shared.workflow.def.ConnectionUISettingsDef;
+import org.knime.shared.workflow.def.CreatorDef;
+import org.knime.shared.workflow.def.CredentialPlaceholderDef;
+import org.knime.shared.workflow.def.FlowVariableDef;
+import org.knime.shared.workflow.def.MetaNodeDef;
+import org.knime.shared.workflow.def.NativeNodeDef;
+import org.knime.shared.workflow.def.NodeAnnotationDef;
+import org.knime.shared.workflow.def.NodeUIInfoDef;
+import org.knime.shared.workflow.def.PortDef;
+import org.knime.shared.workflow.def.TemplateInfoDef;
 
 /**
  * Utility class for the workflow saver
@@ -92,6 +119,24 @@ public final class SaverUtils {
     }
 
     /**
+     * Maps a node type to the appropriate value for the config key "is_node_meta"
+     */
+    public static final Map<NodeTypeEnum, Boolean> isNodeTypeMeta = Map.of( //NOSONAR
+        NodeTypeEnum.NATIVENODE, false, //
+        NodeTypeEnum.COMPONENT, true, //
+        NodeTypeEnum.METANODE, true //
+    );
+
+    /**
+     * Maps a node type to the appropriate String for the config key "node_type"
+     */
+    public static final Map<NodeTypeEnum, String> nodeTypeString = Map.of( //
+        NodeTypeEnum.NATIVENODE, "NativeNode", //
+        NodeTypeEnum.COMPONENT, "SubNode", //
+        NodeTypeEnum.METANODE, "MetaNode" //
+    );
+
+    /**
      * Invokes {@link ConfigBase#addEntry} only if the entry is not null
      *
      * @param settings The ConfigBase to which the entry might be added
@@ -100,30 +145,186 @@ public final class SaverUtils {
      */
     public static void addEntryIfNotNull(final ConfigBase settings, final ConfigDef config, final String key) {
         if (config != null) {
-            settings.addEntry(toConfigBase(config, key));
+            settings.addEntry(toConfigEntry(config, key));
+        }
+    }
+
+    /**
+     * Adds creator info to a given {@link ConfigBase}, if not null
+     *
+     * @param settings
+     * @param creator
+     */
+    public static void addCreatorInfo(final ConfigBaseWO settings, final CreatorDef creator) {
+        if (creator != null) {
+            settings.addString(IOConst.WORKFLOW_HEADER_CREATED_BY_KEY.get(), creator.getSavedWithVersion());
+            settings.addBoolean(IOConst.WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY.get(), creator.isNightly());
+            settings.addString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get(), LoadVersion.latest().getVersionString());
+        }
+    }
+
+    /**
+     * Add UI Information to a given {@link ConfigBase}
+     *
+     * @param settings The configBase in which to add the UI Info
+     * @param uiInfo The definition of the UI Information
+     */
+    public static void addUiInfo(final ConfigBase settings, final NodeUIInfoDef uiInfo) {
+        settings.addString(IOConst.UI_CLASSNAME_KEY.get(), IOConst.NODE_UI_INFORMATION_CLASSNAME.get());
+
+        BoundsDef bounds = uiInfo.getBounds();
+        if (bounds != null) {
+            ConfigBase nodeUIConfig = new SimpleConfig(IOConst.UI_SETTINGS_KEY.get());
+            var boundsArray = new int[4];
+            boundsArray[0] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getX();
+            boundsArray[1] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getY();
+            boundsArray[2] = (bounds.getHeight() == null) ? 0 : bounds.getHeight();
+            boundsArray[3] = (bounds.getWidth() == null) ? 0 : bounds.getWidth();
+            nodeUIConfig.addIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get(), boundsArray);
+            settings.addEntry(nodeUIConfig);
+        }
+    }
+
+    /**
+     * Add Connection UI Settings to a given {@link ConfigBase}
+     *
+     * @param settings The ConfigBase in which to add the UI info
+     * @param uiSettings The definition of the UI settings
+     */
+    public static void addConnectionUISettings(final ConfigBase settings, final ConnectionUISettingsDef uiSettings) {
+        if (uiSettings != null) {
+            settings.addString(IOConst.UI_CLASSNAME_KEY.get(), IOConst.CONNECTION_UI_INFORMATION_CLASSNAME.get());
+
+            var connectionUIConfig = new SimpleConfig(IOConst.UI_SETTINGS_KEY.get());
+            var bendpoints = uiSettings.getBendPoints();
+            connectionUIConfig.addInt(IOConst.EXTRA_INFO_CONNECTION_BENDPOINTS_SIZE_KEY.get(), bendpoints.size());
+            bendpoints.forEach(coordinate -> connectionUIConfig.addIntArray(
+                IOConst.EXTRA_INFO_CONNECTION_BENDPOINTS_KEY.get() + "_" + (connectionUIConfig.getChildCount() + 1),
+                coordinate.getX(), coordinate.getY()));
+            settings.addEntry(connectionUIConfig);
+        }
+    }
+
+    /**
+     * Adds the port definition to a given array of ports
+     *
+     * @param ports The parent port array
+     * @param prefix The prefix of the key of a port
+     * @param port The port description
+     */
+    public static void addPort(final ConfigBase ports, final String prefix, final PortDef port) {
+        var portSettings = new SimpleConfig(prefix + port.getIndex());
+        portSettings.addInt(IOConst.PORT_INDEX_KEY.get(), port.getIndex());
+        if (port.getName() != null) {
+            portSettings.addString(IOConst.PORT_NAME_KEY.get(), port.getName());
+        }
+
+        var portType = new SimpleConfig(IOConst.PORT_TYPE_KEY.get());
+        portType.addString(IOConst.PORT_OBJECT_CLASS_KEY.get(), port.getPortType().getPortObjectClass());
+        portSettings.addEntry(portType);
+
+        ports.addEntry(portSettings);
+    }
+
+    /**
+     * Add a nodeAnnotation to a configBase
+     *
+     * @param settings The {@code ConfigBase} that the entry will be added to
+     * @param annotation The annotation description
+     *
+     */
+    public static void addAnnotationData(final ConfigBase settings, final NodeAnnotationDef annotation) {
+        var annotationData = annotation.getData();
+        if (annotationData != null && !annotation.isAnnotationDefault()) {
+            settings.addEntry(annotationToConfig(annotation.getData(), IOConst.NODE_ANNOTATION_KEY.get()));
+        }
+    }
+
+    /**
+     * Add templateInfo to a configBase
+     *
+     * @param settings
+     * @param templateInfo
+     * @param nodeType
+     */
+    public static void addTemplateInfo(final ConfigBase settings, final TemplateInfoDef templateInfo,
+        final NodeTypeEnum nodeType) {
+        var templateSettings = new SimpleConfig(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
+        var role = (templateInfo.getUri() == null) ? IOConst.WORKFLOW_TEMPLATE_ROLE_TEMPLATE
+            : IOConst.WORKFLOW_TEMPLATE_ROLE_LINK;
+        templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get(), role.get());
+        templateSettings.addString(IOConst.TIMESTAMP.get(),
+            templateInfo.getUpdatedAt().format(LoaderUtils.DATE_FORMAT));
+        templateSettings.addString(IOConst.SOURCE_URI_KEY.get(), templateInfo.getUri());
+        if (role == IOConst.WORKFLOW_TEMPLATE_ROLE_TEMPLATE) {
+            templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_TYPE_KEY.get(), nodeTypeString.get(nodeType));
+        }
+        settings.addEntry(templateSettings);
+    }
+
+    /**
+     * Add credential placeholders to a configBase
+     *
+     * @param settings
+     * @param credentials
+     */
+    public static void addCredentials(final ConfigBase settings,
+        final Iterable<? extends CredentialPlaceholderDef> credentials) {
+        ConfigBase credentialSettings = new SimpleConfig(IOConst.CREDENTIAL_PLACEHOLDERS_KEY.get());
+        credentials.forEach(c -> {
+            var credential = new SimpleConfig(c.getName());
+            credential.addString(IOConst.CREDENTIAL_PLACEHOLDER_NAME_KEY.get(), c.getName());
+            credential.addString(IOConst.CREDENTIAL_PLACEHOLDER_LOGIN_KEY.get(), c.getLogin());
+            credentialSettings.addEntry(credential);
+        });
+        settings.addEntry(credentialSettings);
+    }
+
+    /**
+     * Add global flow variables to a configBase
+     *
+     * @param settings
+     * @param variables
+     */
+    public static void addFlowVariables(final ConfigBase settings,
+        final Collection<? extends FlowVariableDef> variables) {
+        if (!variables.isEmpty()) {
+            ConfigBase variablesSettings = new SimpleConfig(IOConst.WORKFLOW_VARIABLES_KEY.get());
+            variables.forEach(v -> {
+                var index = variablesSettings.getChildCount();
+                var variable = new SimpleConfig(IOConst.WORKFLOW_VARIABLE_PREFIX.get() + index);
+                variable.addString(IOConst.FLOW_VARIABLE_NAME_KEY.get(), v.getName());
+                variable.addString(IOConst.FLOW_VARIABLE_CLASS_KEY.get(), v.getPropertyClass());
+                variable.addEntry(toConfigEntry(v.getValue(), IOConst.FLOW_VARIABLE_VALUE_KEY.get()));
+                variablesSettings.addEntry(variable);
+            });
+            settings.addEntry(variablesSettings);
         }
     }
 
     /**
      * Helper function that recursively converts a {@link ConfigDef}-object to a {@link ConfigBase} that can be written
-     * to an XML file.
+     * to an XML file. **Inspired** by DefToCoreUtil#toNodeSettings.
      *
      * @param configDef The def object containing configuration key-value pairs.
      * @param key The root key for the to-be-created config.
      * @return A new ConfigBase instance filled with items from the input def.
      */
-    public static ConfigBase toConfigBase(final ConfigDef configDef, final String key) {
-        // These methods use the same logic as org.knime.shared.workflow.def.DefToCoreUtil#toNodeSettings etc.
+    public static AbstractConfigEntry toConfigEntry(final ConfigDef configDef, final String key) {
+        if (configDef instanceof ConfigValueDef) {
+            return toConfigValue((ConfigValueDef)configDef, key);
+        }
         if (configDef instanceof ConfigValueArrayDef) {
             return toConfigBaseArray((ConfigValueArrayDef)configDef, key);
-        } else if (configDef instanceof ConfigMapDef) {
+        }
+        if (configDef instanceof ConfigMapDef) {
             var configBase = new SimpleConfig(key);
             var configMapDef = (ConfigMapDef)configDef;
             configMapDef.getChildren().forEach((k, v) -> {
                 if (v instanceof ConfigValueDef) {
-                    addLeafToConfigBase(configBase, k, v);
+                    configBase.addEntry(toConfigValue((ConfigValueDef)v, k));
                 } else {
-                    var child = toConfigBase(v, k);
+                    var child = toConfigEntry(v, k);
                     configBase.addEntry(child);
                 }
             });
@@ -134,36 +335,47 @@ public final class SaverUtils {
         }
     }
 
-    private static void addLeafToConfigBase(final ConfigBase configBase, final String key, final ConfigDef leafDef) {
-        if (leafDef instanceof ConfigValueBooleanDef) {
-            boolean value = ((ConfigValueBooleanDef)leafDef).isValue();
-            configBase.addBoolean(key, value);
-        } else if (leafDef instanceof ConfigValueCharDef) {
-            char value = (char)((ConfigValueCharDef)leafDef).getValue().intValue();
-            configBase.addChar(key, value);
-        } else if (leafDef instanceof ConfigValueDoubleDef) {
-            double value = ((ConfigValueDoubleDef)leafDef).getValue();
-            configBase.addDouble(key, value);
-        } else if (leafDef instanceof ConfigValueFloatDef) {
-            float value = ((ConfigValueFloatDef)leafDef).getValue();
-            configBase.addFloat(key, value);
-        } else if (leafDef instanceof ConfigValueIntDef) {
-            int value = ((ConfigValueIntDef)leafDef).getValue();
-            configBase.addInt(key, value);
-        } else if (leafDef instanceof ConfigValueLongDef) {
-            long value = ((ConfigValueLongDef)leafDef).getValue();
-            configBase.addLong(key, value);
-        } else if (leafDef instanceof ConfigValueByteDef) {
-            byte value = (byte)((ConfigValueByteDef)leafDef).getValue().intValue();
-            configBase.addByte(key, value);
-        } else if (leafDef instanceof ConfigValueShortDef) {
-            short value = (short)((ConfigValueShortDef)leafDef).getValue().intValue();
-            configBase.addShort(key, value);
-        } else if (leafDef instanceof ConfigValueStringDef) {
-            String value = ((ConfigValueStringDef)leafDef).getValue();
-            configBase.addString(key, value);
+    @SuppressWarnings({"squid:S1541", "squid:S1142"})
+    private static AbstractConfigEntry toConfigValue(final ConfigValueDef valueDef, final String key) {
+        if (valueDef instanceof ConfigValueBooleanDef) {
+            boolean value = ((ConfigValueBooleanDef)valueDef).isValue();
+            return new ConfigBooleanEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueCharDef) {
+            char value = (char)((ConfigValueCharDef)valueDef).getValue().intValue();
+            return new ConfigCharEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueDoubleDef) {
+            double value = ((ConfigValueDoubleDef)valueDef).getValue();
+            return new ConfigDoubleEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueFloatDef) {
+            float value = ((ConfigValueFloatDef)valueDef).getValue();
+            return new ConfigFloatEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueIntDef) {
+            int value = ((ConfigValueIntDef)valueDef).getValue();
+            return new ConfigIntEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueLongDef) {
+            long value = ((ConfigValueLongDef)valueDef).getValue();
+            return new ConfigLongEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueByteDef) {
+            byte value = (byte)((ConfigValueByteDef)valueDef).getValue().intValue();
+            return new ConfigByteEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueShortDef) {
+            short value = (short)((ConfigValueShortDef)valueDef).getValue().intValue();
+            return new ConfigShortEntry(key, value);
+        }
+        if (valueDef instanceof ConfigValueStringDef) {
+            String value = ((ConfigValueStringDef)valueDef).getValue();
+            return new ConfigStringEntry(key, value);
         }
         // TODO password need passphrase to decode //NOSONAR
+        throw new IllegalStateException(
+            String.format("Could not parse ConfigValueDef (is %snull)", (valueDef == null) ? " " : "not "));
     }
 
     @SuppressWarnings("squid:S6212")
@@ -279,38 +491,31 @@ public final class SaverUtils {
      * directory with the name (e.g.) {@code parentDir/Node Name (#123)/}
      *
      * @param parent The parent directory (usually that of a workflow)
-     * @param safeName A name which has already been freed from illegal characters (and probably trimmed)
-     * @param nodeID The numerical ID of the node
-     * @return The node directory
+     * @param node The node for which the directory will be created (relevant for node name and id)
+     * @return The newly created node directory
      * @throws FileNotFoundException If the parent directory doesn't exist or cannot be written to
      */
-    public static File createNodeDir(final File parent, final String safeName, final int nodeID)
-        throws FileNotFoundException {
+    public static File createNodeDir(final File parent, final BaseNodeDef node) throws FileNotFoundException {
         if (!(parent.exists() && parent.isDirectory() && parent.canWrite())) {
             throw new FileNotFoundException(
                 "The directory " + parent.getAbsolutePath() + " does not exist or cannot be written to.");
         }
-        var dirName = String.format("%s (#%d)", safeName, nodeID);
+        String safeNodeName = null;
+        switch (node.getNodeType()) {
+            case COMPONENT:
+                safeNodeName = SaverUtils.getValidFileName(((ComponentNodeDef)node).getWorkflow().getName(), 12);
+                break;
+            case METANODE:
+                safeNodeName = SaverUtils.getValidFileName(((MetaNodeDef)node).getWorkflow().getName(), 12);
+                break;
+            case NATIVENODE:
+                safeNodeName = SaverUtils.getValidFileName(((NativeNodeDef)node).getNodeName(), -1);
+                break;
+        }
+        var dirName = String.format("%s (#%d)", safeNodeName, node.getId());
         var directory = new File(parent, dirName);
         directory.mkdir();
         return directory;
-    }
-
-    /**
-     * Determines if a node type is meta (yes, except native node). This should probably be a function of the
-     * {@link NodeTypeEnum}, but we shouldn't mess with generated sources...
-     *
-     * @param type The type to check for
-     * @return If the input type is meta
-     */
-    public static boolean isNodeTypeMeta(final NodeTypeEnum type) {
-        switch (type) {
-            case COMPONENT:
-            case METANODE:
-                return true;
-            default:
-                return false;
-        }
     }
 
     private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");

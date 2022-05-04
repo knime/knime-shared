@@ -56,52 +56,70 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.NativeNodeDef;
 import org.knime.shared.workflow.storage.multidir.loader.NativeNodeLoader;
 import org.knime.shared.workflow.storage.multidir.loader.NodeLoaderTestUtils;
-import org.knime.shared.workflow.storage.multidir.saver.NativeNodeSaver;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 
 /**
  * Tests the NativeNodeSaver by executing load-save-load round trips and making sure no information is lost
  *
- * @author Jasper Krauter, KNIME AG, Zurich, Switzerland
+ * @author Jasper Krauter, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
+@SuppressWarnings({"squid:S2698", "squid:S5961"})
 class NativeNodeSaverTest {
 
-    private static final Set<String> excludedKeys =
-        new HashSet<>(Arrays.asList("flow_stack", "state", "hasContent", "isInactive", "ports", "filestores"));
+    private static final Set<String> excludedKeys = new HashSet<>(Arrays.asList("flow_stack", "state", "hasContent",
+        "isInactive", "ports", "filestores"));
+
+    static File OUTPUT_DIRECTORY;
+
+    @BeforeAll
+    static void setUp() throws IOException {
+        OUTPUT_DIRECTORY = NodeLoaderTestUtils.readResourceFolder(SaverTestUtils.OUTPUT_DIR_NAME);
+        OUTPUT_DIRECTORY.mkdir();
+        FileUtils.cleanDirectory(OUTPUT_DIRECTORY);
+
+    }
 
     /**
      * Load-Save-Load tests for native nodes
      *
      * @throws IOException If the test resource directories cannot be accessed
+     * @throws InvalidSettingsException
      */
-//    @Test
-    void testNativeNodeRoundtrips() throws IOException {
-        testSingleNativeNodeRoundtrip("Component_Template", "Call Workflow Service (#2)");
-        testSingleNativeNodeRoundtrip("Metanode_Template", "Test Data Generator (#1)");
-        testSingleNativeNodeRoundtrip("Workflow_Test", "Table Creator");
-        testSingleNativeNodeRoundtrip("Workflow_Test", "Concatenate (#11)");
-        testSingleNativeNodeRoundtrip("Workflow_Test/Airlines Rou (#8)", "CSV Reader (#1)");
-        testSingleNativeNodeRoundtrip("Workflow_Test/Airlines Rou (#8)", "Joiner (#5)");
+    @Test
+    void testNativeNodeRoundtrips() throws IOException, InvalidSettingsException {
+        testSingleNativeNodeRoundtrip("Component_Template", "Call Workflow Service (#2)", "node_2");
+        testSingleNativeNodeRoundtrip("Metanode_Template", "Test Data Generator (#1)", "node_1");
+        testSingleNativeNodeRoundtrip("Workflow_Test", "Table Creator (#10)", "node_10");
+        testSingleNativeNodeRoundtrip("Workflow_Test", "Concatenate (#11)", "node_11");
+        testSingleNativeNodeRoundtrip("Workflow_Test/Airlines Rou (#8)", "CSV Reader (#1)", "node_1");
+        testSingleNativeNodeRoundtrip("Workflow_Test/Airlines Rou (#8)", "Joiner (#5)", "node_5");
     }
 
     /**
      * Load-save-load for a single native node.
      *
      * @throws IOException If the test resource directories cannot be accessed
+     * @throws InvalidSettingsException
      */
-    void testSingleNativeNodeRoundtrip(final String workflowDirName, final String nodeDirName) throws IOException {
+    void testSingleNativeNodeRoundtrip(final String workflowDirName, final String nodeDirName, final String nodeKey)
+        throws IOException, InvalidSettingsException {
         // given
         var workflowDirectory = NodeLoaderTestUtils.readResourceFolder(workflowDirName);
-        var workflowConfig = LoaderUtils.readWorkflowConfigFromFile(workflowDirectory);
+        var workflowConfig =
+            LoaderUtils.readWorkflowConfigFromFile(workflowDirectory).getConfigBase("nodes").getConfigBase(nodeKey);
         var nodeDirectory = new File(workflowDirectory, nodeDirName);
 
         // the original settings.xml
@@ -111,22 +129,21 @@ class NativeNodeSaverTest {
         NativeNodeDef nativeNodeDef = NativeNodeLoader.load(workflowConfig, nodeDirectory, LoadVersion.V4010);
         // assume that `load` works, tested in NativeNodeLoaderTest
 
-        // when
-        var outputWorkflowDirectory = NodeLoaderTestUtils.readResourceFolder("Workflow_Test_Output");
-        outputWorkflowDirectory.mkdir();
-
         // These settings will be properly tested in the WorkflowSaverTest
         var workflowNodeSettings = new SimpleConfig("node_" + nativeNodeDef.getId());
 
+        String outputDirname = String.format("%s (#%d)", nativeNodeDef.getNodeName(), nativeNodeDef.getId());
+        var outputNodeDir = new File(OUTPUT_DIRECTORY, outputDirname);
+        outputNodeDir.mkdir();
+
         var saver = new NativeNodeSaver(nativeNodeDef);
-        saver.save(outputWorkflowDirectory, workflowNodeSettings);
+        saver.save(outputNodeDir, workflowNodeSettings);
 
         // then
-        String outputDirname = String.format("%s (#%d)", nativeNodeDef.getNodeName(), nativeNodeDef.getId());
 
         // was the output dir created?
-        File outputDir = new File(outputWorkflowDirectory, outputDirname);
-        assertThat(outputDir).as("Check whether the output path exists").exists();
+        File outputDir = new File(OUTPUT_DIRECTORY, outputDirname);
+        assertThat(outputDir).as("Check whether %s exists", outputDir).exists();
         assertThat(outputDir).as("Check whether the output path is a directory").isDirectory();
 
         // does the settings file exist?
@@ -134,11 +151,10 @@ class NativeNodeSaverTest {
         assertThat(outputFile).as("Check whether the output file exists").exists();
         assertThat(outputFile).as("Check whether the output file is a file").isFile();
 
+        assertThat(new File (outputDir, "template.knime")).as("No template.knime file should exist").doesNotExist();
+
         // The newly written settings.xml
         ConfigBase afterSave = (ConfigBase)SimpleConfig.parseConfig("", outputFile);
-
-        // confirm that all settings are there
-        assertThat(beforeSave).as("Check if no new keys have been introduced").containsAll(afterSave.keySet());
 
         for (var key : beforeSave.keySet()) {
             if (excludedKeys.contains(key)) {
@@ -150,4 +166,8 @@ class NativeNodeSaverTest {
         }
     }
 
+    @AfterAll
+    static void cleanUp() throws IOException {
+        FileUtils.deleteDirectory(OUTPUT_DIRECTORY);
+    }
 }

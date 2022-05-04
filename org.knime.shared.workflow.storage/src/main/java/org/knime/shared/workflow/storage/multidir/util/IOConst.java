@@ -67,6 +67,7 @@ public enum IOConst {
         NODE_FEATURE_VERSION_KEY("node-feature-version"),
         NODE_CREATION_CONFIG_KEY("node_creation_config"),
         NODE_FILE_KEY("node_file"),
+        WORKFLOW_FILE_KEY("workflow-file"),
         FACTORY_KEY("factory"),
         FACTORY_SETTINGS_KEY("factory_settings"),
         FILESTORES_KEY("filestores"), //
@@ -86,6 +87,8 @@ public enum IOConst {
         METADATA_KEY("metadata"), //
         METADATA_NAME_KEY("name"), //
         INPORTS_KEY("inports"), //
+        INPORT_PREFIX("inport_"),
+        OUTPORT_PREFIX("outport_"),
         OUTPORTS_KEY("outports"),
         LAYOUT_JSON_KEY("layoutJSON"),
         CONFIGURATION_LAYOUT_JSON_KEY("configurationLayoutJSON"),
@@ -93,6 +96,10 @@ public enum IOConst {
         HIDE_IN_WIZARD_KEY("hideInWizard"),
 
         WORKFLOW_TEMPLATE_INFORMATION_KEY("workflow_template_information"), //
+        WORKFLOW_TEMPLATE_ROLE_KEY("role"),
+        WORKFLOW_TEMPLATE_ROLE_TEMPLATE("Template"),
+        WORKFLOW_TEMPLATE_ROLE_LINK("Link"),
+        WORKFLOW_TEMPLATE_TYPE_KEY("templateType"),
         SOURCE_URI_KEY("sourceURI"), //
         TIMESTAMP("timestamp"),
         VIRTUAL_IN_ID_KEY("virtual-in-ID"),
@@ -123,9 +130,11 @@ public enum IOConst {
         NODE_SETTINGS_FILE("node_settings_file"),
         NODE_SETTINGS_FILE_NAME("settings.xml"),
         TEMPLATE_FILE_NAME("template.knime"),
+        TEMPLATE_CONFIG_KEY("Template"),
 
         TABLE_BACKEND_KEY("tableBackend"),
         WORKFLOW_VARIABLES_KEY("workflow_variables"),
+        WORKFLOW_VARIABLE_PREFIX("Var_"),
         FLOW_VARIABLE_NAME_KEY("name"),
         FLOW_VARIABLE_VALUE_KEY("value"),
         FLOW_VARIABLE_CLASS_KEY("class"),
@@ -134,7 +143,15 @@ public enum IOConst {
         CREDENTIAL_PLACEHOLDER_NAME_KEY("name"), //
         CREDENTIAL_PLACEHOLDER_LOGIN_KEY("login"), //
 
+        WORKFLOW_HEADER_CREATED_BY_KEY("created_by"),
+        WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY("created_by_nightly"),
+        WORKFLOW_HEADER_VERSION_KEY("version"),
         WORKFLOW_CONNECTIONS_KEY("connections"),
+        WORKFLOW_CONNECTION_PREFIX("connection_"),
+        WORKFLOW_CONNECTION_SOURCE_ID("sourceID"),
+        WORKFLOW_CONNECTION_SOURCE_PORT("sourcePort"),
+        WORKFLOW_CONNECTION_DESTINATION_ID("destID"),
+        WORKFLOW_CONNECTION_DESTINATION_PORT("destPort"),
         WORKFLOW_NODES_KEY("nodes"),
         WORKFLOW_NODE_PREFIX("node_"),
         WORKFLOW_NODES_NODE_TYPE_KEY("node_type"),
@@ -150,11 +167,13 @@ public enum IOConst {
         WORKFLOW_EDITOR_GRID_Y_KEY("workflow.editor.gridY"), //
         WORKFLOW_EDITOR_ZOOM_LEVEL_KEY("workflow.editor.zoomLevel"), //
         UI_CLASSNAME_KEY("ui_classname"), //
-        UI_INFORMATION_CLASSNAME("org.knime.core.node.workflow.NodeUIInformation"), //
+        NODE_UI_INFORMATION_CLASSNAME("org.knime.core.node.workflow.NodeUIInformation"), //
+        CONNECTION_UI_INFORMATION_CLASSNAME("org.knime.core.node.workflow.ConnectionUIInformation"), //
         WORKFLOW_EDITOR_CONNECTION_WIDTH_KEY("workflow.editor.connectionWidth"), //
         WORKFLOW_EDITOR_CURVED_CONNECTIONS_KEY("workflow.editor.curvedConnections"),
         EXTRA_INFO_CLASS_NAME_KEY("extraInfoClassName"),
-        EXTRA_INFO_CONNECTION_BENDPOINTS_KEY("extrainfo.conn.bendpoints");
+        EXTRA_INFO_CONNECTION_BENDPOINTS_KEY("extrainfo.conn.bendpoints"),
+        EXTRA_INFO_CONNECTION_BENDPOINTS_SIZE_KEY("extrainfo.conn.bendpoints_size");
 
     /**
      * @param string

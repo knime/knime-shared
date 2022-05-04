@@ -69,58 +69,40 @@ import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
  */
 final class NativeNodeSaver extends SingleNodeSaver {
 
-    private NativeNodeDef m_nativeNode;
+    private final NativeNodeDef m_nativeNode;
 
-    /**
-     * Creates a new {@code NativeNodeSaver} instance
-     *
-     * @param nativeNode The description of a native node
-     */
-    public NativeNodeSaver(final NativeNodeDef nativeNode) {
+    NativeNodeSaver(final NativeNodeDef nativeNode) {
         super(nativeNode);
         m_nativeNode = nativeNode;
     }
 
     /**
-     * Saves a nativeNode, i.e. creates its directory and writes its properties to an XML file in that directory. It
-     * furthermore configures the entry that should be added to the enclosing workflow configuration.
-     *
-     * @throws IOException If there has been a read/write error
+     * {@inheritDoc}
      */
     @Override
-    void save(final File workflowDirectory, final ConfigBase workflowNodeSettings) throws IOException {
-        addWorkflowNodeSettings(workflowNodeSettings);
+    void save(final File nativeNodeDirectory, final ConfigBase parentWorkflowNodeSettings) throws IOException {
+        // can't be null, since a native node can't be standalone
+        addParentWorkflowNodeSettings(parentWorkflowNodeSettings);
 
         var nodeSettings = new SimpleConfig(IOConst.NODE_SETTINGS_FILE_NAME.get());
         addNodeSettings(nodeSettings);
 
-        // create node directory: "<node name> (#<node id>)" inside the workflow directory
-        var safeNodeName = SaverUtils.getValidFileName(m_nativeNode.getNodeName(), -1);
-        var nativeNodeDirectory = SaverUtils.createNodeDir(workflowDirectory, safeNodeName, m_nativeNode.getId());
-
         // write as file to node directory (usually settings.xml)
-        var nativeNodeSettingsFile = new File(nativeNodeDirectory, IOConst.NODE_SETTINGS_FILE_NAME.get());
+        var nodeSettingsFile = new File(nativeNodeDirectory, IOConst.NODE_SETTINGS_FILE_NAME.get());
 
         // add filepath to enclosing workflow.knime config
-        var settingsFilePath = workflowDirectory.toURI().relativize(nativeNodeSettingsFile.toURI());
-        workflowNodeSettings.addString(IOConst.NODE_SETTINGS_FILE.get(), settingsFilePath.getPath());
+        var settingsFileRelativePath = nativeNodeDirectory.getParentFile().toURI().relativize(nodeSettingsFile.toURI());
+        parentWorkflowNodeSettings.addString(IOConst.NODE_SETTINGS_FILE.get(), settingsFileRelativePath.getPath());
 
-        try (var fos = new FileOutputStream(nativeNodeSettingsFile)) {
+        // flush the settings.xml to disk
+        try (var fos = new FileOutputStream(nodeSettingsFile)) {
             XMLConfig.save(nodeSettings, fos);
         }
     }
 
-    @Override
-    void addWorkflowNodeSettings(final ConfigBase workflowNodeSettings) {
-        // The following lines would be better off in the BaseNodeSaver, but then the order is mixed up.
-        workflowNodeSettings.addString(IOConst.WORKFLOW_NODES_NODE_TYPE_KEY.get(),
-            m_nativeNode.getNodeType().toString());
-        workflowNodeSettings.addBoolean(IOConst.WORKFLOW_NODES_NODE_TYPE_KEY.get(),
-            SaverUtils.isNodeTypeMeta(m_nativeNode.getNodeType()));
-        super.addWorkflowNodeSettings(workflowNodeSettings);
-
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void addNodeSettings(final ConfigBase nodeSettings) {
         nodeSettings.addString(IOConst.FACTORY_KEY.get(), m_nativeNode.getFactory());
