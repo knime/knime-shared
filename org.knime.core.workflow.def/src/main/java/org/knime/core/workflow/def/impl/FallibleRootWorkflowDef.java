@@ -250,7 +250,7 @@ public class FallibleRootWorkflowDef extends FallibleWorkflowDef implements Root
         return m_connections;
     }
     @Override
-    public java.util.List<AnnotationDataDef> getAnnotations() {
+    public java.util.Map<String, AnnotationDataDef> getAnnotations() {
         return m_annotations;
     }
     @Override
@@ -368,8 +368,8 @@ public class FallibleRootWorkflowDef extends FallibleWorkflowDef implements Root
      */
     @JsonIgnore
     @SuppressWarnings("unchecked")
-    public Optional<LoadExceptionTree<Integer>> getAnnotationsExceptionTree(){
-    	return getLoadExceptionTree(RootWorkflowDef.Attribute.ANNOTATIONS).map(let -> (LoadExceptionTree<Integer>)let);
+    public Optional<LoadExceptionTree<String>> getAnnotationsExceptionTree(){
+    	return getLoadExceptionTree(RootWorkflowDef.Attribute.ANNOTATIONS).map(let -> (LoadExceptionTree<String>)let);
     }
 
      

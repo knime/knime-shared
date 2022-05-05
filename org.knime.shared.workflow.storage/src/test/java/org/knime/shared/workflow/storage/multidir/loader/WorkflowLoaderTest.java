@@ -58,7 +58,6 @@ import org.knime.core.util.LoadVersion;
 import org.knime.core.workflow.def.AuthorInformationDef;
 import org.knime.core.workflow.def.WorkflowUISettingsDef;
 import org.knime.core.workflow.def.impl.FallibleWorkflowDef;
-import org.knime.shared.workflow.storage.multidir.loader.WorkflowLoader;
 
 /**
  *
@@ -74,7 +73,7 @@ class WorkflowLoaderTest {
         var workflowDef = (FallibleWorkflowDef)WorkflowLoader.load(file, LoadVersion.FUTURE);
 
         // then
-        assertThat(workflowDef.getAnnotations()).hasSize(3).extracting(a -> !a.getText().isEmpty()).containsOnly(true);
+        assertThat(workflowDef.getAnnotations().values()).hasSize(3).extracting(a -> !a.getText().isEmpty()).containsOnly(true);
         assertThat(workflowDef.getAuthorInformation()).isInstanceOf(AuthorInformationDef.class);
         //        assertThat(workflowDef.getCipher()).isNull();
         assertThat(workflowDef.getConnections()).hasSize(6).extracting(c -> c.getDestID() != null

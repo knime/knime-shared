@@ -116,12 +116,12 @@ public class RootWorkflowDefBuilder {
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Elements added individually go directly into this map.
      */
-    java.util.List<AnnotationDataDef> m_annotations = new java.util.ArrayList<>();
+    java.util.Map<String, AnnotationDataDef> m_annotations = new java.util.HashMap<>();
     /** Temporarily holds onto elements set as a whole with setAnnotations these are added to m_annotations in build */
-    private java.util.List<AnnotationDataDef> m_annotationsBulkElements = new java.util.ArrayList<>();
-    /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
+    private java.util.Map<String, AnnotationDataDef> m_annotationsBulkElements = new java.util.HashMap<>();
+    /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_annotationsContainerSupplyException; 
     
     WorkflowUISettingsDef m_workflowEditorSettings;
@@ -415,13 +415,14 @@ public class RootWorkflowDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * Adds elements in bulk to the annotations list. 
+     * Adds elements in bulk to the annotations map. 
      * Calling this method again will undo the previous call (it is not additive).
-     * Elements previously or subsequently added with {@link #addToAnnotations} will be inserted at the end of the list.
+     * A mapping previously or subsequently set with {@link #putToAnnotations} will replace a mapping added with this method
+     * if they have the same key.
      * @param annotations Explanatory text boxes that are shown in the workflow editor.
      * @return this for fluent API
      */
-    public RootWorkflowDefBuilder setAnnotations(final java.util.List<AnnotationDataDef> annotations) {
+    public RootWorkflowDefBuilder setAnnotations(final java.util.Map<String, AnnotationDataDef> annotations) {
         setAnnotations(() -> annotations);
         return this;
     }
@@ -429,18 +430,18 @@ public class RootWorkflowDefBuilder {
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * A thrown {@link LoadException} is associated to the annotations list,
-     * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
-     * for an individual element of the annotations list). 
+     * A thrown {@link LoadException} is associated to the annotations map,
+     * whereas exceptions thrown in putTo allows to register a {@link LoadException} 
+     * for an individual element of the annotations map). 
      * {@code hasExceptions(RootWorkflowDef.Attribute.ANNOTATIONS)} will return true and and
      * {@code getExceptionalChildren().get(RootWorkflowDef.Attribute.ANNOTATIONS)} will return the exception.
      * 
      * @param annotations see {@link RootWorkflowDef#getAnnotations}
      * 
      * @return this builder for fluent API.
-     * @see #setAnnotations(java.util.List<AnnotationDataDef>)
+     * @see #setAnnotations(java.util.Map<String, AnnotationDataDef>)
      */
-    public RootWorkflowDefBuilder setAnnotations(final FallibleSupplier<java.util.List<AnnotationDataDef>> annotations) {
+    public RootWorkflowDefBuilder setAnnotations(final FallibleSupplier<java.util.Map<String, AnnotationDataDef>> annotations) {
         java.util.Objects.requireNonNull(annotations, () -> "No supplier for annotations provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(RootWorkflowDef.Attribute.ANNOTATIONS);
@@ -449,40 +450,44 @@ public class RootWorkflowDefBuilder {
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_annotationsBulkElements = java.util.List.of();
-            // merged together with list element exceptions into a single LoadExceptionTree in #build()
+            m_annotationsBulkElements = java.util.Map.of();
+            // merged together with map element exceptions into a single LoadExceptionTree in #build()
             m_annotationsContainerSupplyException = supplyException;
 	    }   
         return this;
     }
     /**
-     * @param value the value to add to the annotations list
+     * @param key the key of the entry to add to the annotations map
+     * @param value the value of the entry to add to the annotations map
      * @return this builder for fluent API
      */
-    public RootWorkflowDefBuilder addToAnnotations(AnnotationDataDef value){
-    	addToAnnotations(() -> value, /* default value will not be used */ value);
+    public RootWorkflowDefBuilder putToAnnotations(String key, AnnotationDataDef value){
+    	putToAnnotations(key, () -> value, (AnnotationDataDef)null);
         return this;
     }
     
     /**
-     * Adds the return value of the fallible supplier to the list returned by {@link RootWorkflowDef#getAnnotations}. If the 
-     * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the added element's index in the list.
+     * Adds the return value of the fallible supplier to the map returned by {@link RootWorkflowDef#getAnnotations}. If the 
+     * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the given key.
      *
-     * @param value the value of the entry to add to the annotations list
-     * @param defaultValue is added to the list as value for the key if an exception occurs during {@link FallibleSupplier#get}
+     * @param key the key for the entry added value in the map returned by {@link RootWorkflowDef#getAnnotations}
+     * @param value the value of the entry to add to the annotations map
+     * @param defaultValue is added to the map as value for the key if an exception occurs during {@link FallibleSupplier#get}
      * @return this builder for fluent API.
      */
-    public RootWorkflowDefBuilder addToAnnotations(FallibleSupplier<AnnotationDataDef> value, AnnotationDataDef defaultValue) {
-        AnnotationDataDef toAdd = null;
+    public RootWorkflowDefBuilder putToAnnotations(String key, FallibleSupplier<AnnotationDataDef> value, AnnotationDataDef defaultValue) {
+        AnnotationDataDef toPut = null;
         try {
-            toAdd = value.get();
+            toPut = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleAnnotationDataDef(defaultValue, supplyException);
+            // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
+            toPut = FallibleAnnotationDataDef.withException(defaultValue, supplyException);
         }
-        m_annotations.add(toAdd);
+        m_annotations.put(key, toPut);
         return this;
-    } 
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for workflowEditorSettings
     // -----------------------------------------------------------------------------------------------------------------

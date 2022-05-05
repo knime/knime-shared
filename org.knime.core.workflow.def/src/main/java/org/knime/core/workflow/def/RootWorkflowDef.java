@@ -103,7 +103,7 @@ public interface RootWorkflowDef extends WorkflowDef {
          /**  
           * Explanatory text boxes that are shown in the workflow editor.
           *
-          * The type of this data attribute is java.util.List&lt;AnnotationDataDef&gt;.
+          * The type of this data attribute is java.util.Map&lt;String, AnnotationDataDef&gt;.
           * Is is returned by {@link RootWorkflowDef#getAnnotations} 
           */
          ANNOTATIONS,

@@ -99,7 +99,7 @@ public interface WorkflowDef {
          /**  
           * Explanatory text boxes that are shown in the workflow editor.
           *
-          * The type of this data attribute is java.util.List&lt;AnnotationDataDef&gt;.
+          * The type of this data attribute is java.util.Map&lt;String, AnnotationDataDef&gt;.
           * Is is returned by {@link WorkflowDef#getAnnotations} 
           */
          ANNOTATIONS,
@@ -135,7 +135,7 @@ public interface WorkflowDef {
   /**
    * @return Explanatory text boxes that are shown in the workflow editor.
    **/
-  public java.util.List<AnnotationDataDef> getAnnotations();
+  public java.util.Map<String, AnnotationDataDef> getAnnotations();
 
   /**
    * @return 

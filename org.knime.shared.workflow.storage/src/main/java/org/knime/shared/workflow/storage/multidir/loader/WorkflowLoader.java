@@ -53,6 +53,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -189,15 +190,17 @@ public class WorkflowLoader {
         final LoadVersion loadVersion) {
         if (loadVersion.isOlderThan(LoadVersion.V230)
             || !workflowConfig.containsKey(IOConst.WORKFLOW_ANNOTATIONS_KEY.get())) {
-            builder.setAnnotations(List.of());
+            builder.setAnnotations(Map.of());
         } else {
             try {
                 var annoSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_ANNOTATIONS_KEY.get());
                 if (annoSettings != null) {
-                    annoSettings.keySet()
-                        .forEach(key -> builder.addToAnnotations(
+                    int annoId = 0;
+                    for (String key : annoSettings.keySet()) {
+                        builder.putToAnnotations(String.valueOf(annoId++),
                             () -> LoaderUtils.loadAnnotation(annoSettings.getConfigBase(key), loadVersion),
-                            new AnnotationDataDefBuilder().build()));
+                            new AnnotationDataDefBuilder().build());
+                    }
                 }
             } catch (InvalidSettingsException ex) {
                 builder.setConnections(() -> {

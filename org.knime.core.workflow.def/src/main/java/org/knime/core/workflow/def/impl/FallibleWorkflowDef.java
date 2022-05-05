@@ -110,7 +110,7 @@ public class FallibleWorkflowDef implements WorkflowDef {
      * Explanatory text boxes that are shown in the workflow editor. 
      */
     @JsonProperty("annotations")
-    protected java.util.List<AnnotationDataDef> m_annotations;
+    protected java.util.Map<String, AnnotationDataDef> m_annotations;
 
     @JsonProperty("workflowEditorSettings")
     protected WorkflowUISettingsDef m_workflowEditorSettings;
@@ -248,7 +248,7 @@ public class FallibleWorkflowDef implements WorkflowDef {
         return m_connections;
     }
     @Override
-    public java.util.List<AnnotationDataDef> getAnnotations() {
+    public java.util.Map<String, AnnotationDataDef> getAnnotations() {
         return m_annotations;
     }
     @Override
@@ -350,8 +350,8 @@ public class FallibleWorkflowDef implements WorkflowDef {
      */
     @JsonIgnore
     @SuppressWarnings("unchecked")
-    public Optional<LoadExceptionTree<Integer>> getAnnotationsExceptionTree(){
-    	return getLoadExceptionTree(WorkflowDef.Attribute.ANNOTATIONS).map(let -> (LoadExceptionTree<Integer>)let);
+    public Optional<LoadExceptionTree<String>> getAnnotationsExceptionTree(){
+    	return getLoadExceptionTree(WorkflowDef.Attribute.ANNOTATIONS).map(let -> (LoadExceptionTree<String>)let);
     }
 
      
