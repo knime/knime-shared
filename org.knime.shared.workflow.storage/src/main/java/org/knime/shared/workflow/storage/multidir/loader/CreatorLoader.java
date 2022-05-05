@@ -50,8 +50,8 @@ package org.knime.shared.workflow.storage.multidir.loader;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
-import org.knime.core.workflow.def.CreatorDef;
-import org.knime.core.workflow.def.impl.CreatorDefBuilder;
+import org.knime.shared.workflow.def.CreatorDef;
+import org.knime.shared.workflow.def.impl.CreatorDefBuilder;
 
 /**
  * Extracts basic information such as workflow format version from a directory containing a top-level workflow,

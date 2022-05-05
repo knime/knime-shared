@@ -55,9 +55,9 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.util.LoadVersion;
-import org.knime.core.workflow.def.AuthorInformationDef;
-import org.knime.core.workflow.def.WorkflowUISettingsDef;
-import org.knime.core.workflow.def.impl.DefaultWorkflowDef;
+import org.knime.shared.workflow.def.AuthorInformationDef;
+import org.knime.shared.workflow.def.WorkflowUISettingsDef;
+import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
 
 /**
  *

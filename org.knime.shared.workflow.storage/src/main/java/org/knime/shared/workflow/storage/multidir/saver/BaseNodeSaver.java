@@ -53,8 +53,8 @@ import java.io.IOException;
 
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
-import org.knime.core.workflow.def.BaseNodeDef;
-import org.knime.core.workflow.def.BoundsDef;
+import org.knime.shared.workflow.def.BaseNodeDef;
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 

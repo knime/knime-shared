@@ -56,30 +56,30 @@ import java.util.regex.Pattern;
 
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
-import org.knime.core.workflow.def.AnnotationDataDef;
-import org.knime.core.workflow.def.BaseNodeDef.NodeTypeEnum;
-import org.knime.core.workflow.def.ConfigDef;
-import org.knime.core.workflow.def.ConfigMapDef;
-import org.knime.core.workflow.def.ConfigValueArrayDef;
-import org.knime.core.workflow.def.ConfigValueBooleanArrayDef;
-import org.knime.core.workflow.def.ConfigValueBooleanDef;
-import org.knime.core.workflow.def.ConfigValueByteArrayDef;
-import org.knime.core.workflow.def.ConfigValueByteDef;
-import org.knime.core.workflow.def.ConfigValueCharArrayDef;
-import org.knime.core.workflow.def.ConfigValueCharDef;
-import org.knime.core.workflow.def.ConfigValueDef;
-import org.knime.core.workflow.def.ConfigValueDoubleArrayDef;
-import org.knime.core.workflow.def.ConfigValueDoubleDef;
-import org.knime.core.workflow.def.ConfigValueFloatArrayDef;
-import org.knime.core.workflow.def.ConfigValueFloatDef;
-import org.knime.core.workflow.def.ConfigValueIntArrayDef;
-import org.knime.core.workflow.def.ConfigValueIntDef;
-import org.knime.core.workflow.def.ConfigValueLongArrayDef;
-import org.knime.core.workflow.def.ConfigValueLongDef;
-import org.knime.core.workflow.def.ConfigValueShortArrayDef;
-import org.knime.core.workflow.def.ConfigValueShortDef;
-import org.knime.core.workflow.def.ConfigValueStringArrayDef;
-import org.knime.core.workflow.def.ConfigValueStringDef;
+import org.knime.shared.workflow.def.AnnotationDataDef;
+import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
+import org.knime.shared.workflow.def.ConfigDef;
+import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.ConfigValueArrayDef;
+import org.knime.shared.workflow.def.ConfigValueBooleanArrayDef;
+import org.knime.shared.workflow.def.ConfigValueBooleanDef;
+import org.knime.shared.workflow.def.ConfigValueByteArrayDef;
+import org.knime.shared.workflow.def.ConfigValueByteDef;
+import org.knime.shared.workflow.def.ConfigValueCharArrayDef;
+import org.knime.shared.workflow.def.ConfigValueCharDef;
+import org.knime.shared.workflow.def.ConfigValueDef;
+import org.knime.shared.workflow.def.ConfigValueDoubleArrayDef;
+import org.knime.shared.workflow.def.ConfigValueDoubleDef;
+import org.knime.shared.workflow.def.ConfigValueFloatArrayDef;
+import org.knime.shared.workflow.def.ConfigValueFloatDef;
+import org.knime.shared.workflow.def.ConfigValueIntArrayDef;
+import org.knime.shared.workflow.def.ConfigValueIntDef;
+import org.knime.shared.workflow.def.ConfigValueLongArrayDef;
+import org.knime.shared.workflow.def.ConfigValueLongDef;
+import org.knime.shared.workflow.def.ConfigValueShortArrayDef;
+import org.knime.shared.workflow.def.ConfigValueShortDef;
+import org.knime.shared.workflow.def.ConfigValueStringArrayDef;
+import org.knime.shared.workflow.def.ConfigValueStringDef;
 
 /**
  * Utility class for the workflow saver
@@ -113,7 +113,7 @@ public final class SaverUtils {
      * @return A new ConfigBase instance filled with items from the input def.
      */
     public static ConfigBase toConfigBase(final ConfigDef configDef, final String key) {
-        // These methods use the same logic as org.knime.core.workflow.def.DefToCoreUtil#toNodeSettings etc.
+        // These methods use the same logic as org.knime.shared.workflow.def.DefToCoreUtil#toNodeSettings etc.
         if (configDef instanceof ConfigValueArrayDef) {
             return toConfigBaseArray((ConfigValueArrayDef)configDef, key);
         } else if (configDef instanceof ConfigMapDef) {

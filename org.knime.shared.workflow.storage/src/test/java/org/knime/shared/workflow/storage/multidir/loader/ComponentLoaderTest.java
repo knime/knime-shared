@@ -57,10 +57,10 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
-import org.knime.core.workflow.def.ConfigMapDef;
-import org.knime.core.workflow.def.JobManagerDef;
-import org.knime.core.workflow.def.NodeAnnotationDef;
-import org.knime.core.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.JobManagerDef;
+import org.knime.shared.workflow.def.NodeAnnotationDef;
+import org.knime.shared.workflow.def.WorkflowDef;
 
 /**
  *

@@ -60,7 +60,7 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
-import org.knime.core.workflow.def.NativeNodeDef;
+import org.knime.shared.workflow.def.NativeNodeDef;
 import org.knime.shared.workflow.storage.multidir.loader.NativeNodeLoader;
 import org.knime.shared.workflow.storage.multidir.loader.NodeLoaderTestUtils;
 import org.knime.shared.workflow.storage.multidir.saver.NativeNodeSaver;

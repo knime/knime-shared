@@ -60,9 +60,9 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
-import org.knime.core.workflow.def.JobManagerDef;
-import org.knime.core.workflow.def.NodeAnnotationDef;
-import org.knime.core.workflow.def.NodeUIInfoDef;
+import org.knime.shared.workflow.def.JobManagerDef;
+import org.knime.shared.workflow.def.NodeAnnotationDef;
+import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.storage.multidir.loader.MetaNodeLoader;
 
 /**

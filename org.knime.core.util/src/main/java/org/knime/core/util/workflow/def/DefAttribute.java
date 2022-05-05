@@ -50,9 +50,9 @@ package org.knime.core.util.workflow.def;
 
 /**
  * Marker interface for enums that describe data attributes of workflow description POJOs. For instance, the
- * {@code WorkflowDef} provides an enum {@code org.knime.core.workflow.def.WorkflowDef.Attribute} that allows to refer
+ * {@code WorkflowDef} provides an enum {@code org.knime.shared.workflow.def.WorkflowDef.Attribute} that allows to refer
  * to specific attributes of a workflow, e.g., the nodes it contains
- * {@code org.knime.core.workflow.def.WorkflowDef.Attribute#NODES}.
+ * {@code org.knime.shared.workflow.def.WorkflowDef.Attribute#NODES}.
  *
  * This is useful for error handling, e.g., when returning the collected (not yet thrown) exceptions during the load
  * process, it is sensible to provide information on which data attribute the exceptions was created.

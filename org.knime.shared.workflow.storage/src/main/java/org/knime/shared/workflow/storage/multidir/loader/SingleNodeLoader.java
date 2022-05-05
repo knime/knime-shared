@@ -52,8 +52,8 @@ import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAUL
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
-import org.knime.core.workflow.def.ConfigMapDef;
-import org.knime.core.workflow.def.ConfigurableNodeDef;
+import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.ConfigurableNodeDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 

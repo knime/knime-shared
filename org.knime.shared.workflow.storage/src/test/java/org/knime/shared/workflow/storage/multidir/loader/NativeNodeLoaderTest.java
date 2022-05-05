@@ -59,7 +59,7 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
-import org.knime.core.workflow.def.FilestoreDef;
+import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.storage.multidir.loader.NativeNodeLoader;
 
 

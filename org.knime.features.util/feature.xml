@@ -739,7 +739,7 @@ propagated with or for interoperation with KNIME.
          unpack="false"/>
 
    <plugin
-         id="org.knime.core.workflow.def"
+         id="org.knime.shared.workflow.def"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -56,7 +56,7 @@ import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.ConfigBaseWO;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.node.config.base.XMLConfig;
-import org.knime.core.workflow.def.NativeNodeDef;
+import org.knime.shared.workflow.def.NativeNodeDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 
