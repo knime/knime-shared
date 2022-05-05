@@ -351,10 +351,10 @@ public class PortTypeDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FalliblePortTypeDef build() {
+    public DefaultPortTypeDef build() {
         
     	
-        return new FalliblePortTypeDef(this);
+        return new DefaultPortTypeDef(this);
     }    
 
 }

@@ -46,7 +46,7 @@ package org.knime.core.workflow.def;
 
 import java.time.OffsetDateTime;
 
-import org.knime.core.workflow.def.impl.FallibleAuthorInformationDef;
+import org.knime.core.workflow.def.impl.DefaultAuthorInformationDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -60,7 +60,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
-@JsonDeserialize(as = FallibleAuthorInformationDef.class)
+@JsonDeserialize(as = DefaultAuthorInformationDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.interface-config.json"})
 public interface AuthorInformationDef {
 

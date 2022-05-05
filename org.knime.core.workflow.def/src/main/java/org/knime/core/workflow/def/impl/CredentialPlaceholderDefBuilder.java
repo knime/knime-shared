@@ -183,10 +183,10 @@ public class CredentialPlaceholderDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleCredentialPlaceholderDef build() {
+    public DefaultCredentialPlaceholderDef build() {
         
     	
-        return new FallibleCredentialPlaceholderDef(this);
+        return new DefaultCredentialPlaceholderDef(this);
     }    
 
 }

@@ -64,7 +64,7 @@ import org.knime.core.workflow.def.NodeLocksDef;
 import org.knime.core.workflow.def.NodeUIInfoDef;
 import org.knime.core.workflow.def.impl.AnnotationDataDefBuilder;
 import org.knime.core.workflow.def.impl.BoundsDefBuilder;
-import org.knime.core.workflow.def.impl.FallibleBoundsDef;
+import org.knime.core.workflow.def.impl.DefaultBoundsDef;
 import org.knime.core.workflow.def.impl.JobManagerDefBuilder;
 import org.knime.core.workflow.def.impl.NodeAnnotationDefBuilder;
 import org.knime.core.workflow.def.impl.NodeLocksDefBuilder;
@@ -248,14 +248,14 @@ final class BaseNodeLoader {
             .build();
     }
 
-    private static FallibleBoundsDef loadBoundsDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+    private static DefaultBoundsDef loadBoundsDef(final ConfigBaseRO settings) throws InvalidSettingsException {
         if (!settings.containsKey(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get())) {
-            return (FallibleBoundsDef)DEFAULT_BOUNDS;
+            return (DefaultBoundsDef)DEFAULT_BOUNDS;
         }
         try {
             var bounds = settings.getIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get());
             if (bounds.length == 0 || bounds.length < 4) {
-                return (FallibleBoundsDef)DEFAULT_BOUNDS;
+                return (DefaultBoundsDef)DEFAULT_BOUNDS;
             }
             return new BoundsDefBuilder() //
                 .setLocation(LoaderUtils.loadCoordinate(bounds[0], bounds[1])) //

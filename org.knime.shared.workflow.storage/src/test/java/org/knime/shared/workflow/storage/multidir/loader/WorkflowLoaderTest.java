@@ -57,7 +57,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.workflow.def.AuthorInformationDef;
 import org.knime.core.workflow.def.WorkflowUISettingsDef;
-import org.knime.core.workflow.def.impl.FallibleWorkflowDef;
+import org.knime.core.workflow.def.impl.DefaultWorkflowDef;
 
 /**
  *
@@ -70,7 +70,7 @@ class WorkflowLoaderTest {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");
         // when
-        var workflowDef = (FallibleWorkflowDef)WorkflowLoader.load(file, LoadVersion.FUTURE);
+        var workflowDef = (DefaultWorkflowDef)WorkflowLoader.load(file, LoadVersion.FUTURE);
 
         // then
         assertThat(workflowDef.getAnnotations().values()).hasSize(3).extracting(a -> !a.getText().isEmpty()).containsOnly(true);

@@ -178,8 +178,8 @@ public class PortDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FalliblePortTypeDef){
-                var childTree = ((FalliblePortTypeDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultPortTypeDef){
+                var childTree = ((DefaultPortTypeDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -236,10 +236,10 @@ public class PortDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FalliblePortDef build() {
+    public DefaultPortDef build() {
         
     	
-        return new FalliblePortDef(this);
+        return new DefaultPortDef(this);
     }    
 
 }

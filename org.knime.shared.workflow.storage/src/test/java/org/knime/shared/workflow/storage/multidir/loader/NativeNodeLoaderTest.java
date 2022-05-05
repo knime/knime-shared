@@ -146,9 +146,9 @@ class NativeNodeLoaderTest {
 //        assertThat(nativeNodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
 //        assertThat(nodeDef.getSuppliers()).containsOnlyKeys(BaseNodeDef.Attribute.UI_INFO);
 //        assertThat(nodeDef.getSuppliers().get(BaseNodeDef.Attribute.UI_INFO)).singleElement()// list with one LoadExceptionSupplier
-//            .isExactlyInstanceOf(FallibleNodeUIInfoDef.class);
+//            .isExactlyInstanceOf(DefaultNodeUIInfoDef.class);
         //FIXME
-//        FallibleNodeUIInfoDef uiInfo = nodeDef.getFaultyUiInfo().get();
+//        DefaultNodeUIInfoDef uiInfo = nodeDef.getFaultyUiInfo().get();
 //        assertThat(uiInfo.getSuppliers().get(NodeUIInfoDef.Attribute.SYMBOL_RELATIVE))//
 //            .singleElement()//
 //            .isExactlyInstanceOf(LoadExceptionSupplier.class)//

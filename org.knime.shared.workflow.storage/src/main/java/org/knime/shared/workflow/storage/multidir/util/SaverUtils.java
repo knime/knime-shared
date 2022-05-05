@@ -305,7 +305,7 @@ public final class SaverUtils {
      */
     public static boolean isNodeTypeMeta(final NodeTypeEnum type) {
         switch (type) {
-            case COMPONENT:
+            case COMPONENT_NODE:
             case METANODE:
                 return true;
             default:

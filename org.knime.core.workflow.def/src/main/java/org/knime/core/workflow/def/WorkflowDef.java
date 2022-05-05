@@ -50,7 +50,7 @@ import org.knime.core.workflow.def.BaseNodeDef;
 import org.knime.core.workflow.def.ConnectionDef;
 import org.knime.core.workflow.def.WorkflowUISettingsDef;
 
-import org.knime.core.workflow.def.impl.FallibleWorkflowDef;
+import org.knime.core.workflow.def.impl.DefaultWorkflowDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -64,7 +64,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
-@JsonDeserialize(as = FallibleWorkflowDef.class)
+@JsonDeserialize(as = DefaultWorkflowDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.interface-config.json"})
 public interface WorkflowDef {
 

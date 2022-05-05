@@ -61,7 +61,6 @@ import org.knime.core.workflow.def.ConfigMapDef;
 import org.knime.core.workflow.def.JobManagerDef;
 import org.knime.core.workflow.def.NodeAnnotationDef;
 import org.knime.core.workflow.def.WorkflowDef;
-import org.knime.shared.workflow.storage.multidir.loader.ComponentNodeLoader;
 
 /**
  *
@@ -79,8 +78,6 @@ class ComponentLoaderTest {
         m_configBaseRO.addString("node_type", "SubNode");
         m_configBaseRO.addString("customDescription", "");
 
-
-        org.knime.core.workflow.def.impl.FallibleComponentDef def;
 
         // when
         var componentDef = ComponentNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);

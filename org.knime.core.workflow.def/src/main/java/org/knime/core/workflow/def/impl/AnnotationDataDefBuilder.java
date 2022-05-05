@@ -218,8 +218,8 @@ public class AnnotationDataDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleCoordinateDef){
-                var childTree = ((FallibleCoordinateDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultCoordinateDef){
+                var childTree = ((DefaultCoordinateDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -564,7 +564,7 @@ public class AnnotationDataDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleStyleRangeDef(defaultValue, supplyException);
+            toAdd = new DefaultStyleRangeDef(defaultValue, supplyException);
         }
         m_styles.add(toAdd);
         return this;
@@ -615,7 +615,7 @@ public class AnnotationDataDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleAnnotationDataDef build() {
+    public DefaultAnnotationDataDef build() {
         
     	
         // contains the elements set with #setStyles (those added with #addToStyles have already been inserted into m_styles)
@@ -628,7 +628,7 @@ public class AnnotationDataDefBuilder {
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.STYLES, stylesLoadExceptionTree);
         }
         
-        return new FallibleAnnotationDataDef(this);
+        return new DefaultAnnotationDataDef(this);
     }    
 
 }

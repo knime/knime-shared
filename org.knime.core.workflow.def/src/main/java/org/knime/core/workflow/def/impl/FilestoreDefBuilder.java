@@ -183,10 +183,10 @@ public class FilestoreDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleFilestoreDef build() {
+    public DefaultFilestoreDef build() {
         
     	
-        return new FallibleFilestoreDef(this);
+        return new DefaultFilestoreDef(this);
     }    
 
 }

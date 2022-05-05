@@ -342,8 +342,8 @@ public class ConnectionDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConnectionUISettingsDef){
-                var childTree = ((FallibleConnectionUISettingsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConnectionUISettingsDef){
+                var childTree = ((DefaultConnectionUISettingsDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -362,10 +362,10 @@ public class ConnectionDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConnectionDef build() {
+    public DefaultConnectionDef build() {
         
     	
-        return new FallibleConnectionDef(this);
+        return new DefaultConnectionDef(this);
     }    
 
 }

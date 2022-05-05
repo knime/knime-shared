@@ -49,7 +49,7 @@ import org.knime.core.workflow.def.NodeAnnotationDef;
 import org.knime.core.workflow.def.NodeLocksDef;
 import org.knime.core.workflow.def.NodeUIInfoDef;
 
-import org.knime.core.workflow.def.impl.FallibleBaseNodeDef;
+import org.knime.core.workflow.def.impl.DefaultBaseNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -58,11 +58,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import org.knime.core.workflow.def.impl.FallibleBaseNodeDef;
-import org.knime.core.workflow.def.impl.FallibleComponentDef;
-import org.knime.core.workflow.def.impl.FallibleMetaNodeDef;
-import org.knime.core.workflow.def.impl.FallibleConfigurableNodeDef;
-import org.knime.core.workflow.def.impl.FallibleNativeNodeDef;
+import org.knime.core.workflow.def.impl.DefaultBaseNodeDef;
+import org.knime.core.workflow.def.impl.DefaultComponentNodeDef;
+import org.knime.core.workflow.def.impl.DefaultMetaNodeDef;
+import org.knime.core.workflow.def.impl.DefaultConfigurableNodeDef;
+import org.knime.core.workflow.def.impl.DefaultNativeNodeDef;
 
 
 /**
@@ -77,15 +77,15 @@ import org.knime.core.workflow.def.impl.FallibleNativeNodeDef;
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     property = "nodeType",
     visible = true,
-    defaultImpl = FallibleBaseNodeDef.class)
+    defaultImpl = DefaultBaseNodeDef.class)
 @JsonSubTypes({
-    @Type(value = FallibleBaseNodeDef.class, name="BaseNode")
-, @Type(value = FallibleComponentDef.class, name = "Component")
-, @Type(value = FallibleMetaNodeDef.class, name = "MetaNode")
-, @Type(value = FallibleConfigurableNodeDef.class, name = "ConfigurableNode")
-, @Type(value = FallibleNativeNodeDef.class, name = "NativeNode")
+    @Type(value = DefaultBaseNodeDef.class, name="BaseNode")
+, @Type(value = DefaultComponentNodeDef.class, name = "ComponentNode")
+, @Type(value = DefaultMetaNodeDef.class, name = "MetaNode")
+, @Type(value = DefaultConfigurableNodeDef.class, name = "ConfigurableNode")
+, @Type(value = DefaultNativeNodeDef.class, name = "NativeNode")
 })
-@JsonDeserialize(as = FallibleBaseNodeDef.class)
+@JsonDeserialize(as = DefaultBaseNodeDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.interface-config.json"})
 public interface BaseNodeDef {
 
@@ -139,11 +139,11 @@ public interface BaseNodeDef {
    * states the most specific subtype, i.e., Metanode, Component, or Native Node
    */
   public enum NodeTypeEnum {
-    NATIVE_NODE("NATIVE_NODE"),
+    NATIVE_NODE("Native Node"),
     
-    COMPONENT("COMPONENT"),
+    COMPONENT_NODE("Component Node"),
     
-    METANODE("METANODE");
+    METANODE("Metanode");
 
     private String value;
 

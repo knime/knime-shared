@@ -67,7 +67,8 @@ import org.knime.core.workflow.def.BaseNodeDef;
 import org.knime.core.workflow.def.ConfigMapDef;
 import org.knime.core.workflow.def.FilestoreDef;
 import org.knime.core.workflow.def.VendorDef;
-import org.knime.core.workflow.def.impl.FallibleNativeNodeDef;
+import org.knime.core.workflow.def.impl.DefaultNativeNodeDef;
+import org.knime.core.workflow.def.impl.DefaultNativeNodeDef;
 import org.knime.core.workflow.def.impl.FilestoreDefBuilder;
 import org.knime.core.workflow.def.impl.NativeNodeDefBuilder;
 import org.knime.core.workflow.def.impl.VendorDefBuilder;
@@ -119,16 +120,16 @@ public final class NativeNodeLoader {
     }
 
     /**
-     * Loads the properties of a native node into {@link FallibleNativeNodeDefl}, stores the loading exceptions using
+     * Loads the properties of a native node into {@link DefaultNativeNodeDefl}, stores the loading exceptions using
      * the {@link FallibleSupplier}
      *
      * @param workflowConfig a read only representation of the workflow.knime
      * @param nodeDirectory a {@link File} of the node folder.
      * @param workflowFormatVersion an {@link LoadVersion}.
-     * @return a {@link FallibleNativeNodeDef}
+     * @return a {@link DefaultNativeNodeDef}
      * @throws IOException when the settings.xml can't be found.
      */
-    public static FallibleNativeNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
+    public static DefaultNativeNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
         final LoadVersion workflowFormatVersion) throws IOException {
         var nodeConfig = LoaderUtils.readNodeConfigFromFile(nodeDirectory);
 

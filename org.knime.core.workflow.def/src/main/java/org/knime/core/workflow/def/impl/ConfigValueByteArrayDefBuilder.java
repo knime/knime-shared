@@ -188,13 +188,13 @@ public class ConfigValueByteArrayDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConfigValueByteArrayDef build() {
+    public DefaultConfigValueByteArrayDef build() {
         
         // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType(null);
         
     	
-        return new FallibleConfigValueByteArrayDef(this);
+        return new DefaultConfigValueByteArrayDef(this);
     }    
 
 }

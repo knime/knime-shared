@@ -264,7 +264,7 @@ public class ConfigMapDefBuilder {
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
-            toPut = FallibleConfigDef.withException(defaultValue, supplyException);
+            toPut = DefaultConfigDef.withException(defaultValue, supplyException);
         }
         m_children.put(key, toPut);
         return this;
@@ -278,7 +278,7 @@ public class ConfigMapDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConfigMapDef build() {
+    public DefaultConfigMapDef build() {
         
         // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType(null);
@@ -298,7 +298,7 @@ public class ConfigMapDefBuilder {
             m_exceptionalChildren.put(ConfigMapDef.Attribute.CHILDREN, childrenLoadExceptionTree);
         }
         
-        return new FallibleConfigMapDef(this);
+        return new DefaultConfigMapDef(this);
     }    
 
 }

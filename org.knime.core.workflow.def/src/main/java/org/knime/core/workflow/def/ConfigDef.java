@@ -45,7 +45,7 @@
 package org.knime.core.workflow.def;
 
 
-import org.knime.core.workflow.def.impl.FallibleConfigDef;
+import org.knime.core.workflow.def.impl.DefaultConfigDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -54,28 +54,28 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import org.knime.core.workflow.def.impl.FallibleConfigDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueCharArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueIntDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueDoubleArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueBooleanArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueStringArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueLongArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueStringDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueDoubleDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueLongDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueShortDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueByteArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueBooleanDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueShortArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueByteDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueFloatDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueIntArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueArrayDef;
-import org.knime.core.workflow.def.impl.FallibleConfigMapDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueCharDef;
-import org.knime.core.workflow.def.impl.FallibleConfigValueFloatArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueCharArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueIntDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueDoubleArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueBooleanArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueStringArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueLongArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueStringDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueDoubleDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueLongDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueShortDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueByteArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueBooleanDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueShortArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueByteDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueFloatDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueIntArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigMapDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueCharDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueFloatArrayDef;
 
 
 /**
@@ -90,32 +90,32 @@ import org.knime.core.workflow.def.impl.FallibleConfigValueFloatArrayDef;
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     property = "configType",
     visible = true,
-    defaultImpl = FallibleConfigDef.class)
+    defaultImpl = DefaultConfigDef.class)
 @JsonSubTypes({
-    @Type(value = FallibleConfigDef.class, name="Config")
-, @Type(value = FallibleConfigValueCharArrayDef.class, name = "ConfigValueCharArray")
-, @Type(value = FallibleConfigValueIntDef.class, name = "ConfigValueInt")
-, @Type(value = FallibleConfigValueDoubleArrayDef.class, name = "ConfigValueDoubleArray")
-, @Type(value = FallibleConfigValueBooleanArrayDef.class, name = "ConfigValueBooleanArray")
-, @Type(value = FallibleConfigValueStringArrayDef.class, name = "ConfigValueStringArray")
-, @Type(value = FallibleConfigValueDef.class, name = "ConfigValue")
-, @Type(value = FallibleConfigValueLongArrayDef.class, name = "ConfigValueLongArray")
-, @Type(value = FallibleConfigValueStringDef.class, name = "ConfigValueString")
-, @Type(value = FallibleConfigValueDoubleDef.class, name = "ConfigValueDouble")
-, @Type(value = FallibleConfigValueLongDef.class, name = "ConfigValueLong")
-, @Type(value = FallibleConfigValueShortDef.class, name = "ConfigValueShort")
-, @Type(value = FallibleConfigValueByteArrayDef.class, name = "ConfigValueByteArray")
-, @Type(value = FallibleConfigValueBooleanDef.class, name = "ConfigValueBoolean")
-, @Type(value = FallibleConfigValueShortArrayDef.class, name = "ConfigValueShortArray")
-, @Type(value = FallibleConfigValueByteDef.class, name = "ConfigValueByte")
-, @Type(value = FallibleConfigValueFloatDef.class, name = "ConfigValueFloat")
-, @Type(value = FallibleConfigValueIntArrayDef.class, name = "ConfigValueIntArray")
-, @Type(value = FallibleConfigValueArrayDef.class, name = "ConfigValueArray")
-, @Type(value = FallibleConfigMapDef.class, name = "ConfigMap")
-, @Type(value = FallibleConfigValueCharDef.class, name = "ConfigValueChar")
-, @Type(value = FallibleConfigValueFloatArrayDef.class, name = "ConfigValueFloatArray")
+    @Type(value = DefaultConfigDef.class, name="Config")
+, @Type(value = DefaultConfigValueCharArrayDef.class, name = "ConfigValueCharArray")
+, @Type(value = DefaultConfigValueIntDef.class, name = "ConfigValueInt")
+, @Type(value = DefaultConfigValueDoubleArrayDef.class, name = "ConfigValueDoubleArray")
+, @Type(value = DefaultConfigValueBooleanArrayDef.class, name = "ConfigValueBooleanArray")
+, @Type(value = DefaultConfigValueStringArrayDef.class, name = "ConfigValueStringArray")
+, @Type(value = DefaultConfigValueDef.class, name = "ConfigValue")
+, @Type(value = DefaultConfigValueLongArrayDef.class, name = "ConfigValueLongArray")
+, @Type(value = DefaultConfigValueStringDef.class, name = "ConfigValueString")
+, @Type(value = DefaultConfigValueDoubleDef.class, name = "ConfigValueDouble")
+, @Type(value = DefaultConfigValueLongDef.class, name = "ConfigValueLong")
+, @Type(value = DefaultConfigValueShortDef.class, name = "ConfigValueShort")
+, @Type(value = DefaultConfigValueByteArrayDef.class, name = "ConfigValueByteArray")
+, @Type(value = DefaultConfigValueBooleanDef.class, name = "ConfigValueBoolean")
+, @Type(value = DefaultConfigValueShortArrayDef.class, name = "ConfigValueShortArray")
+, @Type(value = DefaultConfigValueByteDef.class, name = "ConfigValueByte")
+, @Type(value = DefaultConfigValueFloatDef.class, name = "ConfigValueFloat")
+, @Type(value = DefaultConfigValueIntArrayDef.class, name = "ConfigValueIntArray")
+, @Type(value = DefaultConfigValueArrayDef.class, name = "ConfigValueArray")
+, @Type(value = DefaultConfigMapDef.class, name = "ConfigMap")
+, @Type(value = DefaultConfigValueCharDef.class, name = "ConfigValueChar")
+, @Type(value = DefaultConfigValueFloatArrayDef.class, name = "ConfigValueFloatArray")
 })
-@JsonDeserialize(as = FallibleConfigDef.class)
+@JsonDeserialize(as = DefaultConfigDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.interface-config.json"})
 public interface ConfigDef {
 

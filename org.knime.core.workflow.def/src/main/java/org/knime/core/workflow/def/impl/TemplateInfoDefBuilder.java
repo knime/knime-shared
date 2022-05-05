@@ -184,10 +184,10 @@ public class TemplateInfoDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleTemplateInfoDef build() {
+    public DefaultTemplateInfoDef build() {
         
     	
-        return new FallibleTemplateInfoDef(this);
+        return new DefaultTemplateInfoDef(this);
     }    
 
 }

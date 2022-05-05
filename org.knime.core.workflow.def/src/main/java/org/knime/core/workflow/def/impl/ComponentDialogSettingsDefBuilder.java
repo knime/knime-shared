@@ -267,10 +267,10 @@ public class ComponentDialogSettingsDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleComponentDialogSettingsDef build() {
+    public DefaultComponentDialogSettingsDef build() {
         
     	
-        return new FallibleComponentDialogSettingsDef(this);
+        return new DefaultComponentDialogSettingsDef(this);
     }    
 
 }

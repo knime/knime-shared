@@ -53,7 +53,7 @@ import org.knime.core.workflow.def.NodeLocksDef;
 import org.knime.core.workflow.def.NodeUIInfoDef;
 import org.knime.core.workflow.def.VendorDef;
 
-import org.knime.core.workflow.def.impl.FallibleNativeNodeDef;
+import org.knime.core.workflow.def.impl.DefaultNativeNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -67,7 +67,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
-@JsonDeserialize(as = FallibleNativeNodeDef.class)
+@JsonDeserialize(as = DefaultNativeNodeDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.interface-config.json"})
 public interface NativeNodeDef extends ConfigurableNodeDef {
 

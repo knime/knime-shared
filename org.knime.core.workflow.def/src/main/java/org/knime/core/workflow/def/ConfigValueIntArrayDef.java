@@ -46,7 +46,7 @@ package org.knime.core.workflow.def;
 
 import org.knime.core.workflow.def.ConfigValueArrayDef;
 
-import org.knime.core.workflow.def.impl.FallibleConfigValueIntArrayDef;
+import org.knime.core.workflow.def.impl.DefaultConfigValueIntArrayDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -60,7 +60,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
-@JsonDeserialize(as = FallibleConfigValueIntArrayDef.class)
+@JsonDeserialize(as = DefaultConfigValueIntArrayDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.core.workflow.def.interface-config.json"})
 public interface ConfigValueIntArrayDef extends ConfigValueArrayDef {
 

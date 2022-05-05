@@ -234,7 +234,7 @@ public class ConfigValueBooleanArrayDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConfigValueBooleanArrayDef build() {
+    public DefaultConfigValueBooleanArrayDef build() {
         
         // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType(null);
@@ -250,7 +250,7 @@ public class ConfigValueBooleanArrayDefBuilder {
             m_exceptionalChildren.put(ConfigValueBooleanArrayDef.Attribute.ARRAY, arrayLoadExceptionTree);
         }
         
-        return new FallibleConfigValueBooleanArrayDef(this);
+        return new DefaultConfigValueBooleanArrayDef(this);
     }    
 
 }

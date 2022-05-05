@@ -183,10 +183,10 @@ public class CreatorDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleCreatorDef build() {
+    public DefaultCreatorDef build() {
         
     	
-        return new FallibleCreatorDef(this);
+        return new DefaultCreatorDef(this);
     }    
 
 }

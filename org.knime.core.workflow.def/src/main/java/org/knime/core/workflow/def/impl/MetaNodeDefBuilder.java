@@ -312,8 +312,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeAnnotationDef){
-                var childTree = ((FallibleNodeAnnotationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeAnnotationDef){
+                var childTree = ((DefaultNodeAnnotationDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -361,8 +361,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeUIInfoDef){
-                var childTree = ((FallibleNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeUIInfoDef){
+                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -410,8 +410,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeLocksDef){
-                var childTree = ((FallibleNodeLocksDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeLocksDef){
+                var childTree = ((DefaultNodeLocksDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -459,8 +459,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleJobManagerDef){
-                var childTree = ((FallibleJobManagerDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultJobManagerDef){
+                var childTree = ((DefaultJobManagerDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -508,8 +508,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleWorkflowDef){
-                var childTree = ((FallibleWorkflowDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultWorkflowDef){
+                var childTree = ((DefaultWorkflowDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -588,7 +588,7 @@ public class MetaNodeDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FalliblePortDef(defaultValue, supplyException);
+            toAdd = new DefaultPortDef(defaultValue, supplyException);
         }
         m_inPorts.add(toAdd);
         return this;
@@ -661,7 +661,7 @@ public class MetaNodeDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FalliblePortDef(defaultValue, supplyException);
+            toAdd = new DefaultPortDef(defaultValue, supplyException);
         }
         m_outPorts.add(toAdd);
         return this;
@@ -703,8 +703,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleCipherDef){
-                var childTree = ((FallibleCipherDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultCipherDef){
+                var childTree = ((DefaultCipherDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -752,8 +752,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleTemplateInfoDef){
-                var childTree = ((FallibleTemplateInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultTemplateInfoDef){
+                var childTree = ((DefaultTemplateInfoDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -801,8 +801,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeUIInfoDef){
-                var childTree = ((FallibleNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeUIInfoDef){
+                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -850,8 +850,8 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeUIInfoDef){
-                var childTree = ((FallibleNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeUIInfoDef){
+                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -870,7 +870,7 @@ public class MetaNodeDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleMetaNodeDef build() {
+    public DefaultMetaNodeDef build() {
         
     	
         // contains the elements set with #setInPorts (those added with #addToInPorts have already been inserted into m_inPorts)
@@ -893,7 +893,7 @@ public class MetaNodeDefBuilder {
             m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS, outPortsLoadExceptionTree);
         }
         
-        return new FallibleMetaNodeDef(this);
+        return new DefaultMetaNodeDef(this);
     }    
 
 }

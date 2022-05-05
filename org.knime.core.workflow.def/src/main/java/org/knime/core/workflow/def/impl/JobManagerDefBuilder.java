@@ -174,8 +174,8 @@ public class JobManagerDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -194,10 +194,10 @@ public class JobManagerDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleJobManagerDef build() {
+    public DefaultJobManagerDef build() {
         
     	
-        return new FallibleJobManagerDef(this);
+        return new DefaultJobManagerDef(this);
     }    
 
 }

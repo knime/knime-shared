@@ -225,10 +225,10 @@ public class NodeLocksDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleNodeLocksDef build() {
+    public DefaultNodeLocksDef build() {
         
     	
-        return new FallibleNodeLocksDef(this);
+        return new DefaultNodeLocksDef(this);
     }    
 
 }

@@ -171,7 +171,7 @@ public class ConnectionUISettingsDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleCoordinateDef(defaultValue, supplyException);
+            toAdd = new DefaultCoordinateDef(defaultValue, supplyException);
         }
         m_bendPoints.add(toAdd);
         return this;
@@ -184,7 +184,7 @@ public class ConnectionUISettingsDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConnectionUISettingsDef build() {
+    public DefaultConnectionUISettingsDef build() {
         
     	
         // contains the elements set with #setBendPoints (those added with #addToBendPoints have already been inserted into m_bendPoints)
@@ -197,7 +197,7 @@ public class ConnectionUISettingsDefBuilder {
             m_exceptionalChildren.put(ConnectionUISettingsDef.Attribute.BEND_POINTS, bendPointsLoadExceptionTree);
         }
         
-        return new FallibleConnectionUISettingsDef(this);
+        return new DefaultConnectionUISettingsDef(this);
     }    
 
 }

@@ -535,7 +535,7 @@ public class ComponentMetadataDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleComponentMetadataDef build() {
+    public DefaultComponentMetadataDef build() {
         
     	
         // contains the elements set with #setInPortNames (those added with #addToInPortNames have already been inserted into m_inPortNames)
@@ -578,7 +578,7 @@ public class ComponentMetadataDefBuilder {
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS, outPortDescriptionsLoadExceptionTree);
         }
         
-        return new FallibleComponentMetadataDef(this);
+        return new DefaultComponentMetadataDef(this);
     }    
 
 }

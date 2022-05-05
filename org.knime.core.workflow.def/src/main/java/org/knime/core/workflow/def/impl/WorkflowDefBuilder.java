@@ -214,8 +214,8 @@ public class WorkflowDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleAuthorInformationDef){
-                var childTree = ((FallibleAuthorInformationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultAuthorInformationDef){
+                var childTree = ((DefaultAuthorInformationDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -298,7 +298,7 @@ public class WorkflowDefBuilder {
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
-            toPut = FallibleBaseNodeDef.withException(defaultValue, supplyException);
+            toPut = DefaultBaseNodeDef.withException(defaultValue, supplyException);
         }
         m_nodes.put(key, toPut);
         return this;
@@ -372,7 +372,7 @@ public class WorkflowDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleConnectionDef(defaultValue, supplyException);
+            toAdd = new DefaultConnectionDef(defaultValue, supplyException);
         }
         m_connections.add(toAdd);
         return this;
@@ -449,7 +449,7 @@ public class WorkflowDefBuilder {
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
-            toPut = FallibleAnnotationDataDef.withException(defaultValue, supplyException);
+            toPut = DefaultAnnotationDataDef.withException(defaultValue, supplyException);
         }
         m_annotations.put(key, toPut);
         return this;
@@ -492,8 +492,8 @@ public class WorkflowDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleWorkflowUISettingsDef){
-                var childTree = ((FallibleWorkflowUISettingsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultWorkflowUISettingsDef){
+                var childTree = ((DefaultWorkflowUISettingsDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -512,7 +512,7 @@ public class WorkflowDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleWorkflowDef build() {
+    public DefaultWorkflowDef build() {
         
     	
         // contains the elements set with #setNodes (those added with #addToNodes have already been inserted into m_nodes)
@@ -553,7 +553,7 @@ public class WorkflowDefBuilder {
             m_exceptionalChildren.put(WorkflowDef.Attribute.ANNOTATIONS, annotationsLoadExceptionTree);
         }
         
-        return new FallibleWorkflowDef(this);
+        return new DefaultWorkflowDef(this);
     }    
 
 }

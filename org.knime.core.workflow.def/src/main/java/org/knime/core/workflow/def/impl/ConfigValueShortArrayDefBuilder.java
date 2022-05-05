@@ -234,7 +234,7 @@ public class ConfigValueShortArrayDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConfigValueShortArrayDef build() {
+    public DefaultConfigValueShortArrayDef build() {
         
         // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType(null);
@@ -250,7 +250,7 @@ public class ConfigValueShortArrayDefBuilder {
             m_exceptionalChildren.put(ConfigValueShortArrayDef.Attribute.ARRAY, arrayLoadExceptionTree);
         }
         
-        return new FallibleConfigValueShortArrayDef(this);
+        return new DefaultConfigValueShortArrayDef(this);
     }    
 
 }

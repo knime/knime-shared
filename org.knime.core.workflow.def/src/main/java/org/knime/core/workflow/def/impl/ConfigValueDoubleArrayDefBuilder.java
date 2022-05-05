@@ -234,7 +234,7 @@ public class ConfigValueDoubleArrayDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleConfigValueDoubleArrayDef build() {
+    public DefaultConfigValueDoubleArrayDef build() {
         
         // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType(null);
@@ -250,7 +250,7 @@ public class ConfigValueDoubleArrayDefBuilder {
             m_exceptionalChildren.put(ConfigValueDoubleArrayDef.Attribute.ARRAY, arrayLoadExceptionTree);
         }
         
-        return new FallibleConfigValueDoubleArrayDef(this);
+        return new DefaultConfigValueDoubleArrayDef(this);
     }    
 
 }

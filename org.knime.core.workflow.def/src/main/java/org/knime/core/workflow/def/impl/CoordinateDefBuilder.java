@@ -183,10 +183,10 @@ public class CoordinateDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleCoordinateDef build() {
+    public DefaultCoordinateDef build() {
         
     	
-        return new FallibleCoordinateDef(this);
+        return new DefaultCoordinateDef(this);
     }    
 
 }

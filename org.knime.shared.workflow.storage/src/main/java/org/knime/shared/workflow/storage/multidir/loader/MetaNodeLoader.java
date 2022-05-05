@@ -63,7 +63,7 @@ import org.knime.core.workflow.def.MetaNodeDef;
 import org.knime.core.workflow.def.NodeUIInfoDef;
 import org.knime.core.workflow.def.PortDef;
 import org.knime.core.workflow.def.PortTypeDef;
-import org.knime.core.workflow.def.impl.FallibleMetaNodeDef;
+import org.knime.core.workflow.def.impl.DefaultMetaNodeDef;
 import org.knime.core.workflow.def.impl.MetaNodeDefBuilder;
 import org.knime.core.workflow.def.impl.NodeUIInfoDefBuilder;
 import org.knime.core.workflow.def.impl.PortDefBuilder;
@@ -88,16 +88,16 @@ public final class MetaNodeLoader {
     private static final PortDef DEFAULT_PORT_DEF = new PortDefBuilder().build();
 
     /**
-     * Loads the properties of a MetaNode into {@link FallibleMetaNodeDef}, stores the loading exceptions using the
+     * Loads the properties of a MetaNode into {@link DefaultMetaNodeDef}, stores the loading exceptions using the
      * {@link FallibleSupplier}
      *
      * @param workflowConfig a read only representation of the workflow.knime.
      * @param nodeDirectory a {@link File} of the node folder.
      * @param workflowFormatVersion an {@link LoadVersion}.
-     * @return a {@link FallibleMetaNodeDef}
+     * @return a {@link DefaultMetaNodeDef}
      * @throws IOException whether the settings.xml can't be found.
      */
-    public static FallibleMetaNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
+    public static DefaultMetaNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
         final LoadVersion workflowFormatVersion) throws IOException {
         var metaNodeConfig = LoaderUtils.readWorkflowConfigFromFile(nodeDirectory);
         // if the template.knime doesn't exist the template information lives in the MetaNode's workflow.knime.

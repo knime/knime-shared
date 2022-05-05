@@ -65,14 +65,14 @@ import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.workflow.def.BaseNodeDef;
-import org.knime.core.workflow.def.ComponentDef;
 import org.knime.core.workflow.def.ComponentDialogSettingsDef;
 import org.knime.core.workflow.def.ComponentMetadataDef;
+import org.knime.core.workflow.def.ComponentNodeDef;
 import org.knime.core.workflow.def.PortDef;
-import org.knime.core.workflow.def.impl.ComponentDefBuilder;
 import org.knime.core.workflow.def.impl.ComponentDialogSettingsDefBuilder;
 import org.knime.core.workflow.def.impl.ComponentMetadataDefBuilder;
-import org.knime.core.workflow.def.impl.FallibleComponentDef;
+import org.knime.core.workflow.def.impl.ComponentNodeDefBuilder;
+import org.knime.core.workflow.def.impl.DefaultComponentNodeDef;
 import org.knime.core.workflow.def.impl.PortDefBuilder;
 import org.knime.core.workflow.def.impl.PortTypeDefBuilder;
 import org.knime.core.workflow.def.impl.WorkflowDefBuilder;
@@ -80,7 +80,7 @@ import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 
 /**
- * Loads the description of a Component into {@link ComponentDef}. Components are internally also referred to as
+ * Loads the description of a Component into {@link ComponentNodeDef}. Components are internally also referred to as
  * SubNodes.
  *
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
@@ -95,21 +95,21 @@ public final class ComponentNodeLoader {
     private static final PortDef DEFAULT_PORT_DEF = new PortDefBuilder().build();
 
     /**
-     * Loads the properties of a Component into {@link FallibleComponentDef}, each loader stores the loading exceptions
+     * Loads the properties of a Component into {@link DefaultComponentDef}, each loader stores the loading exceptions
      * using the {@link FallibleSupplier}.
      *
      * @param workflowConfig a read only representation of the workflow.knime.
      * @param nodeDirectory a {@link File} of the node folder.
      * @param workflowFormatVersion an {@link LoadVersion}.
-     * @return a {@link FallibleComponentDef}
+     * @return a {@link DefaultComponentDef}
      * @throws IOException whether the settings.xml can't be found.
      */
-    public static FallibleComponentDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
+    public static DefaultComponentNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
         final LoadVersion workflowFormatVersion) throws IOException {
         var componentConfig = LoaderUtils.readNodeConfigFromFile(nodeDirectory);
 
-        var builder = new ComponentDefBuilder() //
-            .setNodeType(BaseNodeDef.NodeTypeEnum.COMPONENT)//
+        var builder = new ComponentNodeDefBuilder() //
+            .setNodeType(BaseNodeDef.NodeTypeEnum.COMPONENT_NODE)//
             .setDialogSettings(loadDialogSettings(componentConfig)) //
             .setVirtualInNodeId(() -> loadVirtualInNodeId(componentConfig), DEFAULT_NEGATIVE_INDEX) //
             .setVirtualOutNodeId(() -> loadVirtualOutNodeId(componentConfig), DEFAULT_NEGATIVE_INDEX) //
@@ -149,7 +149,7 @@ public final class ComponentNodeLoader {
      * @param builder an instance of the current {@link ComponentDefBuilder}.
      * @param componentConfig a read only representation of the component's settings.xml.
      */
-    private static void setInPorts(final ComponentDefBuilder builder, final ConfigBaseRO componentConfig) {
+    private static void setInPorts(final ComponentNodeDefBuilder builder, final ConfigBaseRO componentConfig) {
         try {
             var inPortsSettings = loadSetting(componentConfig, IOConst.INPORTS_KEY.get());
             if (inPortsSettings != null) {
@@ -170,7 +170,7 @@ public final class ComponentNodeLoader {
      * @param builder an instance of the current {@link ComponentDefBuilder}.
      * @param componentConfig a read only representation of the component's settings.xml.
      */
-    private static void setOutPorts(final ComponentDefBuilder builder, final ConfigBaseRO componentConfig) {
+    private static void setOutPorts(final ComponentNodeDefBuilder builder, final ConfigBaseRO componentConfig) {
         try {
             var inPortsSettings = loadSetting(componentConfig, IOConst.OUTPORTS_KEY.get());
             if (inPortsSettings != null) {

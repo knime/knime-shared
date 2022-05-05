@@ -216,8 +216,8 @@ public class NodeUIInfoDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleBoundsDef){
-                var childTree = ((FallibleBoundsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultBoundsDef){
+                var childTree = ((DefaultBoundsDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -236,10 +236,10 @@ public class NodeUIInfoDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleNodeUIInfoDef build() {
+    public DefaultNodeUIInfoDef build() {
         
     	
-        return new FallibleNodeUIInfoDef(this);
+        return new DefaultNodeUIInfoDef(this);
     }    
 
 }

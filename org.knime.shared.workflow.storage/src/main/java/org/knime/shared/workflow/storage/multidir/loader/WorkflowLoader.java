@@ -229,7 +229,7 @@ public class WorkflowLoader {
                 return MetaNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
             case NATIVE_NODE:
                 return NativeNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
-            case COMPONENT:
+            case COMPONENT_NODE:
                 return ComponentNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
             default:
                 throw new IllegalStateException("Unknown node type");
@@ -264,7 +264,7 @@ public class WorkflowLoader {
             case "metanode":
                 return NodeTypeEnum.METANODE;
             case "subnode":
-                return NodeTypeEnum.COMPONENT;
+                return NodeTypeEnum.COMPONENT_NODE;
             default:
                 return NodeTypeEnum.NATIVE_NODE;
         }

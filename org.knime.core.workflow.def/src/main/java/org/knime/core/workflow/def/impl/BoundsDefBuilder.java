@@ -140,8 +140,8 @@ public class BoundsDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleCoordinateDef){
-                var childTree = ((FallibleCoordinateDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultCoordinateDef){
+                var childTree = ((DefaultCoordinateDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -236,10 +236,10 @@ public class BoundsDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleBoundsDef build() {
+    public DefaultBoundsDef build() {
         
     	
-        return new FallibleBoundsDef(this);
+        return new DefaultBoundsDef(this);
     }    
 
 }

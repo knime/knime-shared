@@ -247,8 +247,8 @@ public class RootWorkflowDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleAuthorInformationDef){
-                var childTree = ((FallibleAuthorInformationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultAuthorInformationDef){
+                var childTree = ((DefaultAuthorInformationDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -331,7 +331,7 @@ public class RootWorkflowDefBuilder {
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
-            toPut = FallibleBaseNodeDef.withException(defaultValue, supplyException);
+            toPut = DefaultBaseNodeDef.withException(defaultValue, supplyException);
         }
         m_nodes.put(key, toPut);
         return this;
@@ -405,7 +405,7 @@ public class RootWorkflowDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleConnectionDef(defaultValue, supplyException);
+            toAdd = new DefaultConnectionDef(defaultValue, supplyException);
         }
         m_connections.add(toAdd);
         return this;
@@ -482,7 +482,7 @@ public class RootWorkflowDefBuilder {
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
-            toPut = FallibleAnnotationDataDef.withException(defaultValue, supplyException);
+            toPut = DefaultAnnotationDataDef.withException(defaultValue, supplyException);
         }
         m_annotations.put(key, toPut);
         return this;
@@ -525,8 +525,8 @@ public class RootWorkflowDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleWorkflowUISettingsDef){
-                var childTree = ((FallibleWorkflowUISettingsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultWorkflowUISettingsDef){
+                var childTree = ((DefaultWorkflowUISettingsDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -574,8 +574,8 @@ public class RootWorkflowDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -654,7 +654,7 @@ public class RootWorkflowDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleFlowVariableDef(defaultValue, supplyException);
+            toAdd = new DefaultFlowVariableDef(defaultValue, supplyException);
         }
         m_flowVariables.add(toAdd);
         return this;
@@ -727,7 +727,7 @@ public class RootWorkflowDefBuilder {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            toAdd = new FallibleCredentialPlaceholderDef(defaultValue, supplyException);
+            toAdd = new DefaultCredentialPlaceholderDef(defaultValue, supplyException);
         }
         m_credentialPlaceholders.add(toAdd);
         return this;
@@ -769,8 +769,8 @@ public class RootWorkflowDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleWorkflowDef){
-                var childTree = ((FallibleWorkflowDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultWorkflowDef){
+                var childTree = ((DefaultWorkflowDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -789,7 +789,7 @@ public class RootWorkflowDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleRootWorkflowDef build() {
+    public DefaultRootWorkflowDef build() {
         
     	
         // contains the elements set with #setFlowVariables (those added with #addToFlowVariables have already been inserted into m_flowVariables)
@@ -812,7 +812,7 @@ public class RootWorkflowDefBuilder {
             m_exceptionalChildren.put(RootWorkflowDef.Attribute.CREDENTIAL_PLACEHOLDERS, credentialPlaceholdersLoadExceptionTree);
         }
         
-        return new FallibleRootWorkflowDef(this);
+        return new DefaultRootWorkflowDef(this);
     }    
 
 }

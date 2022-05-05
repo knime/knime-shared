@@ -65,8 +65,7 @@ import org.knime.core.workflow.def.FlowVariableDef;
 import org.knime.core.workflow.def.RootWorkflowDef;
 import org.knime.core.workflow.def.StandaloneDef;
 import org.knime.core.workflow.def.impl.CredentialPlaceholderDefBuilder;
-import org.knime.core.workflow.def.impl.FallibleComponentDef;
-import org.knime.core.workflow.def.impl.FallibleStandaloneDef;
+import org.knime.core.workflow.def.impl.DefaultStandaloneDef;
 import org.knime.core.workflow.def.impl.FlowVariableDefBuilder;
 import org.knime.core.workflow.def.impl.RootWorkflowDefBuilder;
 import org.knime.core.workflow.def.impl.StandaloneDefBuilder;
@@ -94,10 +93,10 @@ public final class StandaloneLoader {
      * stores the loading exceptions using the {@link FallibleSupplier}.
      *
      * @param directory a {@link File} of the unit's folder.
-     * @return a {@link FallibleComponentDef}
+     * @return a {@link DefaultComponentDef}
      * @throws IOException
      */
-    public static FallibleStandaloneDef load(final File directory) throws IOException {
+    public static DefaultStandaloneDef load(final File directory) throws IOException {
         var builder = new StandaloneDefBuilder();
         var workflowConfig = LoaderUtils.readWorkflowConfigFromFile(directory);
         try {

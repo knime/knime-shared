@@ -268,10 +268,10 @@ public class AuthorInformationDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleAuthorInformationDef build() {
+    public DefaultAuthorInformationDef build() {
         
     	
-        return new FallibleAuthorInformationDef(this);
+        return new DefaultAuthorInformationDef(this);
     }    
 
 }

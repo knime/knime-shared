@@ -140,8 +140,8 @@ public class StandaloneDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleCreatorDef){
-                var childTree = ((FallibleCreatorDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultCreatorDef){
+                var childTree = ((DefaultCreatorDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -236,10 +236,10 @@ public class StandaloneDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleStandaloneDef build() {
+    public DefaultStandaloneDef build() {
         
     	
-        return new FallibleStandaloneDef(this);
+        return new DefaultStandaloneDef(this);
     }    
 
 }

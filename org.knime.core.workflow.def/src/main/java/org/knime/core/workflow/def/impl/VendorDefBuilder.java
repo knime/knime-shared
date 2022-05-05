@@ -267,10 +267,10 @@ public class VendorDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleVendorDef build() {
+    public DefaultVendorDef build() {
         
     	
-        return new FallibleVendorDef(this);
+        return new DefaultVendorDef(this);
     }    
 
 }

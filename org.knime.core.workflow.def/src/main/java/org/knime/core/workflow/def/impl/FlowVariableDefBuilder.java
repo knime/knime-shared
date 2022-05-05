@@ -216,8 +216,8 @@ public class FlowVariableDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -236,10 +236,10 @@ public class FlowVariableDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleFlowVariableDef build() {
+    public DefaultFlowVariableDef build() {
         
     	
-        return new FallibleFlowVariableDef(this);
+        return new DefaultFlowVariableDef(this);
     }    
 
 }

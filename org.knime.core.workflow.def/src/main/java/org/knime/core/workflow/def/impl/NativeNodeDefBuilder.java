@@ -306,8 +306,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeAnnotationDef){
-                var childTree = ((FallibleNodeAnnotationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeAnnotationDef){
+                var childTree = ((DefaultNodeAnnotationDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -355,8 +355,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeUIInfoDef){
-                var childTree = ((FallibleNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeUIInfoDef){
+                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -404,8 +404,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleNodeLocksDef){
-                var childTree = ((FallibleNodeLocksDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultNodeLocksDef){
+                var childTree = ((DefaultNodeLocksDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -453,8 +453,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleJobManagerDef){
-                var childTree = ((FallibleJobManagerDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultJobManagerDef){
+                var childTree = ((DefaultJobManagerDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -502,8 +502,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -551,8 +551,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -600,8 +600,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -725,8 +725,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -774,8 +774,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleVendorDef){
-                var childTree = ((FallibleVendorDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultVendorDef){
+                var childTree = ((DefaultVendorDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -823,8 +823,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleVendorDef){
-                var childTree = ((FallibleVendorDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultVendorDef){
+                var childTree = ((DefaultVendorDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -872,8 +872,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleConfigMapDef){
-                var childTree = ((FallibleConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigMapDef){
+                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -921,8 +921,8 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof FallibleFilestoreDef){
-                var childTree = ((FallibleFilestoreDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultFilestoreDef){
+                var childTree = ((DefaultFilestoreDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {
@@ -941,10 +941,10 @@ public class NativeNodeDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleNativeNodeDef build() {
+    public DefaultNativeNodeDef build() {
         
     	
-        return new FallibleNativeNodeDef(this);
+        return new DefaultNativeNodeDef(this);
     }    
 
 }

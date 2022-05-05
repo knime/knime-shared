@@ -225,10 +225,10 @@ public class CipherDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleCipherDef build() {
+    public DefaultCipherDef build() {
         
     	
-        return new FallibleCipherDef(this);
+        return new DefaultCipherDef(this);
     }    
 
 }

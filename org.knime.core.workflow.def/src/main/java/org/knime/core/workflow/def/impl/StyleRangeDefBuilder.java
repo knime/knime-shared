@@ -351,10 +351,10 @@ public class StyleRangeDefBuilder {
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public FallibleStyleRangeDef build() {
+    public DefaultStyleRangeDef build() {
         
     	
-        return new FallibleStyleRangeDef(this);
+        return new DefaultStyleRangeDef(this);
     }    
 
 }
