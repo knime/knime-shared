@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -68,85 +69,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  * @since 5.10
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE)
 public class WorkflowSetMeta {
 
-    private static final String LINE_SEPARATOR_REGEX = "\r?\n+";
+    // Copied from org.knime.workbench.ui.workflow.metadata.MetaInfoFile
+    private static final String NO_TITLE_PLACEHOLDER_TEXT = "There has been no title set for this workflow's metadata.";
+
+    // Copied from org.knime.workbench.ui.workflow.metadata.MetaInfoFile
+    private static final String NO_DESCRIPTION_PLACEHOLDER_TEXT =
+        "There has been no description set for this workflow's metadata.";
 
     @JsonProperty("author")
     private final Optional<String> m_author;
 
     @JsonProperty("title")
-    private final Optional<String> m_title;
+    private Optional<String> m_title;
 
     @JsonProperty("description")
-    private final Optional<String> m_description;
+    private Optional<String> m_description;
 
     @JsonProperty("links")
-    private final Optional<List<Link>> m_links;
+    private Optional<List<Link>> m_links;
 
     @JsonProperty("tags")
-    private final Optional<List<String>> m_tags;
+    private Optional<List<String>> m_tags;
 
     WorkflowSetMeta(final Optional<String> author, final Optional<String> comments) {
         m_author = author;
 
-        if (comments.isPresent()) {
-            // Several successive empty lines are treated as one line separator
-            final String[] lines = comments.get().split(LINE_SEPARATOR_REGEX);
-
-            String title = null;
-            int start = 0;
-            if (lines.length > 1 && !lines[1].isEmpty()
-                    && !(lines[1].startsWith("BLOG:") || lines[1].startsWith("URL:") || lines[1].startsWith("VIDEO:")
-                    || lines[1].startsWith("TAG:") || lines[1].startsWith("TAGS:"))) {
-                if (lines[0].isEmpty()) {
-                    // Catch if the comments starts with: emptyLines-Title-emptyLines-Description
-                    // lines contain: emptyLine-Title-Description
-                    //  -> assume the second line is a title
-                    title = lines[1];
-                    start = 2;
-                } else {
-                    // If the first line is less than 20 words, followed by a blank line, then another line which isn't
-                    // one of the special "tags" -> assume the first line is a title
-                    title = lines[0];
-                    start = 1;
-                }
-            }
-            m_title = Optional.ofNullable(title);
-
-            final StringBuilder b = new StringBuilder();
-            int stop = lines.length;
-            for (int i = start; i < lines.length; i++) {
-                if (lines[i].startsWith("BLOG:") || lines[i].startsWith("URL:") || lines[i].startsWith("VIDEO:")
-                    || lines[i].startsWith("TAG:") || lines[i].startsWith("TAGS:")) {
-                    stop = i;
-                    break;
-                } else {
-                    b.append(lines[i] + "\n");
-                }
-            }
-            m_description = Optional.of(b.toString().trim());
-
-            final List<Link> links = new ArrayList<>();
-            final List<String> tags = new ArrayList<>();
-            for (int i = stop; i < lines.length; i++) {
-                if (lines[i].startsWith("BLOG:") || lines[i].startsWith("URL:") || lines[i].startsWith("VIDEO:")) {
-                    final Link l = createURLTag(lines[i]);
-                    if (l != null) {
-                        links.add(l);
-                    }
-                } else if (lines[i].startsWith("TAG:") || lines[i].startsWith("TAGS:")) {
-                    final String[] split = lines[i].split(":");
-                    final String[] ts = split[1].split(",");
-                    for (final String t : ts) {
-                        tags.add(t.trim());
-                    }
-                }
-            }
-
-            m_links = Optional.of(links);
-            m_tags = Optional.of(tags);
+        if (comments.isPresent() && StringUtils.isNotEmpty(comments.get())) {
+            parseCommentsField(comments.get());
         } else {
             m_title = Optional.empty();
             m_description = Optional.empty();
@@ -244,25 +197,16 @@ public class WorkflowSetMeta {
         if (!(obj instanceof WorkflowSetMeta)) {
             return false;
         }
-        final WorkflowSetMeta other = (WorkflowSetMeta) obj;
-        return new EqualsBuilder()
-                .append(m_author, other.m_author)
-                .append(m_title, other.m_title)
-                .append(m_description, other.m_description)
-                .append(m_links, other.m_links)
-                .append(m_tags, other.m_tags)
-                .isEquals();
+        final WorkflowSetMeta other = (WorkflowSetMeta)obj;
+        return new EqualsBuilder().append(m_author, other.m_author).append(m_title, other.m_title)
+            .append(m_description, other.m_description).append(m_links, other.m_links).append(m_tags, other.m_tags)
+            .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .append(m_author)
-                .append(m_title)
-                .append(m_description)
-                .append(m_links)
-                .append(m_tags)
-                .toHashCode();
+        return new HashCodeBuilder().append(m_author).append(m_title).append(m_description).append(m_links)
+            .append(m_tags).toHashCode();
     }
 
     @Override
@@ -284,20 +228,156 @@ public class WorkflowSetMeta {
 
     // -- Helper methods --
 
-    private static Link createURLTag(final String s) {
-        final int textIndex = s.indexOf(':');
-        final int urlIndex = s.indexOf("http");
+    // Copied from
+    // org.knime.workbench.descriptionview.metadata.workflow.MetadataModelFacilitator#potentiallyParseOldStyleDescription(String)
+    // The above code is how the AP parses this field, and the code below is a close match to that though modified slightly to
+    // work in this repository
+    private void parseCommentsField(final String description) {
+        String[] lines = description.split("\r?\n");
+        boolean isOldStyle = isOldStyle(lines);
 
-        if (urlIndex < 0) {
-            return null;
+        if (isOldStyle) {
+            int lineIndex = setTitle(lines);
+            lineIndex = setDescription(lineIndex, lines);
+            setTagsAndLines(lineIndex, lines);
+        } else {
+            m_title = Optional.empty();
+            m_tags = Optional.of(List.of());
+            m_links = Optional.of(List.of());
+            m_description = Optional.of(description);
+        }
+    }
+
+    private static boolean isOldStyle(final String[] lines) {
+        boolean isOldStyle = (lines.length > 2);
+        if (isOldStyle) {
+            // is the at least one blank line sandwiched between two non-blank lines? TODO - this will be an
+            //          insufficient check in the future since descriptions can have blank lines; for the moment
+            //          (aka 4.0) we know we have only 'legacy' format.
+            isOldStyle = false;
+            for (int i = 1; i < (lines.length - 1); i++) {
+                if ((lines[i].trim().length() == 0) && (lines[i + 1].trim().length() > 0)) {
+                    isOldStyle = true;
+                    break;
+                }
+            }
+        }
+        return isOldStyle;
+    }
+
+    private int setTitle(final String[] lines) {
+        int lineIndex = 0;
+        if (NO_TITLE_PLACEHOLDER_TEXT.equals(lines[lineIndex])) {
+            m_title = Optional.empty();
+            lineIndex++;
+        } else {
+            StringBuilder title = new StringBuilder(lines[lineIndex]);
+
+            lineIndex++;
+            while (lines[lineIndex].trim().length() > 0) {
+                title.append('\n').append(lines[lineIndex]);
+                lineIndex++;
+            }
+
+            String actualTitle = title.toString();
+            if (StringUtils.isAllBlank(actualTitle)) {
+                m_title = Optional.empty();
+            } else {
+                m_title = Optional.of(title.toString());
+            }
+        }
+        lineIndex++;
+        return lineIndex;
+    }
+
+    private int setDescription(final int startIndex, final String[] lines) {
+        if (startIndex >= lines.length) {
+            m_description = Optional.empty();
+            return startIndex;
         }
 
-        final String href = s.substring(urlIndex, s.length()).trim();
-        String text = href;
-        if (textIndex >= 0) {
-            text = s.substring(textIndex + 1, urlIndex).trim();
+        int lineIndex = startIndex;
+        StringBuilder actualDescription = new StringBuilder();
+        if (!NO_DESCRIPTION_PLACEHOLDER_TEXT.equals(lines[lineIndex])) {
+            actualDescription.append(lines[lineIndex]);
         }
-        return new Link(href, text);
+        lineIndex++;
+        while (lineIndex < lines.length) {
+            String line = lines[lineIndex];
+            int index = line.indexOf(':');
+            if ((index != -1) && (index < (line.length() - 2))) {
+                // This line is probably a tag, so it is the end of the description
+                break;
+            }
+            actualDescription.append('\n').append(line);
+            lineIndex++;
+        }
+        String desc = actualDescription.toString();
+        if (StringUtils.isAllBlank(desc)) {
+            m_description = Optional.empty();
+        } else {
+            m_description = Optional.of(actualDescription.toString());
+        }
+        return lineIndex;
+    }
+
+    private void setTagsAndLines(final int startIndex, final String[] lines) {
+        if (startIndex >= lines.length) {
+            m_tags = Optional.of(List.of());
+            m_links = Optional.of(List.of());
+        }
+
+        int lineIndex = startIndex;
+        List<Link> linksList = new ArrayList<>();
+        List<String> tagsList = new ArrayList<>();
+        while (lineIndex < lines.length) {
+            String line = lines[lineIndex];
+            int index = line.indexOf(':');
+
+            if ((index != -1) && (index < (line.length() - 2))) {
+                final String initialText = line.substring(0, index).toUpperCase();
+
+                if (isTextTag(initialText)) {
+                    addTag(line, index, tagsList);
+                } else if (isLinkTag(initialText)) {
+                    addLink(line, index, linksList);
+                } else {
+                    // Do nothing, unknown tag
+                }
+            }
+            lineIndex++;
+        }
+        m_tags = Optional.of(tagsList);
+        m_links = Optional.of(linksList);
+    }
+
+    private static boolean isTextTag(final String tag) {
+        return tag.equals("TAG") || tag.equals("TAGS");
+    }
+
+    private static boolean isLinkTag(final String tag) {
+        return tag.equals("BLOG") || tag.equals("URL") || tag.equals("VIDEO");
+    }
+
+    private static void addTag(final String line, final int index, final List<String> tagsList) {
+        String tagsConcatenated = line.substring(index + 1).trim();
+        String[] tags = tagsConcatenated.split(",");
+
+        for (String tag : tags) {
+            tagsList.add(tag.trim());
+        }
+    }
+
+    private static void addLink(final String line, final int index, final List<Link> linksList) {
+        String lowercaseLine = line.toLowerCase(Locale.ROOT);
+        int urlStart = lowercaseLine.indexOf("http:");
+        if (urlStart == -1) {
+            urlStart = lowercaseLine.indexOf("https:");
+        }
+
+        String url = line.substring(urlStart);
+        String title = line.substring((index + 1), urlStart).trim();
+        linksList.add(new Link(url, title));
     }
 
     // -- Helper classes --
@@ -309,6 +389,7 @@ public class WorkflowSetMeta {
     public static final class Link {
 
         private final String m_url;
+
         private final String m_text;
 
         /**
