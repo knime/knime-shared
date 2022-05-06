@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -79,6 +80,8 @@ public class WorkflowSetMeta {
     // Copied from org.knime.workbench.ui.workflow.metadata.MetaInfoFile
     private static final String NO_DESCRIPTION_PLACEHOLDER_TEXT =
         "There has been no description set for this workflow's metadata.";
+
+    private static final Pattern SPLIT_COMMENTS_REGEX = Pattern.compile("\r?\n");
 
     @JsonProperty("author")
     private final Optional<String> m_author;
@@ -229,11 +232,12 @@ public class WorkflowSetMeta {
     // -- Helper methods --
 
     // Copied from
-    // org.knime.workbench.descriptionview.metadata.workflow.MetadataModelFacilitator#potentiallyParseOldStyleDescription(String)
-    // The above code is how the AP parses this field, and the code below is a close match to that though modified slightly to
-    // work in this repository
+    // org.knime.workbench.descriptionview.metadata.workflow.MetadataModelFacilitator
+    // #potentiallyParseOldStyleDescription(String)
+    // The above code is how the AP parses this field, and the code below is a close match to that though modified
+    // slightly to work in this repository
     private void parseCommentsField(final String description) {
-        String[] lines = description.split("\r?\n");
+        String[] lines = SPLIT_COMMENTS_REGEX.split(description);
         boolean isOldStyle = isOldStyle(lines);
 
         if (isOldStyle) {
@@ -251,11 +255,8 @@ public class WorkflowSetMeta {
     private static boolean isOldStyle(final String[] lines) {
         boolean isOldStyle = (lines.length > 2);
         if (isOldStyle) {
-            // is the at least one blank line sandwiched between two non-blank lines? TODO - this will be an
-            //          insufficient check in the future since descriptions can have blank lines; for the moment
-            //          (aka 4.0) we know we have only 'legacy' format.
             isOldStyle = false;
-            for (int i = 1; i < (lines.length - 1); i++) {
+            for (var i = 1; i < (lines.length - 1); i++) {
                 if ((lines[i].trim().length() == 0) && (lines[i + 1].trim().length() > 0)) {
                     isOldStyle = true;
                     break;
@@ -266,12 +267,12 @@ public class WorkflowSetMeta {
     }
 
     private int setTitle(final String[] lines) {
-        int lineIndex = 0;
+        var lineIndex = 0;
         if (NO_TITLE_PLACEHOLDER_TEXT.equals(lines[lineIndex])) {
             m_title = Optional.empty();
             lineIndex++;
         } else {
-            StringBuilder title = new StringBuilder(lines[lineIndex]);
+            var title = new StringBuilder(lines[lineIndex]);
 
             lineIndex++;
             while (lines[lineIndex].trim().length() > 0) {
@@ -279,7 +280,7 @@ public class WorkflowSetMeta {
                 lineIndex++;
             }
 
-            String actualTitle = title.toString();
+            var actualTitle = title.toString();
             if (StringUtils.isAllBlank(actualTitle)) {
                 m_title = Optional.empty();
             } else {
@@ -297,7 +298,7 @@ public class WorkflowSetMeta {
         }
 
         int lineIndex = startIndex;
-        StringBuilder actualDescription = new StringBuilder();
+        var actualDescription = new StringBuilder();
         if (!NO_DESCRIPTION_PLACEHOLDER_TEXT.equals(lines[lineIndex])) {
             actualDescription.append(lines[lineIndex]);
         }
@@ -312,7 +313,7 @@ public class WorkflowSetMeta {
             actualDescription.append('\n').append(line);
             lineIndex++;
         }
-        String desc = actualDescription.toString();
+        var desc = actualDescription.toString();
         if (StringUtils.isAllBlank(desc)) {
             m_description = Optional.empty();
         } else {
@@ -335,7 +336,7 @@ public class WorkflowSetMeta {
             int index = line.indexOf(':');
 
             if ((index != -1) && (index < (line.length() - 2))) {
-                final String initialText = line.substring(0, index).toUpperCase();
+                final String initialText = line.substring(0, index).toUpperCase(Locale.US);
 
                 if (isTextTag(initialText)) {
                     addTag(line, index, tagsList);
@@ -375,7 +376,7 @@ public class WorkflowSetMeta {
             urlStart = lowercaseLine.indexOf("https:");
         }
 
-        String url = line.substring(urlStart);
+        var url = line.substring(urlStart);
         String title = line.substring((index + 1), urlStart).trim();
         linksList.add(new Link(url, title));
     }
