@@ -12,9 +12,14 @@
 	</parent>
 
 	<groupId>org.knime</groupId>
-	<artifactId>core.workflow.def</artifactId>
+	<artifactId>shared.workflow.def</artifactId>
 	<version>${revision}${changelist}</version>
-	<name>KNIME Core Workflow Defintion</name>
+	<name>KNIME Intermediate Workflow Format</name>
+	<description>Java interfaces and implementations that define and store all data that specifies a KNIME workflow.
+		This is also referred to as intermediate workflow format, since the information can be written as and read from
+		different formats, e.g., a format using a recursive directory structure to represent the nesting of the workflow,
+		or a JSON-format that stores all information in a single text file.
+	</description>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -28,7 +33,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.13.2</version>
+			<version>2.13.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsonschema2pojo</groupId>

@@ -40,7 +40,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.knime</groupId>
-			<artifactId>core.workflow.def</artifactId>
+			<artifactId>shared.workflow.def</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
