@@ -92,9 +92,15 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
     @JsonProperty("showGrid")
     protected Boolean m_showGrid;
 
+    /** 
+     * Horizontal spacing of grid lines. 
+     */
     @JsonProperty("gridX")
     protected Integer m_gridX;
 
+    /** 
+     * Vertical spacing of grid lines. 
+     */
     @JsonProperty("gridY")
     protected Integer m_gridY;
 

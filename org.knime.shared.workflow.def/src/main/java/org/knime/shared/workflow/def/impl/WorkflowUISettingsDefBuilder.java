@@ -79,25 +79,25 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    Boolean m_snapToGrid;
+    Boolean m_snapToGrid = true;
     
 
-    Boolean m_showGrid;
+    Boolean m_showGrid = false;
     
 
-    Integer m_gridX;
+    Integer m_gridX = 20;
     
 
-    Integer m_gridY;
+    Integer m_gridY = 20;
     
 
-    Double m_zoomLevel;
+    Double m_zoomLevel = 1.25d;
     
 
-    Boolean m_curvedConnections;
+    Boolean m_curvedConnections = true;
     
 
-    Integer m_connectionLineWidth;
+    Integer m_connectionLineWidth = 2;
     
 
     /**
@@ -200,7 +200,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param gridX 
+     * @param gridX Horizontal spacing of grid lines.
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setGridX(final Integer gridX) {
@@ -238,7 +238,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param gridY 
+     * @param gridY Vertical spacing of grid lines.
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setGridY(final Integer gridY) {
@@ -377,7 +377,13 @@ public class WorkflowUISettingsDefBuilder {
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH);
         try {
             m_connectionLineWidth = connectionLineWidth.get();
-	    } catch (Exception e) {
+            if(m_connectionLineWidth != null && m_connectionLineWidth < 1) {
+                throw new IllegalArgumentException("connectionLineWidth must not be smaller than 1, but was given: " + m_connectionLineWidth);
+            }
+            if(m_connectionLineWidth != null && m_connectionLineWidth > 3) {
+                throw new IllegalArgumentException("connectionLineWidth must not be larger than 3, but was given: " + m_connectionLineWidth);
+            }
+            	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_connectionLineWidth = defaultValue;

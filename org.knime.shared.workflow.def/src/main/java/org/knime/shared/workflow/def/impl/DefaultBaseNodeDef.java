@@ -57,10 +57,6 @@ import org.knime.shared.workflow.def.NodeUIInfoDef;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
 
-import org.knime.shared.workflow.def.ComponentNodeDef;
-import org.knime.shared.workflow.def.ConfigurableNodeDef;
-import org.knime.shared.workflow.def.NativeNodeDef;
-import org.knime.shared.workflow.def.MetaNodeDef;
 
 
 // for types that define enums
@@ -154,18 +150,6 @@ public class DefaultBaseNodeDef implements BaseNodeDef {
      */
     static DefaultBaseNodeDef withException(BaseNodeDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
-        if (toCopy instanceof ComponentNodeDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ComponentNodeDefBuilder().build());
-            return new DefaultComponentNodeDef((ComponentNodeDef)toCopy, exception);
-        }
-        if (toCopy instanceof NativeNodeDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new NativeNodeDefBuilder().build());
-            return new DefaultNativeNodeDef((NativeNodeDef)toCopy, exception);
-        }
-        if (toCopy instanceof MetaNodeDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new MetaNodeDefBuilder().build());
-            return new DefaultMetaNodeDef((MetaNodeDef)toCopy, exception);
-        }
         throw new IllegalArgumentException();
     }
     

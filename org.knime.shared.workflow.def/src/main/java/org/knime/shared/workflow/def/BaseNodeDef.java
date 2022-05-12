@@ -80,10 +80,12 @@ import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
     defaultImpl = DefaultBaseNodeDef.class)
 @JsonSubTypes({
     @Type(value = DefaultBaseNodeDef.class, name="BaseNode")
-, @Type(value = DefaultComponentNodeDef.class, name = "ComponentNode")
-, @Type(value = DefaultMetaNodeDef.class, name = "MetaNode")
-, @Type(value = DefaultConfigurableNodeDef.class, name = "ConfigurableNode")
-, @Type(value = DefaultNativeNodeDef.class, name = "NativeNode")
+,
+  @Type(value = DefaultNativeNodeDef.class, name = "nativenode")
+,
+  @Type(value = DefaultComponentNodeDef.class, name = "component")
+,
+  @Type(value = DefaultMetaNodeDef.class, name = "metanode")
 })
 @JsonDeserialize(as = DefaultBaseNodeDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
@@ -139,11 +141,11 @@ public interface BaseNodeDef {
    * states the most specific subtype, i.e., Metanode, Component, or Native Node
    */
   public enum NodeTypeEnum {
-    NATIVE_NODE("Native Node"),
+    NATIVENODE("nativenode"),
     
-    COMPONENT_NODE("Component Node"),
+    COMPONENT("component"),
     
-    METANODE("Metanode");
+    METANODE("metanode");
 
     private String value;
 

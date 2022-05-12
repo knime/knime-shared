@@ -79,12 +79,16 @@ public interface WorkflowUISettingsDef {
           * Is is returned by {@link WorkflowUISettingsDef#isShowGrid} 
           */
          SHOW_GRID,
-         /** 
+         /**  
+          * Horizontal spacing of grid lines.
+          *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link WorkflowUISettingsDef#getGridX} 
           */
          GRID_X,
-         /** 
+         /**  
+          * Vertical spacing of grid lines.
+          *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link WorkflowUISettingsDef#getGridY} 
           */
@@ -125,12 +129,12 @@ public interface WorkflowUISettingsDef {
   public Boolean isShowGrid();
 
   /**
-   * @return 
+   * @return Horizontal spacing of grid lines.
    **/
   public Integer getGridX();
 
   /**
-   * @return 
+   * @return Vertical spacing of grid lines.
    **/
   public Integer getGridY();
 
@@ -145,6 +149,8 @@ public interface WorkflowUISettingsDef {
   public Boolean isCurvedConnections();
 
   /**
+   * minimum: 1
+   * maximum: 3
    * @return The width of the lines connecting a workflow&#39;s nodes in the workflow editor.
    **/
   public Integer getConnectionLineWidth();

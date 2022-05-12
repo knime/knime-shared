@@ -68,7 +68,6 @@ import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.def.VendorDef;
 import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
-import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
 import org.knime.shared.workflow.def.impl.FilestoreDefBuilder;
 import org.knime.shared.workflow.def.impl.NativeNodeDefBuilder;
 import org.knime.shared.workflow.def.impl.VendorDefBuilder;
@@ -134,7 +133,7 @@ public final class NativeNodeLoader {
         var nodeConfig = LoaderUtils.readNodeConfigFromFile(nodeDirectory);
 
         return new NativeNodeDefBuilder()//
-            .setNodeType(BaseNodeDef.NodeTypeEnum.NATIVE_NODE) //
+            .setNodeType(BaseNodeDef.NodeTypeEnum.NATIVENODE) //
             .setFactory(() -> loadFactory(workflowConfig, nodeConfig, workflowFormatVersion), DEFAULT_EMPTY_STRING) //
             .setFactorySettings(() -> loadFactorySettings(nodeConfig), DEFAULT_CONFIG_MAP) //
             .setNodeName(() -> nodeConfig.getString(IOConst.NODE_NAME_KEY.get()), DEFAULT_EMPTY_STRING) //

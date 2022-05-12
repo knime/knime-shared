@@ -109,7 +109,7 @@ public final class ComponentNodeLoader {
         var componentConfig = LoaderUtils.readNodeConfigFromFile(nodeDirectory);
 
         var builder = new ComponentNodeDefBuilder() //
-            .setNodeType(BaseNodeDef.NodeTypeEnum.COMPONENT_NODE)//
+            .setNodeType(BaseNodeDef.NodeTypeEnum.COMPONENT)//
             .setDialogSettings(loadDialogSettings(componentConfig)) //
             .setVirtualInNodeId(() -> loadVirtualInNodeId(componentConfig), DEFAULT_NEGATIVE_INDEX) //
             .setVirtualOutNodeId(() -> loadVirtualOutNodeId(componentConfig), DEFAULT_NEGATIVE_INDEX) //

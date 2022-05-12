@@ -227,9 +227,9 @@ public class WorkflowLoader {
         switch (loadNodeType(nodeConfig, workflowFormatVersion)) {
             case METANODE:
                 return MetaNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
-            case NATIVE_NODE:
+            case NATIVENODE:
                 return NativeNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
-            case COMPONENT_NODE:
+            case COMPONENT:
                 return ComponentNodeLoader.load(workflowConfig, nodeDirectory, workflowFormatVersion);
             default:
                 throw new IllegalStateException("Unknown node type");
@@ -249,10 +249,10 @@ public class WorkflowLoader {
             if (OLD_META_NODES.contains(factory)) {
                 return NodeTypeEnum.METANODE;
             } else {
-                return NodeTypeEnum.NATIVE_NODE;
+                return NodeTypeEnum.NATIVENODE;
             }
         } else if (workflowFormatVersion.isOlderThan(LoadVersion.V2100Pre)) {
-            return settings.getBoolean("node_is_meta") ? NodeTypeEnum.METANODE : NodeTypeEnum.NATIVE_NODE;
+            return settings.getBoolean("node_is_meta") ? NodeTypeEnum.METANODE : NodeTypeEnum.NATIVENODE;
         } else {
             final var nodeType = settings.getString("node_type");
             return getNodeType(nodeType);
@@ -264,9 +264,9 @@ public class WorkflowLoader {
             case "metanode":
                 return NodeTypeEnum.METANODE;
             case "subnode":
-                return NodeTypeEnum.COMPONENT_NODE;
+                return NodeTypeEnum.COMPONENT;
             default:
-                return NodeTypeEnum.NATIVE_NODE;
+                return NodeTypeEnum.NATIVENODE;
         }
     }
 
