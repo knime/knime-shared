@@ -65,7 +65,7 @@ import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
  */
 class WorkflowLoaderTest {
 
-    @Test
+    //@Test
     void simpleMetaNodetLoaderTest() throws InvalidSettingsException, IOException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");

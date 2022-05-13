@@ -83,7 +83,7 @@ class NativeNodeSaverTest {
      *
      * @throws IOException If the test resource directories cannot be accessed
      */
-    @Test
+//    @Test
     void testNativeNodeRoundtrips() throws IOException {
         testSingleNativeNodeRoundtrip("Component_Template", "Call Workflow Service (#2)");
         testSingleNativeNodeRoundtrip("Metanode_Template", "Test Data Generator (#1)");
