@@ -44,48 +44,58 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   15 May 2022 (carlwitt): created
+ *   19 May 2022 (carlwitt): created
  */
-package org.knime.shared.workflow.storage.text.util;
+package org.knime.shared.workflow.storage.clipboard;
 
-import org.knime.shared.workflow.storage.text.util.DefClipboardContent.Version;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.knime.shared.workflow.storage.util.PasswordRedactor;
 
 /**
+ * A singleton storage for {@link DefClipboardContent} objects.
+ *
+ * A WorkflowManager can use this to store a complete version of copied contents that contains passwords. While handing
+ * out to external users a redacted version with the passwords removed or encrypted. When a paste command is received,
+ * the {@link DefClipboardContent#getPayloadIdentifier()} is compared to the payload identifier of the content stored
+ * here. If the identifiers match, the WorkflowManager will use the content stored here, otherwise the given content.
+ * This way we can still copy & paste nodes with passwords when we stay in the same JVM and also store copied content in
+ * the system clipboard without exposing passwords.
+ *
+ * @see PasswordRedactor
+ *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-public class InvalidDefClipboardContentVersionException extends Exception {
+public final class DefClipboard {
 
-    private static final long serialVersionUID = 1L;
+    private static final DefClipboard INSTANCE = new DefClipboard();
 
     /**
-     * Indicates that the content of the clipboard looks like it should be paste-able but has an invalid
-     * {@link Version}. This may occur if the content was copied from a workflow editor with a future version or if the
-     * version string was altered.
+     * @return the global storage for defs describing copy content to be pasted later
      */
-    public InvalidDefClipboardContentVersionException() {
+    public static DefClipboard getInstance() {
+        return INSTANCE;
+    }
 
+    AtomicReference<Optional<DefClipboardContent>> m_content = new AtomicReference<>(Optional.empty());
+
+    /**
+     * Set the content of the global def clipboard.
+     *
+     * @param content for later insertion.
+     */
+    public void setContent(final DefClipboardContent content) {
+        m_content.set(Optional.ofNullable(content));
     }
 
     /**
-     * @param message should state the invalid version
+     * @return the value last set with {@link #setContent(DefClipboardContent)}
      */
-    public InvalidDefClipboardContentVersionException(final String message) {
-        super(message);
+    public Optional<DefClipboardContent> getContent() {
+        return m_content.get();
     }
 
-    /**
-     * @param cause for instance a Jackson invalid format exception
-     */
-    public InvalidDefClipboardContentVersionException(final Throwable cause) {
-        super(cause);
+    private DefClipboard() {
     }
-
-    /**
-     * @param message should state the invalid version
-     * @param cause for instance a Jackson invalid format exception
-     */
-    public InvalidDefClipboardContentVersionException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
 }

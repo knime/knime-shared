@@ -61,6 +61,7 @@ import org.knime.shared.workflow.def.ConfigValueCharDef;
 import org.knime.shared.workflow.def.ConfigValueDoubleDef;
 import org.knime.shared.workflow.def.ConfigValueBooleanArrayDef;
 import org.knime.shared.workflow.def.ConfigValueIntArrayDef;
+import org.knime.shared.workflow.def.ConfigValuePasswordDef;
 import org.knime.shared.workflow.def.ConfigValueDef;
 import org.knime.shared.workflow.def.ConfigValueByteDef;
 import org.knime.shared.workflow.def.ConfigValueDoubleArrayDef;
@@ -170,6 +171,10 @@ public abstract class DefaultConfigDef implements ConfigDef {
         if (toCopy instanceof ConfigValueIntArrayDef) {
             toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueIntArrayDefBuilder().build());
             return new DefaultConfigValueIntArrayDef((ConfigValueIntArrayDef)toCopy, exception);
+        }
+        if (toCopy instanceof ConfigValuePasswordDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValuePasswordDefBuilder().build());
+            return new DefaultConfigValuePasswordDef((ConfigValuePasswordDef)toCopy, exception);
         }
         if (toCopy instanceof ConfigValueByteDef) {
             toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueByteDefBuilder().build());

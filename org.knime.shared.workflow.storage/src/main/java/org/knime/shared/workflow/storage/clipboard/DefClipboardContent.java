@@ -46,7 +46,7 @@
  * History
  *   13 May 2022 (carlwitt): created
  */
-package org.knime.shared.workflow.storage.text.util;
+package org.knime.shared.workflow.storage.clipboard;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -54,6 +54,7 @@ import java.util.logging.Logger;
 
 import org.knime.core.node.util.CheckUtils;
 import org.knime.shared.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.storage.text.util.ObjectMapperUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

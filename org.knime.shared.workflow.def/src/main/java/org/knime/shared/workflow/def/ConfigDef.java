@@ -61,6 +61,7 @@ import org.knime.shared.workflow.def.impl.DefaultConfigValueDoubleArrayDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueBooleanArrayDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueStringArrayDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueDef;
+import org.knime.shared.workflow.def.impl.DefaultConfigValuePasswordDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueLongArrayDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueStringDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueDoubleDef;
@@ -99,6 +100,7 @@ import org.knime.shared.workflow.def.impl.DefaultConfigValueFloatArrayDef;
 , @Type(value = DefaultConfigValueBooleanArrayDef.class, name = "ConfigValueBooleanArray")
 , @Type(value = DefaultConfigValueStringArrayDef.class, name = "ConfigValueStringArray")
 , @Type(value = DefaultConfigValueDef.class, name = "ConfigValue")
+, @Type(value = DefaultConfigValuePasswordDef.class, name = "ConfigValuePassword")
 , @Type(value = DefaultConfigValueLongArrayDef.class, name = "ConfigValueLongArray")
 , @Type(value = DefaultConfigValueStringDef.class, name = "ConfigValueString")
 , @Type(value = DefaultConfigValueDoubleDef.class, name = "ConfigValueDouble")

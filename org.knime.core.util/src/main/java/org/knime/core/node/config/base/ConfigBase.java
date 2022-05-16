@@ -1431,6 +1431,18 @@ public abstract class ConfigBase extends AbstractConfigEntry
     }
 
     /**
+     * Adds a password without knowing the plaintext.
+     * For deserialization of configurations where the encryption key is not known.
+     *
+     * @param key identifier for the password value
+     * @param encrypted the password, encrypted via {@link #addPassword(String, String, String)}
+     * @noreference This method is not intended to be referenced by clients.
+     */
+    public void addEncryptedPassword(final String key, final String encrypted) {
+        put(new ConfigPasswordEntry(key, encrypted));
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

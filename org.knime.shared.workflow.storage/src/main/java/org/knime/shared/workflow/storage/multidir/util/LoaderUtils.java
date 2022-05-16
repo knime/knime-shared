@@ -57,6 +57,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -68,9 +69,11 @@ import org.knime.core.node.config.base.ConfigBooleanEntry;
 import org.knime.core.node.config.base.ConfigByteEntry;
 import org.knime.core.node.config.base.ConfigCharEntry;
 import org.knime.core.node.config.base.ConfigDoubleEntry;
+import org.knime.core.node.config.base.ConfigEntries;
 import org.knime.core.node.config.base.ConfigFloatEntry;
 import org.knime.core.node.config.base.ConfigIntEntry;
 import org.knime.core.node.config.base.ConfigLongEntry;
+import org.knime.core.node.config.base.ConfigPasswordEntry;
 import org.knime.core.node.config.base.ConfigShortEntry;
 import org.knime.core.node.config.base.ConfigStringEntry;
 import org.knime.core.node.config.base.SimpleConfig;
@@ -78,7 +81,27 @@ import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.AnnotationDataDef;
 import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.ConfigValueArrayDef;
 import org.knime.shared.workflow.def.ConfigValueBooleanArrayDef;
+import org.knime.shared.workflow.def.ConfigValueBooleanDef;
+import org.knime.shared.workflow.def.ConfigValueByteArrayDef;
+import org.knime.shared.workflow.def.ConfigValueByteDef;
+import org.knime.shared.workflow.def.ConfigValueCharArrayDef;
+import org.knime.shared.workflow.def.ConfigValueCharDef;
+import org.knime.shared.workflow.def.ConfigValueDef;
+import org.knime.shared.workflow.def.ConfigValueDoubleArrayDef;
+import org.knime.shared.workflow.def.ConfigValueDoubleDef;
+import org.knime.shared.workflow.def.ConfigValueFloatArrayDef;
+import org.knime.shared.workflow.def.ConfigValueFloatDef;
+import org.knime.shared.workflow.def.ConfigValueIntArrayDef;
+import org.knime.shared.workflow.def.ConfigValueIntDef;
+import org.knime.shared.workflow.def.ConfigValueLongArrayDef;
+import org.knime.shared.workflow.def.ConfigValueLongDef;
+import org.knime.shared.workflow.def.ConfigValuePasswordDef;
+import org.knime.shared.workflow.def.ConfigValueShortArrayDef;
+import org.knime.shared.workflow.def.ConfigValueShortDef;
+import org.knime.shared.workflow.def.ConfigValueStringArrayDef;
+import org.knime.shared.workflow.def.ConfigValueStringDef;
 import org.knime.shared.workflow.def.CoordinateDef;
 import org.knime.shared.workflow.def.StyleRangeDef;
 import org.knime.shared.workflow.def.TemplateInfoDef;
@@ -98,6 +121,7 @@ import org.knime.shared.workflow.def.impl.ConfigValueIntArrayDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueIntDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueLongArrayDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueLongDefBuilder;
+import org.knime.shared.workflow.def.impl.ConfigValuePasswordDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueShortArrayDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueShortDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueStringArrayDefBuilder;
@@ -105,6 +129,7 @@ import org.knime.shared.workflow.def.impl.ConfigValueStringDefBuilder;
 import org.knime.shared.workflow.def.impl.CoordinateDefBuilder;
 import org.knime.shared.workflow.def.impl.StyleRangeDefBuilder;
 import org.knime.shared.workflow.def.impl.TemplateInfoDefBuilder;
+import org.knime.shared.workflow.storage.util.PasswordRedactor;
 
 /**
  * //TODO We can add all the read from file methods for the files workflow.knime, settings.xml, template.knime.
@@ -302,63 +327,71 @@ public final class LoaderUtils {
     }
 
     /**
-    *
-    * TODO use {@link NodeSettingsRO}. The problem is the typed leaf entries (e.g., {@link ConfigBooleanEntry} inherit
-    * from {@link AbstractConfigEntry}, whereas {@link NodeSettingsRO}/ {@link ConfigRO}/ {@link ConfigBaseRO} only
-    * start from {@link ConfigBase}.
-    *
-    * @param settings TODO read-only access to a ConfigBase
-    * @return the node settings in a representation that can be converted to various formats
-    * @throws InvalidSettingsException
-    */
-   public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+     * @param settings recursive key-value map
+     * @param passwordRedactor post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
+     * @return the recursive key-value map in a different representation
+     * @throws InvalidSettingsException
+     */
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor)
+        throws InvalidSettingsException {
 
-       if (settings == null) {
-           return null;
-       }
+        if (settings == null) {
+            return null;
+        }
 
-       // TODO don't cast
-       ConfigBase config = (ConfigBase)settings;
-       return (ConfigMapDef)toConfigDef(config, settings.getKey());
-   }
+        return (ConfigMapDef)toConfigDef((AbstractConfigEntry)settings, settings.getKey(), passwordRedactor);
+    }
 
-   /**
-    * Recursive function to create a node settings tree (comprising {@link AbstractConfigEntry}s) from a
-    * {@link ConfigDef} tree.
-    *
-    * @param settings an entity containing the recursive node settings
-    * @param key the name of this subtree
-    * @throws InvalidSettingsException TODO what about {@link ModelContent}? It's a sibling of {@link NodeSettings}.
-    */
-   private static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key)
-       throws InvalidSettingsException {
+    /**
+     * Version for internal use that does not redact passwords.
+     * @param settings recursive key-value map
+     * @return the recursive key-value map in a different representation
+     * @throws InvalidSettingsException
+     */
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+        return toConfigMapDef(settings, PasswordRedactor.unsafe());
+    }
 
-       if (settings instanceof ConfigBase) {
-           // this is a subtree, because every class that extends AbstractConfigEntry and is not a subclass of
-           // ConfigBase is a leaf class
-           ConfigBase subTree = (ConfigBase) settings;
 
-           final Map<String, ConfigDef> children = new LinkedHashMap<>();
-           for (String childKey : subTree.keySet()) {
-               // some subtrees are arrays in disguise, don't recurse into those
-               ConfigDef asArrayDef = tryNodeSettingsAsArray(subTree, childKey);
-               if(asArrayDef != null) {
-                   children.put(childKey, asArrayDef);
-               } else {
+    /**
+     * Recursive function to create a node settings tree (comprising {@link AbstractConfigEntry}s) from a
+     * {@link ConfigDef} tree.
+     *
+     * @param settings an entity containing the recursive node settings
+     * @param key the name of this subtree
+     * @param passwordHandler post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
+     * @throws InvalidSettingsException
+     */
+    private static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key,
+        final PasswordRedactor passwordHandler) throws InvalidSettingsException {
+
+        if (settings instanceof ConfigBase) {
+            // this is a subtree, because every class that extends AbstractConfigEntry and is not a subclass of
+            // ConfigBase is a leaf class
+            ConfigBase subTree = (ConfigBase)settings;
+
+            final Map<String, ConfigDef> children = new LinkedHashMap<>();
+            for (String childKey : subTree.keySet()) {
+                // some subtrees are arrays in disguise, don't recurse into those
+                ConfigDef asArrayDef = tryNodeSettingsAsArray(subTree, childKey);
+                if (asArrayDef != null) {
+                    children.put(childKey, asArrayDef);
+                } else {
                    // recurse
-                   ConfigDef subTreeDef = toConfigDef(subTree.getEntry(childKey), childKey);
+                   ConfigDef subTreeDef = toConfigDef(subTree.getEntry(childKey), childKey, passwordHandler);
                    children.put(childKey, subTreeDef);
                }
            }
            return new ConfigMapDefBuilder()//
-                   .setKey(key)//
-                   .setChildren(children)//
-                   .setConfigType("ConfigMap")//
-                   .build();
+               .setKey(key)//
+               .setChildren(children)//
+               .setConfigType("ConfigMap")//
+               .build();
        } else {
            // recursion anchor
-           return abstractConfigurationEntryToTypedLeaf(settings)//
-                   .orElseThrow(() -> new IllegalStateException(settings.getKey() + settings.toStringValue()));
+           // if the settings are not recursive, they are a primitive value
+           return abstractConfigurationEntryToTypedLeaf(settings, passwordHandler)//
+               .orElseThrow(() -> new IllegalStateException(settings.getKey() + settings.toString()));
        }
 
    }
@@ -463,60 +496,253 @@ public final class LoaderUtils {
        return null;
    }
 
-   private static Optional<ConfigDef> abstractConfigurationEntryToTypedLeaf(final AbstractConfigEntry child) {
+   /**
+    *
+    * @param child
+    * @param passwordHandler post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
+    * @return
+    */
+   private static Optional<ConfigDef> abstractConfigurationEntryToTypedLeaf(final AbstractConfigEntry child,
+       final PasswordRedactor passwordHandler) {
        // for children: check whether they are leafs by testing on all leaf types
        if (child instanceof ConfigBooleanEntry) {
            return Optional.of(new ConfigValueBooleanDefBuilder()//
-           .setValue(((ConfigBooleanEntry)child).getBoolean())//
-           .setConfigType("ConfigValueBoolean")//
-           .build());
+               .setValue(((ConfigBooleanEntry)child).getBoolean())//
+               .setConfigType("ConfigValueBoolean")//
+               .build());
        } else if (child instanceof ConfigByteEntry) {
            return Optional.of(new ConfigValueByteDefBuilder()//
-           .setValue((int)((ConfigByteEntry)child).getByte())//
-           .setConfigType("ConfigValueByte")//
-           .build());
+               .setValue((int)((ConfigByteEntry)child).getByte())//
+               .setConfigType("ConfigValueByte")//
+               .build());
        } else if (child instanceof ConfigCharEntry) {
            return Optional.of(new ConfigValueCharDefBuilder()//
-           .setValue((int)((ConfigCharEntry)child).getChar())//
-           .setConfigType("ConfigValueChar")//
-           .build());
+               .setValue((int)((ConfigCharEntry)child).getChar())//
+               .setConfigType("ConfigValueChar")//
+               .build());
        } else if (child instanceof ConfigDoubleEntry) {
            return Optional.of(new ConfigValueDoubleDefBuilder()//
-           .setValue(((ConfigDoubleEntry)child).getDouble())//
-           .setConfigType("ConfigValueDouble")//
-           .build());
+               .setValue(((ConfigDoubleEntry)child).getDouble())//
+               .setConfigType("ConfigValueDouble")//
+               .build());
        } else if (child instanceof ConfigFloatEntry) {
            return Optional.of(new ConfigValueFloatDefBuilder()//
-           .setValue(((ConfigFloatEntry)child).getFloat())//
-           .setConfigType("ConfigValueFloat")//
-           .build());
+               .setValue(((ConfigFloatEntry)child).getFloat())//
+               .setConfigType("ConfigValueFloat")//
+               .build());
        } else if (child instanceof ConfigIntEntry) {
            return Optional.of(new ConfigValueIntDefBuilder()//
-           .setValue(((ConfigIntEntry)child).getInt())//
-           .setConfigType("ConfigValueInt")//
-           .build());
+               .setValue(((ConfigIntEntry)child).getInt())//
+               .setConfigType("ConfigValueInt")//
+               .build());
        } else if (child instanceof ConfigLongEntry) {
            return Optional.of(new ConfigValueLongDefBuilder()//
-           .setValue(((ConfigLongEntry)child).getLong())//
-           .setConfigType("ConfigValueLong")//
-           .build());
-       } /*else if (child instanceof ConfigPasswordEntry) {
-           return Optional
-               .of(DefaultConfigValuePasswordDef.builder()//
-           //
-           .setConfigType("ConfigValuePassword")//
-           .build());
-         } */ else if (child instanceof ConfigShortEntry) {
+               .setValue(((ConfigLongEntry)child).getLong())//
+               .setConfigType("ConfigValueLong")//
+               .build());
+       } else if (child instanceof ConfigPasswordEntry) {
+           final var defaultDef = new ConfigValuePasswordDefBuilder()//
+               .setValue(((ConfigPasswordEntry)child).getPassword())//
+               .setConfigType("ConfigValuePassword")//
+               .build();
+           // apply logic to protected password, e.g., remove or leave unchanged
+           final var redacted = passwordHandler.apply(defaultDef);
+           return Optional.of(redacted);
+       } else if (child instanceof ConfigShortEntry) {
            return Optional.of(new ConfigValueShortDefBuilder()//
-           .setValue((int)((ConfigShortEntry)child).getShort())//
-           .setConfigType("ConfigValueShort")//
-           .build());
+               .setValue((int)((ConfigShortEntry)child).getShort())//
+               .setConfigType("ConfigValueShort")//
+               .build());
        } else if (child instanceof ConfigStringEntry) {
            return Optional.of(new ConfigValueStringDefBuilder()//
-           .setValue(((ConfigStringEntry)child).getString())//
-           .setConfigType("ConfigValueString")//
-           .build());
+               .setValue(((ConfigStringEntry)child).getString())//
+               .setConfigType("ConfigValueString")//
+               .build());
        }
        return Optional.empty();
+   }
+
+   /**
+    * @param def a description of a key-value map containing configuration data
+    * @param passwordRedactor restores potentially redacted passwords. If passwords are to be restored, this must match
+    *            the {@link PasswordRedactor} passed to {@link #toConfigMapDef(ConfigBase, PasswordRedactor)}. If
+    *            passwords are not expected to be restored, any handler can be used; {@link ConfigPasswordEntry} doesn't
+    *            mind if the password is null.
+    * @return an instance that implements {@link ConfigBase}
+    *
+    * @see PasswordRedactor#restore(ConfigBase, String, ConfigValuePasswordDef)
+    */
+   public static SimpleConfig toConfigBase(final ConfigDef def, final PasswordRedactor passwordRedactor) {
+       return toSettings(def, "", SimpleConfig::new, passwordRedactor);
+   }
+
+   /**
+    * Recursive function to create a node settings tree (comprising {@link AbstractConfigEntry}s) from a
+    * {@link ConfigDef} tree.
+    *
+    * @param <T> can be used to create instances of NodeSettings (used in org.knime.core) or ConfigBase.
+    *
+    * @param def an entity containing the recursive settings
+    * @param key the name of this subtree
+    * @param constructor either NodeSettings::new or ConfigBase::new
+    * @param passwordHandler
+    * @return parsed key-value map as an implementation of {@link ConfigBase}
+    */
+   public static <T extends ConfigBase> T toSettings(final ConfigDef def, final String key,
+       final Function<String, T> constructor, final PasswordRedactor passwordHandler) {
+       // recursion anchor
+       if (def instanceof ConfigValueArrayDef) {
+           // this is an array that needs to be coded in the legacy hacky format (NodeSettings with N+1 children,
+           // 1 for array size, N for items
+           return toSettingsArray((ConfigValueArrayDef)def, key, constructor);
+       } else if (def instanceof ConfigMapDef) { // this is a subtree, because it has a children map
+           final T settings = constructor.apply(key);
+
+           ConfigMapDef subtree = (ConfigMapDef)def;
+           for (Map.Entry<String, ConfigDef> childEntry : subtree.getChildren().entrySet()) {
+               final ConfigDef child = childEntry.getValue();
+               // This recursion lookahead is useful because we want to do parentSettings.addBoolean(val) instead of
+               // creating and returning a ConfigBooleanEntry. This way, we don't have to pass the parent down.
+               if (child instanceof ConfigValueDef) {
+                   addLeafToSettings(settings, childEntry.getKey(), child, passwordHandler);
+               } else {
+                   // recurse
+                   T subTree = toSettings(child, childEntry.getKey(), constructor, passwordHandler);
+                   ConfigBase childConfigTree = settings.addConfigBase(subTree.getKey());
+                   subTree.copyTo(childConfigTree);
+               }
+           }
+           return settings;
+       } else {
+           throw new IllegalStateException();
+       }
+   }
+
+   /**
+    * @param def describes an array of configuration values (booleans, strings, chars, etc.)
+    * @return
+    */
+   private static <T extends ConfigBase> T toSettingsArray(final ConfigValueArrayDef def, final String arrayKey,
+       final Function<String, T> constructor) {
+       T temp = constructor.apply("");
+       if (def instanceof ConfigValueBooleanArrayDef) {
+           List<Boolean> values = ((ConfigValueBooleanArrayDef)def).getArray();
+           boolean[] array = new boolean[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = values.get(i);
+           }
+           temp.addBooleanArray(arrayKey, array);
+       } else if (def instanceof ConfigValueByteArrayDef) {
+           temp.addByteArray(arrayKey, ((ConfigValueByteArrayDef)def).getArray());
+       } else if (def instanceof ConfigValueCharArrayDef) {
+           List<Integer> values = ((ConfigValueCharArrayDef)def).getArray();
+           char[] array = new char[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = (char)values.get(i).intValue();
+           }
+           temp.addCharArray(arrayKey, array);
+       } else if (def instanceof ConfigValueDoubleArrayDef) {
+           List<Double> values = ((ConfigValueDoubleArrayDef)def).getArray();
+           double[] array = new double[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = values.get(i);
+           }
+           temp.addDoubleArray(arrayKey, array);
+       } else if (def instanceof ConfigValueFloatArrayDef) {
+           List<Float> values = ((ConfigValueFloatArrayDef)def).getArray();
+           float[] array = new float[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = values.get(i);
+           }
+           temp.addFloatArray(arrayKey, array);
+       } else if (def instanceof ConfigValueIntArrayDef) {
+           List<Integer> values = ((ConfigValueIntArrayDef)def).getArray();
+           int[] array = new int[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = values.get(i);
+           }
+           temp.addIntArray(arrayKey, array);
+       } else if (def instanceof ConfigValueLongArrayDef) {
+           List<Long> values = ((ConfigValueLongArrayDef)def).getArray();
+           long[] array = new long[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = values.get(i);
+           }
+           temp.addLongArray(arrayKey, array);
+       } else if (def instanceof ConfigValueShortArrayDef) {
+           List<Integer> values = ((ConfigValueShortArrayDef)def).getArray();
+           short[] array = new short[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = (short)values.get(i).intValue();
+           }
+           temp.addShortArray(arrayKey, array);
+       } else if (def instanceof ConfigValueStringArrayDef) {
+           List<String> values = ((ConfigValueStringArrayDef)def).getArray();
+           String[] array = new String[values.size()];
+           for (int i = 0; i < values.size(); i++) {
+               array[i] = values.get(i);
+           }
+           temp.addStringArray(arrayKey, array);
+       }
+
+       if (temp.containsKey(arrayKey)) {
+           return (T)temp.getEntry(arrayKey);
+       }
+       return null;
+   }
+
+   /**
+    * Convert a {@link ConfigValueDef} to {@link NodeSettings} and add it to the given node settings.
+    *
+    * @param settings parent node settings to add child to
+    * @param key name of the child
+    * @param encryptionKey the key that was used to encrypt password entries
+    * @param configuration a string representation of the value with type annotation (saying, e.g., "xdouble"), see
+    *            {@link ConfigEntries}
+    */
+   private static void addLeafToSettings(final ConfigBase settings, final String key, final ConfigDef leafDef,
+       final PasswordRedactor passwordHandler) {
+       if (leafDef instanceof ConfigValueBooleanDef) {
+           boolean value = ((ConfigValueBooleanDef)leafDef).isValue();
+           settings.addBoolean(key, value);
+       }
+       if (leafDef instanceof ConfigValueByteDef) {
+           byte value = (byte)((ConfigValueByteDef)leafDef).getValue().intValue();
+           settings.addByte(key, value);
+       }
+       if (leafDef instanceof ConfigValueCharDef) {
+           char value = (char)((ConfigValueCharDef)leafDef).getValue().intValue();
+           settings.addChar(key, value);
+       }
+       if (leafDef instanceof ConfigValueDoubleDef) {
+           double value = ((ConfigValueDoubleDef)leafDef).getValue();
+           settings.addDouble(key, value);
+       }
+       if (leafDef instanceof ConfigValueFloatDef) {
+           float value = ((ConfigValueFloatDef)leafDef).getValue();
+           settings.addFloat(key, value);
+       }
+       if (leafDef instanceof ConfigValueIntDef) {
+           int value = ((ConfigValueIntDef)leafDef).getValue();
+           settings.addInt(key, value);
+       }
+       if (leafDef instanceof ConfigValueLongDef) {
+           long value = ((ConfigValueLongDef)leafDef).getValue();
+           settings.addLong(key, value);
+       }
+       if (leafDef instanceof ConfigValuePasswordDef) {
+           // this is not necessarily redacted, e.g., if the PasswordRedactor used in toConfigDef doesn't do anything
+           var redactedPasswordDef = ((ConfigValuePasswordDef)leafDef);
+           // the password may have been redacted, in which case we make no attempt to restore it
+           passwordHandler.restore(settings, key, redactedPasswordDef);
+       }
+       if (leafDef instanceof ConfigValueShortDef) {
+           short value = (short)((ConfigValueShortDef)leafDef).getValue().intValue();
+           settings.addShort(key, value);
+       }
+       if (leafDef instanceof ConfigValueStringDef) {
+           String value = ((ConfigValueStringDef)leafDef).getValue();
+           settings.addString(key, value);
+       }
    }
 }

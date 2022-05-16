@@ -17,6 +17,9 @@ Require-Bundle: org.knime.core.util;bundle-version="5.20.0",
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="[2.12.1,3.0.0)",
  com.fasterxml.jackson.datatype.jackson-datatype-jsr310;bundle-version="[2.13.2,3.0.0)"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.knime.shared.workflow.storage.multidir.loader,
+Export-Package: org.knime.shared.workflow.storage.clipboard,
+ org.knime.shared.workflow.storage.multidir.loader,
  org.knime.shared.workflow.storage.multidir.saver,
- org.knime.shared.workflow.storage.text.util
+ org.knime.shared.workflow.storage.multidir.util,
+ org.knime.shared.workflow.storage.text.util,
+ org.knime.shared.workflow.storage.util

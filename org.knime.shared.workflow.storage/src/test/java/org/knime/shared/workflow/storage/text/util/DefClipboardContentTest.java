@@ -56,6 +56,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.knime.shared.workflow.def.impl.WorkflowDefBuilder;
+import org.knime.shared.workflow.storage.clipboard.DefClipboardContent;
+import org.knime.shared.workflow.storage.clipboard.InvalidDefClipboardContentVersionException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
