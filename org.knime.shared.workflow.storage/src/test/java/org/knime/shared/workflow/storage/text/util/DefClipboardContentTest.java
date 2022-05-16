@@ -49,6 +49,7 @@
 package org.knime.shared.workflow.storage.text.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
@@ -67,9 +68,10 @@ class DefClipboardContentTest {
     /**
      * Test Jackson serialization and deserialization keeps all metadata.
      * @throws JsonProcessingException
+     * @throws InvalidDefClipboardContentVersionException
      */
     @Test
-    void testRoundtrip() throws JsonProcessingException {
+    void testRoundtrip() throws JsonProcessingException, InvalidDefClipboardContentVersionException {
         // content
         final var payloadIdentifier = new UUID(1, 2);
         final var payload = new WorkflowDefBuilder().build();
@@ -94,19 +96,22 @@ class DefClipboardContentTest {
     /**
      * Attempt to parse future/unknown versions will fail.
      * Exceptions can be accessed by using <code>ObjectMapperUtil.fromString(string, DefClipboardContent.class)</code>.
+     * @throws InvalidDefClipboardContentVersionException
      */
     @Test
     void testDeserializeUnknownVersionContent() {
-        assertThat(DefClipboardContent.valueOf("{\"version\": \"bogus_version!@\", "
-            + "\"payload\": {}, "
-            + "\"payloadIdentifier\": \"00000000-0000-0001-0000-000000000002\"}")).isEmpty();
+        assertThrows(InvalidDefClipboardContentVersionException.class,
+            () -> DefClipboardContent.valueOf("{\"version\": \"bogus_version!@\", " + "\"payload\": {}, "
+                + "\"payloadIdentifier\": \"00000000-0000-0001-0000-000000000002\"}"));
     }
 
     /**
      * Utility method for determining clipboard contents.
+     *
+     * @throws InvalidDefClipboardContentVersionException
      */
     @Test
-    void testDeserializeOtherContent() {
+    void testDeserializeOtherContent() throws InvalidDefClipboardContentVersionException {
         assertThat(DefClipboardContent.valueOf(null)).isEmpty();
         assertThat(DefClipboardContent.valueOf("{\"bogus\": 2}")).isEmpty();
         assertThat(DefClipboardContent.valueOf("bogus content")).isEmpty();

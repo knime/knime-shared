@@ -58,9 +58,11 @@ import org.knime.shared.workflow.def.WorkflowDef;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Used to annotate copy & paste payload with version and payload identification metadata.
+ *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
 @JsonPropertyOrder(alphabetic = true)
@@ -94,14 +96,25 @@ public class DefClipboardContent {
     /**
      * @param string any string
      * @return an empty optional if the string is null or cannot be parsed as instance of this class.
+     * @throws InvalidDefClipboardContentVersionException if the content looks like {@link DefClipboardContent} but in a
+     *             future or unknown version.
      */
-    public static Optional<DefClipboardContent> valueOf(final String string){
-        if(string == null) {
+    public static Optional<DefClipboardContent> valueOf(final String string)
+        throws InvalidDefClipboardContentVersionException {
+        if (string == null) {
             return Optional.empty();
         }
         try {
             DefClipboardContent deserialized = ObjectMapperUtil.fromString(string, DefClipboardContent.class);
             return Optional.of(deserialized);
+        } catch (InvalidFormatException ife) {
+            if (ife.getPath().get(ife.getPath().size() - 1).getFieldName().equals("version")) {
+                throw new InvalidDefClipboardContentVersionException(
+                    "Unsupported KNIME clipboard content version: " + ife.getValue(), ife);
+            } else {
+                Logger.getLogger(DefClipboardContent.class.getName()).info(ife.toString());
+            }
+            return Optional.empty();
         } catch (JsonProcessingException ex) {
             Logger.getLogger(DefClipboardContent.class.getName()).info(ex.toString());
             return Optional.empty();
