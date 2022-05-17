@@ -44,7 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
-import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.ConfigDef;
 
 import org.knime.shared.workflow.def.impl.DefaultFlowVariableDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -74,14 +74,14 @@ public interface FlowVariableDef {
           */
          NAME,
          /**  
-          * Type of the flow variable
+          * If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
           *
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link FlowVariableDef#getPropertyClass} 
           */
          CLASS,
          /** 
-          * The type of this data attribute is {@link ConfigMapDef}.
+          * The type of this data attribute is {@link ConfigDef}.
           * Is is returned by {@link FlowVariableDef#getValue} 
           */
          VALUE,
@@ -95,15 +95,15 @@ public interface FlowVariableDef {
   public String getName();
 
   /**
-   * Example value: FSLocationSpec
-   * @return Type of the flow variable
+   * Example value: INTEGER_ARRAY
+   * @return If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
    **/
   public String getPropertyClass();
 
   /**
    * @return 
    **/
-  public ConfigMapDef getValue();
+  public ConfigDef getValue();
 
 
 }

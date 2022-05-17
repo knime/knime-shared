@@ -75,7 +75,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultConfigValueArrayDef extends DefaultConfigDef implements ConfigValueArrayDef {
+public abstract class DefaultConfigValueArrayDef extends DefaultConfigDef implements ConfigValueArrayDef {
 
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -117,6 +117,12 @@ public class DefaultConfigValueArrayDef extends DefaultConfigDef implements Conf
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree implementation
     // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @return the load exceptions for this instance and its descendants
+     */
+    @JsonIgnore
+    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------

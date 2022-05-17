@@ -46,7 +46,7 @@ package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
 
-import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.ConfigDef;
 
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.FlowVariableDef;
@@ -86,7 +86,7 @@ public class FlowVariableDefBuilder {
     String m_propertyClass;
     
 
-    ConfigMapDef m_value;
+    ConfigDef m_value;
     
     /**
      * Create a new builder.
@@ -146,7 +146,7 @@ public class FlowVariableDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param propertyClass Type of the flow variable
+     * @param propertyClass If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
      * @return this builder for fluent API.
      */ 
     public FlowVariableDefBuilder setPropertyClass(final String propertyClass) {
@@ -187,7 +187,7 @@ public class FlowVariableDefBuilder {
      * @param value 
      * @return this builder for fluent API.
      */ 
-    public FlowVariableDefBuilder setValue(final ConfigMapDef value) {
+    public FlowVariableDefBuilder setValue(final ConfigDef value) {
         setValue(() -> value, value);
         return this;
     }
@@ -201,9 +201,9 @@ public class FlowVariableDefBuilder {
      * @param value see {@link FlowVariableDef#getValue}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setValue(ConfigMapDef)
+     * @see #setValue(ConfigDef)
      */
-    public FlowVariableDefBuilder setValue(final FallibleSupplier<ConfigMapDef> value, ConfigMapDef defaultValue) {
+    public FlowVariableDefBuilder setValue(final FallibleSupplier<ConfigDef> value, ConfigDef defaultValue) {
         java.util.Objects.requireNonNull(value, () -> "No supplier for value provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(FlowVariableDef.Attribute.VALUE);
@@ -216,8 +216,8 @@ public class FlowVariableDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof DefaultConfigDef){
+                var childTree = ((DefaultConfigDef)defaultValue).getLoadExceptionTree();                
                 // if present, merge child tree with supply exception
                 exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             } else {

@@ -50,7 +50,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import org.knime.shared.workflow.def.ConfigMapDef;
+import org.knime.shared.workflow.def.ConfigDef;
 
 import org.knime.shared.workflow.def.FlowVariableDef;
 
@@ -88,15 +88,15 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
     protected String m_name;
 
     /** 
-     * Type of the flow variable 
+     * If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec) 
      * 
-     * Example value: FSLocationSpec
+     * Example value: INTEGER_ARRAY
      */
     @JsonProperty("propertyClass")
     protected String m_propertyClass;
 
     @JsonProperty("value")
-    protected ConfigMapDef m_value;
+    protected ConfigDef m_value;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -214,7 +214,7 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
         return m_propertyClass;
     }
     @Override
-    public ConfigMapDef getValue() {
+    public ConfigDef getValue() {
         return m_value;
     }
     
@@ -252,14 +252,14 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
     
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link ConfigMapDef} returned by {@link #getValue()}, this
-     * returns the value as DefaultConfigMapDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return If there are {@link LoadException}s related to the {@link ConfigDef} returned by {@link #getValue()}, this
+     * returns the value as DefaultConfigDef which provides getters for the exceptions. Otherwise an empty optional.
      */
     @JsonIgnore
-    public Optional<DefaultConfigMapDef> getFaultyValue(){
+    public Optional<DefaultConfigDef> getFaultyValue(){
     	final var value = getValue(); 
-        if(value instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)value).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)value);
+        if(value instanceof DefaultConfigDef && ((DefaultConfigDef)value).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+            return Optional.of((DefaultConfigDef)value);
         }
     	return Optional.empty();
     }
