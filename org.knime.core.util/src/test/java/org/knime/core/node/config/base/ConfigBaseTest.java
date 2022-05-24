@@ -59,6 +59,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -98,8 +99,8 @@ public class ConfigBaseTest {
      */
     @Test
     public void testSchemaUnchanged() {
-        var expFields = new String[]{"$assertionsDisabled", "ARROW", "ARROW_NULL", "CFG_ARRAY_SIZE", "COMMA_TYPEEQ",
-            "DOT_LINE_BREAK", "KEYEQ", "LINE_BREAK", "SPACE", "TAB_SIZE", "m_map", "serialVersionUID"};
+        var expFields = new String[]{"ARROW", "ARROW_NULL", "CFG_ARRAY_SIZE", "COMMA_TYPEEQ", "DOT_LINE_BREAK", "KEYEQ",
+            "LINE_BREAK", "SPACE", "TAB_SIZE", "m_map", "serialVersionUID"};
 
         var expMethods = new String[]{"addBoolean", "addBooleanArray", "addByte", "addByteArray", "addChar",
             "addCharArray", "addConfigBase", "addConfigBase", "addDouble", "addDoubleArray", "addEncryptedPassword",
@@ -112,16 +113,17 @@ public class ConfigBaseTest {
             "getInstance", "getInt", "getInt", "getIntArray", "getIntArray", "getLong", "getLong", "getLongArray",
             "getLongArray", "getPassword", "getPassword", "getShort", "getShort", "getShortArray", "getShortArray",
             "getString", "getString", "getStringArray", "getStringArray", "getTransientString", "hasIdenticalValue",
-            "isLeaf", "iterator", "keySet", "lambda$1", "lambda$3", "load", "loadFromXML", "put", "readFromFile",
-            "saveToXML", "toJSONEntry", "toJSONRoot", "toString", "toString", "toString", "toStringValue",
-            "writeToFile"};
+            "isLeaf", "iterator", "keySet", "load", "loadFromXML", "put", "readFromFile", "saveToXML", "toJSONEntry",
+            "toJSONRoot", "toString", "toString", "toString", "toStringValue", "writeToFile"};
 
-        var actualFields =
-            Arrays.stream(ConfigBase.class.getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
+        Predicate<String> regularName = s -> !s.contains("$");
+
+        var actualFields = Arrays.stream(ConfigBase.class.getDeclaredFields()).map(Field::getName).filter(regularName)
+            .collect(Collectors.toList());
         assertThat(actualFields).as("The fields of class ConfigBase have changed.").containsOnly(expFields);
 
-        var actualMethods =
-            Arrays.stream(ConfigBase.class.getDeclaredMethods()).map(Method::getName).collect(Collectors.toList());
+        var actualMethods = Arrays.stream(ConfigBase.class.getDeclaredMethods()).map(Method::getName)
+            .filter(regularName).collect(Collectors.toList());
         assertThat(actualMethods).as("The methods of class ConfigBase have changed.").containsOnly(expMethods);
     }
 
