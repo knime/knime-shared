@@ -94,6 +94,9 @@ import org.xml.sax.SAXException;
  */
 public abstract class ConfigBase extends AbstractConfigEntry
         implements ConfigBaseRO, ConfigBaseWO {
+
+    private static final long serialVersionUID = 6392086975749370153L;
+
     private static IEncrypter createEncrypter(final String key ) {
         try {
         	// limit key strength using small iteration count -- gives performance boost but doesn't lose a lot
