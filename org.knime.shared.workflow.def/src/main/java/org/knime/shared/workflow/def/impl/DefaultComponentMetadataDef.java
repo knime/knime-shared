@@ -98,6 +98,12 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
     @JsonProperty("icon")
     protected byte[] m_icon;
 
+    /** 
+     * Summarizes the kind of functionality of the component. 
+     */
+    @JsonProperty("componentType")
+    protected ComponentTypeEnum m_componentType;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
@@ -123,6 +129,7 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         m_inPortDescriptions = builder.m_inPortDescriptions;
         m_outPortDescriptions = builder.m_outPortDescriptions;
         m_icon = builder.m_icon;
+        m_componentType = builder.m_componentType;
 
         m_exceptionTree = Optional.empty();
     }
@@ -144,6 +151,7 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         m_inPortDescriptions = toCopy.getInPortDescriptions();
         m_outPortDescriptions = toCopy.getOutPortDescriptions();
         m_icon = toCopy.getIcon();
+        m_componentType = toCopy.getComponentType();
         if(toCopy instanceof DefaultComponentMetadataDef){
             var childTree = ((DefaultComponentMetadataDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -167,6 +175,7 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         m_inPortDescriptions = toCopy.getInPortDescriptions();
         m_outPortDescriptions = toCopy.getOutPortDescriptions();
         m_icon = toCopy.getIcon();
+        m_componentType = toCopy.getComponentType();
         
         m_exceptionTree = Optional.empty();
     }
@@ -237,6 +246,10 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
     @Override
     public byte[] getIcon() {
         return m_icon;
+    }
+    @Override
+    public ComponentTypeEnum getComponentType() {
+        return m_componentType;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -387,6 +400,16 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
     
  
      
+    /**
+     * @return The supply exception associated to componentType.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getComponentTypeSupplyException(){
+    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.COMPONENT_TYPE).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+ 
+     
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -412,6 +435,7 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         equalsBuilder.append(m_inPortDescriptions, other.m_inPortDescriptions);
         equalsBuilder.append(m_outPortDescriptions, other.m_outPortDescriptions);
         equalsBuilder.append(m_icon, other.m_icon);
+        equalsBuilder.append(m_componentType, other.m_componentType);
         return equalsBuilder.isEquals();
     }
 
@@ -424,6 +448,7 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
                 .append(m_inPortDescriptions)
                 .append(m_outPortDescriptions)
                 .append(m_icon)
+                .append(m_componentType)
                 .toHashCode();
     }
 

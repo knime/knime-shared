@@ -137,6 +137,9 @@ public class ComponentMetadataDefBuilder {
     byte[] m_icon;
     
 
+    ComponentTypeEnum m_componentType;
+    
+
     /**
      * Create a new builder.
      */
@@ -153,6 +156,7 @@ public class ComponentMetadataDefBuilder {
         m_inPortDescriptions = toCopy.getInPortDescriptions();
         m_outPortDescriptions = toCopy.getOutPortDescriptions();
         m_icon = toCopy.getIcon();
+        m_componentType = toCopy.getComponentType();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -524,6 +528,44 @@ public class ComponentMetadataDefBuilder {
                                      
             m_icon = defaultValue;
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.ICON, supplyException);
+	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for componentType
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param componentType Summarizes the kind of functionality of the component.
+     * @return this builder for fluent API.
+     */ 
+    public ComponentMetadataDefBuilder setComponentType(final ComponentTypeEnum componentType) {
+        setComponentType(() -> componentType, componentType);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ComponentMetadataDef.Attribute.COMPONENT_TYPE)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.COMPONENT_TYPE)} will return the exception.
+     * 
+     * @param componentType see {@link ComponentMetadataDef#getComponentType}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setComponentType(ComponentTypeEnum)
+     */
+    public ComponentMetadataDefBuilder setComponentType(final FallibleSupplier<ComponentTypeEnum> componentType, ComponentTypeEnum defaultValue) {
+        java.util.Objects.requireNonNull(componentType, () -> "No supplier for componentType provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.COMPONENT_TYPE);
+        try {
+            m_componentType = componentType.get();
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                                     
+            m_componentType = defaultValue;
+            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.COMPONENT_TYPE, supplyException);
 	    }   
         return this;
     }

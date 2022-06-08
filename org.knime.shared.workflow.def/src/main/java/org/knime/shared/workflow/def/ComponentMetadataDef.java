@@ -95,9 +95,45 @@ public interface ComponentMetadataDef {
           * Is is returned by {@link ComponentMetadataDef#getIcon} 
           */
          ICON,
+         /**  
+          * Summarizes the kind of functionality of the component.
+          *
+          * The type of this data attribute is {@link ComponentTypeEnum}.
+          * Is is returned by {@link ComponentMetadataDef#getComponentType} 
+          */
+         COMPONENT_TYPE,
 ;
     }
     
+  /**
+   * Summarizes the kind of functionality of the component.
+   */
+  public enum ComponentTypeEnum {
+    LEARNER("LEARNER"),
+    
+    MANIPULATOR("MANIPULATOR"),
+    
+    PREDICTOR("PREDICTOR"),
+    
+    SINK("SINK"),
+    
+    SOURCE("SOURCE"),
+    
+    VISUALIZER("VISUALIZER");
+
+    private String value;
+
+    ComponentTypeEnum(String value) {
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+  }
+
 
   /**
    * @return 
@@ -128,6 +164,11 @@ public interface ComponentMetadataDef {
    * @return 
    **/
   public byte[] getIcon();
+
+  /**
+   * @return Summarizes the kind of functionality of the component.
+   **/
+  public ComponentTypeEnum getComponentType();
 
 
 }
