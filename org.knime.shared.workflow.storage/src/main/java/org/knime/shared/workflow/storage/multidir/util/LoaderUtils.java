@@ -330,15 +330,11 @@ public final class LoaderUtils {
      * @param settings recursive key-value map
      * @param passwordRedactor post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
      * @return the recursive key-value map in a different representation
-     * @throws InvalidSettingsException
      */
-    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor)
-        throws InvalidSettingsException {
-
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor) {
         if (settings == null) {
             return null;
         }
-
         return (ConfigMapDef)toConfigDef((AbstractConfigEntry)settings, settings.getKey(), passwordRedactor);
     }
 
@@ -346,9 +342,8 @@ public final class LoaderUtils {
      * Version for internal use that does not redact passwords.
      * @param settings recursive key-value map
      * @return the recursive key-value map in a different representation
-     * @throws InvalidSettingsException
      */
-    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) {
         return toConfigMapDef(settings, PasswordRedactor.unsafe());
     }
 
@@ -363,7 +358,7 @@ public final class LoaderUtils {
      * @throws InvalidSettingsException
      */
     public static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key,
-        final PasswordRedactor passwordHandler) throws InvalidSettingsException {
+        final PasswordRedactor passwordHandler) {
 
         if (settings instanceof ConfigBase) {
             // this is a subtree, because every class that extends AbstractConfigEntry and is not a subclass of
