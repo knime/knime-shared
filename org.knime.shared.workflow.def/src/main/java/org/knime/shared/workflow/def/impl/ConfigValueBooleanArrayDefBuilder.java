@@ -281,6 +281,7 @@ public class ConfigValueBooleanArrayDefBuilder {
                 if(arrayLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ConfigValueBooleanArrayDef.Attribute.ARRAY, arrayLoadExceptionTree);
         }
+        m_array = m_array.get().isEmpty() ? Optional.empty() : m_array;
         
         return new DefaultConfigValueBooleanArrayDef(this);
     }    

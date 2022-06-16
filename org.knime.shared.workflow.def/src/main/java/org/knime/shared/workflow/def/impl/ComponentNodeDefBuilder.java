@@ -47,6 +47,7 @@ package org.knime.shared.workflow.def.impl;
 import java.util.Map;
 import java.util.Optional;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.ComponentDialogSettingsDef;
 import org.knime.shared.workflow.def.ComponentMetadataDef;
@@ -54,7 +55,6 @@ import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.TemplateLinkDef;
 import org.knime.shared.workflow.def.TemplateMetadataDef;
@@ -124,7 +124,7 @@ public class ComponentNodeDefBuilder {
 
     Optional<NodeAnnotationDef> m_annotation = Optional.empty();
     
-    Optional<NodeUIInfoDef> m_uiInfo = Optional.empty();
+    Optional<BoundsDef> m_bounds = Optional.empty();
     
     Optional<NodeLocksDef> m_locks = Optional.empty();
     
@@ -188,7 +188,7 @@ public class ComponentNodeDefBuilder {
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_modelSettings = toCopy.getModelSettings();
@@ -327,7 +327,6 @@ public class ComponentNodeDefBuilder {
         setCustomDescription(customDescription, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -386,7 +385,6 @@ public class ComponentNodeDefBuilder {
         setAnnotation(annotation, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -428,15 +426,15 @@ public class ComponentNodeDefBuilder {
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for uiInfo
+    // Setters for bounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uiInfo  This is an optional field. Passing <code>null</code> will leave the field empty. 
+     * @param bounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public ComponentNodeDefBuilder setUiInfo(final NodeUIInfoDef uiInfo) {
-        setUiInfo(() -> uiInfo, uiInfo);
+    public ComponentNodeDefBuilder setBounds(final BoundsDef bounds) {
+        setBounds(() -> bounds, bounds);
         return this;
     }
  
@@ -444,39 +442,38 @@ public class ComponentNodeDefBuilder {
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ComponentNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(ComponentNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(ComponentNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link ComponentNodeDef#getUiInfo}
+     * @param bounds see {@link ComponentNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public ComponentNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo) {
-        setUiInfo(uiInfo, null);
+    public ComponentNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds) {
+        setBounds(bounds, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ComponentNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(ComponentNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(ComponentNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link ComponentNodeDef#getUiInfo}
+     * @param bounds see {@link ComponentNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public ComponentNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(uiInfo, () -> "No supplier for uiInfo provided.");
+    public ComponentNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(bounds, () -> "No supplier for bounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ComponentNodeDef.Attribute.UI_INFO);
+        m_exceptionalChildren.remove(ComponentNodeDef.Attribute.BOUNDS);
         try {
-            m_uiInfo = Optional.ofNullable(uiInfo.get());
-            if (m_uiInfo.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiInfo.get()).hasExceptions()) {
-                m_exceptionalChildren.put(ComponentNodeDef.Attribute.UI_INFO, (LoadExceptionTree<?>)m_uiInfo.get());
+            m_bounds = Optional.ofNullable(bounds.get());
+            if (m_bounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(ComponentNodeDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
@@ -489,8 +486,8 @@ public class ComponentNodeDefBuilder {
             } else {
                 exceptionTree = supplyException;
             }
-            m_uiInfo = Optional.ofNullable(defaultValue);
-            m_exceptionalChildren.put(ComponentNodeDef.Attribute.UI_INFO, exceptionTree);
+            m_bounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(ComponentNodeDef.Attribute.BOUNDS, exceptionTree);
                         if(m__failFast){
                 throw new IllegalStateException(e);
             }
@@ -526,7 +523,6 @@ public class ComponentNodeDefBuilder {
         setLocks(locks, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -596,7 +592,6 @@ public class ComponentNodeDefBuilder {
         setJobManager(jobManager, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -666,7 +661,6 @@ public class ComponentNodeDefBuilder {
         setModelSettings(modelSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -736,7 +730,6 @@ public class ComponentNodeDefBuilder {
         setInternalNodeSubSettings(internalNodeSubSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -806,7 +799,6 @@ public class ComponentNodeDefBuilder {
         setVariableSettings(variableSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1093,7 +1085,6 @@ public class ComponentNodeDefBuilder {
         setCipher(cipher, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1255,7 +1246,6 @@ public class ComponentNodeDefBuilder {
         setMetadata(metadata, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1325,7 +1315,6 @@ public class ComponentNodeDefBuilder {
         setTemplateMetadata(templateMetadata, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1395,7 +1384,6 @@ public class ComponentNodeDefBuilder {
         setTemplateLink(templateLink, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1465,7 +1453,6 @@ public class ComponentNodeDefBuilder {
         setDialogSettings(dialogSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1541,6 +1528,7 @@ public class ComponentNodeDefBuilder {
         if(inPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ComponentNodeDef.Attribute.IN_PORTS, inPortsLoadExceptionTree);
         }
+        m_inPorts = m_inPorts.get().isEmpty() ? Optional.empty() : m_inPorts;
         
         // contains the elements set with #setOutPorts (those added with #addToOutPorts have already been inserted into m_outPorts)
         m_outPortsBulkElements = java.util.Objects.requireNonNullElse(m_outPortsBulkElements, Optional.of(java.util.List.of()));
@@ -1551,6 +1539,7 @@ public class ComponentNodeDefBuilder {
         if(outPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ComponentNodeDef.Attribute.OUT_PORTS, outPortsLoadExceptionTree);
         }
+        m_outPorts = m_outPorts.get().isEmpty() ? Optional.empty() : m_outPorts;
         
         return new DefaultComponentNodeDef(this);
     }    

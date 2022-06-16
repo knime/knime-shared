@@ -110,9 +110,9 @@ abstract class BaseNodeSaver {
      * @param nodeSettings The {@link ConfigBase} of the settings.xml (or workflow.knime in case of meta node) file
      */
     void addNodeSettings(final ConfigBase nodeSettings) {
-        m_baseNode.getAnnotation().ifPresent(anno -> SaverUtils.addAnnotationData(nodeSettings, anno));
-        m_baseNode.getCustomDescription()
-            .ifPresent(desc -> nodeSettings.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), desc));
+        SaverUtils.addAnnotationData(nodeSettings, m_baseNode.getAnnotation().orElse(null));
+        // the legacy format stores absent custom description as null (instead of leaving it out)
+        nodeSettings.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), m_baseNode.getCustomDescription().orElse(null));
         addJobManager(nodeSettings);
         addLocks(nodeSettings);
     }
@@ -129,7 +129,7 @@ abstract class BaseNodeSaver {
             SaverUtils.nodeTypeString.get(nodeType));
         parentWorkflowNodeSettings.addBoolean(IOConst.WORKFLOW_NODES_NODE_IS_META_KEY.get(),
             SaverUtils.isNodeTypeMeta.get(nodeType));
-        m_baseNode.getUiInfo().ifPresent(uiInfo -> SaverUtils.addUiInfo(parentWorkflowNodeSettings, uiInfo));
+        m_baseNode.getBounds().ifPresent(uiInfo -> SaverUtils.addUiInfo(parentWorkflowNodeSettings, uiInfo));
     }
 
     private void addLocks(final ConfigBase nodeSettings) {

@@ -150,7 +150,8 @@ public final class LoaderUtils {
 
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
 
-    public static final ConfigMapDef DEFAULT_CONFIG_MAP = new ConfigMapDefBuilder().strict().build();
+    public static final ConfigMapDef DEFAULT_CONFIG_MAP =
+        new ConfigMapDefBuilder().strict().setConfigType("ConfigMap").setKey("default").build();
 
     static final OffsetDateTime DEFAULT_DATE_TIME = OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
@@ -281,10 +282,12 @@ public final class LoaderUtils {
             .setTextAlignment(workflowFormatVersion.ordinal() >= LoadVersion.V250.ordinal()
                 ? annotationConfig.getString("alignment") : "LEFT");
 
-        ConfigBaseRO styleConfigs = annotationConfig.getConfigBase("styles");
-        for (String key : styleConfigs.keySet()) {
-            builder.addToStyles(() -> loadStyleRangeDef(styleConfigs.getConfigBase(key)),
-                new StyleRangeDefBuilder().build());
+        if(annotationConfig.containsKey("styles")) {
+            ConfigBaseRO styleConfigs = annotationConfig.getConfigBase("styles");
+            for (String key : styleConfigs.keySet()) {
+                builder.addToStyles(() -> loadStyleRangeDef(styleConfigs.getConfigBase(key)),
+                    new StyleRangeDefBuilder().build());
+            }
         }
         return builder.build();
     }

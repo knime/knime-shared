@@ -176,7 +176,6 @@ public class ComponentMetadataDefBuilder {
         setDescription(description, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -395,7 +394,6 @@ public class ComponentMetadataDefBuilder {
         setIcon(icon, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -454,7 +452,6 @@ public class ComponentMetadataDefBuilder {
         setComponentType(componentType, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -504,6 +501,7 @@ public class ComponentMetadataDefBuilder {
         if(inPortMetadataLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.IN_PORT_METADATA, inPortMetadataLoadExceptionTree);
         }
+        m_inPortMetadata = m_inPortMetadata.get().isEmpty() ? Optional.empty() : m_inPortMetadata;
         
         // contains the elements set with #setOutPortMetadata (those added with #addToOutPortMetadata have already been inserted into m_outPortMetadata)
         m_outPortMetadataBulkElements = java.util.Objects.requireNonNullElse(m_outPortMetadataBulkElements, Optional.of(java.util.List.of()));
@@ -514,6 +512,7 @@ public class ComponentMetadataDefBuilder {
         if(outPortMetadataLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.OUT_PORT_METADATA, outPortMetadataLoadExceptionTree);
         }
+        m_outPortMetadata = m_outPortMetadata.get().isEmpty() ? Optional.empty() : m_outPortMetadata;
         
         return new DefaultComponentMetadataDef(this);
     }    

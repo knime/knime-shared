@@ -110,8 +110,8 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         var workflowSaver = new WorkflowSaver(m_componentNode.getWorkflow(), m_creator);
         workflowSaver.save(componentDirectory, s -> {
             // annotation data and custom description will be added to the workflow.knime by the WorkflowSaver
-            m_componentNode.getAnnotation().ifPresent(annotation -> SaverUtils.addAnnotationData(s, annotation));
-            m_componentNode.getCustomDescription().ifPresent(value -> s.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), value));
+            SaverUtils.addAnnotationData(s, m_componentNode.getAnnotation().orElse(null));
+            s.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), m_componentNode.getCustomDescription().orElse(null));
         });
 
         // This is the settings.xml of the component

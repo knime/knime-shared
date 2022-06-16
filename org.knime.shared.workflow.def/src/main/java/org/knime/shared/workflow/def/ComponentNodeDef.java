@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.ComponentDialogSettingsDef;
 import org.knime.shared.workflow.def.ComponentMetadataDef;
@@ -52,7 +53,6 @@ import org.knime.shared.workflow.def.ConfigurableNodeDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.TemplateLinkDef;
 import org.knime.shared.workflow.def.TemplateMetadataDef;
@@ -108,10 +108,10 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link ComponentNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link ComponentNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link ComponentNodeDef#getLocks} 

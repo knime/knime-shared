@@ -95,12 +95,8 @@ class PasswordRedactorTest {
     void testRedactToNull() throws InvalidSettingsException, JsonProcessingException {
         // ConfigBase -> Def
         var def = LoaderUtils.toConfigMapDef(SENSITIVE_SETTINGS, PasswordRedactor.asNull());
-        // the value in the def is nulled
-        assertThat(getPasswordNode(def))//
-            // key-value pair is present
-            .asInstanceOf(InstanceOfAssertFactories.type(ConfigValuePasswordDef.class))//
-            // but password is null
-            .extracting("value").isNull();
+        // the value in the def is removed
+        assertThat(getPasswordNode(def).getValue()).isEmpty();
 
         // Def -> String
         var json = ObjectMapperUtil.toString(def);

@@ -112,7 +112,7 @@ final class MetaNodeSaver extends BaseNodeSaver {
             return;
         }
         var metaInPorts = new SimpleConfig(IOConst.META_IN_PORTS_KEY.get());
-        m_metaNode.getInPortsBarUIInfo().ifPresent(info -> SaverUtils.addUiInfo(metaInPorts, info));
+        m_metaNode.getInPortsBarBounds().ifPresent(info -> SaverUtils.addUiInfo(metaInPorts, info));
         var portEnum = new SimpleConfig(IOConst.PORT_ENUM_KEY.get());
         m_metaNode.getInPorts()
             .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(portEnum, IOConst.INPORT_PREFIX.get(), p)));
@@ -125,7 +125,7 @@ final class MetaNodeSaver extends BaseNodeSaver {
             return;
         }
         var metaOutPorts = new SimpleConfig(IOConst.META_OUT_PORTS_KEY.get());
-        m_metaNode.getOutPortsBarUIInfo().ifPresent(uiInfo -> SaverUtils.addUiInfo(metaOutPorts, uiInfo));
+        m_metaNode.getOutPortsBarBounds().ifPresent(uiInfo -> SaverUtils.addUiInfo(metaOutPorts, uiInfo));
         var portEnum = new SimpleConfig(IOConst.PORT_ENUM_KEY.get());
         m_metaNode.getOutPorts()
             .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(portEnum, IOConst.OUTPORT_PREFIX.get(), p)));

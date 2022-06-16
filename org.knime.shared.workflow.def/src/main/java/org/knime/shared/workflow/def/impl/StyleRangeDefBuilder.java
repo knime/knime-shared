@@ -165,7 +165,6 @@ public class StyleRangeDefBuilder {
         setFontSize(fontSize, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -224,7 +223,6 @@ public class StyleRangeDefBuilder {
         setColor(color, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -329,7 +327,6 @@ public class StyleRangeDefBuilder {
         setFontName(fontName, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -388,7 +385,6 @@ public class StyleRangeDefBuilder {
         setFontStyle(fontStyle, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can

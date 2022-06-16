@@ -59,14 +59,11 @@ import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.impl.AnnotationDataDefBuilder;
 import org.knime.shared.workflow.def.impl.BoundsDefBuilder;
-import org.knime.shared.workflow.def.impl.DefaultBoundsDef;
 import org.knime.shared.workflow.def.impl.JobManagerDefBuilder;
 import org.knime.shared.workflow.def.impl.NodeAnnotationDefBuilder;
 import org.knime.shared.workflow.def.impl.NodeLocksDefBuilder;
-import org.knime.shared.workflow.def.impl.NodeUIInfoDefBuilder;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 
@@ -231,35 +228,27 @@ final class BaseNodeLoader {
         }
     }
 
-    /**
-     * Loads the node's UI Info from the {@code settings}.
-     *
-     * @param settings a read only representation of the workflow.knime.
-     * @param workflowFormatVersion an {@link LoadVersion}.
-     * @return a {@link NodeUIInfoDef}
-     */
-    static NodeUIInfoDef loadUIInfo(final ConfigBaseRO settings, final LoadVersion workflowFormatVersion) {
-        var symbolRelative = workflowFormatVersion.ordinal() >= LoadVersion.V230.ordinal();
-        return new NodeUIInfoDefBuilder() //
-            .setBounds(() -> loadBoundsDef(settings), DEFAULT_BOUNDS) //
-            .build();
-    }
-
-    private static DefaultBoundsDef loadBoundsDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+    static Optional<BoundsDef> loadBoundsDef(final ConfigBaseRO settings, final LoadVersion workflowFormatVersion)
+        throws InvalidSettingsException {
+        // TODO for old workflows: var symbolRelative = workflowFormatVersion.ordinal() >= LoadVersion.V230.ordinal();
+        // convert bounds such that symbolRelative is always true
+        if (!settings.containsKey(IOConst.UI_SETTINGS_KEY.get())) {
+            return Optional.empty();
+        }
         var uiSettings = settings.getConfigBase(IOConst.UI_SETTINGS_KEY.get());
         if (!uiSettings.containsKey(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get())) {
-            return (DefaultBoundsDef)DEFAULT_BOUNDS;
+            return Optional.empty();
         }
         try {
             var bounds = uiSettings.getIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get());
-            if (bounds.length == 0 || bounds.length < 4) {
-                return (DefaultBoundsDef)DEFAULT_BOUNDS;
+            if (bounds.length != 4) {
+                throw new InvalidSettingsException("Invalid node bounds, must have four entries, has " + bounds.length);
             }
-            return new BoundsDefBuilder() //
+            return Optional.of(new BoundsDefBuilder() //
                 .setLocation(LoaderUtils.loadCoordinate(bounds[0], bounds[1])) //
                 .setHeight(bounds[2]) //
                 .setWidth(bounds[3]) //
-                .build();
+                .build());
         } catch (InvalidSettingsException e) {
             var errorMessage = String.format("Unable to load the UI Bounds for the node id %d: %s",
                 settings.getInt("id"), e.getMessage());

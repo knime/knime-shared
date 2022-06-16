@@ -50,10 +50,10 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
 
@@ -103,8 +103,8 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
     @JsonProperty("annotation")
     protected Optional<NodeAnnotationDef> m_annotation;
 
-    @JsonProperty("uiInfo")
-    protected Optional<NodeUIInfoDef> m_uiInfo;
+    @JsonProperty("bounds")
+    protected Optional<BoundsDef> m_bounds;
 
     @JsonProperty("locks")
     protected Optional<NodeLocksDef> m_locks;
@@ -133,7 +133,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         
@@ -187,8 +187,8 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
         return m_annotation;
     }
     @Override
-    public Optional<NodeUIInfoDef> getUiInfo() {
-        return m_uiInfo;
+    public Optional<BoundsDef> getBounds() {
+        return m_bounds;
     }
     @Override
     public Optional<NodeLocksDef> getLocks() {
@@ -221,7 +221,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
         equalsBuilder.append(m_nodeType, other.m_nodeType);
         equalsBuilder.append(m_customDescription, other.m_customDescription);
         equalsBuilder.append(m_annotation, other.m_annotation);
-        equalsBuilder.append(m_uiInfo, other.m_uiInfo);
+        equalsBuilder.append(m_bounds, other.m_bounds);
         equalsBuilder.append(m_locks, other.m_locks);
         equalsBuilder.append(m_jobManager, other.m_jobManager);
         return equalsBuilder.isEquals();
@@ -234,7 +234,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
                 .append(m_nodeType)
                 .append(m_customDescription)
                 .append(m_annotation)
-                .append(m_uiInfo)
+                .append(m_bounds)
                 .append(m_locks)
                 .append(m_jobManager)
                 .toHashCode();

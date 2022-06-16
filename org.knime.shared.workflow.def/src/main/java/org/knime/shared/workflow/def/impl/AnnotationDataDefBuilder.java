@@ -572,7 +572,6 @@ public class AnnotationDataDefBuilder {
         setDefaultFontSize(defaultFontSize, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -775,6 +774,7 @@ public class AnnotationDataDefBuilder {
         if(stylesLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.STYLES, stylesLoadExceptionTree);
         }
+        m_styles = m_styles.get().isEmpty() ? Optional.empty() : m_styles;
         
         return new DefaultAnnotationDataDef(this);
     }    

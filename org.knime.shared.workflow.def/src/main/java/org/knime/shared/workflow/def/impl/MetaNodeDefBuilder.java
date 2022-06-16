@@ -47,11 +47,11 @@ package org.knime.shared.workflow.def.impl;
 import java.util.Map;
 import java.util.Optional;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.TemplateLinkDef;
 import org.knime.shared.workflow.def.TemplateMetadataDef;
@@ -121,7 +121,7 @@ public class MetaNodeDefBuilder {
 
     Optional<NodeAnnotationDef> m_annotation = Optional.empty();
     
-    Optional<NodeUIInfoDef> m_uiInfo = Optional.empty();
+    Optional<BoundsDef> m_bounds = Optional.empty();
     
     Optional<NodeLocksDef> m_locks = Optional.empty();
     
@@ -155,9 +155,9 @@ public class MetaNodeDefBuilder {
     
     Optional<TemplateLinkDef> m_templateLink = Optional.empty();
     
-    Optional<NodeUIInfoDef> m_inPortsBarUIInfo = Optional.empty();
+    Optional<BoundsDef> m_inPortsBarBounds = Optional.empty();
     
-    Optional<NodeUIInfoDef> m_outPortsBarUIInfo = Optional.empty();
+    Optional<BoundsDef> m_outPortsBarBounds = Optional.empty();
     
     /**
      * Create a new builder.
@@ -173,7 +173,7 @@ public class MetaNodeDefBuilder {
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_workflow = toCopy.getWorkflow();
@@ -182,8 +182,8 @@ public class MetaNodeDefBuilder {
         m_cipher = toCopy.getCipher();
         m_templateMetadata = toCopy.getTemplateMetadata();
         m_templateLink = toCopy.getTemplateLink();
-        m_inPortsBarUIInfo = toCopy.getInPortsBarUIInfo();
-        m_outPortsBarUIInfo = toCopy.getOutPortsBarUIInfo();
+        m_inPortsBarBounds = toCopy.getInPortsBarBounds();
+        m_outPortsBarBounds = toCopy.getOutPortsBarBounds();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -307,7 +307,6 @@ public class MetaNodeDefBuilder {
         setCustomDescription(customDescription, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -366,7 +365,6 @@ public class MetaNodeDefBuilder {
         setAnnotation(annotation, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -408,15 +406,15 @@ public class MetaNodeDefBuilder {
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for uiInfo
+    // Setters for bounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uiInfo  This is an optional field. Passing <code>null</code> will leave the field empty. 
+     * @param bounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setUiInfo(final NodeUIInfoDef uiInfo) {
-        setUiInfo(() -> uiInfo, uiInfo);
+    public MetaNodeDefBuilder setBounds(final BoundsDef bounds) {
+        setBounds(() -> bounds, bounds);
         return this;
     }
  
@@ -424,39 +422,38 @@ public class MetaNodeDefBuilder {
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link MetaNodeDef#getUiInfo}
+     * @param bounds see {@link MetaNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo) {
-        setUiInfo(uiInfo, null);
+    public MetaNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds) {
+        setBounds(bounds, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link MetaNodeDef#getUiInfo}
+     * @param bounds see {@link MetaNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(uiInfo, () -> "No supplier for uiInfo provided.");
+    public MetaNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(bounds, () -> "No supplier for bounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.UI_INFO);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.BOUNDS);
         try {
-            m_uiInfo = Optional.ofNullable(uiInfo.get());
-            if (m_uiInfo.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiInfo.get()).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.UI_INFO, (LoadExceptionTree<?>)m_uiInfo.get());
+            m_bounds = Optional.ofNullable(bounds.get());
+            if (m_bounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
@@ -469,8 +466,8 @@ public class MetaNodeDefBuilder {
             } else {
                 exceptionTree = supplyException;
             }
-            m_uiInfo = Optional.ofNullable(defaultValue);
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.UI_INFO, exceptionTree);
+            m_bounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.BOUNDS, exceptionTree);
                         if(m__failFast){
                 throw new IllegalStateException(e);
             }
@@ -506,7 +503,6 @@ public class MetaNodeDefBuilder {
         setLocks(locks, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -576,7 +572,6 @@ public class MetaNodeDefBuilder {
         setJobManager(jobManager, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -863,7 +858,6 @@ public class MetaNodeDefBuilder {
         setCipher(cipher, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -933,7 +927,6 @@ public class MetaNodeDefBuilder {
         setTemplateMetadata(templateMetadata, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1003,7 +996,6 @@ public class MetaNodeDefBuilder {
         setTemplateLink(templateLink, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1045,15 +1037,15 @@ public class MetaNodeDefBuilder {
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for inPortsBarUIInfo
+    // Setters for inPortsBarBounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param inPortsBarUIInfo  This is an optional field. Passing <code>null</code> will leave the field empty. 
+     * @param inPortsBarBounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setInPortsBarUIInfo(final NodeUIInfoDef inPortsBarUIInfo) {
-        setInPortsBarUIInfo(() -> inPortsBarUIInfo, inPortsBarUIInfo);
+    public MetaNodeDefBuilder setInPortsBarBounds(final BoundsDef inPortsBarBounds) {
+        setInPortsBarBounds(() -> inPortsBarBounds, inPortsBarBounds);
         return this;
     }
  
@@ -1061,39 +1053,38 @@ public class MetaNodeDefBuilder {
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return the exception.
      * 
-     * @param inPortsBarUIInfo see {@link MetaNodeDef#getInPortsBarUIInfo}
+     * @param inPortsBarBounds see {@link MetaNodeDef#getInPortsBarBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setInPortsBarUIInfo(NodeUIInfoDef)
+     * @see #setInPortsBarBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setInPortsBarUIInfo(final FallibleSupplier<NodeUIInfoDef> inPortsBarUIInfo) {
-        setInPortsBarUIInfo(inPortsBarUIInfo, null);
+    public MetaNodeDefBuilder setInPortsBarBounds(final FallibleSupplier<BoundsDef> inPortsBarBounds) {
+        setInPortsBarBounds(inPortsBarBounds, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return the exception.
      * 
-     * @param inPortsBarUIInfo see {@link MetaNodeDef#getInPortsBarUIInfo}
+     * @param inPortsBarBounds see {@link MetaNodeDef#getInPortsBarBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setInPortsBarUIInfo(NodeUIInfoDef)
+     * @see #setInPortsBarBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setInPortsBarUIInfo(final FallibleSupplier<NodeUIInfoDef> inPortsBarUIInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(inPortsBarUIInfo, () -> "No supplier for inPortsBarUIInfo provided.");
+    public MetaNodeDefBuilder setInPortsBarBounds(final FallibleSupplier<BoundsDef> inPortsBarBounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(inPortsBarBounds, () -> "No supplier for inPortsBarBounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS);
         try {
-            m_inPortsBarUIInfo = Optional.ofNullable(inPortsBarUIInfo.get());
-            if (m_inPortsBarUIInfo.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_inPortsBarUIInfo.get()).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO, (LoadExceptionTree<?>)m_inPortsBarUIInfo.get());
+            m_inPortsBarBounds = Optional.ofNullable(inPortsBarBounds.get());
+            if (m_inPortsBarBounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_inPortsBarBounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS, (LoadExceptionTree<?>)m_inPortsBarBounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
@@ -1106,8 +1097,8 @@ public class MetaNodeDefBuilder {
             } else {
                 exceptionTree = supplyException;
             }
-            m_inPortsBarUIInfo = Optional.ofNullable(defaultValue);
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO, exceptionTree);
+            m_inPortsBarBounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS, exceptionTree);
                         if(m__failFast){
                 throw new IllegalStateException(e);
             }
@@ -1115,15 +1106,15 @@ public class MetaNodeDefBuilder {
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for outPortsBarUIInfo
+    // Setters for outPortsBarBounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param outPortsBarUIInfo  This is an optional field. Passing <code>null</code> will leave the field empty. 
+     * @param outPortsBarBounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setOutPortsBarUIInfo(final NodeUIInfoDef outPortsBarUIInfo) {
-        setOutPortsBarUIInfo(() -> outPortsBarUIInfo, outPortsBarUIInfo);
+    public MetaNodeDefBuilder setOutPortsBarBounds(final BoundsDef outPortsBarBounds) {
+        setOutPortsBarBounds(() -> outPortsBarBounds, outPortsBarBounds);
         return this;
     }
  
@@ -1131,39 +1122,38 @@ public class MetaNodeDefBuilder {
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return the exception.
      * 
-     * @param outPortsBarUIInfo see {@link MetaNodeDef#getOutPortsBarUIInfo}
+     * @param outPortsBarBounds see {@link MetaNodeDef#getOutPortsBarBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setOutPortsBarUIInfo(NodeUIInfoDef)
+     * @see #setOutPortsBarBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setOutPortsBarUIInfo(final FallibleSupplier<NodeUIInfoDef> outPortsBarUIInfo) {
-        setOutPortsBarUIInfo(outPortsBarUIInfo, null);
+    public MetaNodeDefBuilder setOutPortsBarBounds(final FallibleSupplier<BoundsDef> outPortsBarBounds) {
+        setOutPortsBarBounds(outPortsBarBounds, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return the exception.
      * 
-     * @param outPortsBarUIInfo see {@link MetaNodeDef#getOutPortsBarUIInfo}
+     * @param outPortsBarBounds see {@link MetaNodeDef#getOutPortsBarBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setOutPortsBarUIInfo(NodeUIInfoDef)
+     * @see #setOutPortsBarBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setOutPortsBarUIInfo(final FallibleSupplier<NodeUIInfoDef> outPortsBarUIInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(outPortsBarUIInfo, () -> "No supplier for outPortsBarUIInfo provided.");
+    public MetaNodeDefBuilder setOutPortsBarBounds(final FallibleSupplier<BoundsDef> outPortsBarBounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(outPortsBarBounds, () -> "No supplier for outPortsBarBounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS);
         try {
-            m_outPortsBarUIInfo = Optional.ofNullable(outPortsBarUIInfo.get());
-            if (m_outPortsBarUIInfo.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_outPortsBarUIInfo.get()).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO, (LoadExceptionTree<?>)m_outPortsBarUIInfo.get());
+            m_outPortsBarBounds = Optional.ofNullable(outPortsBarBounds.get());
+            if (m_outPortsBarBounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_outPortsBarBounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS, (LoadExceptionTree<?>)m_outPortsBarBounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
@@ -1176,8 +1166,8 @@ public class MetaNodeDefBuilder {
             } else {
                 exceptionTree = supplyException;
             }
-            m_outPortsBarUIInfo = Optional.ofNullable(defaultValue);
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO, exceptionTree);
+            m_outPortsBarBounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS, exceptionTree);
                         if(m__failFast){
                 throw new IllegalStateException(e);
             }
@@ -1213,6 +1203,7 @@ public class MetaNodeDefBuilder {
         if(inPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS, inPortsLoadExceptionTree);
         }
+        m_inPorts = m_inPorts.get().isEmpty() ? Optional.empty() : m_inPorts;
         
         // contains the elements set with #setOutPorts (those added with #addToOutPorts have already been inserted into m_outPorts)
         m_outPortsBulkElements = java.util.Objects.requireNonNullElse(m_outPortsBulkElements, Optional.of(java.util.List.of()));
@@ -1223,6 +1214,7 @@ public class MetaNodeDefBuilder {
         if(outPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS, outPortsLoadExceptionTree);
         }
+        m_outPorts = m_outPorts.get().isEmpty() ? Optional.empty() : m_outPorts;
         
         return new DefaultMetaNodeDef(this);
     }    

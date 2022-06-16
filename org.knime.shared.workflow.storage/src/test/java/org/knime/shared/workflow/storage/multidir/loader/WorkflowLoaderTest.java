@@ -79,7 +79,8 @@ class WorkflowLoaderTest {
         //        assertThat(workflowDef.getCipher()).isNull();
         assertThat(workflowDef.getConnections().get()).hasSize(6).extracting(c -> c.getDestID() != null
             && c.getDestPort() != null && c.getSourceID() != null && c.getSourcePort() != null).containsOnly(true);
-        assertThat(workflowDef.getName()).contains("Workflow");
+        // is null in workflow.knime so empty is appropriate
+        assertThat(workflowDef.getName()).isEmpty();
         assertThat(workflowDef.getNodes().get()).hasSize(7).containsKeys("node_14", "node_13", "node_12", "node_7", "node_11",
             "node_8", "node_10");
         assertThat(workflowDef.getWorkflowEditorSettings().get()).isInstanceOf(WorkflowUISettingsDef.class);

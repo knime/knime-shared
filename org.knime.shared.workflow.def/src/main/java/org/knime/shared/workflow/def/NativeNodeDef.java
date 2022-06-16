@@ -44,13 +44,13 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.ConfigurableNodeDef;
 import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.VendorDef;
 import java.util.Optional;
 
@@ -103,10 +103,10 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link NativeNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link NativeNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link NativeNodeDef#getLocks} 

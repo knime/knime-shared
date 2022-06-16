@@ -146,7 +146,7 @@ class StandaloneSaverTest {
         assertThat(vars).extracting(FlowVariableDef::getName).containsExactly("dummy variable", "another var");
         assertThat(vars).extracting(FlowVariableDef::getPropertyClass).containsExactly("INTEGER", "STRING");
         assertThat(vars).extracting(FlowVariableDef::getValue).allMatch(c -> c instanceof ConfigValueDef);
-        assertThat(rootWF.getTableBackendSettings()).as("No table backend should be set").isNull();
+        assertThat(rootWF.getTableBackendSettings()).as("No table backend should be set").isEmpty();
     }
 
     /**

@@ -47,11 +47,11 @@ package org.knime.shared.workflow.def.impl;
 import java.util.Map;
 import java.util.Optional;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.impl.BaseNodeDefBuilder;
 
 // for the Attribute enum and javadoc references

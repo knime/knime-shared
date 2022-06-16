@@ -222,7 +222,6 @@ public class RootWorkflowDefBuilder {
         setName(name, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -281,7 +280,6 @@ public class RootWorkflowDefBuilder {
         setAuthorInformation(authorInformation, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -601,7 +599,6 @@ public class RootWorkflowDefBuilder {
         setWorkflowEditorSettings(workflowEditorSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -671,7 +668,6 @@ public class RootWorkflowDefBuilder {
         setTableBackendSettings(tableBackendSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can

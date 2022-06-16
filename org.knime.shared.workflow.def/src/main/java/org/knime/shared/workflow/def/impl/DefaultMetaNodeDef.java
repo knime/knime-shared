@@ -50,11 +50,11 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.TemplateLinkDef;
 import org.knime.shared.workflow.def.TemplateMetadataDef;
@@ -115,11 +115,11 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
     @JsonProperty("templateLink")
     protected Optional<TemplateLinkDef> m_templateLink;
 
-    @JsonProperty("inPortsBarUIInfo")
-    protected Optional<NodeUIInfoDef> m_inPortsBarUIInfo;
+    @JsonProperty("inPortsBarBounds")
+    protected Optional<BoundsDef> m_inPortsBarBounds;
 
-    @JsonProperty("outPortsBarUIInfo")
-    protected Optional<NodeUIInfoDef> m_outPortsBarUIInfo;
+    @JsonProperty("outPortsBarBounds")
+    protected Optional<BoundsDef> m_outPortsBarBounds;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -144,7 +144,7 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         m_nodeType = builder.m_nodeType;
         m_customDescription = builder.m_customDescription;
         m_annotation = builder.m_annotation;
-        m_uiInfo = builder.m_uiInfo;
+        m_bounds = builder.m_bounds;
         m_locks = builder.m_locks;
         m_jobManager = builder.m_jobManager;
         m_workflow = builder.m_workflow;
@@ -153,8 +153,8 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         m_cipher = builder.m_cipher;
         m_templateMetadata = builder.m_templateMetadata;
         m_templateLink = builder.m_templateLink;
-        m_inPortsBarUIInfo = builder.m_inPortsBarUIInfo;
-        m_outPortsBarUIInfo = builder.m_outPortsBarUIInfo;
+        m_inPortsBarBounds = builder.m_inPortsBarBounds;
+        m_outPortsBarBounds = builder.m_outPortsBarBounds;
 
         m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
@@ -174,7 +174,7 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_workflow = toCopy.getWorkflow();
@@ -183,8 +183,8 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         m_cipher = toCopy.getCipher();
         m_templateMetadata = toCopy.getTemplateMetadata();
         m_templateLink = toCopy.getTemplateLink();
-        m_inPortsBarUIInfo = toCopy.getInPortsBarUIInfo();
-        m_outPortsBarUIInfo = toCopy.getOutPortsBarUIInfo();
+        m_inPortsBarBounds = toCopy.getInPortsBarBounds();
+        m_outPortsBarBounds = toCopy.getOutPortsBarBounds();
         if(toCopy instanceof LoadExceptionTreeProvider){
             var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -206,7 +206,7 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_workflow = toCopy.getWorkflow();
@@ -215,8 +215,8 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         m_cipher = toCopy.getCipher();
         m_templateMetadata = toCopy.getTemplateMetadata();
         m_templateLink = toCopy.getTemplateLink();
-        m_inPortsBarUIInfo = toCopy.getInPortsBarUIInfo();
-        m_outPortsBarUIInfo = toCopy.getOutPortsBarUIInfo();
+        m_inPortsBarBounds = toCopy.getInPortsBarBounds();
+        m_outPortsBarBounds = toCopy.getOutPortsBarBounds();
         
         m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
@@ -281,8 +281,8 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         return m_annotation;
     }
     @Override
-    public Optional<NodeUIInfoDef> getUiInfo() {
-        return m_uiInfo;
+    public Optional<BoundsDef> getBounds() {
+        return m_bounds;
     }
     @Override
     public Optional<NodeLocksDef> getLocks() {
@@ -317,12 +317,12 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         return m_templateLink;
     }
     @Override
-    public Optional<NodeUIInfoDef> getInPortsBarUIInfo() {
-        return m_inPortsBarUIInfo;
+    public Optional<BoundsDef> getInPortsBarBounds() {
+        return m_inPortsBarBounds;
     }
     @Override
-    public Optional<NodeUIInfoDef> getOutPortsBarUIInfo() {
-        return m_outPortsBarUIInfo;
+    public Optional<BoundsDef> getOutPortsBarBounds() {
+        return m_outPortsBarBounds;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -383,23 +383,23 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
          
  
     /**
-     * @return The supply exception associated to uiInfo.
+     * @return The supply exception associated to bounds.
      */
     @JsonIgnore
-    public Optional<LoadException> getUiInfoSupplyException(){
-    	return getLoadExceptionTree(MetaNodeDef.Attribute.UI_INFO).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getBoundsSupplyException(){
+    	return getLoadExceptionTree(MetaNodeDef.Attribute.BOUNDS).flatMap(LoadExceptionTree::getSupplyException);
     }
     
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link NodeUIInfoDef} returned by {@link #getUiInfo()}, this
-     * returns the uiInfo as DefaultNodeUIInfoDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return If there are {@link LoadException}s related to the {@link BoundsDef} returned by {@link #getBounds()}, this
+     * returns the bounds as DefaultBoundsDef which provides getters for the exceptions. Otherwise an empty optional.
      */
     @JsonIgnore
-    public Optional<DefaultNodeUIInfoDef> getFaultyUiInfo(){
-    	final var uiInfo = getUiInfo(); 
-        if(LoadExceptionTreeProvider.hasExceptions(uiInfo)) {
-            return Optional.of((DefaultNodeUIInfoDef)uiInfo.get());
+    public Optional<DefaultBoundsDef> getFaultyBounds(){
+    	final var bounds = getBounds(); 
+        if(LoadExceptionTreeProvider.hasExceptions(bounds)) {
+            return Optional.of((DefaultBoundsDef)bounds.get());
         }
     	return Optional.empty();
     }
@@ -586,46 +586,46 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
          
  
     /**
-     * @return The supply exception associated to inPortsBarUIInfo.
+     * @return The supply exception associated to inPortsBarBounds.
      */
     @JsonIgnore
-    public Optional<LoadException> getInPortsBarUIInfoSupplyException(){
-    	return getLoadExceptionTree(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getInPortsBarBoundsSupplyException(){
+    	return getLoadExceptionTree(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS).flatMap(LoadExceptionTree::getSupplyException);
     }
     
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link NodeUIInfoDef} returned by {@link #getInPortsBarUIInfo()}, this
-     * returns the inPortsBarUIInfo as DefaultNodeUIInfoDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return If there are {@link LoadException}s related to the {@link BoundsDef} returned by {@link #getInPortsBarBounds()}, this
+     * returns the inPortsBarBounds as DefaultBoundsDef which provides getters for the exceptions. Otherwise an empty optional.
      */
     @JsonIgnore
-    public Optional<DefaultNodeUIInfoDef> getFaultyInPortsBarUIInfo(){
-    	final var inPortsBarUIInfo = getInPortsBarUIInfo(); 
-        if(LoadExceptionTreeProvider.hasExceptions(inPortsBarUIInfo)) {
-            return Optional.of((DefaultNodeUIInfoDef)inPortsBarUIInfo.get());
+    public Optional<DefaultBoundsDef> getFaultyInPortsBarBounds(){
+    	final var inPortsBarBounds = getInPortsBarBounds(); 
+        if(LoadExceptionTreeProvider.hasExceptions(inPortsBarBounds)) {
+            return Optional.of((DefaultBoundsDef)inPortsBarBounds.get());
         }
     	return Optional.empty();
     }
          
  
     /**
-     * @return The supply exception associated to outPortsBarUIInfo.
+     * @return The supply exception associated to outPortsBarBounds.
      */
     @JsonIgnore
-    public Optional<LoadException> getOutPortsBarUIInfoSupplyException(){
-    	return getLoadExceptionTree(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getOutPortsBarBoundsSupplyException(){
+    	return getLoadExceptionTree(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS).flatMap(LoadExceptionTree::getSupplyException);
     }
     
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link NodeUIInfoDef} returned by {@link #getOutPortsBarUIInfo()}, this
-     * returns the outPortsBarUIInfo as DefaultNodeUIInfoDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return If there are {@link LoadException}s related to the {@link BoundsDef} returned by {@link #getOutPortsBarBounds()}, this
+     * returns the outPortsBarBounds as DefaultBoundsDef which provides getters for the exceptions. Otherwise an empty optional.
      */
     @JsonIgnore
-    public Optional<DefaultNodeUIInfoDef> getFaultyOutPortsBarUIInfo(){
-    	final var outPortsBarUIInfo = getOutPortsBarUIInfo(); 
-        if(LoadExceptionTreeProvider.hasExceptions(outPortsBarUIInfo)) {
-            return Optional.of((DefaultNodeUIInfoDef)outPortsBarUIInfo.get());
+    public Optional<DefaultBoundsDef> getFaultyOutPortsBarBounds(){
+    	final var outPortsBarBounds = getOutPortsBarBounds(); 
+        if(LoadExceptionTreeProvider.hasExceptions(outPortsBarBounds)) {
+            return Optional.of((DefaultBoundsDef)outPortsBarBounds.get());
         }
     	return Optional.empty();
     }
@@ -656,8 +656,8 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
         equalsBuilder.append(m_cipher, other.m_cipher);
         equalsBuilder.append(m_templateMetadata, other.m_templateMetadata);
         equalsBuilder.append(m_templateLink, other.m_templateLink);
-        equalsBuilder.append(m_inPortsBarUIInfo, other.m_inPortsBarUIInfo);
-        equalsBuilder.append(m_outPortsBarUIInfo, other.m_outPortsBarUIInfo);
+        equalsBuilder.append(m_inPortsBarBounds, other.m_inPortsBarBounds);
+        equalsBuilder.append(m_outPortsBarBounds, other.m_outPortsBarBounds);
         return equalsBuilder.isEquals();
     }
 
@@ -668,7 +668,7 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
                 .append(m_nodeType)
                 .append(m_customDescription)
                 .append(m_annotation)
-                .append(m_uiInfo)
+                .append(m_bounds)
                 .append(m_locks)
                 .append(m_jobManager)
                 .append(m_workflow)
@@ -677,8 +677,8 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
                 .append(m_cipher)
                 .append(m_templateMetadata)
                 .append(m_templateLink)
-                .append(m_inPortsBarUIInfo)
-                .append(m_outPortsBarUIInfo)
+                .append(m_inPortsBarBounds)
+                .append(m_outPortsBarBounds)
                 .toHashCode();
     }
 

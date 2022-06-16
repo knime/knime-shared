@@ -112,9 +112,7 @@ class ComponentLoaderTest {
         assertThat(componentDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(true, false, false);
-        assertThat(componentDef.getUiInfo().get())
-            .extracting(n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
-            .containsNull();
+        assertThat(componentDef.getBounds()).isEmpty();
 
         assertThat(componentDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
@@ -164,8 +162,8 @@ class ComponentLoaderTest {
         assertThat(componentDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(true, false, false);
-        assertThat(componentDef.getUiInfo().get()).extracting(n -> n.getBounds().getLocation().getX(),
-            n -> n.getBounds().getLocation().getY(), n -> n.getBounds().getHeight(), n -> n.getBounds().getWidth())
+        assertThat(componentDef.getBounds().get())
+            .extracting(n -> n.getLocation().getX(), n -> n.getLocation().getY(), n -> n.getHeight(), n -> n.getWidth())
             .containsExactly(2541, 1117, 122, 65);
 
         // TODO add back this assertion

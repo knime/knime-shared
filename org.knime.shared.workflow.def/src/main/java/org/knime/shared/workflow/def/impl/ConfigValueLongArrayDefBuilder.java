@@ -281,6 +281,7 @@ public class ConfigValueLongArrayDefBuilder {
                 if(arrayLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ConfigValueLongArrayDef.Attribute.ARRAY, arrayLoadExceptionTree);
         }
+        m_array = m_array.get().isEmpty() ? Optional.empty() : m_array;
         
         return new DefaultConfigValueLongArrayDef(this);
     }    

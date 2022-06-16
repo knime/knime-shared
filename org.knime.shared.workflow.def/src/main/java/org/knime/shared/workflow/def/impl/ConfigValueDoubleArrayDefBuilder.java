@@ -281,6 +281,7 @@ public class ConfigValueDoubleArrayDefBuilder {
                 if(arrayLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ConfigValueDoubleArrayDef.Attribute.ARRAY, arrayLoadExceptionTree);
         }
+        m_array = m_array.get().isEmpty() ? Optional.empty() : m_array;
         
         return new DefaultConfigValueDoubleArrayDef(this);
     }    

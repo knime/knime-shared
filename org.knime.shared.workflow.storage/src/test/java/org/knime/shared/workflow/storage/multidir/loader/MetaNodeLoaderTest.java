@@ -64,7 +64,6 @@ import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 
 /**
  *
@@ -96,8 +95,8 @@ class MetaNodeLoaderTest {
         // Assert MetaNodeLoader
         assertThat(metanodeDef.getInPorts()).isEmpty();
         assertThat(metanodeDef.getOutPorts()).isEmpty();
-        assertThat(metanodeDef.getInPortsBarUIInfo()).isPresent();
-        assertThat(metanodeDef.getOutPortsBarUIInfo()).isPresent();
+        assertThat(metanodeDef.getInPortsBarBounds()).isEmpty();
+        assertThat(metanodeDef.getOutPortsBarBounds()).isEmpty();
         assertThat(metanodeDef.getTemplateLink().get().getVersion().getMonthValue()).isEqualTo(1);
         assertThat(metanodeDef.getTemplateLink().get().getUri()).isNull();
         assertThat(metanodeDef.getWorkflow()).isNotNull();
@@ -111,10 +110,9 @@ class MetaNodeLoaderTest {
         assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(metanodeDef.getUiInfo().get())
-            .extracting(n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
-            .containsNull();
-        assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
+        assertThat(metanodeDef.getBounds()).isEmpty();
+        metanodeDef.getLoadExceptionTree().getFlattenedLoadExceptions().forEach(Exception::printStackTrace);
+        assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).as(metanodeDef.getLoadExceptionTree().getFlattenedLoadExceptions().toString()).isFalse();
     }
 
     @Test
@@ -145,8 +143,8 @@ class MetaNodeLoaderTest {
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
             .contains(tuple(0, Optional.of("Connected to: Concatenated table"), true),
                 tuple(1, Optional.of("Connected to: Concatenated table"), true));
-        assertThat(metanodeDef.getInPortsBarUIInfo().get()).isInstanceOf(NodeUIInfoDef.class);
-        assertThat(metanodeDef.getOutPortsBarUIInfo().get()).isInstanceOf(NodeUIInfoDef.class);
+        assertThat(metanodeDef.getInPortsBarBounds()).isEmpty();
+        assertThat(metanodeDef.getOutPortsBarBounds()).isEmpty();
         assertThat(metanodeDef.getTemplateLink().get().getVersion().getYear()).isEqualTo(2022);
         assertThat(metanodeDef.getTemplateLink().get().getUri()).isEqualTo("knime://knime.mountpoint/MetanodeTest");
         assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(4);
@@ -159,10 +157,9 @@ class MetaNodeLoaderTest {
         assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(metanodeDef.getUiInfo().get()).extracting(n -> n.getBounds().getLocation().getX(),
-            n -> n.getBounds().getLocation().getY(), n -> n.getBounds().getHeight(), n -> n.getBounds().getWidth())
+        assertThat(metanodeDef.getBounds().get())
+            .extracting(n -> n.getLocation().getX(), n -> n.getLocation().getY(), n -> n.getHeight(), n -> n.getWidth())
             .containsExactly(2541, 1117, 122, 65);
-        // TODO enable when load handling is fixed
-//        assertThat(metanodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 }

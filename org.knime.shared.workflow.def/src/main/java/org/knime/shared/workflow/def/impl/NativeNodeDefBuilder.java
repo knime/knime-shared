@@ -47,12 +47,12 @@ package org.knime.shared.workflow.def.impl;
 import java.util.Map;
 import java.util.Optional;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.VendorDef;
 import org.knime.shared.workflow.def.impl.ConfigurableNodeDefBuilder;
 
@@ -119,7 +119,7 @@ public class NativeNodeDefBuilder {
 
     Optional<NodeAnnotationDef> m_annotation = Optional.empty();
     
-    Optional<NodeUIInfoDef> m_uiInfo = Optional.empty();
+    Optional<BoundsDef> m_bounds = Optional.empty();
     
     Optional<NodeLocksDef> m_locks = Optional.empty();
     
@@ -161,7 +161,7 @@ public class NativeNodeDefBuilder {
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_modelSettings = toCopy.getModelSettings();
@@ -297,7 +297,6 @@ public class NativeNodeDefBuilder {
         setCustomDescription(customDescription, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -356,7 +355,6 @@ public class NativeNodeDefBuilder {
         setAnnotation(annotation, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -398,15 +396,15 @@ public class NativeNodeDefBuilder {
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for uiInfo
+    // Setters for bounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uiInfo  This is an optional field. Passing <code>null</code> will leave the field empty. 
+     * @param bounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public NativeNodeDefBuilder setUiInfo(final NodeUIInfoDef uiInfo) {
-        setUiInfo(() -> uiInfo, uiInfo);
+    public NativeNodeDefBuilder setBounds(final BoundsDef bounds) {
+        setBounds(() -> bounds, bounds);
         return this;
     }
  
@@ -414,39 +412,38 @@ public class NativeNodeDefBuilder {
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(NativeNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(NativeNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link NativeNodeDef#getUiInfo}
+     * @param bounds see {@link NativeNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public NativeNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo) {
-        setUiInfo(uiInfo, null);
+    public NativeNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds) {
+        setBounds(bounds, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(NativeNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(NativeNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link NativeNodeDef#getUiInfo}
+     * @param bounds see {@link NativeNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public NativeNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(uiInfo, () -> "No supplier for uiInfo provided.");
+    public NativeNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(bounds, () -> "No supplier for bounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(NativeNodeDef.Attribute.UI_INFO);
+        m_exceptionalChildren.remove(NativeNodeDef.Attribute.BOUNDS);
         try {
-            m_uiInfo = Optional.ofNullable(uiInfo.get());
-            if (m_uiInfo.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiInfo.get()).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.UI_INFO, (LoadExceptionTree<?>)m_uiInfo.get());
+            m_bounds = Optional.ofNullable(bounds.get());
+            if (m_bounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
@@ -459,8 +456,8 @@ public class NativeNodeDefBuilder {
             } else {
                 exceptionTree = supplyException;
             }
-            m_uiInfo = Optional.ofNullable(defaultValue);
-            m_exceptionalChildren.put(NativeNodeDef.Attribute.UI_INFO, exceptionTree);
+            m_bounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(NativeNodeDef.Attribute.BOUNDS, exceptionTree);
                         if(m__failFast){
                 throw new IllegalStateException(e);
             }
@@ -496,7 +493,6 @@ public class NativeNodeDefBuilder {
         setLocks(locks, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -566,7 +562,6 @@ public class NativeNodeDefBuilder {
         setJobManager(jobManager, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -636,7 +631,6 @@ public class NativeNodeDefBuilder {
         setModelSettings(modelSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -706,7 +700,6 @@ public class NativeNodeDefBuilder {
         setInternalNodeSubSettings(internalNodeSubSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -776,7 +769,6 @@ public class NativeNodeDefBuilder {
         setVariableSettings(variableSettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -938,7 +930,6 @@ public class NativeNodeDefBuilder {
         setFactorySettings(factorySettings, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1122,7 +1113,6 @@ public class NativeNodeDefBuilder {
         setNodeCreationConfig(nodeCreationConfig, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -1192,7 +1182,6 @@ public class NativeNodeDefBuilder {
         setFilestore(filestore, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can

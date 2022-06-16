@@ -45,11 +45,11 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigurableNodeDef;
@@ -101,10 +101,10 @@ public interface ConfigurableNodeDef extends BaseNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link ConfigurableNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link ConfigurableNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link ConfigurableNodeDef#getLocks} 

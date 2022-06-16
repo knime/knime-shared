@@ -51,6 +51,7 @@ package org.knime.shared.workflow.storage.multidir.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -95,7 +96,6 @@ import org.knime.shared.workflow.def.FlowVariableDef;
 import org.knime.shared.workflow.def.MetaNodeDef;
 import org.knime.shared.workflow.def.NativeNodeDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.TemplateLinkDef;
 import org.knime.shared.workflow.def.TemplateMetadataDef;
@@ -108,6 +108,10 @@ import org.knime.shared.workflow.def.TemplateMetadataDef;
 public final class SaverUtils {
 
     public static final String DEFAULT_WORKFLOW_NAME = "Workflow";
+
+    public static final int DEFAULT_DEF_FONT_SIZE = 11;
+
+    public static final int DEFAULT_FONT_SIZE = 11;
 
     private SaverUtils() {
     }
@@ -163,22 +167,18 @@ public final class SaverUtils {
      * Add UI Information to a given {@link ConfigBase}
      *
      * @param settings The configBase in which to add the UI Info
-     * @param uiInfo The definition of the UI Information
+     * @param bounds location and size
      */
-    public static void addUiInfo(final ConfigBase settings, final NodeUIInfoDef uiInfo) {
+    public static void addUiInfo(final ConfigBase settings, final BoundsDef bounds) {
         settings.addString(IOConst.UI_CLASSNAME_KEY.get(), IOConst.NODE_UI_INFORMATION_CLASSNAME.get());
-
-        BoundsDef bounds = uiInfo.getBounds();
-        if (bounds != null) {
-            ConfigBase nodeUIConfig = new SimpleConfig(IOConst.UI_SETTINGS_KEY.get());
-            var boundsArray = new int[4];
-            boundsArray[0] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getX();
-            boundsArray[1] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getY();
-            boundsArray[2] = (bounds.getHeight() == null) ? 0 : bounds.getHeight();
-            boundsArray[3] = (bounds.getWidth() == null) ? 0 : bounds.getWidth();
-            nodeUIConfig.addIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get(), boundsArray);
-            settings.addEntry(nodeUIConfig);
-        }
+        ConfigBase nodeUIConfig = new SimpleConfig(IOConst.UI_SETTINGS_KEY.get());
+        var boundsArray = new int[4];
+        boundsArray[0] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getX();
+        boundsArray[1] = (bounds.getLocation() == null) ? 0 : bounds.getLocation().getY();
+        boundsArray[2] = (bounds.getHeight() == null) ? 0 : bounds.getHeight();
+        boundsArray[3] = (bounds.getWidth() == null) ? 0 : bounds.getWidth();
+        nodeUIConfig.addIntArray(IOConst.EXTRA_NODE_INFO_BOUNDS_KEY.get(), boundsArray);
+        settings.addEntry(nodeUIConfig);
     }
 
     /**
@@ -265,9 +265,8 @@ public final class SaverUtils {
         templateSettings.addString(IOConst.TIMESTAMP.get(), version.format(LoaderUtils.DATE_FORMAT));
 
         // for links, store the source URI
-        templateLink//
-            .map(TemplateLinkDef::getUri)
-            .ifPresent(uri -> templateSettings.addString(IOConst.SOURCE_URI_KEY.get(), uri));
+        templateSettings.addString(IOConst.SOURCE_URI_KEY.get(),
+            templateLink.map(TemplateLinkDef::getUri).orElse(null));
 
         // for templates, store the type of template (metanode or component)
         templateMetadata.ifPresent(
@@ -410,26 +409,24 @@ public final class SaverUtils {
         annotation.addString("alignment", annotationDataDef.getTextAlignment());
         annotation.addInt("borderSize", annotationDataDef.getBorderSize());
         annotation.addInt("borderColor", annotationDataDef.getBorderColor());
-        annotationDataDef.getDefaultFontSize().ifPresent(f -> annotation.addInt("defFontSize", f));
+        annotation.addInt("defFontSize", annotationDataDef.getDefaultFontSize().orElse(DEFAULT_DEF_FONT_SIZE));
         annotation.addInt("annotation-version", annotationDataDef.getAnnotationVersion());
 
-        var stylesList = annotationDataDef.getStyles();
-        if (stylesList.isPresent()) {
-            var styles = new SimpleConfig("styles");
-            var styleIndex = 0;
-            for (var styleRangeDef : stylesList.get()) {
-                var style = new SimpleConfig(String.format("style_%d", styleIndex));
-                style.addInt("start", styleRangeDef.getStart());
-                style.addInt("length", styleRangeDef.getLength());
-                styleRangeDef.getFontName().ifPresent(f -> style.addString("fontname", f));
-                styleRangeDef.getFontStyle().ifPresent(f -> style.addInt("fontstyle", f));
-                styleRangeDef.getFontSize().ifPresent(f -> style.addInt("fontsize", f));
-                styleRangeDef.getColor().ifPresent(c -> style.addInt("fgcolor", c));
-                styles.addEntry(style);
-                ++styleIndex;
-            }
-            annotation.addEntry(styles);
+        var stylesList = annotationDataDef.getStyles().orElse(List.of());
+        var styles = new SimpleConfig("styles");
+        var styleIndex = 0;
+        for (var styleRangeDef : stylesList) {
+            var style = new SimpleConfig(String.format("style_%d", styleIndex));
+            style.addInt("start", styleRangeDef.getStart());
+            style.addInt("length", styleRangeDef.getLength());
+            styleRangeDef.getFontName().ifPresent(f -> style.addString("fontname", f));
+            styleRangeDef.getFontStyle().ifPresent(f -> style.addInt("fontstyle", f));
+            style.addInt("fontsize", styleRangeDef.getFontSize().orElse(DEFAULT_FONT_SIZE));
+            styleRangeDef.getColor().ifPresent(c -> style.addInt("fgcolor", c));
+            styles.addEntry(style);
+            ++styleIndex;
         }
+        annotation.addEntry(styles);
         return annotation;
     }
 

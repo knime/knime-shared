@@ -117,7 +117,7 @@ public final class ComponentNodeLoader {
             .setDialogSettings(() -> loadDialogSettings(componentConfig))
             // The template.knime is redundant for the Components, settings.xml contains the template information.
             .setTemplateMetadata(() -> LoaderUtils.loadTemplateMetadata(componentConfig).orElse(null)) //
-            .setLink(() -> LoaderUtils.loadTemplateLink(componentConfig).orElse(null))//
+            .setTemplateLink(() -> LoaderUtils.loadTemplateLink(componentConfig).orElse(null))//
             .setMetadata(() -> loadMetadata(componentConfig), new ComponentMetadataDefBuilder() //
                 .build()) //
             .setWorkflow(() -> WorkflowLoader.load(nodeDirectory, workflowFormatVersion),
@@ -136,7 +136,7 @@ public final class ComponentNodeLoader {
                 null) //
             .setJobManager(() -> BaseNodeLoader.loadJobManager(componentConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
             .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
-            .setUiInfo(BaseNodeLoader.loadUIInfo(workflowConfig, workflowFormatVersion));
+            .setBounds(() -> BaseNodeLoader.loadBoundsDef(workflowConfig, workflowFormatVersion).orElse(null));
 
         setInPorts(builder, componentConfig);
         setOutPorts(builder, componentConfig);

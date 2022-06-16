@@ -44,10 +44,10 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultBaseNodeDef;
@@ -123,10 +123,10 @@ public interface BaseNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link BaseNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link BaseNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link BaseNodeDef#getLocks} 
@@ -187,7 +187,7 @@ public interface BaseNodeDef {
   /**
    * @return 
    **/
-  public Optional<NodeUIInfoDef> getUiInfo();
+  public Optional<BoundsDef> getBounds();
 
   /**
    * @return 

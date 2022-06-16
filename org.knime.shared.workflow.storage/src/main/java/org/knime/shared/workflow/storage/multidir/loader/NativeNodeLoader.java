@@ -48,8 +48,6 @@
  */
 package org.knime.shared.workflow.storage.multidir.loader;
 
-import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_CONFIG_MAP;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -136,27 +134,25 @@ public final class NativeNodeLoader {
         return new NativeNodeDefBuilder()//
             .setNodeType(BaseNodeDef.NodeTypeEnum.NATIVENODE) //
             .setFactory(() -> loadFactory(workflowConfig, nodeConfig, workflowFormatVersion), null) //
-            .setFactorySettings(() -> loadFactorySettings(nodeConfig), DEFAULT_CONFIG_MAP) //
+            .setFactorySettings(() -> loadFactorySettings(nodeConfig)) //
             .setNodeName(() -> nodeConfig.getString(IOConst.NODE_NAME_KEY.get()), null) //
             .setBundle(() -> loadBundle(nodeConfig), DEFAULT_VENDOR_DEF) //
             .setFeature(() -> loadFeature(nodeConfig), DEFAULT_VENDOR_DEF) //
-            .setNodeCreationConfig(() -> loadCreationConfig(nodeConfig), DEFAULT_CONFIG_MAP)
-            .setFilestore(() -> loadFilestore(workflowConfig, workflowFormatVersion), DEFAULT_FILE_STORE_DEF)
+            .setNodeCreationConfig(() -> loadCreationConfig(nodeConfig))
+            .setFilestore(() -> loadFilestore(workflowConfig, workflowFormatVersion))
             // single node properties
-            .setInternalNodeSubSettings(() -> SingleNodeLoader.loadInternalNodeSubSettings(nodeConfig),
-                DEFAULT_CONFIG_MAP) //
-            .setModelSettings(() -> SingleNodeLoader.loadModelSettings(nodeConfig), DEFAULT_CONFIG_MAP) //
-            .setVariableSettings(() -> SingleNodeLoader.loadVariableSettings(nodeConfig), DEFAULT_CONFIG_MAP)
+            .setInternalNodeSubSettings(() -> SingleNodeLoader.loadInternalNodeSubSettings(nodeConfig)) //
+            .setModelSettings(() -> SingleNodeLoader.loadModelSettings(nodeConfig)) //
+            .setVariableSettings(() -> SingleNodeLoader.loadVariableSettings(nodeConfig))
             // base node properties
             .setId(() -> BaseNodeLoader.loadNodeId(workflowConfig), BaseNodeLoader.getRandomNodeID()) //
-            .setAnnotation(() -> BaseNodeLoader.loadAnnotation(nodeConfig, workflowFormatVersion),
-                BaseNodeLoader.DEFAULT_NODE_ANNOTATION) //
+            .setAnnotation(() -> BaseNodeLoader.loadAnnotation(nodeConfig, workflowFormatVersion)) //
             .setCustomDescription(
                 () -> BaseNodeLoader.loadCustomDescription(workflowConfig, nodeConfig, workflowFormatVersion),
                 null) //
-            .setJobManager(() -> BaseNodeLoader.loadJobManager(nodeConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
+            .setJobManager(() -> BaseNodeLoader.loadJobManager(nodeConfig)) //
             .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
-            .setUiInfo(BaseNodeLoader.loadUIInfo(workflowConfig, workflowFormatVersion)) //
+            .setBounds(() -> BaseNodeLoader.loadBoundsDef(workflowConfig, workflowFormatVersion).orElse(null)) //
             .build();
     }
 

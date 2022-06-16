@@ -50,12 +50,12 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.VendorDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigurableNodeDef;
 
@@ -143,7 +143,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         m_nodeType = builder.m_nodeType;
         m_customDescription = builder.m_customDescription;
         m_annotation = builder.m_annotation;
-        m_uiInfo = builder.m_uiInfo;
+        m_bounds = builder.m_bounds;
         m_locks = builder.m_locks;
         m_jobManager = builder.m_jobManager;
         m_modelSettings = builder.m_modelSettings;
@@ -175,7 +175,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_modelSettings = toCopy.getModelSettings();
@@ -209,7 +209,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_modelSettings = toCopy.getModelSettings();
@@ -286,8 +286,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         return m_annotation;
     }
     @Override
-    public Optional<NodeUIInfoDef> getUiInfo() {
-        return m_uiInfo;
+    public Optional<BoundsDef> getBounds() {
+        return m_bounds;
     }
     @Override
     public Optional<NodeLocksDef> getLocks() {
@@ -396,23 +396,23 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
          
  
     /**
-     * @return The supply exception associated to uiInfo.
+     * @return The supply exception associated to bounds.
      */
     @JsonIgnore
-    public Optional<LoadException> getUiInfoSupplyException(){
-    	return getLoadExceptionTree(NativeNodeDef.Attribute.UI_INFO).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getBoundsSupplyException(){
+    	return getLoadExceptionTree(NativeNodeDef.Attribute.BOUNDS).flatMap(LoadExceptionTree::getSupplyException);
     }
     
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link NodeUIInfoDef} returned by {@link #getUiInfo()}, this
-     * returns the uiInfo as DefaultNodeUIInfoDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return If there are {@link LoadException}s related to the {@link BoundsDef} returned by {@link #getBounds()}, this
+     * returns the bounds as DefaultBoundsDef which provides getters for the exceptions. Otherwise an empty optional.
      */
     @JsonIgnore
-    public Optional<DefaultNodeUIInfoDef> getFaultyUiInfo(){
-    	final var uiInfo = getUiInfo(); 
-        if(LoadExceptionTreeProvider.hasExceptions(uiInfo)) {
-            return Optional.of((DefaultNodeUIInfoDef)uiInfo.get());
+    public Optional<DefaultBoundsDef> getFaultyBounds(){
+    	final var bounds = getBounds(); 
+        if(LoadExceptionTreeProvider.hasExceptions(bounds)) {
+            return Optional.of((DefaultBoundsDef)bounds.get());
         }
     	return Optional.empty();
     }
@@ -704,7 +704,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
                 .append(m_nodeType)
                 .append(m_customDescription)
                 .append(m_annotation)
-                .append(m_uiInfo)
+                .append(m_bounds)
                 .append(m_locks)
                 .append(m_jobManager)
                 .append(m_modelSettings)

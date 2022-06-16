@@ -54,7 +54,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,9 +124,7 @@ class NativeNodeLoaderTest {
         assertThat(nativeNodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(nativeNodeDef.getUiInfo().get())
-            .extracting(n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
-            .contains(Optional.of(false), Optional.of(true));
+        assertThat(nativeNodeDef.getBounds()).isEmpty();
         assertThat(nativeNodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 

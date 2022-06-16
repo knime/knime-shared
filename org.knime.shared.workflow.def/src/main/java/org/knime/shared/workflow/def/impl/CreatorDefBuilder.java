@@ -149,7 +149,6 @@ public class CreatorDefBuilder {
         setSavedWithVersion(savedWithVersion, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
@@ -208,7 +207,6 @@ public class CreatorDefBuilder {
         setNightly(nightly, null);
         return this;
     }
-
     
     /**
      * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can

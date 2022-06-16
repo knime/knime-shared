@@ -45,11 +45,11 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.TemplateLinkDef;
 import org.knime.shared.workflow.def.TemplateMetadataDef;
@@ -105,10 +105,10 @@ public interface MetaNodeDef extends BaseNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link MetaNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link MetaNodeDef#getLocks} 
@@ -155,15 +155,15 @@ public interface MetaNodeDef extends BaseNodeDef {
           */
          TEMPLATE_LINK,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getInPortsBarUIInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link MetaNodeDef#getInPortsBarBounds} 
           */
-         IN_PORTS_BAR_UI_INFO,
+         IN_PORTS_BAR_BOUNDS,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getOutPortsBarUIInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link MetaNodeDef#getOutPortsBarBounds} 
           */
-         OUT_PORTS_BAR_UI_INFO,
+         OUT_PORTS_BAR_BOUNDS,
 ;
     }
     
@@ -201,12 +201,12 @@ public interface MetaNodeDef extends BaseNodeDef {
   /**
    * @return 
    **/
-  public Optional<NodeUIInfoDef> getInPortsBarUIInfo();
+  public Optional<BoundsDef> getInPortsBarBounds();
 
   /**
    * @return 
    **/
-  public Optional<NodeUIInfoDef> getOutPortsBarUIInfo();
+  public Optional<BoundsDef> getOutPortsBarBounds();
 
 
 }
