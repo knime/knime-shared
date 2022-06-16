@@ -54,6 +54,7 @@ import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAUL
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
@@ -161,14 +162,14 @@ public final class StandaloneLoader {
 
         // copy properties of workflow
         var workflow = WorkflowLoader.load(directory, workflowConfig, loadVersion);
-        builder.setName(workflow.getName()) //
-            .setAuthorInformation(workflow.getAuthorInformation()) //
-            .setWorkflowEditorSettings(workflow.getWorkflowEditorSettings());
-        workflow.getConnections().forEach(builder::addToConnections);
-        workflow.getAnnotations().forEach(builder::putToAnnotations);
-        workflow.getNodes().forEach(builder::putToNodes);
+        builder.setName(workflow.getName().orElse(null)) //
+            .setAuthorInformation(workflow.getAuthorInformation().orElse(null)) //
+            .setWorkflowEditorSettings(workflow.getWorkflowEditorSettings().orElse(null));
+        workflow.getConnections().orElse(List.of()).forEach(builder::addToConnections);
+        workflow.getAnnotations().orElse(Map.of()).forEach(builder::putToAnnotations);
+        workflow.getNodes().orElse(Map.of()).forEach(builder::putToNodes);
 
-        return builder.build();
+        return builder.setWorkflow(workflow).build();
     }
 
     /**

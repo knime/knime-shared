@@ -46,6 +46,7 @@ package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.CoordinateDef;
 import org.knime.shared.workflow.def.StyleRangeDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultAnnotationDataDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,26 +69,31 @@ public interface AnnotationDataDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AnnotationDataDef#getText} 
           */
          TEXT,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link CoordinateDef}.
           * Is is returned by {@link AnnotationDataDef#getLocation} 
           */
          LOCATION,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AnnotationDataDef#getTextAlignment} 
           */
          TEXT_ALIGNMENT,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getBorderSize} 
           */
          BORDER_SIZE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getBorderColor} 
           */
@@ -95,16 +101,19 @@ public interface AnnotationDataDef {
          /**  
           * Background color
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getBgcolor} 
           */
          BGCOLOR,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getWidth} 
           */
          WIDTH,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getAnnotationVersion} 
           */
@@ -120,6 +129,7 @@ public interface AnnotationDataDef {
           */
          STYLES,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getHeight} 
           */
@@ -129,57 +139,57 @@ public interface AnnotationDataDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public String getText();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public CoordinateDef getLocation();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public String getTextAlignment();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getBorderSize();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getBorderColor();
 
   /**
-   * @return Background color
+   * @return Background color, never <code>null</code>
    **/
   public Integer getBgcolor();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getWidth();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getAnnotationVersion();
 
   /**
    * @return 
    **/
-  public Integer getDefaultFontSize();
+  public Optional<Integer> getDefaultFontSize();
 
   /**
    * @return 
    **/
-  public java.util.List<StyleRangeDef> getStyles();
+  public Optional<java.util.List<StyleRangeDef>> getStyles();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getHeight();
 

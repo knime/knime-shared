@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,11 +76,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultConnectionDef implements ConnectionDef {
+public class DefaultConnectionDef implements ConnectionDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<ConnectionDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("sourceID")
     protected Integer m_sourceID;
@@ -97,7 +98,7 @@ public class DefaultConnectionDef implements ConnectionDef {
     protected Boolean m_deletable;
 
     @JsonProperty("uiSettings")
-    protected ConnectionUISettingsDef m_uiSettings;
+    protected Optional<ConnectionUISettingsDef> m_uiSettings;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -107,7 +108,7 @@ public class DefaultConnectionDef implements ConnectionDef {
      * Internal constructor for subclasses.
      */
     DefaultConnectionDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -125,7 +126,7 @@ public class DefaultConnectionDef implements ConnectionDef {
         m_deletable = builder.m_deletable;
         m_uiSettings = builder.m_uiSettings;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -145,13 +146,13 @@ public class DefaultConnectionDef implements ConnectionDef {
         m_destPort = toCopy.getDestPort();
         m_deletable = toCopy.isDeletable();
         m_uiSettings = toCopy.getUiSettings();
-        if(toCopy instanceof DefaultConnectionDef){
-            var childTree = ((DefaultConnectionDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -169,7 +170,7 @@ public class DefaultConnectionDef implements ConnectionDef {
         m_deletable = toCopy.isDeletable();
         m_uiSettings = toCopy.getUiSettings();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -194,21 +195,21 @@ public class DefaultConnectionDef implements ConnectionDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ConnectionDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to ConnectionDef.Attribute
-            return ((LoadExceptionTree<ConnectionDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to ConnectionDef.Attribute
+        return ((LoadExceptionTree<ConnectionDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -236,7 +237,7 @@ public class DefaultConnectionDef implements ConnectionDef {
         return m_deletable;
     }
     @Override
-    public ConnectionUISettingsDef getUiSettings() {
+    public Optional<ConnectionUISettingsDef> getUiSettings() {
         return m_uiSettings;
     }
     
@@ -310,8 +311,8 @@ public class DefaultConnectionDef implements ConnectionDef {
     @JsonIgnore
     public Optional<DefaultConnectionUISettingsDef> getFaultyUiSettings(){
     	final var uiSettings = getUiSettings(); 
-        if(uiSettings instanceof DefaultConnectionUISettingsDef && ((DefaultConnectionUISettingsDef)uiSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConnectionUISettingsDef)uiSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(uiSettings)) {
+            return Optional.of((DefaultConnectionUISettingsDef)uiSettings.get());
         }
     	return Optional.empty();
     }

@@ -64,6 +64,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -74,11 +75,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultCreatorDef implements CreatorDef {
+public class DefaultCreatorDef implements CreatorDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<CreatorDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
      * Version of the KNIME instance that saved the workflow. Note that nested workflows implicitly have the same saved-with-version  as the containing workflow. Even if a Component or Meta Node was saved with an earlier version and then imported into a  newer KNIME instance the contained workflow is ultimately saved by the newer version. 
@@ -86,13 +87,13 @@ public class DefaultCreatorDef implements CreatorDef {
      * Example value: 4.5.0.v202111181047
      */
     @JsonProperty("savedWithVersion")
-    protected String m_savedWithVersion;
+    protected Optional<String> m_savedWithVersion;
 
     /** 
      * Whether the workflow was created using a non-stable/preview version of KNIME. 
      */
     @JsonProperty("nightly")
-    protected Boolean m_nightly;
+    protected Optional<Boolean> m_nightly;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -102,7 +103,7 @@ public class DefaultCreatorDef implements CreatorDef {
      * Internal constructor for subclasses.
      */
     DefaultCreatorDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -116,7 +117,7 @@ public class DefaultCreatorDef implements CreatorDef {
         m_savedWithVersion = builder.m_savedWithVersion;
         m_nightly = builder.m_nightly;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -132,13 +133,13 @@ public class DefaultCreatorDef implements CreatorDef {
         
         m_savedWithVersion = toCopy.getSavedWithVersion();
         m_nightly = toCopy.isNightly();
-        if(toCopy instanceof DefaultCreatorDef){
-            var childTree = ((DefaultCreatorDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -152,7 +153,7 @@ public class DefaultCreatorDef implements CreatorDef {
         m_savedWithVersion = toCopy.getSavedWithVersion();
         m_nightly = toCopy.isNightly();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -177,21 +178,21 @@ public class DefaultCreatorDef implements CreatorDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(CreatorDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to CreatorDef.Attribute
-            return ((LoadExceptionTree<CreatorDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to CreatorDef.Attribute
+        return ((LoadExceptionTree<CreatorDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -199,11 +200,11 @@ public class DefaultCreatorDef implements CreatorDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getSavedWithVersion() {
+    public Optional<String> getSavedWithVersion() {
         return m_savedWithVersion;
     }
     @Override
-    public Boolean isNightly() {
+    public Optional<Boolean> isNightly() {
         return m_nightly;
     }
     

@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.BoundsDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultNodeUIInfoDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -67,16 +68,7 @@ public interface NodeUIInfoDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
-          * The type of this data attribute is {@link Boolean}.
-          * Is is returned by {@link NodeUIInfoDef#hasAbsoluteCoordinates} 
-          */
-         HAS_ABSOLUTE_COORDINATES,
-         /** 
-          * The type of this data attribute is {@link Boolean}.
-          * Is is returned by {@link NodeUIInfoDef#isSymbolRelative} 
-          */
-         SYMBOL_RELATIVE,
-         /** 
+          * This is a required field.
           * The type of this data attribute is {@link BoundsDef}.
           * Is is returned by {@link NodeUIInfoDef#getBounds} 
           */
@@ -86,17 +78,7 @@ public interface NodeUIInfoDef {
     
 
   /**
-   * @return 
-   **/
-  public Boolean hasAbsoluteCoordinates();
-
-  /**
-   * @return 
-   **/
-  public Boolean isSymbolRelative();
-
-  /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public BoundsDef getBounds();
 

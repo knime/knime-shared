@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultComponentDialogSettingsDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -76,6 +77,7 @@ public interface ComponentDialogSettingsDef {
           */
          CONFIGURATION_LAYOUT_JSON,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link ComponentDialogSettingsDef#isHideInWizard} 
           */
@@ -92,22 +94,22 @@ public interface ComponentDialogSettingsDef {
   /**
    * @return 
    **/
-  public String getLayoutJSON();
+  public Optional<String> getLayoutJSON();
 
   /**
    * @return 
    **/
-  public String getConfigurationLayoutJSON();
+  public Optional<String> getConfigurationLayoutJSON();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Boolean isHideInWizard();
 
   /**
    * @return 
    **/
-  public String getCssStyles();
+  public Optional<String> getCssStyles();
 
 
 }

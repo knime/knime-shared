@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultCredentialPlaceholderDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface CredentialPlaceholderDef {
          /**  
           * Identifies this placeholder. Must be unique in the scope of this workflow project.
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link CredentialPlaceholderDef#getName} 
           */
@@ -75,6 +77,7 @@ public interface CredentialPlaceholderDef {
          /**  
           * The login name that is passed to the secured system.
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link CredentialPlaceholderDef#getLogin} 
           */
@@ -84,12 +87,12 @@ public interface CredentialPlaceholderDef {
     
 
   /**
-   * @return Identifies this placeholder. Must be unique in the scope of this workflow project.
+   * @return Identifies this placeholder. Must be unique in the scope of this workflow project., never <code>null</code>
    **/
   public String getName();
 
   /**
-   * @return The login name that is passed to the secured system.
+   * @return The login name that is passed to the secured system., never <code>null</code>
    **/
   public String getLogin();
 

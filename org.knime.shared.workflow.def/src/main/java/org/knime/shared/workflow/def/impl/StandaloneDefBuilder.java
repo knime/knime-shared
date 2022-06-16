@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.CreatorDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Represents a standalone, loadable unit for editing in the workflow editor. In case this is a workflow, it is also executable. Standalone components and metanodes cannot be executed but referenced into a workflow and updated when the referenced component/metanode changed. 
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class StandaloneDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public StandaloneDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -80,7 +101,7 @@ public class StandaloneDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    CreatorDef m_creator;
+    Optional<CreatorDef> m_creator = Optional.empty();
     
     Object m_contents = null;
     
@@ -108,7 +129,7 @@ public class StandaloneDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param creator 
+     * @param creator  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public StandaloneDefBuilder setCreator(final CreatorDef creator) {
@@ -116,8 +137,26 @@ public class StandaloneDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(StandaloneDef.Attribute.CREATOR)} will return true and and
+     * {@code getExceptionalChildren().get(StandaloneDef.Attribute.CREATOR)} will return the exception.
+     * 
+     * @param creator see {@link StandaloneDef#getCreator}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setCreator(CreatorDef)
+     */
+    public StandaloneDefBuilder setCreator(final FallibleSupplier<CreatorDef> creator) {
+        setCreator(creator, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(StandaloneDef.Attribute.CREATOR)} will return true and and
      * {@code getExceptionalChildren().get(StandaloneDef.Attribute.CREATOR)} will return the exception.
@@ -132,24 +171,27 @@ public class StandaloneDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StandaloneDef.Attribute.CREATOR);
         try {
-            m_creator = creator.get();
-            if (m_creator instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_creator).hasExceptions()) {
-                m_exceptionalChildren.put(StandaloneDef.Attribute.CREATOR, (LoadExceptionTree<?>)m_creator);
+            m_creator = Optional.ofNullable(creator.get());
+            if (m_creator.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_creator.get()).hasExceptions()) {
+                m_exceptionalChildren.put(StandaloneDef.Attribute.CREATOR, (LoadExceptionTree<?>)m_creator.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultCreatorDef){
-                var childTree = ((DefaultCreatorDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_creator = defaultValue;
+            m_creator = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(StandaloneDef.Attribute.CREATOR, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -157,7 +199,7 @@ public class StandaloneDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param contents This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
+     * @param contents This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content.  
      * @return this builder for fluent API.
      */ 
     public StandaloneDefBuilder setContents(final Object contents) {
@@ -165,6 +207,7 @@ public class StandaloneDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -182,11 +225,18 @@ public class StandaloneDefBuilder {
         m_exceptionalChildren.remove(StandaloneDef.Attribute.CONTENTS);
         try {
             m_contents = contents.get();
+
+            if(m_contents == null) {
+                throw new IllegalArgumentException("contents is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_contents = defaultValue;
             m_exceptionalChildren.put(StandaloneDef.Attribute.CONTENTS, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -195,7 +245,7 @@ public class StandaloneDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param contentType Describes the type of the contents field.
+     * @param contentType Describes the type of the contents field. 
      * @return this builder for fluent API.
      */ 
     public StandaloneDefBuilder setContentType(final ContentTypeEnum contentType) {
@@ -203,6 +253,7 @@ public class StandaloneDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -220,11 +271,18 @@ public class StandaloneDefBuilder {
         m_exceptionalChildren.remove(StandaloneDef.Attribute.CONTENT_TYPE);
         try {
             m_contentType = contentType.get();
+
+            if(m_contentType == null) {
+                throw new IllegalArgumentException("contentType is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_contentType = defaultValue;
             m_exceptionalChildren.put(StandaloneDef.Attribute.CONTENT_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -237,6 +295,12 @@ public class StandaloneDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultStandaloneDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_contents == null) setContents( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_contentType == null) setContentType( null);
         
     	
         return new DefaultStandaloneDef(this);

@@ -74,6 +74,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -84,14 +85,14 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWorkflowDef {
+public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWorkflowDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<RootWorkflowDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("tableBackendSettings")
-    protected ConfigMapDef m_tableBackendSettings;
+    protected Optional<ConfigMapDef> m_tableBackendSettings;
 
     /** 
      * Allows to define workflow-global flow variables and set their values. 
@@ -113,7 +114,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
      * Internal constructor for subclasses.
      */
     DefaultRootWorkflowDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -135,7 +136,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_credentialPlaceholders = builder.m_credentialPlaceholders;
         m_workflow = builder.m_workflow;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -159,13 +160,13 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_flowVariables = toCopy.getFlowVariables();
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
         m_workflow = toCopy.getWorkflow();
-        if(toCopy instanceof DefaultRootWorkflowDef){
-            var childTree = ((DefaultRootWorkflowDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -187,7 +188,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
         m_workflow = toCopy.getWorkflow();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -212,21 +213,21 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(RootWorkflowDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to RootWorkflowDef.Attribute
-            return ((LoadExceptionTree<RootWorkflowDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to RootWorkflowDef.Attribute
+        return ((LoadExceptionTree<RootWorkflowDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -234,31 +235,31 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getName() {
+    public Optional<String> getName() {
         return m_name;
     }
     @Override
-    public AuthorInformationDef getAuthorInformation() {
+    public Optional<AuthorInformationDef> getAuthorInformation() {
         return m_authorInformation;
     }
     @Override
-    public java.util.Map<String, BaseNodeDef> getNodes() {
+    public Optional<java.util.Map<String, BaseNodeDef>> getNodes() {
         return m_nodes;
     }
     @Override
-    public java.util.List<ConnectionDef> getConnections() {
+    public Optional<java.util.List<ConnectionDef>> getConnections() {
         return m_connections;
     }
     @Override
-    public java.util.Map<String, AnnotationDataDef> getAnnotations() {
+    public Optional<java.util.Map<String, AnnotationDataDef>> getAnnotations() {
         return m_annotations;
     }
     @Override
-    public WorkflowUISettingsDef getWorkflowEditorSettings() {
+    public Optional<WorkflowUISettingsDef> getWorkflowEditorSettings() {
         return m_workflowEditorSettings;
     }
     @Override
-    public ConfigMapDef getTableBackendSettings() {
+    public Optional<ConfigMapDef> getTableBackendSettings() {
         return m_tableBackendSettings;
     }
     @Override
@@ -304,8 +305,8 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     @JsonIgnore
     public Optional<DefaultAuthorInformationDef> getFaultyAuthorInformation(){
     	final var authorInformation = getAuthorInformation(); 
-        if(authorInformation instanceof DefaultAuthorInformationDef && ((DefaultAuthorInformationDef)authorInformation).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultAuthorInformationDef)authorInformation);
+        if(LoadExceptionTreeProvider.hasExceptions(authorInformation)) {
+            return Optional.of((DefaultAuthorInformationDef)authorInformation.get());
         }
     	return Optional.empty();
     }
@@ -390,8 +391,8 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     @JsonIgnore
     public Optional<DefaultWorkflowUISettingsDef> getFaultyWorkflowEditorSettings(){
     	final var workflowEditorSettings = getWorkflowEditorSettings(); 
-        if(workflowEditorSettings instanceof DefaultWorkflowUISettingsDef && ((DefaultWorkflowUISettingsDef)workflowEditorSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultWorkflowUISettingsDef)workflowEditorSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(workflowEditorSettings)) {
+            return Optional.of((DefaultWorkflowUISettingsDef)workflowEditorSettings.get());
         }
     	return Optional.empty();
     }
@@ -413,8 +414,8 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyTableBackendSettings(){
     	final var tableBackendSettings = getTableBackendSettings(); 
-        if(tableBackendSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)tableBackendSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)tableBackendSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(tableBackendSettings)) {
+            return Optional.of((DefaultConfigMapDef)tableBackendSettings.get());
         }
     	return Optional.empty();
     }
@@ -478,7 +479,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     @JsonIgnore
     public Optional<DefaultWorkflowDef> getFaultyWorkflow(){
     	final var workflow = getWorkflow(); 
-        if(workflow instanceof DefaultWorkflowDef && ((DefaultWorkflowDef)workflow).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(workflow)) {
             return Optional.of((DefaultWorkflowDef)workflow);
         }
     	return Optional.empty();

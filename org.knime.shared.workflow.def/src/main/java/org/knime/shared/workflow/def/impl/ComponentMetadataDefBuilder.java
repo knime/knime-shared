@@ -45,7 +45,9 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
+import org.knime.shared.workflow.def.PortMetadataDef;
 
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.ComponentMetadataDef;
@@ -55,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * ComponentMetadataDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ComponentMetadataDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ComponentMetadataDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -79,65 +101,33 @@ public class ComponentMetadataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    String m_description;
+    Optional<String> m_description = Optional.empty();
     
 
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
      * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<String> m_inPortNames = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setInPortNames these are added to m_inPortNames in build */
-    private java.util.List<String> m_inPortNamesBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<PortMetadataDef>> m_inPortMetadata = Optional.of(new java.util.ArrayList<>());
+    /** Temporarily holds onto elements set as a whole with setInPortMetadata these are added to m_inPortMetadata in build */
+    private Optional<java.util.List<PortMetadataDef>> m_inPortMetadataBulkElements = Optional.of(new java.util.ArrayList<>());
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
-    private LoadException m_inPortNamesContainerSupplyException; 
+    private LoadException m_inPortMetadataContainerSupplyException; 
     
-    /** Associates an offset in {@link #m_inPortNames} to the supply exception that caused its addition to the list (i.e., it's a forced default value). Merged during {@link #build()} with {@link m_inPortNamesContainerSupplyException} into a single {@link LoadExceptionTree} */
-    private java.util.Map<Integer, LoadException> m_inPortNamesElementSupplyExceptions = new java.util.HashMap<>();
-
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
      * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<String> m_outPortNames = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setOutPortNames these are added to m_outPortNames in build */
-    private java.util.List<String> m_outPortNamesBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<PortMetadataDef>> m_outPortMetadata = Optional.of(new java.util.ArrayList<>());
+    /** Temporarily holds onto elements set as a whole with setOutPortMetadata these are added to m_outPortMetadata in build */
+    private Optional<java.util.List<PortMetadataDef>> m_outPortMetadataBulkElements = Optional.of(new java.util.ArrayList<>());
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
-    private LoadException m_outPortNamesContainerSupplyException; 
+    private LoadException m_outPortMetadataContainerSupplyException; 
     
-    /** Associates an offset in {@link #m_outPortNames} to the supply exception that caused its addition to the list (i.e., it's a forced default value). Merged during {@link #build()} with {@link m_outPortNamesContainerSupplyException} into a single {@link LoadExceptionTree} */
-    private java.util.Map<Integer, LoadException> m_outPortNamesElementSupplyExceptions = new java.util.HashMap<>();
-
-    /**
-     * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
-     */
-    java.util.List<String> m_inPortDescriptions = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setInPortDescriptions these are added to m_inPortDescriptions in build */
-    private java.util.List<String> m_inPortDescriptionsBulkElements = new java.util.ArrayList<>();
-    /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
-    private LoadException m_inPortDescriptionsContainerSupplyException; 
-    
-    /** Associates an offset in {@link #m_inPortDescriptions} to the supply exception that caused its addition to the list (i.e., it's a forced default value). Merged during {@link #build()} with {@link m_inPortDescriptionsContainerSupplyException} into a single {@link LoadExceptionTree} */
-    private java.util.Map<Integer, LoadException> m_inPortDescriptionsElementSupplyExceptions = new java.util.HashMap<>();
-
-    /**
-     * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
-     */
-    java.util.List<String> m_outPortDescriptions = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setOutPortDescriptions these are added to m_outPortDescriptions in build */
-    private java.util.List<String> m_outPortDescriptionsBulkElements = new java.util.ArrayList<>();
-    /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
-    private LoadException m_outPortDescriptionsContainerSupplyException; 
-    
-    /** Associates an offset in {@link #m_outPortDescriptions} to the supply exception that caused its addition to the list (i.e., it's a forced default value). Merged during {@link #build()} with {@link m_outPortDescriptionsContainerSupplyException} into a single {@link LoadExceptionTree} */
-    private java.util.Map<Integer, LoadException> m_outPortDescriptionsElementSupplyExceptions = new java.util.HashMap<>();
-
-    byte[] m_icon;
+    Optional<byte[]> m_icon = Optional.empty();
     
 
-    ComponentTypeEnum m_componentType;
+    Optional<ComponentTypeEnum> m_componentType = Optional.empty();
     
 
     /**
@@ -151,10 +141,8 @@ public class ComponentMetadataDefBuilder {
      */
     public ComponentMetadataDefBuilder(final ComponentMetadataDef toCopy) {
         m_description = toCopy.getDescription();
-        m_inPortNames = toCopy.getInPortNames();
-        m_outPortNames = toCopy.getOutPortNames();
-        m_inPortDescriptions = toCopy.getInPortDescriptions();
-        m_outPortDescriptions = toCopy.getOutPortDescriptions();
+        m_inPortMetadata = toCopy.getInPortMetadata();
+        m_outPortMetadata = toCopy.getOutPortMetadata();
         m_icon = toCopy.getIcon();
         m_componentType = toCopy.getComponentType();
     }
@@ -164,7 +152,7 @@ public class ComponentMetadataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param description 
+     * @param description  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public ComponentMetadataDefBuilder setDescription(final String description) {
@@ -172,8 +160,26 @@ public class ComponentMetadataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ComponentMetadataDef.Attribute.DESCRIPTION)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.DESCRIPTION)} will return the exception.
+     * 
+     * @param description see {@link ComponentMetadataDef#getDescription}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setDescription(String)
+     */
+    public ComponentMetadataDefBuilder setDescription(final FallibleSupplier<String> description) {
+        setDescription(description, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(ComponentMetadataDef.Attribute.DESCRIPTION)} will return true and and
      * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.DESCRIPTION)} will return the exception.
@@ -188,309 +194,176 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.DESCRIPTION);
         try {
-            m_description = description.get();
+            m_description = Optional.ofNullable(description.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_description = defaultValue;
+            m_description = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.DESCRIPTION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for inPortNames
+    // Setters for inPortMetadata
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * Adds elements in bulk to the inPortNames list. 
+     * Adds elements in bulk to the inPortMetadata list. 
      * Calling this method again will undo the previous call (it is not additive).
-     * Elements previously or subsequently added with {@link #addToInPortNames} will be inserted at the end of the list.
-     * @param inPortNames 
+     * Elements previously or subsequently added with {@link #addToInPortMetadata} will be inserted at the end of the list.
+     * @param inPortMetadata 
      * @return this for fluent API
      */
-    public ComponentMetadataDefBuilder setInPortNames(final java.util.List<String> inPortNames) {
-        setInPortNames(() -> inPortNames);
+    public ComponentMetadataDefBuilder setInPortMetadata(final java.util.List<PortMetadataDef> inPortMetadata) {
+        setInPortMetadata(() -> inPortMetadata);
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * A thrown {@link LoadException} is associated to the inPortNames list,
+     * A thrown {@link LoadException} is associated to the inPortMetadata list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
-     * for an individual element of the inPortNames list). 
-     * {@code hasExceptions(ComponentMetadataDef.Attribute.IN_PORT_NAMES)} will return true and and
-     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.IN_PORT_NAMES)} will return the exception.
+     * for an individual element of the inPortMetadata list). 
+     * {@code hasExceptions(ComponentMetadataDef.Attribute.IN_PORT_METADATA)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.IN_PORT_METADATA)} will return the exception.
      * 
-     * @param inPortNames see {@link ComponentMetadataDef#getInPortNames}
+     * @param inPortMetadata see {@link ComponentMetadataDef#getInPortMetadata}
      * 
      * @return this builder for fluent API.
-     * @see #setInPortNames(java.util.List<String>)
+     * @see #setInPortMetadata(java.util.List<PortMetadataDef>)
      */
-    public ComponentMetadataDefBuilder setInPortNames(final FallibleSupplier<java.util.List<String>> inPortNames) {
-        java.util.Objects.requireNonNull(inPortNames, () -> "No supplier for inPortNames provided.");
+    public ComponentMetadataDefBuilder setInPortMetadata(final FallibleSupplier<java.util.List<PortMetadataDef>> inPortMetadata) {
+        java.util.Objects.requireNonNull(inPortMetadata, () -> "No supplier for inPortMetadata provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.IN_PORT_NAMES);
+        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.IN_PORT_METADATA);
         try {
-            m_inPortNamesBulkElements = inPortNames.get();
+            m_inPortMetadataBulkElements = Optional.ofNullable(inPortMetadata.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_inPortNamesBulkElements = java.util.List.of();
+            m_inPortMetadataBulkElements = Optional.of(java.util.List.of());
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
-            m_inPortNamesContainerSupplyException = supplyException;
+            m_inPortMetadataContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
     /**
-     * @param value the value to add to the inPortNames list
+     * @param value the value to add to the inPortMetadata list
      * @return this builder for fluent API
      */
-    public ComponentMetadataDefBuilder addToInPortNames(String value){
-    	addToInPortNames(() -> value, /* default value will not be used */ value);
+    public ComponentMetadataDefBuilder addToInPortMetadata(PortMetadataDef value){
+    	addToInPortMetadata(() -> value, /* default value will not be used */ value);
         return this;
     }
     
     /**
-     * Adds the return value of the fallible supplier to the list returned by {@link ComponentMetadataDef#getInPortNames}. If the 
+     * Adds the return value of the fallible supplier to the list returned by {@link ComponentMetadataDef#getInPortMetadata}. If the 
      * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the added element's index in the list.
      *
-     * @param value the value of the entry to add to the inPortNames list
+     * @param value the value of the entry to add to the inPortMetadata list
      * @param defaultValue is added to the list as value for the key if an exception occurs during {@link FallibleSupplier#get}
      * @return this builder for fluent API.
      */
-    public ComponentMetadataDefBuilder addToInPortNames(FallibleSupplier<String> value, String defaultValue) {
-        String toAdd = null;
+    public ComponentMetadataDefBuilder addToInPortMetadata(FallibleSupplier<PortMetadataDef> value, PortMetadataDef defaultValue) {
+        PortMetadataDef toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            m_inPortNamesElementSupplyExceptions.put(m_inPortNames.size(), supplyException);
-            toAdd = defaultValue;
+            toAdd = new DefaultPortMetadataDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_inPortNames.add(toAdd);
+        m_inPortMetadata.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for outPortNames
+    // Setters for outPortMetadata
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * Adds elements in bulk to the outPortNames list. 
+     * Adds elements in bulk to the outPortMetadata list. 
      * Calling this method again will undo the previous call (it is not additive).
-     * Elements previously or subsequently added with {@link #addToOutPortNames} will be inserted at the end of the list.
-     * @param outPortNames 
+     * Elements previously or subsequently added with {@link #addToOutPortMetadata} will be inserted at the end of the list.
+     * @param outPortMetadata 
      * @return this for fluent API
      */
-    public ComponentMetadataDefBuilder setOutPortNames(final java.util.List<String> outPortNames) {
-        setOutPortNames(() -> outPortNames);
+    public ComponentMetadataDefBuilder setOutPortMetadata(final java.util.List<PortMetadataDef> outPortMetadata) {
+        setOutPortMetadata(() -> outPortMetadata);
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * A thrown {@link LoadException} is associated to the outPortNames list,
+     * A thrown {@link LoadException} is associated to the outPortMetadata list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
-     * for an individual element of the outPortNames list). 
-     * {@code hasExceptions(ComponentMetadataDef.Attribute.OUT_PORT_NAMES)} will return true and and
-     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.OUT_PORT_NAMES)} will return the exception.
+     * for an individual element of the outPortMetadata list). 
+     * {@code hasExceptions(ComponentMetadataDef.Attribute.OUT_PORT_METADATA)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.OUT_PORT_METADATA)} will return the exception.
      * 
-     * @param outPortNames see {@link ComponentMetadataDef#getOutPortNames}
+     * @param outPortMetadata see {@link ComponentMetadataDef#getOutPortMetadata}
      * 
      * @return this builder for fluent API.
-     * @see #setOutPortNames(java.util.List<String>)
+     * @see #setOutPortMetadata(java.util.List<PortMetadataDef>)
      */
-    public ComponentMetadataDefBuilder setOutPortNames(final FallibleSupplier<java.util.List<String>> outPortNames) {
-        java.util.Objects.requireNonNull(outPortNames, () -> "No supplier for outPortNames provided.");
+    public ComponentMetadataDefBuilder setOutPortMetadata(final FallibleSupplier<java.util.List<PortMetadataDef>> outPortMetadata) {
+        java.util.Objects.requireNonNull(outPortMetadata, () -> "No supplier for outPortMetadata provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.OUT_PORT_NAMES);
+        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.OUT_PORT_METADATA);
         try {
-            m_outPortNamesBulkElements = outPortNames.get();
+            m_outPortMetadataBulkElements = Optional.ofNullable(outPortMetadata.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_outPortNamesBulkElements = java.util.List.of();
+            m_outPortMetadataBulkElements = Optional.of(java.util.List.of());
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
-            m_outPortNamesContainerSupplyException = supplyException;
+            m_outPortMetadataContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
     /**
-     * @param value the value to add to the outPortNames list
+     * @param value the value to add to the outPortMetadata list
      * @return this builder for fluent API
      */
-    public ComponentMetadataDefBuilder addToOutPortNames(String value){
-    	addToOutPortNames(() -> value, /* default value will not be used */ value);
+    public ComponentMetadataDefBuilder addToOutPortMetadata(PortMetadataDef value){
+    	addToOutPortMetadata(() -> value, /* default value will not be used */ value);
         return this;
     }
     
     /**
-     * Adds the return value of the fallible supplier to the list returned by {@link ComponentMetadataDef#getOutPortNames}. If the 
+     * Adds the return value of the fallible supplier to the list returned by {@link ComponentMetadataDef#getOutPortMetadata}. If the 
      * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the added element's index in the list.
      *
-     * @param value the value of the entry to add to the outPortNames list
+     * @param value the value of the entry to add to the outPortMetadata list
      * @param defaultValue is added to the list as value for the key if an exception occurs during {@link FallibleSupplier#get}
      * @return this builder for fluent API.
      */
-    public ComponentMetadataDefBuilder addToOutPortNames(FallibleSupplier<String> value, String defaultValue) {
-        String toAdd = null;
+    public ComponentMetadataDefBuilder addToOutPortMetadata(FallibleSupplier<PortMetadataDef> value, PortMetadataDef defaultValue) {
+        PortMetadataDef toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            m_outPortNamesElementSupplyExceptions.put(m_outPortNames.size(), supplyException);
-            toAdd = defaultValue;
+            toAdd = new DefaultPortMetadataDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_outPortNames.add(toAdd);
-        return this;
-    } 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for inPortDescriptions
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * Adds elements in bulk to the inPortDescriptions list. 
-     * Calling this method again will undo the previous call (it is not additive).
-     * Elements previously or subsequently added with {@link #addToInPortDescriptions} will be inserted at the end of the list.
-     * @param inPortDescriptions 
-     * @return this for fluent API
-     */
-    public ComponentMetadataDefBuilder setInPortDescriptions(final java.util.List<String> inPortDescriptions) {
-        setInPortDescriptions(() -> inPortDescriptions);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * A thrown {@link LoadException} is associated to the inPortDescriptions list,
-     * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
-     * for an individual element of the inPortDescriptions list). 
-     * {@code hasExceptions(ComponentMetadataDef.Attribute.IN_PORT_DESCRIPTIONS)} will return true and and
-     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.IN_PORT_DESCRIPTIONS)} will return the exception.
-     * 
-     * @param inPortDescriptions see {@link ComponentMetadataDef#getInPortDescriptions}
-     * 
-     * @return this builder for fluent API.
-     * @see #setInPortDescriptions(java.util.List<String>)
-     */
-    public ComponentMetadataDefBuilder setInPortDescriptions(final FallibleSupplier<java.util.List<String>> inPortDescriptions) {
-        java.util.Objects.requireNonNull(inPortDescriptions, () -> "No supplier for inPortDescriptions provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.IN_PORT_DESCRIPTIONS);
-        try {
-            m_inPortDescriptionsBulkElements = inPortDescriptions.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-             
-            m_inPortDescriptionsBulkElements = java.util.List.of();
-            // merged together with list element exceptions into a single LoadExceptionTree in #build()
-            m_inPortDescriptionsContainerSupplyException = supplyException;
-	    }   
-        return this;
-    }
-    /**
-     * @param value the value to add to the inPortDescriptions list
-     * @return this builder for fluent API
-     */
-    public ComponentMetadataDefBuilder addToInPortDescriptions(String value){
-    	addToInPortDescriptions(() -> value, /* default value will not be used */ value);
-        return this;
-    }
-    
-    /**
-     * Adds the return value of the fallible supplier to the list returned by {@link ComponentMetadataDef#getInPortDescriptions}. If the 
-     * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the added element's index in the list.
-     *
-     * @param value the value of the entry to add to the inPortDescriptions list
-     * @param defaultValue is added to the list as value for the key if an exception occurs during {@link FallibleSupplier#get}
-     * @return this builder for fluent API.
-     */
-    public ComponentMetadataDefBuilder addToInPortDescriptions(FallibleSupplier<String> value, String defaultValue) {
-        String toAdd = null;
-        try {
-            toAdd = value.get();
-        } catch (Exception e) {
-            var supplyException = new LoadException(e);
-            m_inPortDescriptionsElementSupplyExceptions.put(m_inPortDescriptions.size(), supplyException);
-            toAdd = defaultValue;
-        }
-        m_inPortDescriptions.add(toAdd);
-        return this;
-    } 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for outPortDescriptions
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * Adds elements in bulk to the outPortDescriptions list. 
-     * Calling this method again will undo the previous call (it is not additive).
-     * Elements previously or subsequently added with {@link #addToOutPortDescriptions} will be inserted at the end of the list.
-     * @param outPortDescriptions 
-     * @return this for fluent API
-     */
-    public ComponentMetadataDefBuilder setOutPortDescriptions(final java.util.List<String> outPortDescriptions) {
-        setOutPortDescriptions(() -> outPortDescriptions);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * A thrown {@link LoadException} is associated to the outPortDescriptions list,
-     * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
-     * for an individual element of the outPortDescriptions list). 
-     * {@code hasExceptions(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS)} will return true and and
-     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS)} will return the exception.
-     * 
-     * @param outPortDescriptions see {@link ComponentMetadataDef#getOutPortDescriptions}
-     * 
-     * @return this builder for fluent API.
-     * @see #setOutPortDescriptions(java.util.List<String>)
-     */
-    public ComponentMetadataDefBuilder setOutPortDescriptions(final FallibleSupplier<java.util.List<String>> outPortDescriptions) {
-        java.util.Objects.requireNonNull(outPortDescriptions, () -> "No supplier for outPortDescriptions provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS);
-        try {
-            m_outPortDescriptionsBulkElements = outPortDescriptions.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-             
-            m_outPortDescriptionsBulkElements = java.util.List.of();
-            // merged together with list element exceptions into a single LoadExceptionTree in #build()
-            m_outPortDescriptionsContainerSupplyException = supplyException;
-	    }   
-        return this;
-    }
-    /**
-     * @param value the value to add to the outPortDescriptions list
-     * @return this builder for fluent API
-     */
-    public ComponentMetadataDefBuilder addToOutPortDescriptions(String value){
-    	addToOutPortDescriptions(() -> value, /* default value will not be used */ value);
-        return this;
-    }
-    
-    /**
-     * Adds the return value of the fallible supplier to the list returned by {@link ComponentMetadataDef#getOutPortDescriptions}. If the 
-     * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the added element's index in the list.
-     *
-     * @param value the value of the entry to add to the outPortDescriptions list
-     * @param defaultValue is added to the list as value for the key if an exception occurs during {@link FallibleSupplier#get}
-     * @return this builder for fluent API.
-     */
-    public ComponentMetadataDefBuilder addToOutPortDescriptions(FallibleSupplier<String> value, String defaultValue) {
-        String toAdd = null;
-        try {
-            toAdd = value.get();
-        } catch (Exception e) {
-            var supplyException = new LoadException(e);
-            m_outPortDescriptionsElementSupplyExceptions.put(m_outPortDescriptions.size(), supplyException);
-            toAdd = defaultValue;
-        }
-        m_outPortDescriptions.add(toAdd);
+        m_outPortMetadata.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -498,7 +371,7 @@ public class ComponentMetadataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param icon 
+     * @param icon  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public ComponentMetadataDefBuilder setIcon(final byte[] icon) {
@@ -506,8 +379,26 @@ public class ComponentMetadataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ComponentMetadataDef.Attribute.ICON)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.ICON)} will return the exception.
+     * 
+     * @param icon see {@link ComponentMetadataDef#getIcon}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setIcon(byte[])
+     */
+    public ComponentMetadataDefBuilder setIcon(final FallibleSupplier<byte[]> icon) {
+        setIcon(icon, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(ComponentMetadataDef.Attribute.ICON)} will return true and and
      * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.ICON)} will return the exception.
@@ -522,12 +413,15 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.ICON);
         try {
-            m_icon = icon.get();
+            m_icon = Optional.ofNullable(icon.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_icon = defaultValue;
+            m_icon = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.ICON, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -536,7 +430,7 @@ public class ComponentMetadataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param componentType Summarizes the kind of functionality of the component.
+     * @param componentType Summarizes the kind of functionality of the component. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public ComponentMetadataDefBuilder setComponentType(final ComponentTypeEnum componentType) {
@@ -544,8 +438,26 @@ public class ComponentMetadataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ComponentMetadataDef.Attribute.COMPONENT_TYPE)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.COMPONENT_TYPE)} will return the exception.
+     * 
+     * @param componentType see {@link ComponentMetadataDef#getComponentType}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setComponentType(ComponentTypeEnum)
+     */
+    public ComponentMetadataDefBuilder setComponentType(final FallibleSupplier<ComponentTypeEnum> componentType) {
+        setComponentType(componentType, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(ComponentMetadataDef.Attribute.COMPONENT_TYPE)} will return true and and
      * {@code getExceptionalChildren().get(ComponentMetadataDef.Attribute.COMPONENT_TYPE)} will return the exception.
@@ -560,12 +472,15 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.COMPONENT_TYPE);
         try {
-            m_componentType = componentType.get();
+            m_componentType = Optional.ofNullable(componentType.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_componentType = defaultValue;
+            m_componentType = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.COMPONENT_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -580,44 +495,24 @@ public class ComponentMetadataDefBuilder {
     public DefaultComponentMetadataDef build() {
         
     	
-        // contains the elements set with #setInPortNames (those added with #addToInPortNames have already been inserted into m_inPortNames)
-        m_inPortNamesBulkElements = java.util.Objects.requireNonNullElse(m_inPortNamesBulkElements, java.util.List.of());
-        m_inPortNames.addAll(0, m_inPortNamesBulkElements);
-        
-        var inPortNamesLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_inPortNamesElementSupplyExceptions, m_inPortNamesContainerSupplyException);
-                if(inPortNamesLoadExceptionTree.hasExceptions()){
-            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.IN_PORT_NAMES, inPortNamesLoadExceptionTree);
+        // contains the elements set with #setInPortMetadata (those added with #addToInPortMetadata have already been inserted into m_inPortMetadata)
+        m_inPortMetadataBulkElements = java.util.Objects.requireNonNullElse(m_inPortMetadataBulkElements, Optional.of(java.util.List.of()));
+        m_inPortMetadata.get().addAll(0, m_inPortMetadataBulkElements.get());
+                
+        var inPortMetadataLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_inPortMetadata.get(), m_inPortMetadataContainerSupplyException);
+        if(inPortMetadataLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.IN_PORT_METADATA, inPortMetadataLoadExceptionTree);
         }
         
-        // contains the elements set with #setOutPortNames (those added with #addToOutPortNames have already been inserted into m_outPortNames)
-        m_outPortNamesBulkElements = java.util.Objects.requireNonNullElse(m_outPortNamesBulkElements, java.util.List.of());
-        m_outPortNames.addAll(0, m_outPortNamesBulkElements);
-        
-        var outPortNamesLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_outPortNamesElementSupplyExceptions, m_outPortNamesContainerSupplyException);
-                if(outPortNamesLoadExceptionTree.hasExceptions()){
-            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.OUT_PORT_NAMES, outPortNamesLoadExceptionTree);
-        }
-        
-        // contains the elements set with #setInPortDescriptions (those added with #addToInPortDescriptions have already been inserted into m_inPortDescriptions)
-        m_inPortDescriptionsBulkElements = java.util.Objects.requireNonNullElse(m_inPortDescriptionsBulkElements, java.util.List.of());
-        m_inPortDescriptions.addAll(0, m_inPortDescriptionsBulkElements);
-        
-        var inPortDescriptionsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_inPortDescriptionsElementSupplyExceptions, m_inPortDescriptionsContainerSupplyException);
-                if(inPortDescriptionsLoadExceptionTree.hasExceptions()){
-            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.IN_PORT_DESCRIPTIONS, inPortDescriptionsLoadExceptionTree);
-        }
-        
-        // contains the elements set with #setOutPortDescriptions (those added with #addToOutPortDescriptions have already been inserted into m_outPortDescriptions)
-        m_outPortDescriptionsBulkElements = java.util.Objects.requireNonNullElse(m_outPortDescriptionsBulkElements, java.util.List.of());
-        m_outPortDescriptions.addAll(0, m_outPortDescriptionsBulkElements);
-        
-        var outPortDescriptionsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_outPortDescriptionsElementSupplyExceptions, m_outPortDescriptionsContainerSupplyException);
-                if(outPortDescriptionsLoadExceptionTree.hasExceptions()){
-            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS, outPortDescriptionsLoadExceptionTree);
+        // contains the elements set with #setOutPortMetadata (those added with #addToOutPortMetadata have already been inserted into m_outPortMetadata)
+        m_outPortMetadataBulkElements = java.util.Objects.requireNonNullElse(m_outPortMetadataBulkElements, Optional.of(java.util.List.of()));
+        m_outPortMetadata.get().addAll(0, m_outPortMetadataBulkElements.get());
+                
+        var outPortMetadataLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_outPortMetadata.get(), m_outPortMetadataContainerSupplyException);
+        if(outPortMetadataLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.OUT_PORT_METADATA, outPortMetadataLoadExceptionTree);
         }
         
         return new DefaultComponentMetadataDef(this);

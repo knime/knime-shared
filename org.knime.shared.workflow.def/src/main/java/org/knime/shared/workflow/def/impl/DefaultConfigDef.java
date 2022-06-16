@@ -86,6 +86,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -96,7 +97,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultConfigDef implements ConfigDef {
+public abstract class DefaultConfigDef implements ConfigDef, LoadExceptionTreeProvider {
 
 
     /** 
@@ -231,7 +232,8 @@ public abstract class DefaultConfigDef implements ConfigDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
+    @Override
+    public abstract LoadExceptionTree<?> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------

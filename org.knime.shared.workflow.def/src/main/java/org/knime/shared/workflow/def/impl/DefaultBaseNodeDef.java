@@ -68,6 +68,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -78,7 +79,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultBaseNodeDef implements BaseNodeDef {
+public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTreeProvider {
 
 
     /** 
@@ -97,19 +98,19 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
      * A longer description, provided by the user 
      */
     @JsonProperty("customDescription")
-    protected String m_customDescription;
+    protected Optional<String> m_customDescription;
 
     @JsonProperty("annotation")
-    protected NodeAnnotationDef m_annotation;
+    protected Optional<NodeAnnotationDef> m_annotation;
 
     @JsonProperty("uiInfo")
-    protected NodeUIInfoDef m_uiInfo;
+    protected Optional<NodeUIInfoDef> m_uiInfo;
 
     @JsonProperty("locks")
-    protected NodeLocksDef m_locks;
+    protected Optional<NodeLocksDef> m_locks;
 
     @JsonProperty("jobManager")
-    protected JobManagerDef m_jobManager;
+    protected Optional<JobManagerDef> m_jobManager;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -161,7 +162,8 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
+    @Override
+    public abstract LoadExceptionTree<?> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -177,23 +179,23 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
         return m_nodeType;
     }
     @Override
-    public String getCustomDescription() {
+    public Optional<String> getCustomDescription() {
         return m_customDescription;
     }
     @Override
-    public NodeAnnotationDef getAnnotation() {
+    public Optional<NodeAnnotationDef> getAnnotation() {
         return m_annotation;
     }
     @Override
-    public NodeUIInfoDef getUiInfo() {
+    public Optional<NodeUIInfoDef> getUiInfo() {
         return m_uiInfo;
     }
     @Override
-    public NodeLocksDef getLocks() {
+    public Optional<NodeLocksDef> getLocks() {
         return m_locks;
     }
     @Override
-    public JobManagerDef getJobManager() {
+    public Optional<JobManagerDef> getJobManager() {
         return m_jobManager;
     }
     

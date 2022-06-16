@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.AnnotationDataDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultNodeAnnotationDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -66,7 +67,10 @@ public interface NodeAnnotationDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
-         /** 
+         /**  
+          * True if this annotation was never changed/set to something user-defined
+          *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link NodeAnnotationDef#isAnnotationDefault} 
           */
@@ -81,14 +85,14 @@ public interface NodeAnnotationDef {
     
 
   /**
-   * @return 
+   * @return True if this annotation was never changed/set to something user-defined, never <code>null</code>
    **/
   public Boolean isAnnotationDefault();
 
   /**
    * @return 
    **/
-  public AnnotationDataDef getData();
+  public Optional<AnnotationDataDef> getData();
 
 
 }

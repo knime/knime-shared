@@ -51,9 +51,9 @@ package org.knime.shared.workflow.storage.multidir.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.knime.core.node.config.base.AbstractConfigEntry;
@@ -78,24 +78,15 @@ import org.knime.shared.workflow.def.ComponentNodeDef;
 import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.ConfigValueArrayDef;
-import org.knime.shared.workflow.def.ConfigValueBooleanArrayDef;
 import org.knime.shared.workflow.def.ConfigValueBooleanDef;
-import org.knime.shared.workflow.def.ConfigValueByteArrayDef;
 import org.knime.shared.workflow.def.ConfigValueByteDef;
-import org.knime.shared.workflow.def.ConfigValueCharArrayDef;
 import org.knime.shared.workflow.def.ConfigValueCharDef;
 import org.knime.shared.workflow.def.ConfigValueDef;
-import org.knime.shared.workflow.def.ConfigValueDoubleArrayDef;
 import org.knime.shared.workflow.def.ConfigValueDoubleDef;
-import org.knime.shared.workflow.def.ConfigValueFloatArrayDef;
 import org.knime.shared.workflow.def.ConfigValueFloatDef;
-import org.knime.shared.workflow.def.ConfigValueIntArrayDef;
 import org.knime.shared.workflow.def.ConfigValueIntDef;
-import org.knime.shared.workflow.def.ConfigValueLongArrayDef;
 import org.knime.shared.workflow.def.ConfigValueLongDef;
-import org.knime.shared.workflow.def.ConfigValueShortArrayDef;
 import org.knime.shared.workflow.def.ConfigValueShortDef;
-import org.knime.shared.workflow.def.ConfigValueStringArrayDef;
 import org.knime.shared.workflow.def.ConfigValueStringDef;
 import org.knime.shared.workflow.def.ConnectionUISettingsDef;
 import org.knime.shared.workflow.def.CreatorDef;
@@ -106,7 +97,8 @@ import org.knime.shared.workflow.def.NativeNodeDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateLinkDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 
 /**
  * Utility class for the workflow saver
@@ -114,6 +106,8 @@ import org.knime.shared.workflow.def.TemplateInfoDef;
  * @author Jasper Krauter, KNIME GmbH, Konstanz, Germany
  */
 public final class SaverUtils {
+
+    public static final String DEFAULT_WORKFLOW_NAME = "Workflow";
 
     private SaverUtils() {
     }
@@ -157,8 +151,10 @@ public final class SaverUtils {
      */
     public static void addCreatorInfo(final ConfigBaseWO settings, final CreatorDef creator) {
         if (creator != null) {
-            settings.addString(IOConst.WORKFLOW_HEADER_CREATED_BY_KEY.get(), creator.getSavedWithVersion());
-            settings.addBoolean(IOConst.WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY.get(), creator.isNightly());
+            creator.getSavedWithVersion()
+                .ifPresent(swv -> settings.addString(IOConst.WORKFLOW_HEADER_CREATED_BY_KEY.get(), swv));
+            creator.isNightly().ifPresent(
+                isNightly -> settings.addBoolean(IOConst.WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY.get(), isNightly));
             settings.addString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get(), LoadVersion.latest().getVersionString());
         }
     }
@@ -215,9 +211,7 @@ public final class SaverUtils {
     public static void addPort(final ConfigBase ports, final String prefix, final PortDef port) {
         var portSettings = new SimpleConfig(prefix + port.getIndex());
         portSettings.addInt(IOConst.PORT_INDEX_KEY.get(), port.getIndex());
-        if (port.getName() != null) {
-            portSettings.addString(IOConst.PORT_NAME_KEY.get(), port.getName());
-        }
+        port.getName().ifPresent(name -> portSettings.addString(IOConst.PORT_NAME_KEY.get(), name));
 
         var portType = new SimpleConfig(IOConst.PORT_TYPE_KEY.get());
         portType.addString(IOConst.PORT_OBJECT_CLASS_KEY.get(), port.getPortType().getPortObjectClass());
@@ -235,30 +229,50 @@ public final class SaverUtils {
      */
     public static void addAnnotationData(final ConfigBase settings, final NodeAnnotationDef annotation) {
         var annotationData = annotation.getData();
-        if (annotationData != null && !annotation.isAnnotationDefault()) {
-            settings.addEntry(annotationToConfig(annotation.getData(), IOConst.NODE_ANNOTATION_KEY.get()));
+        if (annotationData.isEmpty()) {
+            return;
+        }
+        if (!annotation.isAnnotationDefault()) {
+            settings.addEntry(annotationToConfig(annotationData.get(), IOConst.NODE_ANNOTATION_KEY.get()));
         }
     }
 
     /**
-     * Add templateInfo to a configBase
+     * Add templateInfo to a configBase. Does nothing if neither the link not the template metadata is present.
      *
-     * @param settings
-     * @param templateInfo
+     * @param settings the object to be modified
+     * @param templateLink refers to a template. If set, templateMetadata must be empty.
+     * @param templateMetadata a template. If set, templateLink must be empty (components/metanodes cannot be both)
      * @param nodeType
      */
-    public static void addTemplateInfo(final ConfigBase settings, final TemplateInfoDef templateInfo,
-        final NodeTypeEnum nodeType) {
-        var templateSettings = new SimpleConfig(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
-        var role = (templateInfo.getUri() == null) ? IOConst.WORKFLOW_TEMPLATE_ROLE_TEMPLATE
-            : IOConst.WORKFLOW_TEMPLATE_ROLE_LINK;
-        templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get(), role.get());
-        templateSettings.addString(IOConst.TIMESTAMP.get(),
-            templateInfo.getUpdatedAt().format(LoaderUtils.DATE_FORMAT));
-        templateSettings.addString(IOConst.SOURCE_URI_KEY.get(), templateInfo.getUri());
-        if (role == IOConst.WORKFLOW_TEMPLATE_ROLE_TEMPLATE) {
-            templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_TYPE_KEY.get(), nodeTypeString.get(nodeType));
+    public static void addTemplateInfo(final ConfigBase settings, final Optional<TemplateLinkDef> templateLink,
+        final Optional<TemplateMetadataDef> templateMetadata, final NodeTypeEnum nodeType) {
+
+        // regular metanodes and components don't store a template information section in their workflow.knime
+        if(templateLink.isEmpty() && templateMetadata.isEmpty()) {
+            return;
         }
+
+        var templateSettings = new SimpleConfig(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
+
+        // always store a role
+        var role = templateMetadata.isPresent() ? IOConst.WORKFLOW_TEMPLATE_ROLE_TEMPLATE.get()
+            : IOConst.WORKFLOW_TEMPLATE_ROLE_LINK.get();
+        templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get(), role);
+
+        // always store a version
+        var version = templateLink.map(TemplateLinkDef::getVersion).orElse(templateMetadata.get().getVersion()); // NOSONAR
+        templateSettings.addString(IOConst.TIMESTAMP.get(), version.format(LoaderUtils.DATE_FORMAT));
+
+        // for links, store the source URI
+        templateLink//
+            .map(TemplateLinkDef::getUri)
+            .ifPresent(uri -> templateSettings.addString(IOConst.SOURCE_URI_KEY.get(), uri));
+
+        // for templates, store the type of template (metanode or component)
+        templateMetadata.ifPresent(
+            m -> templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_TYPE_KEY.get(), nodeTypeString.get(nodeType)));
+
         settings.addEntry(templateSettings);
     }
 
@@ -315,7 +329,7 @@ public final class SaverUtils {
             return toConfigValue((ConfigValueDef)configDef, key);
         }
         if (configDef instanceof ConfigValueArrayDef) {
-            return toConfigBaseArray((ConfigValueArrayDef)configDef, key);
+            return LoaderUtils.toSettingsArray((ConfigValueArrayDef)configDef, key, SimpleConfig::new);
         }
         if (configDef instanceof ConfigMapDef) {
             var configBase = new SimpleConfig(key);
@@ -370,82 +384,12 @@ public final class SaverUtils {
             return new ConfigShortEntry(key, value);
         }
         if (valueDef instanceof ConfigValueStringDef) {
-            String value = ((ConfigValueStringDef)valueDef).getValue();
+            String value = ((ConfigValueStringDef)valueDef).getValue().orElse(null);
             return new ConfigStringEntry(key, value);
         }
         // TODO password need passphrase to decode //NOSONAR
         throw new IllegalStateException(
             String.format("Could not parse ConfigValueDef (is %snull)", (valueDef == null) ? " " : "not "));
-    }
-
-    @SuppressWarnings("squid:S6212")
-    private static ConfigBase toConfigBaseArray(final ConfigValueArrayDef configArrayDef, final String key) {//NOSONAR
-        ConfigBase temp = new SimpleConfig("dummy");
-        if (configArrayDef instanceof ConfigValueBooleanArrayDef) {
-            List<Boolean> values = ((ConfigValueBooleanArrayDef)configArrayDef).getArray();
-            boolean[] array = new boolean[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = values.get(i);
-            }
-            temp.addBooleanArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueByteArrayDef) {
-            temp.addByteArray(key, ((ConfigValueByteArrayDef)configArrayDef).getArray());
-        } else if (configArrayDef instanceof ConfigValueCharArrayDef) {
-            List<Integer> values = ((ConfigValueCharArrayDef)configArrayDef).getArray();
-            char[] array = new char[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = (char)values.get(i).intValue();
-            }
-            temp.addCharArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueDoubleArrayDef) {
-            List<Double> values = ((ConfigValueDoubleArrayDef)configArrayDef).getArray();
-            double[] array = new double[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = values.get(i);
-            }
-            temp.addDoubleArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueFloatArrayDef) {
-            List<Float> values = ((ConfigValueFloatArrayDef)configArrayDef).getArray();
-            float[] array = new float[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = values.get(i);
-            }
-            temp.addFloatArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueIntArrayDef) {
-            List<Integer> values = ((ConfigValueIntArrayDef)configArrayDef).getArray();
-            int[] array = new int[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = values.get(i);
-            }
-            temp.addIntArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueLongArrayDef) {
-            List<Long> values = ((ConfigValueLongArrayDef)configArrayDef).getArray();
-            long[] array = new long[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = values.get(i);
-            }
-            temp.addLongArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueShortArrayDef) {
-            List<Integer> values = ((ConfigValueShortArrayDef)configArrayDef).getArray();
-            short[] array = new short[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = (short)values.get(i).intValue();
-            }
-            temp.addShortArray(key, array);
-        } else if (configArrayDef instanceof ConfigValueStringArrayDef) {
-            List<String> values = ((ConfigValueStringArrayDef)configArrayDef).getArray();
-            String[] array = new String[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                array[i] = values.get(i);
-            }
-            temp.addStringArray(key, array);
-        }
-
-        if (!temp.containsKey(key)) {
-            throw new IllegalStateException();
-        }
-
-        return (ConfigBase)temp.getEntry(key);
     }
 
     /**
@@ -466,23 +410,26 @@ public final class SaverUtils {
         annotation.addString("alignment", annotationDataDef.getTextAlignment());
         annotation.addInt("borderSize", annotationDataDef.getBorderSize());
         annotation.addInt("borderColor", annotationDataDef.getBorderColor());
-        annotation.addInt("defFontSize", annotationDataDef.getDefaultFontSize());
+        annotationDataDef.getDefaultFontSize().ifPresent(f -> annotation.addInt("defFontSize", f));
         annotation.addInt("annotation-version", annotationDataDef.getAnnotationVersion());
 
-        var styles = new SimpleConfig("styles");
-        var styleIndex = 0;
-        for (var styleRangeDef : annotationDataDef.getStyles()) {
-            var style = new SimpleConfig(String.format("style_%d", styleIndex));
-            style.addInt("start", styleRangeDef.getStart());
-            style.addInt("length", styleRangeDef.getLength());
-            style.addString("fontname", styleRangeDef.getFontName());
-            style.addInt("fontstyle", styleRangeDef.getFontStyle());
-            style.addInt("fontsize", styleRangeDef.getFontSize());
-            style.addInt("fgcolor", styleRangeDef.getColor());
-            styles.addEntry(style);
-            ++styleIndex;
+        var stylesList = annotationDataDef.getStyles();
+        if (stylesList.isPresent()) {
+            var styles = new SimpleConfig("styles");
+            var styleIndex = 0;
+            for (var styleRangeDef : stylesList.get()) {
+                var style = new SimpleConfig(String.format("style_%d", styleIndex));
+                style.addInt("start", styleRangeDef.getStart());
+                style.addInt("length", styleRangeDef.getLength());
+                styleRangeDef.getFontName().ifPresent(f -> style.addString("fontname", f));
+                styleRangeDef.getFontStyle().ifPresent(f -> style.addInt("fontstyle", f));
+                styleRangeDef.getFontSize().ifPresent(f -> style.addInt("fontsize", f));
+                styleRangeDef.getColor().ifPresent(c -> style.addInt("fgcolor", c));
+                styles.addEntry(style);
+                ++styleIndex;
+            }
+            annotation.addEntry(styles);
         }
-        annotation.addEntry(styles);
         return annotation;
     }
 
@@ -503,10 +450,10 @@ public final class SaverUtils {
         String safeNodeName = null;
         switch (node.getNodeType()) {
             case COMPONENT:
-                safeNodeName = SaverUtils.getValidFileName(((ComponentNodeDef)node).getWorkflow().getName(), 12);
+                safeNodeName = SaverUtils.getValidFileName(((ComponentNodeDef)node).getWorkflow().getName().orElse(DEFAULT_WORKFLOW_NAME), 12);
                 break;
             case METANODE:
-                safeNodeName = SaverUtils.getValidFileName(((MetaNodeDef)node).getWorkflow().getName(), 12);
+                safeNodeName = SaverUtils.getValidFileName(((MetaNodeDef)node).getWorkflow().getName().orElse(DEFAULT_WORKFLOW_NAME), 12);
                 break;
             case NATIVENODE:
                 safeNodeName = SaverUtils.getValidFileName(((NativeNodeDef)node).getNodeName(), -1);

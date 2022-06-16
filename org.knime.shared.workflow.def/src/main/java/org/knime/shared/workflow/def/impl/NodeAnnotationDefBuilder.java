@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.AnnotationDataDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * The small text below the note
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class NodeAnnotationDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public NodeAnnotationDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -83,7 +104,7 @@ public class NodeAnnotationDefBuilder {
     Boolean m_annotationDefault;
     
 
-    AnnotationDataDef m_data;
+    Optional<AnnotationDataDef> m_data = Optional.empty();
     
     /**
      * Create a new builder.
@@ -104,7 +125,7 @@ public class NodeAnnotationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param annotationDefault 
+     * @param annotationDefault True if this annotation was never changed/set to something user-defined 
      * @return this builder for fluent API.
      */ 
     public NodeAnnotationDefBuilder setAnnotationDefault(final Boolean annotationDefault) {
@@ -112,6 +133,7 @@ public class NodeAnnotationDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -129,11 +151,18 @@ public class NodeAnnotationDefBuilder {
         m_exceptionalChildren.remove(NodeAnnotationDef.Attribute.ANNOTATION_DEFAULT);
         try {
             m_annotationDefault = annotationDefault.get();
+
+            if(m_annotationDefault == null) {
+                throw new IllegalArgumentException("annotationDefault is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_annotationDefault = defaultValue;
             m_exceptionalChildren.put(NodeAnnotationDef.Attribute.ANNOTATION_DEFAULT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -142,7 +171,7 @@ public class NodeAnnotationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param data 
+     * @param data  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NodeAnnotationDefBuilder setData(final AnnotationDataDef data) {
@@ -150,8 +179,26 @@ public class NodeAnnotationDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NodeAnnotationDef.Attribute.DATA)} will return true and and
+     * {@code getExceptionalChildren().get(NodeAnnotationDef.Attribute.DATA)} will return the exception.
+     * 
+     * @param data see {@link NodeAnnotationDef#getData}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setData(AnnotationDataDef)
+     */
+    public NodeAnnotationDefBuilder setData(final FallibleSupplier<AnnotationDataDef> data) {
+        setData(data, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NodeAnnotationDef.Attribute.DATA)} will return true and and
      * {@code getExceptionalChildren().get(NodeAnnotationDef.Attribute.DATA)} will return the exception.
@@ -166,24 +213,27 @@ public class NodeAnnotationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NodeAnnotationDef.Attribute.DATA);
         try {
-            m_data = data.get();
-            if (m_data instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_data).hasExceptions()) {
-                m_exceptionalChildren.put(NodeAnnotationDef.Attribute.DATA, (LoadExceptionTree<?>)m_data);
+            m_data = Optional.ofNullable(data.get());
+            if (m_data.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_data.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NodeAnnotationDef.Attribute.DATA, (LoadExceptionTree<?>)m_data.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultAnnotationDataDef){
-                var childTree = ((DefaultAnnotationDataDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_data = defaultValue;
+            m_data = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NodeAnnotationDef.Attribute.DATA, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -195,6 +245,9 @@ public class NodeAnnotationDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultNodeAnnotationDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_annotationDefault == null) setAnnotationDefault( null);
         
     	
         return new DefaultNodeAnnotationDef(this);

@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * For metanodes and components  
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class FilestoreDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public FilestoreDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -104,7 +125,7 @@ public class FilestoreDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param id How to resolve the linked Component/Metanode
+     * @param id  
      * @return this builder for fluent API.
      */ 
     public FilestoreDefBuilder setId(final String id) {
@@ -112,6 +133,7 @@ public class FilestoreDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -129,11 +151,18 @@ public class FilestoreDefBuilder {
         m_exceptionalChildren.remove(FilestoreDef.Attribute.ID);
         try {
             m_id = id.get();
+
+            if(m_id == null) {
+                throw new IllegalArgumentException("id is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_id = defaultValue;
             m_exceptionalChildren.put(FilestoreDef.Attribute.ID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -142,7 +171,7 @@ public class FilestoreDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param location How to resolve the linked Component/Metanode
+     * @param location  
      * @return this builder for fluent API.
      */ 
     public FilestoreDefBuilder setLocation(final String location) {
@@ -150,6 +179,7 @@ public class FilestoreDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -167,11 +197,18 @@ public class FilestoreDefBuilder {
         m_exceptionalChildren.remove(FilestoreDef.Attribute.LOCATION);
         try {
             m_location = location.get();
+
+            if(m_location == null) {
+                throw new IllegalArgumentException("location is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_location = defaultValue;
             m_exceptionalChildren.put(FilestoreDef.Attribute.LOCATION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -184,6 +221,12 @@ public class FilestoreDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultFilestoreDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_id == null) setId( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_location == null) setLocation( null);
         
     	
         return new DefaultFilestoreDef(this);

@@ -73,11 +73,12 @@ abstract class SingleNodeSaver extends BaseNodeSaver {
     @Override
     void addNodeSettings(final ConfigBase nodeSettings) {
         nodeSettings.addString(IOConst.NODE_FILE_KEY.get(), IOConst.NODE_SETTINGS_FILE_NAME.get());
-        nodeSettings.addEntry(SaverUtils.toConfigEntry(m_singleNode.getInternalNodeSubSettings(),
-            IOConst.INTERNAL_NODE_SUBSETTINGS.get()));
-        nodeSettings.addEntry(SaverUtils.toConfigEntry(m_singleNode.getModelSettings(), IOConst.MODEL_KEY.get()));
-        nodeSettings
-            .addEntry(SaverUtils.toConfigEntry(m_singleNode.getVariableSettings(), IOConst.VARIABLES_KEY.get()));
+        m_singleNode.getInternalNodeSubSettings().ifPresent(configDef -> nodeSettings
+            .addEntry(SaverUtils.toConfigEntry(configDef, IOConst.INTERNAL_NODE_SUBSETTINGS.get())));
+        m_singleNode.getModelSettings().ifPresent(
+            configDef -> nodeSettings.addEntry(SaverUtils.toConfigEntry(configDef, IOConst.MODEL_KEY.get())));
+        m_singleNode.getVariableSettings().ifPresent(
+            configDef -> nodeSettings.addEntry(SaverUtils.toConfigEntry(configDef, IOConst.VARIABLES_KEY.get())));
 
         super.addNodeSettings(nodeSettings);
     }

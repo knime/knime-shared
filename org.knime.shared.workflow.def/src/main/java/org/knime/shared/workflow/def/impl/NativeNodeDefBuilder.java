@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.FilestoreDef;
@@ -63,6 +64,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * The basic executable building block of a workflow. 
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -71,6 +74,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class NativeNodeDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public NativeNodeDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -93,22 +114,22 @@ public class NativeNodeDefBuilder {
     NodeTypeEnum m_nodeType;
     
 
-    String m_customDescription;
+    Optional<String> m_customDescription = Optional.empty();
     
 
-    NodeAnnotationDef m_annotation;
+    Optional<NodeAnnotationDef> m_annotation = Optional.empty();
     
-    NodeUIInfoDef m_uiInfo;
+    Optional<NodeUIInfoDef> m_uiInfo = Optional.empty();
     
-    NodeLocksDef m_locks;
+    Optional<NodeLocksDef> m_locks = Optional.empty();
     
-    JobManagerDef m_jobManager;
+    Optional<JobManagerDef> m_jobManager = Optional.empty();
     
-    ConfigMapDef m_modelSettings;
+    Optional<ConfigMapDef> m_modelSettings = Optional.empty();
     
-    ConfigMapDef m_internalNodeSubSettings;
+    Optional<ConfigMapDef> m_internalNodeSubSettings = Optional.empty();
     
-    ConfigMapDef m_variableSettings;
+    Optional<ConfigMapDef> m_variableSettings = Optional.empty();
     
     String m_nodeName;
     
@@ -116,15 +137,15 @@ public class NativeNodeDefBuilder {
     String m_factory;
     
 
-    ConfigMapDef m_factorySettings;
+    Optional<ConfigMapDef> m_factorySettings = Optional.empty();
     
     VendorDef m_feature;
     
     VendorDef m_bundle;
     
-    ConfigMapDef m_nodeCreationConfig;
+    Optional<ConfigMapDef> m_nodeCreationConfig = Optional.empty();
     
-    FilestoreDef m_filestore;
+    Optional<FilestoreDef> m_filestore = Optional.empty();
     
     /**
      * Create a new builder.
@@ -160,7 +181,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection.  
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setId(final Integer id) {
@@ -168,6 +189,7 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -185,11 +207,18 @@ public class NativeNodeDefBuilder {
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.ID);
         try {
             m_id = id.get();
+
+            if(m_id == null) {
+                throw new IllegalArgumentException("id is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_id = defaultValue;
             m_exceptionalChildren.put(NativeNodeDef.Attribute.ID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -198,7 +227,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param nodeType states the most specific subtype, i.e., Metanode, Component, or Native Node
+     * @param nodeType states the most specific subtype, i.e., Metanode, Component, or Native Node 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setNodeType(final NodeTypeEnum nodeType) {
@@ -206,6 +235,7 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -223,11 +253,18 @@ public class NativeNodeDefBuilder {
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.NODE_TYPE);
         try {
             m_nodeType = nodeType.get();
+
+            if(m_nodeType == null) {
+                throw new IllegalArgumentException("nodeType is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_nodeType = defaultValue;
             m_exceptionalChildren.put(NativeNodeDef.Attribute.NODE_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -236,7 +273,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param customDescription A longer description, provided by the user
+     * @param customDescription A longer description, provided by the user This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setCustomDescription(final String customDescription) {
@@ -244,8 +281,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return the exception.
+     * 
+     * @param customDescription see {@link NativeNodeDef#getCustomDescription}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setCustomDescription(String)
+     */
+    public NativeNodeDefBuilder setCustomDescription(final FallibleSupplier<String> customDescription) {
+        setCustomDescription(customDescription, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return the exception.
@@ -260,12 +315,15 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION);
         try {
-            m_customDescription = customDescription.get();
+            m_customDescription = Optional.ofNullable(customDescription.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_customDescription = defaultValue;
+            m_customDescription = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -274,7 +332,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param annotation 
+     * @param annotation  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setAnnotation(final NodeAnnotationDef annotation) {
@@ -282,8 +340,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.ANNOTATION)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.ANNOTATION)} will return the exception.
+     * 
+     * @param annotation see {@link NativeNodeDef#getAnnotation}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setAnnotation(NodeAnnotationDef)
+     */
+    public NativeNodeDefBuilder setAnnotation(final FallibleSupplier<NodeAnnotationDef> annotation) {
+        setAnnotation(annotation, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.ANNOTATION)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.ANNOTATION)} will return the exception.
@@ -298,24 +374,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.ANNOTATION);
         try {
-            m_annotation = annotation.get();
-            if (m_annotation instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_annotation).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.ANNOTATION, (LoadExceptionTree<?>)m_annotation);
+            m_annotation = Optional.ofNullable(annotation.get());
+            if (m_annotation.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_annotation.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.ANNOTATION, (LoadExceptionTree<?>)m_annotation.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeAnnotationDef){
-                var childTree = ((DefaultNodeAnnotationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_annotation = defaultValue;
+            m_annotation = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.ANNOTATION, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -323,7 +402,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uiInfo 
+     * @param uiInfo  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setUiInfo(final NodeUIInfoDef uiInfo) {
@@ -331,8 +410,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.UI_INFO)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.UI_INFO)} will return the exception.
+     * 
+     * @param uiInfo see {@link NativeNodeDef#getUiInfo}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setUiInfo(NodeUIInfoDef)
+     */
+    public NativeNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo) {
+        setUiInfo(uiInfo, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.UI_INFO)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.UI_INFO)} will return the exception.
@@ -347,24 +444,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.UI_INFO);
         try {
-            m_uiInfo = uiInfo.get();
-            if (m_uiInfo instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiInfo).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.UI_INFO, (LoadExceptionTree<?>)m_uiInfo);
+            m_uiInfo = Optional.ofNullable(uiInfo.get());
+            if (m_uiInfo.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiInfo.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.UI_INFO, (LoadExceptionTree<?>)m_uiInfo.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeUIInfoDef){
-                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_uiInfo = defaultValue;
+            m_uiInfo = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.UI_INFO, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -372,7 +472,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param locks 
+     * @param locks  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setLocks(final NodeLocksDef locks) {
@@ -380,8 +480,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.LOCKS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.LOCKS)} will return the exception.
+     * 
+     * @param locks see {@link NativeNodeDef#getLocks}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setLocks(NodeLocksDef)
+     */
+    public NativeNodeDefBuilder setLocks(final FallibleSupplier<NodeLocksDef> locks) {
+        setLocks(locks, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.LOCKS)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.LOCKS)} will return the exception.
@@ -396,24 +514,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.LOCKS);
         try {
-            m_locks = locks.get();
-            if (m_locks instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_locks).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.LOCKS, (LoadExceptionTree<?>)m_locks);
+            m_locks = Optional.ofNullable(locks.get());
+            if (m_locks.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_locks.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.LOCKS, (LoadExceptionTree<?>)m_locks.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeLocksDef){
-                var childTree = ((DefaultNodeLocksDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_locks = defaultValue;
+            m_locks = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.LOCKS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -421,7 +542,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param jobManager 
+     * @param jobManager  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setJobManager(final JobManagerDef jobManager) {
@@ -429,8 +550,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.JOB_MANAGER)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.JOB_MANAGER)} will return the exception.
+     * 
+     * @param jobManager see {@link NativeNodeDef#getJobManager}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setJobManager(JobManagerDef)
+     */
+    public NativeNodeDefBuilder setJobManager(final FallibleSupplier<JobManagerDef> jobManager) {
+        setJobManager(jobManager, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.JOB_MANAGER)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.JOB_MANAGER)} will return the exception.
@@ -445,24 +584,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.JOB_MANAGER);
         try {
-            m_jobManager = jobManager.get();
-            if (m_jobManager instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_jobManager).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.JOB_MANAGER, (LoadExceptionTree<?>)m_jobManager);
+            m_jobManager = Optional.ofNullable(jobManager.get());
+            if (m_jobManager.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_jobManager.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.JOB_MANAGER, (LoadExceptionTree<?>)m_jobManager.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultJobManagerDef){
-                var childTree = ((DefaultJobManagerDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_jobManager = defaultValue;
+            m_jobManager = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.JOB_MANAGER, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -470,7 +612,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param modelSettings 
+     * @param modelSettings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setModelSettings(final ConfigMapDef modelSettings) {
@@ -478,8 +620,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.MODEL_SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.MODEL_SETTINGS)} will return the exception.
+     * 
+     * @param modelSettings see {@link NativeNodeDef#getModelSettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setModelSettings(ConfigMapDef)
+     */
+    public NativeNodeDefBuilder setModelSettings(final FallibleSupplier<ConfigMapDef> modelSettings) {
+        setModelSettings(modelSettings, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.MODEL_SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.MODEL_SETTINGS)} will return the exception.
@@ -494,24 +654,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.MODEL_SETTINGS);
         try {
-            m_modelSettings = modelSettings.get();
-            if (m_modelSettings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_modelSettings).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.MODEL_SETTINGS, (LoadExceptionTree<?>)m_modelSettings);
+            m_modelSettings = Optional.ofNullable(modelSettings.get());
+            if (m_modelSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_modelSettings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.MODEL_SETTINGS, (LoadExceptionTree<?>)m_modelSettings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_modelSettings = defaultValue;
+            m_modelSettings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.MODEL_SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -519,7 +682,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param internalNodeSubSettings 
+     * @param internalNodeSubSettings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setInternalNodeSubSettings(final ConfigMapDef internalNodeSubSettings) {
@@ -527,8 +690,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS)} will return the exception.
+     * 
+     * @param internalNodeSubSettings see {@link NativeNodeDef#getInternalNodeSubSettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setInternalNodeSubSettings(ConfigMapDef)
+     */
+    public NativeNodeDefBuilder setInternalNodeSubSettings(final FallibleSupplier<ConfigMapDef> internalNodeSubSettings) {
+        setInternalNodeSubSettings(internalNodeSubSettings, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS)} will return the exception.
@@ -543,24 +724,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS);
         try {
-            m_internalNodeSubSettings = internalNodeSubSettings.get();
-            if (m_internalNodeSubSettings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_internalNodeSubSettings).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS, (LoadExceptionTree<?>)m_internalNodeSubSettings);
+            m_internalNodeSubSettings = Optional.ofNullable(internalNodeSubSettings.get());
+            if (m_internalNodeSubSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_internalNodeSubSettings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS, (LoadExceptionTree<?>)m_internalNodeSubSettings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_internalNodeSubSettings = defaultValue;
+            m_internalNodeSubSettings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -568,7 +752,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param variableSettings 
+     * @param variableSettings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setVariableSettings(final ConfigMapDef variableSettings) {
@@ -576,8 +760,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.VARIABLE_SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.VARIABLE_SETTINGS)} will return the exception.
+     * 
+     * @param variableSettings see {@link NativeNodeDef#getVariableSettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setVariableSettings(ConfigMapDef)
+     */
+    public NativeNodeDefBuilder setVariableSettings(final FallibleSupplier<ConfigMapDef> variableSettings) {
+        setVariableSettings(variableSettings, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.VARIABLE_SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.VARIABLE_SETTINGS)} will return the exception.
@@ -592,24 +794,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.VARIABLE_SETTINGS);
         try {
-            m_variableSettings = variableSettings.get();
-            if (m_variableSettings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_variableSettings).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.VARIABLE_SETTINGS, (LoadExceptionTree<?>)m_variableSettings);
+            m_variableSettings = Optional.ofNullable(variableSettings.get());
+            if (m_variableSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_variableSettings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.VARIABLE_SETTINGS, (LoadExceptionTree<?>)m_variableSettings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_variableSettings = defaultValue;
+            m_variableSettings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.VARIABLE_SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -617,7 +822,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param nodeName 
+     * @param nodeName Describes and identifies the node in the node repository 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setNodeName(final String nodeName) {
@@ -625,6 +830,7 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -642,11 +848,18 @@ public class NativeNodeDefBuilder {
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.NODE_NAME);
         try {
             m_nodeName = nodeName.get();
+
+            if(m_nodeName == null) {
+                throw new IllegalArgumentException("nodeName is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_nodeName = defaultValue;
             m_exceptionalChildren.put(NativeNodeDef.Attribute.NODE_NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -655,7 +868,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param factory Qualified class name
+     * @param factory Qualified class name 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setFactory(final String factory) {
@@ -663,6 +876,7 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -680,11 +894,18 @@ public class NativeNodeDefBuilder {
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FACTORY);
         try {
             m_factory = factory.get();
+
+            if(m_factory == null) {
+                throw new IllegalArgumentException("factory is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_factory = defaultValue;
             m_exceptionalChildren.put(NativeNodeDef.Attribute.FACTORY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -693,7 +914,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param factorySettings 
+     * @param factorySettings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setFactorySettings(final ConfigMapDef factorySettings) {
@@ -701,8 +922,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.FACTORY_SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.FACTORY_SETTINGS)} will return the exception.
+     * 
+     * @param factorySettings see {@link NativeNodeDef#getFactorySettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setFactorySettings(ConfigMapDef)
+     */
+    public NativeNodeDefBuilder setFactorySettings(final FallibleSupplier<ConfigMapDef> factorySettings) {
+        setFactorySettings(factorySettings, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.FACTORY_SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.FACTORY_SETTINGS)} will return the exception.
@@ -717,24 +956,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FACTORY_SETTINGS);
         try {
-            m_factorySettings = factorySettings.get();
-            if (m_factorySettings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_factorySettings).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.FACTORY_SETTINGS, (LoadExceptionTree<?>)m_factorySettings);
+            m_factorySettings = Optional.ofNullable(factorySettings.get());
+            if (m_factorySettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_factorySettings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.FACTORY_SETTINGS, (LoadExceptionTree<?>)m_factorySettings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_factorySettings = defaultValue;
+            m_factorySettings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.FACTORY_SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -742,7 +984,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param feature 
+     * @param feature  
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setFeature(final VendorDef feature) {
@@ -750,6 +992,7 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -767,6 +1010,10 @@ public class NativeNodeDefBuilder {
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FEATURE);
         try {
             m_feature = feature.get();
+
+            if(m_feature == null) {
+                throw new IllegalArgumentException("feature is required and must not be null.");
+            }
             if (m_feature instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_feature).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.FEATURE, (LoadExceptionTree<?>)m_feature);
             }
@@ -774,16 +1021,19 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultVendorDef){
-                var childTree = ((DefaultVendorDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_feature = defaultValue;
             m_exceptionalChildren.put(NativeNodeDef.Attribute.FEATURE, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -791,7 +1041,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param bundle 
+     * @param bundle  
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setBundle(final VendorDef bundle) {
@@ -799,6 +1049,7 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -816,6 +1067,10 @@ public class NativeNodeDefBuilder {
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.BUNDLE);
         try {
             m_bundle = bundle.get();
+
+            if(m_bundle == null) {
+                throw new IllegalArgumentException("bundle is required and must not be null.");
+            }
             if (m_bundle instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bundle).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.BUNDLE, (LoadExceptionTree<?>)m_bundle);
             }
@@ -823,16 +1078,19 @@ public class NativeNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultVendorDef){
-                var childTree = ((DefaultVendorDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_bundle = defaultValue;
             m_exceptionalChildren.put(NativeNodeDef.Attribute.BUNDLE, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -840,7 +1098,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param nodeCreationConfig 
+     * @param nodeCreationConfig  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setNodeCreationConfig(final ConfigMapDef nodeCreationConfig) {
@@ -848,8 +1106,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.NODE_CREATION_CONFIG)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.NODE_CREATION_CONFIG)} will return the exception.
+     * 
+     * @param nodeCreationConfig see {@link NativeNodeDef#getNodeCreationConfig}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setNodeCreationConfig(ConfigMapDef)
+     */
+    public NativeNodeDefBuilder setNodeCreationConfig(final FallibleSupplier<ConfigMapDef> nodeCreationConfig) {
+        setNodeCreationConfig(nodeCreationConfig, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.NODE_CREATION_CONFIG)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.NODE_CREATION_CONFIG)} will return the exception.
@@ -864,24 +1140,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.NODE_CREATION_CONFIG);
         try {
-            m_nodeCreationConfig = nodeCreationConfig.get();
-            if (m_nodeCreationConfig instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_nodeCreationConfig).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.NODE_CREATION_CONFIG, (LoadExceptionTree<?>)m_nodeCreationConfig);
+            m_nodeCreationConfig = Optional.ofNullable(nodeCreationConfig.get());
+            if (m_nodeCreationConfig.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_nodeCreationConfig.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.NODE_CREATION_CONFIG, (LoadExceptionTree<?>)m_nodeCreationConfig.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_nodeCreationConfig = defaultValue;
+            m_nodeCreationConfig = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.NODE_CREATION_CONFIG, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -889,7 +1168,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param filestore 
+     * @param filestore  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setFilestore(final FilestoreDef filestore) {
@@ -897,8 +1176,26 @@ public class NativeNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.FILESTORE)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.FILESTORE)} will return the exception.
+     * 
+     * @param filestore see {@link NativeNodeDef#getFilestore}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setFilestore(FilestoreDef)
+     */
+    public NativeNodeDefBuilder setFilestore(final FallibleSupplier<FilestoreDef> filestore) {
+        setFilestore(filestore, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.FILESTORE)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.FILESTORE)} will return the exception.
@@ -913,24 +1210,27 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FILESTORE);
         try {
-            m_filestore = filestore.get();
-            if (m_filestore instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_filestore).hasExceptions()) {
-                m_exceptionalChildren.put(NativeNodeDef.Attribute.FILESTORE, (LoadExceptionTree<?>)m_filestore);
+            m_filestore = Optional.ofNullable(filestore.get());
+            if (m_filestore.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_filestore.get()).hasExceptions()) {
+                m_exceptionalChildren.put(NativeNodeDef.Attribute.FILESTORE, (LoadExceptionTree<?>)m_filestore.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultFilestoreDef){
-                var childTree = ((DefaultFilestoreDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_filestore = defaultValue;
+            m_filestore = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.FILESTORE, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -942,6 +1242,24 @@ public class NativeNodeDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultNativeNodeDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_id == null) setId( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_nodeType == null) setNodeType( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_nodeName == null) setNodeName( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_factory == null) setFactory( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_feature == null) setFeature( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_bundle == null) setBundle( null);
         
     	
         return new DefaultNativeNodeDef(this);

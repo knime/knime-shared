@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.PortTypeDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultPortDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -69,11 +70,13 @@ public interface PortDef {
          /**  
           * the offset of the port relative to its siblings
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link PortDef#getIndex} 
           */
          INDEX,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link PortTypeDef}.
           * Is is returned by {@link PortDef#getPortType} 
           */
@@ -88,19 +91,19 @@ public interface PortDef {
     
 
   /**
-   * @return the offset of the port relative to its siblings
+   * @return the offset of the port relative to its siblings, never <code>null</code>
    **/
   public Integer getIndex();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public PortTypeDef getPortType();
 
   /**
    * @return 
    **/
-  public String getName();
+  public Optional<String> getName();
 
 
 }

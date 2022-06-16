@@ -48,6 +48,7 @@ import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultBaseNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -96,6 +97,7 @@ public interface BaseNodeDef {
          /**  
           * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link BaseNodeDef#getId} 
           */
@@ -103,6 +105,7 @@ public interface BaseNodeDef {
          /**  
           * states the most specific subtype, i.e., Metanode, Component, or Native Node
           *
+          * This is a required field.
           * The type of this data attribute is {@link NodeTypeEnum}.
           * Is is returned by {@link BaseNodeDef#getNodeType} 
           */
@@ -162,39 +165,39 @@ public interface BaseNodeDef {
 
 
   /**
-   * @return Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+   * @return Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. , never <code>null</code>
    **/
   public Integer getId();
 
   /**
-   * @return states the most specific subtype, i.e., Metanode, Component, or Native Node
+   * @return states the most specific subtype, i.e., Metanode, Component, or Native Node, never <code>null</code>
    **/
   public NodeTypeEnum getNodeType();
 
   /**
    * @return A longer description, provided by the user
    **/
-  public String getCustomDescription();
+  public Optional<String> getCustomDescription();
 
   /**
    * @return 
    **/
-  public NodeAnnotationDef getAnnotation();
+  public Optional<NodeAnnotationDef> getAnnotation();
 
   /**
    * @return 
    **/
-  public NodeUIInfoDef getUiInfo();
+  public Optional<NodeUIInfoDef> getUiInfo();
 
   /**
    * @return 
    **/
-  public NodeLocksDef getLocks();
+  public Optional<NodeLocksDef> getLocks();
 
   /**
    * @return 
    **/
-  public JobManagerDef getJobManager();
+  public Optional<JobManagerDef> getJobManager();
 
 
 }

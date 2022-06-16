@@ -113,14 +113,15 @@ public final class MetaNodeLoader {
             .setOutPortsBarUIInfo(
                 () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_OUT_PORTS_KEY.get(), workflowFormatVersion),
                 DEFAULT_NODE_UI)//
-            .setLink(() -> LoaderUtils.loadTemplateLink(templateConfig), LoaderUtils.DEFAULT_TEMPLATE_LINK) //
+            .setLink(() -> LoaderUtils.loadTemplateLink(templateConfig).orElse(null)) //
+            .setTemplateMetadata(() -> LoaderUtils.loadTemplateMetadata(templateConfig).orElse(null))//
             // base node properties
             .setId(() -> BaseNodeLoader.loadNodeId(workflowConfig), BaseNodeLoader.getRandomNodeID()) //
             .setAnnotation(() -> BaseNodeLoader.loadAnnotation(metaNodeConfig, workflowFormatVersion),
                 BaseNodeLoader.DEFAULT_NODE_ANNOTATION) //
             .setCustomDescription(
                 () -> BaseNodeLoader.loadCustomDescription(workflowConfig, metaNodeConfig, workflowFormatVersion),
-                DEFAULT_EMPTY_STRING) //
+                null) //
             .setJobManager(() -> BaseNodeLoader.loadJobManager(metaNodeConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
             .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
             .setUiInfo(BaseNodeLoader.loadUIInfo(workflowConfig, workflowFormatVersion));

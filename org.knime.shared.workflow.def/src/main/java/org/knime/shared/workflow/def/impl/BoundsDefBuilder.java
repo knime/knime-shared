@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.CoordinateDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * BoundsDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class BoundsDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public BoundsDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -108,7 +129,7 @@ public class BoundsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param location 
+     * @param location  
      * @return this builder for fluent API.
      */ 
     public BoundsDefBuilder setLocation(final CoordinateDef location) {
@@ -116,6 +137,7 @@ public class BoundsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -133,6 +155,10 @@ public class BoundsDefBuilder {
         m_exceptionalChildren.remove(BoundsDef.Attribute.LOCATION);
         try {
             m_location = location.get();
+
+            if(m_location == null) {
+                throw new IllegalArgumentException("location is required and must not be null.");
+            }
             if (m_location instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_location).hasExceptions()) {
                 m_exceptionalChildren.put(BoundsDef.Attribute.LOCATION, (LoadExceptionTree<?>)m_location);
             }
@@ -140,16 +166,19 @@ public class BoundsDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultCoordinateDef){
-                var childTree = ((DefaultCoordinateDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_location = defaultValue;
             m_exceptionalChildren.put(BoundsDef.Attribute.LOCATION, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -157,7 +186,7 @@ public class BoundsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param width Width of an object in pixels.
+     * @param width Width of an object in pixels. 
      * @return this builder for fluent API.
      */ 
     public BoundsDefBuilder setWidth(final Integer width) {
@@ -165,6 +194,7 @@ public class BoundsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -182,11 +212,18 @@ public class BoundsDefBuilder {
         m_exceptionalChildren.remove(BoundsDef.Attribute.WIDTH);
         try {
             m_width = width.get();
+
+            if(m_width == null) {
+                throw new IllegalArgumentException("width is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_width = defaultValue;
             m_exceptionalChildren.put(BoundsDef.Attribute.WIDTH, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -195,7 +232,7 @@ public class BoundsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param height Height of an object in pixels.
+     * @param height Height of an object in pixels. 
      * @return this builder for fluent API.
      */ 
     public BoundsDefBuilder setHeight(final Integer height) {
@@ -203,6 +240,7 @@ public class BoundsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -220,11 +258,18 @@ public class BoundsDefBuilder {
         m_exceptionalChildren.remove(BoundsDef.Attribute.HEIGHT);
         try {
             m_height = height.get();
+
+            if(m_height == null) {
+                throw new IllegalArgumentException("height is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_height = defaultValue;
             m_exceptionalChildren.put(BoundsDef.Attribute.HEIGHT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -237,6 +282,15 @@ public class BoundsDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultBoundsDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_location == null) setLocation( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_width == null) setWidth( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_height == null) setHeight( null);
         
     	
         return new DefaultBoundsDef(this);

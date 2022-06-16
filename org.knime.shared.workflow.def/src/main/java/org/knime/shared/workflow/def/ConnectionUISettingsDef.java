@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.CoordinateDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConnectionUISettingsDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -67,6 +68,7 @@ public interface ConnectionUISettingsDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
+          * This is a required field.
           * The type of this data attribute is java.util.List&lt;CoordinateDef&gt;.
           * Is is returned by {@link ConnectionUISettingsDef#getBendPoints} 
           */
@@ -76,7 +78,7 @@ public interface ConnectionUISettingsDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public java.util.List<CoordinateDef> getBendPoints();
 

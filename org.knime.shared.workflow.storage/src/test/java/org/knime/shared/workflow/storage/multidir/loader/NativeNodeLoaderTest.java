@@ -54,6 +54,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,29 +107,28 @@ class NativeNodeLoaderTest {
                 feature -> feature.getVendor(), feature -> feature.getVersion())
             .containsExactly(null, null, null, "0.0.0");
         //TODO assert the creation config value
-        assertThat(nativeNodeDef.getNodeCreationConfig().getChildren()).containsKey("Pass through");
-        assertThat(nativeNodeDef.getFilestore()).isInstanceOf(FilestoreDef.class);
+        assertThat(nativeNodeDef.getNodeCreationConfig().get().getChildren()).containsKey("Pass through");
+        assertThat(nativeNodeDef.getFilestore().get()).isInstanceOf(FilestoreDef.class);
 
         // Assert SingleNodeLoader
         //TODO assert the ConfigMap value
-        assertThat(nativeNodeDef.getInternalNodeSubSettings().getChildren()).containsKey("memory_policy");
+        assertThat(nativeNodeDef.getInternalNodeSubSettings().get().getChildren()).containsKey("memory_policy");
         //        assertThat(nativeNodeDef.getModelSettings().getChildren());
-        assertThat(nativeNodeDef.getVariableSettings()).isNotNull();
+        assertThat(nativeNodeDef.getVariableSettings()).isPresent();
 
         // Assert NodeLoader
         assertThat(nativeNodeDef.getId()).isEqualTo(1);
-        assertThat(nativeNodeDef.getAnnotation().getData())
+        assertThat(nativeNodeDef.getAnnotation().get().getData().get())
             .extracting(a -> a.getText().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, 16777215);
-        assertThat(nativeNodeDef.getCustomDescription()).isEqualTo("test");
-        assertThat(nativeNodeDef.getJobManager().getFactory()).isEmpty();
-        assertThat(nativeNodeDef.getLocks()) //
+        assertThat(nativeNodeDef.getCustomDescription()).contains("test");
+        assertThat(nativeNodeDef.getJobManager().get().getFactory()).isEmpty();
+        assertThat(nativeNodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(nativeNodeDef.getUiInfo()).extracting(n -> n.hasAbsoluteCoordinates(), n -> n.isSymbolRelative(),
-            n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
-            .contains(false, true);
-        // TODO enable when load handling is fixed
-        //        assertThat(nativeNodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        assertThat(nativeNodeDef.getUiInfo().get())
+            .extracting(n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
+            .contains(Optional.of(false), Optional.of(true));
+        assertThat(nativeNodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 
     @Test
@@ -146,10 +146,10 @@ class NativeNodeLoaderTest {
         // then
         assertThat(nativeNodeDef.getId()).isEqualTo(11);
         assertThat(nativeNodeDef.getNodeType()).isEqualTo(NodeTypeEnum.NATIVENODE);
-        assertThat(nativeNodeDef.getCustomDescription()).isNullOrEmpty();
-        assertThat(nativeNodeDef.getAnnotation().isAnnotationDefault()).isTrue();
-        assertThat(nativeNodeDef.getInternalNodeSubSettings().getChildren()).hasSize(1);
-        assertThat(nativeNodeDef.getModelSettings().getChildren()).hasSize(5)
+        assertThat(nativeNodeDef.getCustomDescription()).isEmpty();
+        assertThat(nativeNodeDef.getAnnotation().get().isAnnotationDefault()).isTrue();
+        assertThat(nativeNodeDef.getInternalNodeSubSettings().get().getChildren()).hasSize(1);
+        assertThat(nativeNodeDef.getModelSettings().get().getChildren()).hasSize(5)
             .containsKeys("fail_on_duplicates", "append_suffix", "intersection_of_columns", "suffix", "enable_hiliting")
             .doesNotContainValue(null);
         assertThat(nativeNodeDef.getNodeName()).isEqualTo("Concatenate");

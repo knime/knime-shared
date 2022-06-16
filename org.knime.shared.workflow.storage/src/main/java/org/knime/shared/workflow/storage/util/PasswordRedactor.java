@@ -72,7 +72,6 @@ public interface PasswordRedactor {
             public ConfigValuePasswordDef apply(final ConfigValuePasswordDef t) {
                 return new ConfigValuePasswordDefBuilder()//
                     .setConfigType("ConfigValuePassword")//
-                    .setValue(null)//
                     .build();
             }
 
@@ -98,7 +97,7 @@ public interface PasswordRedactor {
 
             @Override
             public void restore(final ConfigBase settings, final String key, final ConfigValuePasswordDef redacted) {
-                settings.addEncryptedPassword(key, redacted.getValue());
+                settings.addEncryptedPassword(key, redacted.getValue().orElse(null));
             }
         };
     }

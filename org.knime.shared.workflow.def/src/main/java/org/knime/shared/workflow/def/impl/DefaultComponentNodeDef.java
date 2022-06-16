@@ -59,7 +59,8 @@ import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateLinkDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigurableNodeDef;
 
@@ -76,6 +77,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -86,23 +88,23 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implements ComponentNodeDef {
+public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implements ComponentNodeDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<ComponentNodeDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("workflow")
     protected WorkflowDef m_workflow;
 
     @JsonProperty("inPorts")
-    protected java.util.List<PortDef> m_inPorts;
+    protected Optional<java.util.List<PortDef>> m_inPorts;
 
     @JsonProperty("outPorts")
-    protected java.util.List<PortDef> m_outPorts;
+    protected Optional<java.util.List<PortDef>> m_outPorts;
 
     @JsonProperty("cipher")
-    protected CipherDef m_cipher;
+    protected Optional<CipherDef> m_cipher;
 
     /** 
      * The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode) 
@@ -114,13 +116,16 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     protected Integer m_virtualOutNodeId;
 
     @JsonProperty("metadata")
-    protected ComponentMetadataDef m_metadata;
+    protected Optional<ComponentMetadataDef> m_metadata;
 
-    @JsonProperty("templateInfo")
-    protected TemplateInfoDef m_templateInfo;
+    @JsonProperty("templateMetadata")
+    protected Optional<TemplateMetadataDef> m_templateMetadata;
+
+    @JsonProperty("templateLink")
+    protected Optional<TemplateLinkDef> m_templateLink;
 
     @JsonProperty("dialogSettings")
-    protected ComponentDialogSettingsDef m_dialogSettings;
+    protected Optional<ComponentDialogSettingsDef> m_dialogSettings;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -130,7 +135,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
      * Internal constructor for subclasses.
      */
     DefaultComponentNodeDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -158,10 +163,11 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         m_virtualInNodeId = builder.m_virtualInNodeId;
         m_virtualOutNodeId = builder.m_virtualOutNodeId;
         m_metadata = builder.m_metadata;
-        m_templateInfo = builder.m_templateInfo;
+        m_templateMetadata = builder.m_templateMetadata;
+        m_templateLink = builder.m_templateLink;
         m_dialogSettings = builder.m_dialogSettings;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -192,15 +198,16 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         m_virtualInNodeId = toCopy.getVirtualInNodeId();
         m_virtualOutNodeId = toCopy.getVirtualOutNodeId();
         m_metadata = toCopy.getMetadata();
-        m_templateInfo = toCopy.getTemplateInfo();
+        m_templateMetadata = toCopy.getTemplateMetadata();
+        m_templateLink = toCopy.getTemplateLink();
         m_dialogSettings = toCopy.getDialogSettings();
-        if(toCopy instanceof DefaultComponentNodeDef){
-            var childTree = ((DefaultComponentNodeDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -228,10 +235,11 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         m_virtualInNodeId = toCopy.getVirtualInNodeId();
         m_virtualOutNodeId = toCopy.getVirtualOutNodeId();
         m_metadata = toCopy.getMetadata();
-        m_templateInfo = toCopy.getTemplateInfo();
+        m_templateMetadata = toCopy.getTemplateMetadata();
+        m_templateLink = toCopy.getTemplateLink();
         m_dialogSettings = toCopy.getDialogSettings();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -256,21 +264,21 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ComponentNodeDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to ComponentNodeDef.Attribute
-            return ((LoadExceptionTree<ComponentNodeDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to ComponentNodeDef.Attribute
+        return ((LoadExceptionTree<ComponentNodeDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -286,35 +294,35 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         return m_nodeType;
     }
     @Override
-    public String getCustomDescription() {
+    public Optional<String> getCustomDescription() {
         return m_customDescription;
     }
     @Override
-    public NodeAnnotationDef getAnnotation() {
+    public Optional<NodeAnnotationDef> getAnnotation() {
         return m_annotation;
     }
     @Override
-    public NodeUIInfoDef getUiInfo() {
+    public Optional<NodeUIInfoDef> getUiInfo() {
         return m_uiInfo;
     }
     @Override
-    public NodeLocksDef getLocks() {
+    public Optional<NodeLocksDef> getLocks() {
         return m_locks;
     }
     @Override
-    public JobManagerDef getJobManager() {
+    public Optional<JobManagerDef> getJobManager() {
         return m_jobManager;
     }
     @Override
-    public ConfigMapDef getModelSettings() {
+    public Optional<ConfigMapDef> getModelSettings() {
         return m_modelSettings;
     }
     @Override
-    public ConfigMapDef getInternalNodeSubSettings() {
+    public Optional<ConfigMapDef> getInternalNodeSubSettings() {
         return m_internalNodeSubSettings;
     }
     @Override
-    public ConfigMapDef getVariableSettings() {
+    public Optional<ConfigMapDef> getVariableSettings() {
         return m_variableSettings;
     }
     @Override
@@ -322,15 +330,15 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         return m_workflow;
     }
     @Override
-    public java.util.List<PortDef> getInPorts() {
+    public Optional<java.util.List<PortDef>> getInPorts() {
         return m_inPorts;
     }
     @Override
-    public java.util.List<PortDef> getOutPorts() {
+    public Optional<java.util.List<PortDef>> getOutPorts() {
         return m_outPorts;
     }
     @Override
-    public CipherDef getCipher() {
+    public Optional<CipherDef> getCipher() {
         return m_cipher;
     }
     @Override
@@ -342,15 +350,19 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         return m_virtualOutNodeId;
     }
     @Override
-    public ComponentMetadataDef getMetadata() {
+    public Optional<ComponentMetadataDef> getMetadata() {
         return m_metadata;
     }
     @Override
-    public TemplateInfoDef getTemplateInfo() {
-        return m_templateInfo;
+    public Optional<TemplateMetadataDef> getTemplateMetadata() {
+        return m_templateMetadata;
     }
     @Override
-    public ComponentDialogSettingsDef getDialogSettings() {
+    public Optional<TemplateLinkDef> getTemplateLink() {
+        return m_templateLink;
+    }
+    @Override
+    public Optional<ComponentDialogSettingsDef> getDialogSettings() {
         return m_dialogSettings;
     }
     
@@ -404,8 +416,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultNodeAnnotationDef> getFaultyAnnotation(){
     	final var annotation = getAnnotation(); 
-        if(annotation instanceof DefaultNodeAnnotationDef && ((DefaultNodeAnnotationDef)annotation).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultNodeAnnotationDef)annotation);
+        if(LoadExceptionTreeProvider.hasExceptions(annotation)) {
+            return Optional.of((DefaultNodeAnnotationDef)annotation.get());
         }
     	return Optional.empty();
     }
@@ -427,8 +439,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultNodeUIInfoDef> getFaultyUiInfo(){
     	final var uiInfo = getUiInfo(); 
-        if(uiInfo instanceof DefaultNodeUIInfoDef && ((DefaultNodeUIInfoDef)uiInfo).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultNodeUIInfoDef)uiInfo);
+        if(LoadExceptionTreeProvider.hasExceptions(uiInfo)) {
+            return Optional.of((DefaultNodeUIInfoDef)uiInfo.get());
         }
     	return Optional.empty();
     }
@@ -450,8 +462,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultNodeLocksDef> getFaultyLocks(){
     	final var locks = getLocks(); 
-        if(locks instanceof DefaultNodeLocksDef && ((DefaultNodeLocksDef)locks).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultNodeLocksDef)locks);
+        if(LoadExceptionTreeProvider.hasExceptions(locks)) {
+            return Optional.of((DefaultNodeLocksDef)locks.get());
         }
     	return Optional.empty();
     }
@@ -473,8 +485,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultJobManagerDef> getFaultyJobManager(){
     	final var jobManager = getJobManager(); 
-        if(jobManager instanceof DefaultJobManagerDef && ((DefaultJobManagerDef)jobManager).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultJobManagerDef)jobManager);
+        if(LoadExceptionTreeProvider.hasExceptions(jobManager)) {
+            return Optional.of((DefaultJobManagerDef)jobManager.get());
         }
     	return Optional.empty();
     }
@@ -496,8 +508,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyModelSettings(){
     	final var modelSettings = getModelSettings(); 
-        if(modelSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)modelSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)modelSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(modelSettings)) {
+            return Optional.of((DefaultConfigMapDef)modelSettings.get());
         }
     	return Optional.empty();
     }
@@ -519,8 +531,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyInternalNodeSubSettings(){
     	final var internalNodeSubSettings = getInternalNodeSubSettings(); 
-        if(internalNodeSubSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)internalNodeSubSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)internalNodeSubSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(internalNodeSubSettings)) {
+            return Optional.of((DefaultConfigMapDef)internalNodeSubSettings.get());
         }
     	return Optional.empty();
     }
@@ -542,8 +554,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyVariableSettings(){
     	final var variableSettings = getVariableSettings(); 
-        if(variableSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)variableSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)variableSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(variableSettings)) {
+            return Optional.of((DefaultConfigMapDef)variableSettings.get());
         }
     	return Optional.empty();
     }
@@ -565,7 +577,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultWorkflowDef> getFaultyWorkflow(){
     	final var workflow = getWorkflow(); 
-        if(workflow instanceof DefaultWorkflowDef && ((DefaultWorkflowDef)workflow).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(workflow)) {
             return Optional.of((DefaultWorkflowDef)workflow);
         }
     	return Optional.empty();
@@ -630,8 +642,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultCipherDef> getFaultyCipher(){
     	final var cipher = getCipher(); 
-        if(cipher instanceof DefaultCipherDef && ((DefaultCipherDef)cipher).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultCipherDef)cipher);
+        if(LoadExceptionTreeProvider.hasExceptions(cipher)) {
+            return Optional.of((DefaultCipherDef)cipher.get());
         }
     	return Optional.empty();
     }
@@ -673,31 +685,54 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultComponentMetadataDef> getFaultyMetadata(){
     	final var metadata = getMetadata(); 
-        if(metadata instanceof DefaultComponentMetadataDef && ((DefaultComponentMetadataDef)metadata).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultComponentMetadataDef)metadata);
+        if(LoadExceptionTreeProvider.hasExceptions(metadata)) {
+            return Optional.of((DefaultComponentMetadataDef)metadata.get());
         }
     	return Optional.empty();
     }
          
  
     /**
-     * @return The supply exception associated to templateInfo.
+     * @return The supply exception associated to templateMetadata.
      */
     @JsonIgnore
-    public Optional<LoadException> getTemplateInfoSupplyException(){
-    	return getLoadExceptionTree(ComponentNodeDef.Attribute.TEMPLATE_INFO).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getTemplateMetadataSupplyException(){
+    	return getLoadExceptionTree(ComponentNodeDef.Attribute.TEMPLATE_METADATA).flatMap(LoadExceptionTree::getSupplyException);
     }
     
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link TemplateInfoDef} returned by {@link #getTemplateInfo()}, this
-     * returns the templateInfo as DefaultTemplateInfoDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return If there are {@link LoadException}s related to the {@link TemplateMetadataDef} returned by {@link #getTemplateMetadata()}, this
+     * returns the templateMetadata as DefaultTemplateMetadataDef which provides getters for the exceptions. Otherwise an empty optional.
      */
     @JsonIgnore
-    public Optional<DefaultTemplateInfoDef> getFaultyTemplateInfo(){
-    	final var templateInfo = getTemplateInfo(); 
-        if(templateInfo instanceof DefaultTemplateInfoDef && ((DefaultTemplateInfoDef)templateInfo).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultTemplateInfoDef)templateInfo);
+    public Optional<DefaultTemplateMetadataDef> getFaultyTemplateMetadata(){
+    	final var templateMetadata = getTemplateMetadata(); 
+        if(LoadExceptionTreeProvider.hasExceptions(templateMetadata)) {
+            return Optional.of((DefaultTemplateMetadataDef)templateMetadata.get());
+        }
+    	return Optional.empty();
+    }
+         
+ 
+    /**
+     * @return The supply exception associated to templateLink.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getTemplateLinkSupplyException(){
+    	return getLoadExceptionTree(ComponentNodeDef.Attribute.TEMPLATE_LINK).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+     
+    /**
+     * @return If there are {@link LoadException}s related to the {@link TemplateLinkDef} returned by {@link #getTemplateLink()}, this
+     * returns the templateLink as DefaultTemplateLinkDef which provides getters for the exceptions. Otherwise an empty optional.
+     */
+    @JsonIgnore
+    public Optional<DefaultTemplateLinkDef> getFaultyTemplateLink(){
+    	final var templateLink = getTemplateLink(); 
+        if(LoadExceptionTreeProvider.hasExceptions(templateLink)) {
+            return Optional.of((DefaultTemplateLinkDef)templateLink.get());
         }
     	return Optional.empty();
     }
@@ -719,8 +754,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonIgnore
     public Optional<DefaultComponentDialogSettingsDef> getFaultyDialogSettings(){
     	final var dialogSettings = getDialogSettings(); 
-        if(dialogSettings instanceof DefaultComponentDialogSettingsDef && ((DefaultComponentDialogSettingsDef)dialogSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultComponentDialogSettingsDef)dialogSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(dialogSettings)) {
+            return Optional.of((DefaultComponentDialogSettingsDef)dialogSettings.get());
         }
     	return Optional.empty();
     }
@@ -752,7 +787,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         equalsBuilder.append(m_virtualInNodeId, other.m_virtualInNodeId);
         equalsBuilder.append(m_virtualOutNodeId, other.m_virtualOutNodeId);
         equalsBuilder.append(m_metadata, other.m_metadata);
-        equalsBuilder.append(m_templateInfo, other.m_templateInfo);
+        equalsBuilder.append(m_templateMetadata, other.m_templateMetadata);
+        equalsBuilder.append(m_templateLink, other.m_templateLink);
         equalsBuilder.append(m_dialogSettings, other.m_dialogSettings);
         return equalsBuilder.isEquals();
     }
@@ -777,7 +813,8 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
                 .append(m_virtualInNodeId)
                 .append(m_virtualOutNodeId)
                 .append(m_metadata)
-                .append(m_templateInfo)
+                .append(m_templateMetadata)
+                .append(m_templateLink)
                 .append(m_dialogSettings)
                 .toHashCode();
     }

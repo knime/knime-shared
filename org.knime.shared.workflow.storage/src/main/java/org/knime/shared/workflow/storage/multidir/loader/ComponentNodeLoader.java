@@ -51,7 +51,6 @@ package org.knime.shared.workflow.storage.multidir.loader;
 import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_CONFIG_MAP;
 import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_EMPTY_STRING;
 import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_NEGATIVE_INDEX;
-import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_TEMPLATE_LINK;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,11 +68,13 @@ import org.knime.shared.workflow.def.ComponentDialogSettingsDef;
 import org.knime.shared.workflow.def.ComponentMetadataDef;
 import org.knime.shared.workflow.def.ComponentNodeDef;
 import org.knime.shared.workflow.def.PortDef;
+import org.knime.shared.workflow.def.PortMetadataDef;
 import org.knime.shared.workflow.def.impl.ComponentDialogSettingsDefBuilder;
 import org.knime.shared.workflow.def.impl.ComponentMetadataDefBuilder;
 import org.knime.shared.workflow.def.impl.ComponentNodeDefBuilder;
 import org.knime.shared.workflow.def.impl.DefaultComponentNodeDef;
 import org.knime.shared.workflow.def.impl.PortDefBuilder;
+import org.knime.shared.workflow.def.impl.PortMetadataDefBuilder;
 import org.knime.shared.workflow.def.impl.PortTypeDefBuilder;
 import org.knime.shared.workflow.def.impl.WorkflowDefBuilder;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
@@ -113,9 +114,10 @@ public final class ComponentNodeLoader {
             .setDialogSettings(loadDialogSettings(componentConfig)) //
             .setVirtualInNodeId(() -> loadVirtualInNodeId(componentConfig), DEFAULT_NEGATIVE_INDEX) //
             .setVirtualOutNodeId(() -> loadVirtualOutNodeId(componentConfig), DEFAULT_NEGATIVE_INDEX) //
-            .setDialogSettings(() -> loadDialogSettings(componentConfig), null)
+            .setDialogSettings(() -> loadDialogSettings(componentConfig))
             // The template.knime is redundant for the Components, settings.xml contains the template information.
-            .setTemplateInfo(() -> LoaderUtils.loadTemplateLink(componentConfig), DEFAULT_TEMPLATE_LINK) //
+            .setTemplateMetadata(() -> LoaderUtils.loadTemplateMetadata(componentConfig).orElse(null)) //
+            .setLink(() -> LoaderUtils.loadTemplateLink(componentConfig).orElse(null))//
             .setMetadata(() -> loadMetadata(componentConfig), new ComponentMetadataDefBuilder() //
                 .build()) //
             .setWorkflow(() -> WorkflowLoader.load(nodeDirectory, workflowFormatVersion),
@@ -131,7 +133,7 @@ public final class ComponentNodeLoader {
                 BaseNodeLoader.DEFAULT_NODE_ANNOTATION) //
             .setCustomDescription(
                 () -> BaseNodeLoader.loadCustomDescription(workflowConfig, componentConfig, workflowFormatVersion),
-                DEFAULT_EMPTY_STRING) //
+                null) //
             .setJobManager(() -> BaseNodeLoader.loadJobManager(componentConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
             .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
             .setUiInfo(BaseNodeLoader.loadUIInfo(workflowConfig, workflowFormatVersion));
@@ -193,10 +195,10 @@ public final class ComponentNodeLoader {
      */
     private static ComponentDialogSettingsDef loadDialogSettings(final ConfigBaseRO settings) {
         return new ComponentDialogSettingsDefBuilder() //
-            .setLayoutJSON(settings.getString(IOConst.LAYOUT_JSON_KEY.get(), DEFAULT_EMPTY_STRING)) //
+            .setLayoutJSON(settings.getString(IOConst.LAYOUT_JSON_KEY.get(), null)) //
             .setConfigurationLayoutJSON(
-                settings.getString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setCssStyles(settings.getString(IOConst.CUSTOM_CSS_KEY.get(), DEFAULT_EMPTY_STRING)) //
+                settings.getString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(), null)) //
+            .setCssStyles(settings.getString(IOConst.CUSTOM_CSS_KEY.get(), null)) //
             .setHideInWizard(settings.getBoolean(IOConst.HIDE_IN_WIZARD_KEY.get(), false)) //
             .build();
     }
@@ -237,36 +239,41 @@ public final class ComponentNodeLoader {
         }
 
         return new ComponentMetadataDefBuilder() //
-            .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()), DEFAULT_EMPTY_STRING)
+            .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()))
             .setIcon(() -> loadIcon(metadataSettings), DEFAULT_ICON)
-            .setInPortDescriptions(
-                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get()))
-            .setInPortNames(
-                () -> loadPortsProperties(metadataSettings, IOConst.INPORTS_KEY.get(), IOConst.METADATA_NAME_KEY.get()))
-            .setOutPortDescriptions(
-                () -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(), IOConst.DESCRIPTION_KEY.get()))
-            .setOutPortNames(() -> loadPortsProperties(metadataSettings, IOConst.OUTPORTS_KEY.get(),
-                IOConst.METADATA_NAME_KEY.get()))
-            .build();
+            .setInPortMetadata(() -> loadPortsMetadata(metadataSettings, IOConst.INPORTS_KEY.get()))
+            .setOutPortMetadata(() -> loadPortsMetadata(metadataSettings, IOConst.OUTPORTS_KEY.get())).build();
     }
 
-    private static List<String> loadPortsProperties(final ConfigBaseRO sub, final String portsKey,
-        final String propertyKey) throws InvalidSettingsException {
-
+    /**
+     * Loads names and descriptions of ports.
+     *
+     * @param sub
+     * @param portsKey
+     * @param propertyKey
+     * @return
+     * @throws InvalidSettingsException
+     */
+    private static List<PortMetadataDef> loadPortsMetadata(final ConfigBaseRO sub, final String portsKey) throws InvalidSettingsException {
         var inportsSetting = loadSetting(sub, portsKey);
         if (inportsSetting == null) {
             return List.of();
         }
 
-        var treeMap = new TreeMap<>();
+        final String nameKey = IOConst.METADATA_NAME_KEY.get();
+        final String descKey = IOConst.DESCRIPTION_KEY.get();
+
+        // port metadata can be in the settings in any order, sort by port index
+        var treeMap = new TreeMap<Integer, PortMetadataDef>();
         for (var key : inportsSetting.keySet()) {
             var portSetting = inportsSetting.getConfigBase(key);
             var index = portSetting.getInt(IOConst.PORT_INDEX_KEY.get(), DEFAULT_NEGATIVE_INDEX);
-            treeMap.put(index, portSetting.getString(propertyKey));
+            final String name = portSetting.containsKey(nameKey) ? portSetting.getString(nameKey) : null;
+            final String description = portSetting.containsKey(descKey) ? portSetting.getString(descKey) : null;
+            PortMetadataDef data = new PortMetadataDefBuilder().setName(name).setDescription(description).build();
+            treeMap.put(index, data);
         }
-        return treeMap.values().stream() //
-            .map(Object::toString).collect(Collectors.toList());
-
+        return treeMap.values().stream().collect(Collectors.toList());
     }
 
     private static ConfigBaseRO loadSetting(final ConfigBaseRO sub, final String key) throws InvalidSettingsException {

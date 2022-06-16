@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Any kind of node (native, meta, component) can be locked to restrict the user&#39;s interactions with the node in the workflow editor.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class NodeLocksDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public NodeLocksDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -108,7 +129,7 @@ public class NodeLocksDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param hasDeleteLock Whether a user is allowed to delete the node in the workflow editor.
+     * @param hasDeleteLock Whether a user is allowed to delete the node in the workflow editor. 
      * @return this builder for fluent API.
      */ 
     public NodeLocksDefBuilder setHasDeleteLock(final Boolean hasDeleteLock) {
@@ -116,6 +137,7 @@ public class NodeLocksDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -133,11 +155,18 @@ public class NodeLocksDefBuilder {
         m_exceptionalChildren.remove(NodeLocksDef.Attribute.HAS_DELETE_LOCK);
         try {
             m_hasDeleteLock = hasDeleteLock.get();
+
+            if(m_hasDeleteLock == null) {
+                throw new IllegalArgumentException("hasDeleteLock is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_hasDeleteLock = defaultValue;
             m_exceptionalChildren.put(NodeLocksDef.Attribute.HAS_DELETE_LOCK, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -146,7 +175,7 @@ public class NodeLocksDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param hasResetLock Whether a user is allowed to reset the node in the workflow editor (the node might contain data).
+     * @param hasResetLock Whether a user is allowed to reset the node in the workflow editor (the node might contain data). 
      * @return this builder for fluent API.
      */ 
     public NodeLocksDefBuilder setHasResetLock(final Boolean hasResetLock) {
@@ -154,6 +183,7 @@ public class NodeLocksDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -171,11 +201,18 @@ public class NodeLocksDefBuilder {
         m_exceptionalChildren.remove(NodeLocksDef.Attribute.HAS_RESET_LOCK);
         try {
             m_hasResetLock = hasResetLock.get();
+
+            if(m_hasResetLock == null) {
+                throw new IllegalArgumentException("hasResetLock is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_hasResetLock = defaultValue;
             m_exceptionalChildren.put(NodeLocksDef.Attribute.HAS_RESET_LOCK, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -184,7 +221,7 @@ public class NodeLocksDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param hasConfigureLock Whether a user is allowed to configure the node in the workflow editor.
+     * @param hasConfigureLock Whether a user is allowed to configure the node in the workflow editor. 
      * @return this builder for fluent API.
      */ 
     public NodeLocksDefBuilder setHasConfigureLock(final Boolean hasConfigureLock) {
@@ -192,6 +229,7 @@ public class NodeLocksDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -209,11 +247,18 @@ public class NodeLocksDefBuilder {
         m_exceptionalChildren.remove(NodeLocksDef.Attribute.HAS_CONFIGURE_LOCK);
         try {
             m_hasConfigureLock = hasConfigureLock.get();
+
+            if(m_hasConfigureLock == null) {
+                throw new IllegalArgumentException("hasConfigureLock is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_hasConfigureLock = defaultValue;
             m_exceptionalChildren.put(NodeLocksDef.Attribute.HAS_CONFIGURE_LOCK, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -226,6 +271,15 @@ public class NodeLocksDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultNodeLocksDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_hasDeleteLock == null) setHasDeleteLock( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_hasResetLock == null) setHasResetLock( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_hasConfigureLock == null) setHasConfigureLock( null);
         
     	
         return new DefaultNodeLocksDef(this);

@@ -49,7 +49,6 @@
 package org.knime.shared.workflow.storage.multidir.loader;
 
 import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_CONFIG_MAP;
-import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_EMPTY_STRING;
 
 import java.io.File;
 import java.io.IOException;
@@ -136,9 +135,9 @@ public final class NativeNodeLoader {
 
         return new NativeNodeDefBuilder()//
             .setNodeType(BaseNodeDef.NodeTypeEnum.NATIVENODE) //
-            .setFactory(() -> loadFactory(workflowConfig, nodeConfig, workflowFormatVersion), DEFAULT_EMPTY_STRING) //
+            .setFactory(() -> loadFactory(workflowConfig, nodeConfig, workflowFormatVersion), null) //
             .setFactorySettings(() -> loadFactorySettings(nodeConfig), DEFAULT_CONFIG_MAP) //
-            .setNodeName(() -> nodeConfig.getString(IOConst.NODE_NAME_KEY.get()), DEFAULT_EMPTY_STRING) //
+            .setNodeName(() -> nodeConfig.getString(IOConst.NODE_NAME_KEY.get()), null) //
             .setBundle(() -> loadBundle(nodeConfig), DEFAULT_VENDOR_DEF) //
             .setFeature(() -> loadFeature(nodeConfig), DEFAULT_VENDOR_DEF) //
             .setNodeCreationConfig(() -> loadCreationConfig(nodeConfig), DEFAULT_CONFIG_MAP)
@@ -154,7 +153,7 @@ public final class NativeNodeLoader {
                 BaseNodeLoader.DEFAULT_NODE_ANNOTATION) //
             .setCustomDescription(
                 () -> BaseNodeLoader.loadCustomDescription(workflowConfig, nodeConfig, workflowFormatVersion),
-                DEFAULT_EMPTY_STRING) //
+                null) //
             .setJobManager(() -> BaseNodeLoader.loadJobManager(nodeConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
             .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
             .setUiInfo(BaseNodeLoader.loadUIInfo(workflowConfig, workflowFormatVersion)) //
@@ -223,11 +222,11 @@ public final class NativeNodeLoader {
      */
     private static VendorDef loadBundle(final ConfigBaseRO settings) {
         return new VendorDefBuilder()
-            .setName(settings.getString(IOConst.NODE_BUNDLE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))
+            .setName(settings.getString(IOConst.NODE_BUNDLE_NAME_KEY.get(), null))
             .setSymbolicName(
-                fixExtensionName(settings.getString(IOConst.NODE_BUNDLE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING)))
-            .setVendor(settings.getString(IOConst.NODE_BUNDLE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING))
-            .setVersion(settings.getString(IOConst.NODE_BUNDLE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)).build();
+                fixExtensionName(settings.getString(IOConst.NODE_BUNDLE_SYMBOLIC_NAME_KEY.get(), null)))
+            .setVendor(settings.getString(IOConst.NODE_BUNDLE_VENDOR_KEY.get(), null))
+            .setVersion(settings.getString(IOConst.NODE_BUNDLE_VERSION_KEY.get(), null)).build();
     }
 
     /**
@@ -238,11 +237,11 @@ public final class NativeNodeLoader {
      */
     private static VendorDef loadFeature(final ConfigBaseRO settings) {
         return new VendorDefBuilder() //
-            .setName(settings.getString(IOConst.NODE_FEATURE_NAME_KEY.get(), DEFAULT_EMPTY_STRING))
+            .setName(settings.getString(IOConst.NODE_FEATURE_NAME_KEY.get(), null))
             .setSymbolicName(fixExtensionName(
-                settings.getString(IOConst.NODE_FEATURE_SYMBOLIC_NAME_KEY.get(), DEFAULT_EMPTY_STRING)))
-            .setVendor(settings.getString(IOConst.NODE_FEATURE_VENDOR_KEY.get(), DEFAULT_EMPTY_STRING))
-            .setVersion(settings.getString(IOConst.NODE_FEATURE_VERSION_KEY.get(), DEFAULT_EMPTY_STRING)).build();
+                settings.getString(IOConst.NODE_FEATURE_SYMBOLIC_NAME_KEY.get(), null)))
+            .setVendor(settings.getString(IOConst.NODE_FEATURE_VENDOR_KEY.get(), null))
+            .setVersion(settings.getString(IOConst.NODE_FEATURE_VERSION_KEY.get(), null)).build();
     }
 
     /**
@@ -260,8 +259,8 @@ public final class NativeNodeLoader {
         }
         var filestoreSettings = settings.getConfigBase(IOConst.FILESTORES_KEY.get());
         return new FilestoreDefBuilder()
-            .setLocation(() -> filestoreSettings.getString(IOConst.FILESTORES_LOCATION_KEY.get()), DEFAULT_EMPTY_STRING)
-            .setId(() -> filestoreSettings.getString(IOConst.FILESTORES_ID_KEY.get()), DEFAULT_EMPTY_STRING)
+            .setLocation(() -> filestoreSettings.getString(IOConst.FILESTORES_LOCATION_KEY.get()), null)
+            .setId(() -> filestoreSettings.getString(IOConst.FILESTORES_ID_KEY.get()), null)
             .build();
     }
 

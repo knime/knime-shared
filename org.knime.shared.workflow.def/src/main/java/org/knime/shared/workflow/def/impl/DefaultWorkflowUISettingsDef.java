@@ -64,6 +64,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -74,11 +75,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
+public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<WorkflowUISettingsDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
      * Whether nodes moved in the editor are aligned to the nearest grid point. 
@@ -130,7 +131,7 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
      * Internal constructor for subclasses.
      */
     DefaultWorkflowUISettingsDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -149,7 +150,7 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
         m_curvedConnections = builder.m_curvedConnections;
         m_connectionLineWidth = builder.m_connectionLineWidth;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -170,13 +171,13 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
         m_zoomLevel = toCopy.getZoomLevel();
         m_curvedConnections = toCopy.isCurvedConnections();
         m_connectionLineWidth = toCopy.getConnectionLineWidth();
-        if(toCopy instanceof DefaultWorkflowUISettingsDef){
-            var childTree = ((DefaultWorkflowUISettingsDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -195,7 +196,7 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
         m_curvedConnections = toCopy.isCurvedConnections();
         m_connectionLineWidth = toCopy.getConnectionLineWidth();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -220,21 +221,21 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(WorkflowUISettingsDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to WorkflowUISettingsDef.Attribute
-            return ((LoadExceptionTree<WorkflowUISettingsDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to WorkflowUISettingsDef.Attribute
+        return ((LoadExceptionTree<WorkflowUISettingsDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

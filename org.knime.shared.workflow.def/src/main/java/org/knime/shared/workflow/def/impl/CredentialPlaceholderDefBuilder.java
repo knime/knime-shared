@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * This is referred to as Workflow Credentials in KNIME. It allows defining placeholders for credentials, such as for accessing a database. When configuring a node that requires database access, the placeholder can be specified. When the workflow is executed, the user will be asked to provide the credentials fill in the placeholder.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class CredentialPlaceholderDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public CredentialPlaceholderDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -104,7 +125,7 @@ public class CredentialPlaceholderDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param name Identifies this placeholder. Must be unique in the scope of this workflow project.
+     * @param name Identifies this placeholder. Must be unique in the scope of this workflow project. 
      * @return this builder for fluent API.
      */ 
     public CredentialPlaceholderDefBuilder setName(final String name) {
@@ -112,6 +133,7 @@ public class CredentialPlaceholderDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -129,11 +151,18 @@ public class CredentialPlaceholderDefBuilder {
         m_exceptionalChildren.remove(CredentialPlaceholderDef.Attribute.NAME);
         try {
             m_name = name.get();
+
+            if(m_name == null) {
+                throw new IllegalArgumentException("name is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_name = defaultValue;
             m_exceptionalChildren.put(CredentialPlaceholderDef.Attribute.NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -142,7 +171,7 @@ public class CredentialPlaceholderDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param login The login name that is passed to the secured system.
+     * @param login The login name that is passed to the secured system. 
      * @return this builder for fluent API.
      */ 
     public CredentialPlaceholderDefBuilder setLogin(final String login) {
@@ -150,6 +179,7 @@ public class CredentialPlaceholderDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -167,11 +197,18 @@ public class CredentialPlaceholderDefBuilder {
         m_exceptionalChildren.remove(CredentialPlaceholderDef.Attribute.LOGIN);
         try {
             m_login = login.get();
+
+            if(m_login == null) {
+                throw new IllegalArgumentException("login is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_login = defaultValue;
             m_exceptionalChildren.put(CredentialPlaceholderDef.Attribute.LOGIN, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -184,6 +221,12 @@ public class CredentialPlaceholderDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultCredentialPlaceholderDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_name == null) setName( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_login == null) setLogin( null);
         
     	
         return new DefaultCredentialPlaceholderDef(this);

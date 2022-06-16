@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultFilestoreDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -65,16 +66,14 @@ public interface FilestoreDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
-         /**  
-          * How to resolve the linked Component/Metanode
-          *
+         /** 
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link FilestoreDef#getId} 
           */
          ID,
-         /**  
-          * How to resolve the linked Component/Metanode
-          *
+         /** 
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link FilestoreDef#getLocation} 
           */
@@ -84,14 +83,12 @@ public interface FilestoreDef {
     
 
   /**
-   * Example value: test
-   * @return How to resolve the linked Component/Metanode
+   * @return , never <code>null</code>
    **/
   public String getId();
 
   /**
-   * Example value: test
-   * @return How to resolve the linked Component/Metanode
+   * @return , never <code>null</code>
    **/
   public String getLocation();
 

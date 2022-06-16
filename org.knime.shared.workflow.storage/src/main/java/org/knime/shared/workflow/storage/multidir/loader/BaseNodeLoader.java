@@ -48,8 +48,6 @@
  */
 package org.knime.shared.workflow.storage.multidir.loader;
 
-import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_EMPTY_STRING;
-
 import java.util.Optional;
 import java.util.Random;
 
@@ -126,7 +124,7 @@ final class BaseNodeLoader {
     static NodeAnnotationDef loadAnnotation(final ConfigBaseRO nodeSettings, final LoadVersion workflowFormatVersion)
         throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V250)) {
-            var customName = nodeSettings.getString(IOConst.CUSTOM_NAME_KEY.get(), DEFAULT_EMPTY_STRING);
+            var customName = nodeSettings.getString(IOConst.CUSTOM_NAME_KEY.get(), null);
             var isDefault = customName == null;
             return new NodeAnnotationDefBuilder() //
                 .setAnnotationDefault(isDefault) //
@@ -220,14 +218,14 @@ final class BaseNodeLoader {
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
             if (!workflowConfig.containsKey(IOConst.CUSTOM_DESCRIPTION_KEY.get())) {
-                return DEFAULT_EMPTY_STRING;
+                return null;
             }
             return workflowConfig.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get());
         } else {
             // custom description was not saved in v2.5.0 (but again in v2.5.1)
             // see bug 3034
             if (!settings.containsKey(IOConst.CUSTOM_DESCRIPTION_KEY.get())) {
-                return DEFAULT_EMPTY_STRING;
+                return null;
             }
             return settings.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get());
         }
@@ -244,9 +242,6 @@ final class BaseNodeLoader {
         var symbolRelative = workflowFormatVersion.ordinal() >= LoadVersion.V230.ordinal();
         return new NodeUIInfoDefBuilder() //
             .setBounds(() -> loadBoundsDef(settings), DEFAULT_BOUNDS) //
-            //TODO What's the key of this? For the metanode loader we set it as null
-            .setHasAbsoluteCoordinates(settings.getBoolean("absolute_coordinates", false)) //
-            .setSymbolRelative(symbolRelative) //
             .build();
     }
 

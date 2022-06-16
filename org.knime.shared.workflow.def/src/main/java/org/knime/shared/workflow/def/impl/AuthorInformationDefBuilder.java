@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import java.time.OffsetDateTime;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * AuthorInformationDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class AuthorInformationDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public AuthorInformationDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -86,10 +107,10 @@ public class AuthorInformationDefBuilder {
     OffsetDateTime m_authoredWhen;
     
 
-    String m_lastEditedBy;
+    Optional<String> m_lastEditedBy = Optional.empty();
     
 
-    OffsetDateTime m_lastEditedWhen;
+    Optional<OffsetDateTime> m_lastEditedWhen = Optional.empty();
     
 
     /**
@@ -113,7 +134,7 @@ public class AuthorInformationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param authoredBy 
+     * @param authoredBy  
      * @return this builder for fluent API.
      */ 
     public AuthorInformationDefBuilder setAuthoredBy(final String authoredBy) {
@@ -121,6 +142,7 @@ public class AuthorInformationDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -138,11 +160,18 @@ public class AuthorInformationDefBuilder {
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.AUTHORED_BY);
         try {
             m_authoredBy = authoredBy.get();
+
+            if(m_authoredBy == null) {
+                throw new IllegalArgumentException("authoredBy is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_authoredBy = defaultValue;
             m_exceptionalChildren.put(AuthorInformationDef.Attribute.AUTHORED_BY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -151,7 +180,7 @@ public class AuthorInformationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param authoredWhen 
+     * @param authoredWhen  
      * @return this builder for fluent API.
      */ 
     public AuthorInformationDefBuilder setAuthoredWhen(final OffsetDateTime authoredWhen) {
@@ -159,6 +188,7 @@ public class AuthorInformationDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -176,11 +206,18 @@ public class AuthorInformationDefBuilder {
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.AUTHORED_WHEN);
         try {
             m_authoredWhen = authoredWhen.get();
+
+            if(m_authoredWhen == null) {
+                throw new IllegalArgumentException("authoredWhen is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_authoredWhen = defaultValue;
             m_exceptionalChildren.put(AuthorInformationDef.Attribute.AUTHORED_WHEN, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -189,7 +226,7 @@ public class AuthorInformationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param lastEditedBy 
+     * @param lastEditedBy  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AuthorInformationDefBuilder setLastEditedBy(final String lastEditedBy) {
@@ -197,8 +234,26 @@ public class AuthorInformationDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AuthorInformationDef.Attribute.LAST_EDITED_BY)} will return true and and
+     * {@code getExceptionalChildren().get(AuthorInformationDef.Attribute.LAST_EDITED_BY)} will return the exception.
+     * 
+     * @param lastEditedBy see {@link AuthorInformationDef#getLastEditedBy}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setLastEditedBy(String)
+     */
+    public AuthorInformationDefBuilder setLastEditedBy(final FallibleSupplier<String> lastEditedBy) {
+        setLastEditedBy(lastEditedBy, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AuthorInformationDef.Attribute.LAST_EDITED_BY)} will return true and and
      * {@code getExceptionalChildren().get(AuthorInformationDef.Attribute.LAST_EDITED_BY)} will return the exception.
@@ -213,12 +268,15 @@ public class AuthorInformationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.LAST_EDITED_BY);
         try {
-            m_lastEditedBy = lastEditedBy.get();
+            m_lastEditedBy = Optional.ofNullable(lastEditedBy.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_lastEditedBy = defaultValue;
+            m_lastEditedBy = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AuthorInformationDef.Attribute.LAST_EDITED_BY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -227,7 +285,7 @@ public class AuthorInformationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param lastEditedWhen 
+     * @param lastEditedWhen  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AuthorInformationDefBuilder setLastEditedWhen(final OffsetDateTime lastEditedWhen) {
@@ -235,8 +293,26 @@ public class AuthorInformationDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AuthorInformationDef.Attribute.LAST_EDITED_WHEN)} will return true and and
+     * {@code getExceptionalChildren().get(AuthorInformationDef.Attribute.LAST_EDITED_WHEN)} will return the exception.
+     * 
+     * @param lastEditedWhen see {@link AuthorInformationDef#getLastEditedWhen}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setLastEditedWhen(OffsetDateTime)
+     */
+    public AuthorInformationDefBuilder setLastEditedWhen(final FallibleSupplier<OffsetDateTime> lastEditedWhen) {
+        setLastEditedWhen(lastEditedWhen, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AuthorInformationDef.Attribute.LAST_EDITED_WHEN)} will return true and and
      * {@code getExceptionalChildren().get(AuthorInformationDef.Attribute.LAST_EDITED_WHEN)} will return the exception.
@@ -251,12 +327,15 @@ public class AuthorInformationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.LAST_EDITED_WHEN);
         try {
-            m_lastEditedWhen = lastEditedWhen.get();
+            m_lastEditedWhen = Optional.ofNullable(lastEditedWhen.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_lastEditedWhen = defaultValue;
+            m_lastEditedWhen = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AuthorInformationDef.Attribute.LAST_EDITED_WHEN, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -269,6 +348,12 @@ public class AuthorInformationDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultAuthorInformationDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_authoredBy == null) setAuthoredBy( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_authoredWhen == null) setAuthoredWhen( null);
         
     	
         return new DefaultAuthorInformationDef(this);

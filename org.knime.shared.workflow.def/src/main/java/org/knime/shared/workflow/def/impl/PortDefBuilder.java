@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.PortTypeDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * PortDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class PortDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public PortDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -85,7 +106,7 @@ public class PortDefBuilder {
 
     PortTypeDef m_portType;
     
-    String m_name;
+    Optional<String> m_name = Optional.empty();
     
 
     /**
@@ -108,7 +129,7 @@ public class PortDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param index the offset of the port relative to its siblings
+     * @param index the offset of the port relative to its siblings 
      * @return this builder for fluent API.
      */ 
     public PortDefBuilder setIndex(final Integer index) {
@@ -116,6 +137,7 @@ public class PortDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -133,11 +155,18 @@ public class PortDefBuilder {
         m_exceptionalChildren.remove(PortDef.Attribute.INDEX);
         try {
             m_index = index.get();
+
+            if(m_index == null) {
+                throw new IllegalArgumentException("index is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_index = defaultValue;
             m_exceptionalChildren.put(PortDef.Attribute.INDEX, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -146,7 +175,7 @@ public class PortDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param portType 
+     * @param portType  
      * @return this builder for fluent API.
      */ 
     public PortDefBuilder setPortType(final PortTypeDef portType) {
@@ -154,6 +183,7 @@ public class PortDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -171,6 +201,10 @@ public class PortDefBuilder {
         m_exceptionalChildren.remove(PortDef.Attribute.PORT_TYPE);
         try {
             m_portType = portType.get();
+
+            if(m_portType == null) {
+                throw new IllegalArgumentException("portType is required and must not be null.");
+            }
             if (m_portType instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_portType).hasExceptions()) {
                 m_exceptionalChildren.put(PortDef.Attribute.PORT_TYPE, (LoadExceptionTree<?>)m_portType);
             }
@@ -178,16 +212,19 @@ public class PortDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultPortTypeDef){
-                var childTree = ((DefaultPortTypeDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_portType = defaultValue;
             m_exceptionalChildren.put(PortDef.Attribute.PORT_TYPE, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -195,7 +232,7 @@ public class PortDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param name 
+     * @param name  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public PortDefBuilder setName(final String name) {
@@ -203,8 +240,26 @@ public class PortDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(PortDef.Attribute.NAME)} will return true and and
+     * {@code getExceptionalChildren().get(PortDef.Attribute.NAME)} will return the exception.
+     * 
+     * @param name see {@link PortDef#getName}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setName(String)
+     */
+    public PortDefBuilder setName(final FallibleSupplier<String> name) {
+        setName(name, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(PortDef.Attribute.NAME)} will return true and and
      * {@code getExceptionalChildren().get(PortDef.Attribute.NAME)} will return the exception.
@@ -219,12 +274,15 @@ public class PortDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortDef.Attribute.NAME);
         try {
-            m_name = name.get();
+            m_name = Optional.ofNullable(name.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_name = defaultValue;
+            m_name = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(PortDef.Attribute.NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -237,6 +295,12 @@ public class PortDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultPortDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_index == null) setIndex( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_portType == null) setPortType( null);
         
     	
         return new DefaultPortDef(this);

@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultWorkflowUISettingsDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * Whether nodes moved in the editor are aligned to the nearest grid point.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link WorkflowUISettingsDef#isSnapToGrid} 
           */
@@ -75,6 +77,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * Whether to show a grid in the workflow editor background.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link WorkflowUISettingsDef#isShowGrid} 
           */
@@ -82,6 +85,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * Horizontal spacing of grid lines.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link WorkflowUISettingsDef#getGridX} 
           */
@@ -89,6 +93,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * Vertical spacing of grid lines.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link WorkflowUISettingsDef#getGridY} 
           */
@@ -96,6 +101,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * The current magnification of the workflow in the workflow editor.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Double}.
           * Is is returned by {@link WorkflowUISettingsDef#getZoomLevel} 
           */
@@ -103,6 +109,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * Whether to use straight or curved segments to connect a connection&#39;s bend points.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link WorkflowUISettingsDef#isCurvedConnections} 
           */
@@ -110,6 +117,7 @@ public interface WorkflowUISettingsDef {
          /**  
           * The width of the lines connecting a workflow&#39;s nodes in the workflow editor.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link WorkflowUISettingsDef#getConnectionLineWidth} 
           */
@@ -119,39 +127,39 @@ public interface WorkflowUISettingsDef {
     
 
   /**
-   * @return Whether nodes moved in the editor are aligned to the nearest grid point.
+   * @return Whether nodes moved in the editor are aligned to the nearest grid point., never <code>null</code>
    **/
   public Boolean isSnapToGrid();
 
   /**
-   * @return Whether to show a grid in the workflow editor background.
+   * @return Whether to show a grid in the workflow editor background., never <code>null</code>
    **/
   public Boolean isShowGrid();
 
   /**
-   * @return Horizontal spacing of grid lines.
+   * @return Horizontal spacing of grid lines., never <code>null</code>
    **/
   public Integer getGridX();
 
   /**
-   * @return Vertical spacing of grid lines.
+   * @return Vertical spacing of grid lines., never <code>null</code>
    **/
   public Integer getGridY();
 
   /**
-   * @return The current magnification of the workflow in the workflow editor.
+   * @return The current magnification of the workflow in the workflow editor., never <code>null</code>
    **/
   public Double getZoomLevel();
 
   /**
-   * @return Whether to use straight or curved segments to connect a connection&#39;s bend points.
+   * @return Whether to use straight or curved segments to connect a connection&#39;s bend points., never <code>null</code>
    **/
   public Boolean isCurvedConnections();
 
   /**
    * minimum: 1
    * maximum: 3
-   * @return The width of the lines connecting a workflow&#39;s nodes in the workflow editor.
+   * @return The width of the lines connecting a workflow&#39;s nodes in the workflow editor., never <code>null</code>
    **/
   public Integer getConnectionLineWidth();
 

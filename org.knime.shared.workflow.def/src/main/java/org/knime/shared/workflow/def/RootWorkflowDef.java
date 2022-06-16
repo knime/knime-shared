@@ -53,6 +53,7 @@ import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultRootWorkflowDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -120,16 +121,19 @@ public interface RootWorkflowDef extends WorkflowDef {
          /**  
           * Allows to define workflow-global flow variables and set their values.
           *
+          * This is a required field.
           * The type of this data attribute is java.util.List&lt;FlowVariableDef&gt;.
           * Is is returned by {@link RootWorkflowDef#getFlowVariables} 
           */
          FLOW_VARIABLES,
          /** 
+          * This is a required field.
           * The type of this data attribute is java.util.List&lt;CredentialPlaceholderDef&gt;.
           * Is is returned by {@link RootWorkflowDef#getCredentialPlaceholders} 
           */
          CREDENTIAL_PLACEHOLDERS,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link WorkflowDef}.
           * Is is returned by {@link RootWorkflowDef#getWorkflow} 
           */
@@ -141,20 +145,20 @@ public interface RootWorkflowDef extends WorkflowDef {
   /**
    * @return 
    **/
-  public ConfigMapDef getTableBackendSettings();
+  public Optional<ConfigMapDef> getTableBackendSettings();
 
   /**
-   * @return Allows to define workflow-global flow variables and set their values.
+   * @return Allows to define workflow-global flow variables and set their values., never <code>null</code>
    **/
   public java.util.List<FlowVariableDef> getFlowVariables();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public java.util.List<CredentialPlaceholderDef> getCredentialPlaceholders();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public WorkflowDef getWorkflow();
 

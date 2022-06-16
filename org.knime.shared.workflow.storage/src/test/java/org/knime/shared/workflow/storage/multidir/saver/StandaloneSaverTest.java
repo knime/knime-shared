@@ -109,6 +109,11 @@ class StandaloneSaverTest {
             fail("couldn't load standalone " + dirName);
         }
 
+        if(standalone.getLoadExceptionTree().hasExceptions()) {
+            standalone.getLoadExceptionTree().getFlattenedLoadExceptions().forEach(Exception::printStackTrace);
+            fail("Loaded workflow has problems");
+        }
+
         // save
         var saver = new StandaloneSaver(standalone);
         saver.save(OUTPUT_DIR.getParentFile(), SaverTestUtils.OUTPUT_DIR_NAME);

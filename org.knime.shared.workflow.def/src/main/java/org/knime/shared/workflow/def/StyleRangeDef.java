@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultStyleRangeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -76,6 +77,7 @@ public interface StyleRangeDef {
           */
          COLOR,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link StyleRangeDef#getStart} 
           */
@@ -91,6 +93,7 @@ public interface StyleRangeDef {
           */
          FONT_STYLE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link StyleRangeDef#getLength} 
           */
@@ -102,30 +105,30 @@ public interface StyleRangeDef {
   /**
    * @return 
    **/
-  public Integer getFontSize();
+  public Optional<Integer> getFontSize();
 
   /**
    * @return 
    **/
-  public Integer getColor();
+  public Optional<Integer> getColor();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getStart();
 
   /**
    * @return 
    **/
-  public String getFontName();
+  public Optional<String> getFontName();
 
   /**
    * @return 
    **/
-  public Integer getFontStyle();
+  public Optional<Integer> getFontStyle();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getLength();
 

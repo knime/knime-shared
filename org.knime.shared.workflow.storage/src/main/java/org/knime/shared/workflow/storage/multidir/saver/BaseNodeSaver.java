@@ -83,18 +83,15 @@ abstract class BaseNodeSaver {
      */
     static BaseNodeSaver getInstance(final BaseNodeDef node, final CreatorDef creator) {
         var type = node.getNodeType();
-        if (type != null) {
-            switch (type) {
-                case NATIVENODE:
-                    return new NativeNodeSaver((NativeNodeDef)node);
-                case METANODE:
-                    return new MetaNodeSaver((MetaNodeDef)node, creator);
-                case COMPONENT:
-                    return new ComponentNodeSaver((ComponentNodeDef)node, creator);
-            }
-            throw new IllegalStateException("Unknown node type " + type.toString() + " -- cannot instantiate saver");
+        switch (type) {
+            case NATIVENODE:
+                return new NativeNodeSaver((NativeNodeDef)node);
+            case METANODE:
+                return new MetaNodeSaver((MetaNodeDef)node, creator);
+            case COMPONENT:
+                return new ComponentNodeSaver((ComponentNodeDef)node, creator);
         }
-        throw new IllegalStateException("Node type cannot be null of node with id " + node.getId());
+        throw new IllegalStateException("Unknown node type " + type.toString() + " -- cannot instantiate saver");
     }
 
     /**
@@ -113,8 +110,9 @@ abstract class BaseNodeSaver {
      * @param nodeSettings The {@link ConfigBase} of the settings.xml (or workflow.knime in case of meta node) file
      */
     void addNodeSettings(final ConfigBase nodeSettings) {
-        SaverUtils.addAnnotationData(nodeSettings, m_baseNode.getAnnotation());
-        nodeSettings.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), m_baseNode.getCustomDescription());
+        m_baseNode.getAnnotation().ifPresent(anno -> SaverUtils.addAnnotationData(nodeSettings, anno));
+        m_baseNode.getCustomDescription()
+            .ifPresent(desc -> nodeSettings.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), desc));
         addJobManager(nodeSettings);
         addLocks(nodeSettings);
     }
@@ -131,30 +129,32 @@ abstract class BaseNodeSaver {
             SaverUtils.nodeTypeString.get(nodeType));
         parentWorkflowNodeSettings.addBoolean(IOConst.WORKFLOW_NODES_NODE_IS_META_KEY.get(),
             SaverUtils.isNodeTypeMeta.get(nodeType));
-        SaverUtils.addUiInfo(parentWorkflowNodeSettings, m_baseNode.getUiInfo());
+        m_baseNode.getUiInfo().ifPresent(uiInfo -> SaverUtils.addUiInfo(parentWorkflowNodeSettings, uiInfo));
     }
 
     private void addLocks(final ConfigBase nodeSettings) {
         // no sonar here because we assume the Boolean values to be non-null. Suppressing rule java:S5411.
         var nodeLocks = m_baseNode.getLocks();
-        if (nodeLocks.hasConfigureLock()) {//NOSONAR
-            nodeSettings.addBoolean(IOConst.HAS_CONFIGURE_LOCK_KEY.get(), true);
-        }
-        if (!nodeLocks.hasDeleteLock()) {//NOSONAR
-            nodeSettings.addBoolean(IOConst.IS_DELETABLE_KEY.get(), true);
-        }
-        if (nodeLocks.hasResetLock()) {//NOSONAR
-            nodeSettings.addBoolean(IOConst.HAS_RESET_LOCK_KEY.get(), true);
+        if (nodeLocks.isPresent()) {
+            if (nodeLocks.get().hasConfigureLock()) {//NOSONAR
+                nodeSettings.addBoolean(IOConst.HAS_CONFIGURE_LOCK_KEY.get(), true);
+            }
+            if (!nodeLocks.get().hasDeleteLock()) {//NOSONAR
+                nodeSettings.addBoolean(IOConst.IS_DELETABLE_KEY.get(), true);
+            }
+            if (nodeLocks.get().hasResetLock()) {//NOSONAR
+                nodeSettings.addBoolean(IOConst.HAS_RESET_LOCK_KEY.get(), true);
+            }
         }
     }
 
     private void addJobManager(final ConfigBase nodeSettings) {
         var jobManager = m_baseNode.getJobManager();
-        if (jobManager.getSettings() != null) {
+        if (jobManager.isPresent()) {
             var jobManagerSettings = new SimpleConfig(IOConst.JOB_MANAGER_KEY.get());
-            jobManagerSettings.addString(IOConst.JOB_MANAGER_FACTORY_ID_KEY.get(), jobManager.getFactory());
-            jobManagerSettings
-                .addEntry(SaverUtils.toConfigEntry(jobManager.getSettings(), IOConst.JOB_MANAGER_SETTINGS_KEY.get()));
+            jobManagerSettings.addString(IOConst.JOB_MANAGER_FACTORY_ID_KEY.get(), jobManager.get().getFactory());
+            jobManager.get().getSettings().ifPresent(sett -> jobManagerSettings
+                .addEntry(SaverUtils.toConfigEntry(sett, IOConst.JOB_MANAGER_SETTINGS_KEY.get())));
             nodeSettings.addEntry(jobManagerSettings);
         }
     }

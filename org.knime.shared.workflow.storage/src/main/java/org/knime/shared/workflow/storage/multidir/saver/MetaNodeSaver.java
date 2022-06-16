@@ -102,9 +102,7 @@ final class MetaNodeSaver extends BaseNodeSaver {
     @Override
     void addNodeSettings(final ConfigBase nodeSettings) {
         super.addNodeSettings(nodeSettings);
-        if (m_metaNode.getLink().getUri() != null) {
-            SaverUtils.addTemplateInfo(nodeSettings, m_metaNode.getLink(), m_metaNode.getNodeType());
-        }
+        SaverUtils.addTemplateInfo(nodeSettings, m_metaNode.getTemplateLink(), m_metaNode.getTemplateMetadata(), m_metaNode.getNodeType());
         addMetaInports(nodeSettings);
         addMetaOutports(nodeSettings);
     }
@@ -114,9 +112,10 @@ final class MetaNodeSaver extends BaseNodeSaver {
             return;
         }
         var metaInPorts = new SimpleConfig(IOConst.META_IN_PORTS_KEY.get());
-        SaverUtils.addUiInfo(metaInPorts, m_metaNode.getInPortsBarUIInfo());
+        m_metaNode.getInPortsBarUIInfo().ifPresent(info -> SaverUtils.addUiInfo(metaInPorts, info));
         var portEnum = new SimpleConfig(IOConst.PORT_ENUM_KEY.get());
-        m_metaNode.getInPorts().forEach(p -> SaverUtils.addPort(portEnum, IOConst.INPORT_PREFIX.get(), p));
+        m_metaNode.getInPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(portEnum, IOConst.INPORT_PREFIX.get(), p)));
         metaInPorts.addEntry(portEnum);
         nodeSettings.addEntry(metaInPorts);
     }
@@ -126,9 +125,10 @@ final class MetaNodeSaver extends BaseNodeSaver {
             return;
         }
         var metaOutPorts = new SimpleConfig(IOConst.META_OUT_PORTS_KEY.get());
-        SaverUtils.addUiInfo(metaOutPorts, m_metaNode.getOutPortsBarUIInfo());
+        m_metaNode.getOutPortsBarUIInfo().ifPresent(uiInfo -> SaverUtils.addUiInfo(metaOutPorts, uiInfo));
         var portEnum = new SimpleConfig(IOConst.PORT_ENUM_KEY.get());
-        m_metaNode.getOutPorts().forEach(p -> SaverUtils.addPort(portEnum, IOConst.OUTPORT_PREFIX.get(), p));
+        m_metaNode.getOutPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(portEnum, IOConst.OUTPORT_PREFIX.get(), p)));
         metaOutPorts.addEntry(portEnum);
         nodeSettings.addEntry(metaOutPorts);
     }

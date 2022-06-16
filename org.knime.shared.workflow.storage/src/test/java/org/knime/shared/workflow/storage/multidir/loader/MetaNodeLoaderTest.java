@@ -54,6 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,7 +81,7 @@ class MetaNodeLoaderTest {
     }
 
     @Test
-    void templateMetaNodetLoaderTest() throws InvalidSettingsException, IOException {
+    void templateMetaNodeLoaderTest() throws InvalidSettingsException, IOException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Metanode_Template");
 
@@ -95,30 +96,29 @@ class MetaNodeLoaderTest {
         // Assert MetaNodeLoader
         assertThat(metanodeDef.getInPorts()).isEmpty();
         assertThat(metanodeDef.getOutPorts()).isEmpty();
-        assertThat(metanodeDef.getInPortsBarUIInfo()).isNotNull();
-        assertThat(metanodeDef.getOutPortsBarUIInfo()).isNotNull();
-        assertThat(metanodeDef.getLink().getUpdatedAt().getMonthValue()).isEqualTo(1);
-        assertThat(metanodeDef.getLink().getUri()).isNull();
+        assertThat(metanodeDef.getInPortsBarUIInfo()).isPresent();
+        assertThat(metanodeDef.getOutPortsBarUIInfo()).isPresent();
+        assertThat(metanodeDef.getTemplateLink().get().getVersion().getMonthValue()).isEqualTo(1);
+        assertThat(metanodeDef.getTemplateLink().get().getUri()).isNull();
         assertThat(metanodeDef.getWorkflow()).isNotNull();
-        assertThat(metanodeDef.getWorkflow().getNodes()).hasSize(1);
+        assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(1);
 
         // Assert NodeLoader
         assertThat(metanodeDef.getId()).isEqualTo(1);
-        assertThat(metanodeDef.getAnnotation().getData()).isNull();
-        assertThat(metanodeDef.getCustomDescription()).isNull();
+        assertThat(metanodeDef.getAnnotation().get().getData()).isEmpty();
+        assertThat(metanodeDef.getCustomDescription()).isEmpty();
         assertThat(metanodeDef.getJobManager()).isNotNull();
-        assertThat(metanodeDef.getLocks()) //
+        assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(metanodeDef.getUiInfo()).extracting(n -> n.hasAbsoluteCoordinates(), n -> n.isSymbolRelative(),
-            n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
+        assertThat(metanodeDef.getUiInfo().get())
+            .extracting(n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
             .containsNull();
-     // TODO enable when load handling is fixed
-//        assertThat(metanodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 
     @Test
-    void linkMetaNodetLoaderTest() throws IOException, InvalidSettingsException {
+    void linkMetaNodeLoaderTest() throws IOException, InvalidSettingsException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/MetanodeTest (#12)");
 
@@ -136,30 +136,30 @@ class MetaNodeLoaderTest {
         // then
 
         // Assert MetaNodeLoader
-        assertThat(metanodeDef.getInPorts())
+        assertThat(metanodeDef.getInPorts().get())
             .extracting(p -> p.getIndex(), p -> p.getName(),
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
-            .contains(tuple(0, "Inport 0", true));
-        assertThat(metanodeDef.getOutPorts())
+            .contains(tuple(0, Optional.of("Inport 0"), true));
+        assertThat(metanodeDef.getOutPorts().get())
             .extracting(p -> p.getIndex(), p -> p.getName(),
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
-            .contains(tuple(0, "Connected to: Concatenated table", true),
-                tuple(1, "Connected to: Concatenated table", true));
-        assertThat(metanodeDef.getInPortsBarUIInfo()).isInstanceOf(NodeUIInfoDef.class);
-        assertThat(metanodeDef.getOutPortsBarUIInfo()).isInstanceOf(NodeUIInfoDef.class);
-        assertThat(metanodeDef.getLink().getUpdatedAt().getYear()).isEqualTo(2022);
-        assertThat(metanodeDef.getLink().getUri()).isEqualTo("knime://knime.mountpoint/MetanodeTest");
-        assertThat(metanodeDef.getWorkflow().getNodes()).hasSize(4);
+            .contains(tuple(0, Optional.of("Connected to: Concatenated table"), true),
+                tuple(1, Optional.of("Connected to: Concatenated table"), true));
+        assertThat(metanodeDef.getInPortsBarUIInfo().get()).isInstanceOf(NodeUIInfoDef.class);
+        assertThat(metanodeDef.getOutPortsBarUIInfo().get()).isInstanceOf(NodeUIInfoDef.class);
+        assertThat(metanodeDef.getTemplateLink().get().getVersion().getYear()).isEqualTo(2022);
+        assertThat(metanodeDef.getTemplateLink().get().getUri()).isEqualTo("knime://knime.mountpoint/MetanodeTest");
+        assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(4);
 
         // Assert NodeLoader
         assertThat(metanodeDef.getId()).isEqualTo(431);
-        assertThat(metanodeDef.getAnnotation()).isInstanceOf(NodeAnnotationDef.class);
-        assertThat(metanodeDef.getCustomDescription()).isNull();
-        assertThat(metanodeDef.getJobManager()).isInstanceOf(JobManagerDef.class);
-        assertThat(metanodeDef.getLocks()) //
+        assertThat(metanodeDef.getAnnotation().get()).isInstanceOf(NodeAnnotationDef.class);
+        assertThat(metanodeDef.getCustomDescription()).isEmpty();
+        assertThat(metanodeDef.getJobManager().get()).isInstanceOf(JobManagerDef.class);
+        assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(metanodeDef.getUiInfo()).extracting(n -> n.getBounds().getLocation().getX(),
+        assertThat(metanodeDef.getUiInfo().get()).extracting(n -> n.getBounds().getLocation().getX(),
             n -> n.getBounds().getLocation().getY(), n -> n.getBounds().getHeight(), n -> n.getBounds().getWidth())
             .containsExactly(2541, 1117, 122, 65);
         // TODO enable when load handling is fixed

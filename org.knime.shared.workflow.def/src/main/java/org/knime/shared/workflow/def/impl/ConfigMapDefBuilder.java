@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.impl.ConfigDefBuilder;
@@ -57,6 +58,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * ConfigMapDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -65,6 +68,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ConfigMapDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ConfigMapDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -117,7 +138,7 @@ public class ConfigMapDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param configType Discriminator for inheritance. Must be the base name of this type/schema.
+     * @param configType Discriminator for inheritance. Must be the base name of this type/schema. 
      * @return this builder for fluent API.
      */ 
     public ConfigMapDefBuilder setConfigType(final String configType) {
@@ -125,6 +146,7 @@ public class ConfigMapDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -151,6 +173,9 @@ public class ConfigMapDefBuilder {
                                      
             m_configType = defaultValue;
             m_exceptionalChildren.put(ConfigMapDef.Attribute.CONFIG_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -159,7 +184,7 @@ public class ConfigMapDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param key 
+     * @param key  
      * @return this builder for fluent API.
      */ 
     public ConfigMapDefBuilder setKey(final String key) {
@@ -167,6 +192,7 @@ public class ConfigMapDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -184,11 +210,18 @@ public class ConfigMapDefBuilder {
         m_exceptionalChildren.remove(ConfigMapDef.Attribute.KEY);
         try {
             m_key = key.get();
+
+            if(m_key == null) {
+                throw new IllegalArgumentException("key is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_key = defaultValue;
             m_exceptionalChildren.put(ConfigMapDef.Attribute.KEY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -209,6 +242,7 @@ public class ConfigMapDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -229,12 +263,19 @@ public class ConfigMapDefBuilder {
         m_exceptionalChildren.remove(ConfigMapDef.Attribute.CHILDREN);
         try {
             m_childrenBulkElements = children.get();
+
+            if(m_children == null) {
+                throw new IllegalArgumentException("children is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
             m_childrenBulkElements = java.util.Map.of();
             // merged together with map element exceptions into a single LoadExceptionTree in #build()
             m_childrenContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -265,6 +306,9 @@ public class ConfigMapDefBuilder {
             var supplyException = new LoadException(e);
             // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
             toPut = DefaultConfigDef.withException(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
         m_children.put(key, toPut);
         return this;
@@ -280,8 +324,14 @@ public class ConfigMapDefBuilder {
 	 */
     public DefaultConfigMapDef build() {
         
-        // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
-        if(m_configType == null) setConfigType(null);
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_configType == null) setConfigType( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_key == null) setKey( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_children == null) setChildren(() ->  null);
         
     	
         // contains the elements set with #setChildren (those added with #addToChildren have already been inserted into m_children)

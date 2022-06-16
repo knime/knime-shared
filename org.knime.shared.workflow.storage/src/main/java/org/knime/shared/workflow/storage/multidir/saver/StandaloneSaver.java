@@ -51,15 +51,19 @@ package org.knime.shared.workflow.storage.multidir.saver;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.node.config.base.XMLConfig;
+import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.shared.workflow.def.ComponentNodeDef;
+import org.knime.shared.workflow.def.CreatorDef;
 import org.knime.shared.workflow.def.MetaNodeDef;
 import org.knime.shared.workflow.def.RootWorkflowDef;
 import org.knime.shared.workflow.def.StandaloneDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
+import org.knime.shared.workflow.def.impl.CreatorDefBuilder;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 
@@ -69,6 +73,15 @@ import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
  * @author Jasper Krauter, KNIME GmbH, Konstanz, Germany
  */
 public final class StandaloneSaver {
+
+    /**
+     * Def-content could theoretically be created by third parties. In this case we assume it follows the latest stable
+     * format.
+     */
+    static final CreatorDef DEFAULT_CREATOR = new CreatorDefBuilder()//
+        .setNightly(false)//
+        .setSavedWithVersion(LoadVersion.latest().toString())//
+        .build();
 
     private final StandaloneDef m_standalone;
 
@@ -109,30 +122,38 @@ public final class StandaloneSaver {
 
     private void saveRootWorkflow(final File workflowDirectory) throws IOException {
         var workflow = (RootWorkflowDef)m_standalone.getContents();
-        var workflowSaver = new WorkflowSaver(workflow, m_standalone.getCreator());
+        var workflowSaver = new WorkflowSaver(workflow, m_standalone.getCreator().orElse(DEFAULT_CREATOR));
         workflowSaver.save(workflowDirectory, s -> {
-            if (workflow.getTableBackendSettings() != null) {
-                s.addEntry(
-                    SaverUtils.toConfigEntry(workflow.getTableBackendSettings(), IOConst.TABLE_BACKEND_KEY.get()));
-            }
+            workflow.getTableBackendSettings().ifPresent(
+                configDef -> s.addEntry(SaverUtils.toConfigEntry(configDef, IOConst.TABLE_BACKEND_KEY.get())));
             SaverUtils.addFlowVariables(s, workflow.getFlowVariables());
             SaverUtils.addCredentials(s, workflow.getCredentialPlaceholders());
         });
     }
 
-    private void saveComponentNode(final File standaloneDirectory) throws IOException {
+    private void saveComponentNode(final File componentDirectory) throws IOException {
         var componentNode = (ComponentNodeDef)m_standalone.getContents();
-        var componentNodeSaver = new ComponentNodeSaver(componentNode, m_standalone.getCreator());
-        componentNodeSaver.save(standaloneDirectory, null,
-            s -> SaverUtils.addTemplateInfo(s, componentNode.getTemplateInfo(), componentNode.getNodeType()));
-        saveTemplateFile(standaloneDirectory, componentNode.getTemplateInfo(), NodeTypeEnum.COMPONENT);
+
+        var componentNodeSaver =
+            new ComponentNodeSaver(componentNode, m_standalone.getCreator().orElse(DEFAULT_CREATOR));
+        componentNodeSaver.save(componentDirectory, null,
+            s -> SaverUtils.addTemplateInfo(s, componentNode.getTemplateLink(), componentNode.getTemplateMetadata(),
+                componentNode.getNodeType()));
+
+        if (componentNode.getTemplateMetadata().isPresent()) {
+            saveTemplateFile(componentDirectory, componentNode.getTemplateMetadata().get(), NodeTypeEnum.COMPONENT); //NOSONAR
+        }
     }
 
     private void saveMetaNode(final File standaloneDirectory) throws IOException {
         var metaNode = (MetaNodeDef)m_standalone.getContents();
-        var metaNodeSaver = new MetaNodeSaver(metaNode, m_standalone.getCreator());
+
+        var metaNodeSaver = new MetaNodeSaver(metaNode, m_standalone.getCreator().orElse(DEFAULT_CREATOR));
         metaNodeSaver.save(standaloneDirectory, null);
-        saveTemplateFile(standaloneDirectory, metaNode.getLink(), NodeTypeEnum.METANODE);
+
+        if(metaNode.getTemplateMetadata().isPresent()) {
+            saveTemplateFile(standaloneDirectory, metaNode.getTemplateMetadata().get(), NodeTypeEnum.METANODE); //NOSONAR
+        }
     }
 
     /**
@@ -140,15 +161,15 @@ public final class StandaloneSaver {
      * timestamp that is used to check for updates
      *
      * @param directory
-     * @param templateInfo
+     * @param templateMetadata
      * @param nodeType
      * @throws IOException
      */
-    private void saveTemplateFile(final File directory, final TemplateInfoDef templateInfo, final NodeTypeEnum nodeType)
-        throws IOException {
+    private void saveTemplateFile(final File directory, final TemplateMetadataDef templateMetadata,
+        final NodeTypeEnum nodeType) throws IOException {
         var templateConfig = new SimpleConfig(IOConst.TEMPLATE_CONFIG_KEY.get());
-        SaverUtils.addCreatorInfo(templateConfig, m_standalone.getCreator());
-        SaverUtils.addTemplateInfo(templateConfig, templateInfo, nodeType);
+        m_standalone.getCreator().ifPresent(creator -> SaverUtils.addCreatorInfo(templateConfig, creator));
+        SaverUtils.addTemplateInfo(templateConfig, Optional.empty(), Optional.of(templateMetadata), nodeType);
 
         // flush template.knime
         try (var fos = new FileOutputStream(new File(directory, IOConst.TEMPLATE_FILE_NAME.get()))) {

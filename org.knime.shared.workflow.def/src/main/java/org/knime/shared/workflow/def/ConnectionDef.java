@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConnectionUISettingsDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConnectionDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -67,26 +68,31 @@ public interface ConnectionDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ConnectionDef#getSourceID} 
           */
          SOURCE_ID,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ConnectionDef#getDestID} 
           */
          DEST_ID,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ConnectionDef#getSourcePort} 
           */
          SOURCE_PORT,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ConnectionDef#getDestPort} 
           */
          DEST_PORT,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link ConnectionDef#isDeletable} 
           */
@@ -101,34 +107,34 @@ public interface ConnectionDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getSourceID();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getDestID();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getSourcePort();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getDestPort();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Boolean isDeletable();
 
   /**
    * @return 
    **/
-  public ConnectionUISettingsDef getUiSettings();
+  public Optional<ConnectionUISettingsDef> getUiSettings();
 
 
 }

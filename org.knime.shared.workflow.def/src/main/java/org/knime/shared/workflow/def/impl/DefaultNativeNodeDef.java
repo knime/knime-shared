@@ -72,6 +72,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -82,13 +83,16 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements NativeNodeDef {
+public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements NativeNodeDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<NativeNodeDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
-    /** Example value: Table Creator
+    /** 
+     * Describes and identifies the node in the node repository 
+     * 
+     * Example value: Table Creator
      */
     @JsonProperty("nodeName")
     protected String m_nodeName;
@@ -102,7 +106,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     protected String m_factory;
 
     @JsonProperty("factorySettings")
-    protected ConfigMapDef m_factorySettings;
+    protected Optional<ConfigMapDef> m_factorySettings;
 
     @JsonProperty("feature")
     protected VendorDef m_feature;
@@ -111,10 +115,10 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     protected VendorDef m_bundle;
 
     @JsonProperty("nodeCreationConfig")
-    protected ConfigMapDef m_nodeCreationConfig;
+    protected Optional<ConfigMapDef> m_nodeCreationConfig;
 
     @JsonProperty("filestore")
-    protected FilestoreDef m_filestore;
+    protected Optional<FilestoreDef> m_filestore;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -124,7 +128,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
      * Internal constructor for subclasses.
      */
     DefaultNativeNodeDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -153,7 +157,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         m_nodeCreationConfig = builder.m_nodeCreationConfig;
         m_filestore = builder.m_filestore;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -184,13 +188,13 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         m_bundle = toCopy.getBundle();
         m_nodeCreationConfig = toCopy.getNodeCreationConfig();
         m_filestore = toCopy.getFilestore();
-        if(toCopy instanceof DefaultNativeNodeDef){
-            var childTree = ((DefaultNativeNodeDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -219,7 +223,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         m_nodeCreationConfig = toCopy.getNodeCreationConfig();
         m_filestore = toCopy.getFilestore();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -244,21 +248,21 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(NativeNodeDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to NativeNodeDef.Attribute
-            return ((LoadExceptionTree<NativeNodeDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to NativeNodeDef.Attribute
+        return ((LoadExceptionTree<NativeNodeDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -274,35 +278,35 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         return m_nodeType;
     }
     @Override
-    public String getCustomDescription() {
+    public Optional<String> getCustomDescription() {
         return m_customDescription;
     }
     @Override
-    public NodeAnnotationDef getAnnotation() {
+    public Optional<NodeAnnotationDef> getAnnotation() {
         return m_annotation;
     }
     @Override
-    public NodeUIInfoDef getUiInfo() {
+    public Optional<NodeUIInfoDef> getUiInfo() {
         return m_uiInfo;
     }
     @Override
-    public NodeLocksDef getLocks() {
+    public Optional<NodeLocksDef> getLocks() {
         return m_locks;
     }
     @Override
-    public JobManagerDef getJobManager() {
+    public Optional<JobManagerDef> getJobManager() {
         return m_jobManager;
     }
     @Override
-    public ConfigMapDef getModelSettings() {
+    public Optional<ConfigMapDef> getModelSettings() {
         return m_modelSettings;
     }
     @Override
-    public ConfigMapDef getInternalNodeSubSettings() {
+    public Optional<ConfigMapDef> getInternalNodeSubSettings() {
         return m_internalNodeSubSettings;
     }
     @Override
-    public ConfigMapDef getVariableSettings() {
+    public Optional<ConfigMapDef> getVariableSettings() {
         return m_variableSettings;
     }
     @Override
@@ -314,7 +318,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         return m_factory;
     }
     @Override
-    public ConfigMapDef getFactorySettings() {
+    public Optional<ConfigMapDef> getFactorySettings() {
         return m_factorySettings;
     }
     @Override
@@ -326,11 +330,11 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
         return m_bundle;
     }
     @Override
-    public ConfigMapDef getNodeCreationConfig() {
+    public Optional<ConfigMapDef> getNodeCreationConfig() {
         return m_nodeCreationConfig;
     }
     @Override
-    public FilestoreDef getFilestore() {
+    public Optional<FilestoreDef> getFilestore() {
         return m_filestore;
     }
     
@@ -384,8 +388,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultNodeAnnotationDef> getFaultyAnnotation(){
     	final var annotation = getAnnotation(); 
-        if(annotation instanceof DefaultNodeAnnotationDef && ((DefaultNodeAnnotationDef)annotation).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultNodeAnnotationDef)annotation);
+        if(LoadExceptionTreeProvider.hasExceptions(annotation)) {
+            return Optional.of((DefaultNodeAnnotationDef)annotation.get());
         }
     	return Optional.empty();
     }
@@ -407,8 +411,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultNodeUIInfoDef> getFaultyUiInfo(){
     	final var uiInfo = getUiInfo(); 
-        if(uiInfo instanceof DefaultNodeUIInfoDef && ((DefaultNodeUIInfoDef)uiInfo).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultNodeUIInfoDef)uiInfo);
+        if(LoadExceptionTreeProvider.hasExceptions(uiInfo)) {
+            return Optional.of((DefaultNodeUIInfoDef)uiInfo.get());
         }
     	return Optional.empty();
     }
@@ -430,8 +434,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultNodeLocksDef> getFaultyLocks(){
     	final var locks = getLocks(); 
-        if(locks instanceof DefaultNodeLocksDef && ((DefaultNodeLocksDef)locks).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultNodeLocksDef)locks);
+        if(LoadExceptionTreeProvider.hasExceptions(locks)) {
+            return Optional.of((DefaultNodeLocksDef)locks.get());
         }
     	return Optional.empty();
     }
@@ -453,8 +457,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultJobManagerDef> getFaultyJobManager(){
     	final var jobManager = getJobManager(); 
-        if(jobManager instanceof DefaultJobManagerDef && ((DefaultJobManagerDef)jobManager).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultJobManagerDef)jobManager);
+        if(LoadExceptionTreeProvider.hasExceptions(jobManager)) {
+            return Optional.of((DefaultJobManagerDef)jobManager.get());
         }
     	return Optional.empty();
     }
@@ -476,8 +480,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyModelSettings(){
     	final var modelSettings = getModelSettings(); 
-        if(modelSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)modelSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)modelSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(modelSettings)) {
+            return Optional.of((DefaultConfigMapDef)modelSettings.get());
         }
     	return Optional.empty();
     }
@@ -499,8 +503,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyInternalNodeSubSettings(){
     	final var internalNodeSubSettings = getInternalNodeSubSettings(); 
-        if(internalNodeSubSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)internalNodeSubSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)internalNodeSubSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(internalNodeSubSettings)) {
+            return Optional.of((DefaultConfigMapDef)internalNodeSubSettings.get());
         }
     	return Optional.empty();
     }
@@ -522,8 +526,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyVariableSettings(){
     	final var variableSettings = getVariableSettings(); 
-        if(variableSettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)variableSettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)variableSettings);
+        if(LoadExceptionTreeProvider.hasExceptions(variableSettings)) {
+            return Optional.of((DefaultConfigMapDef)variableSettings.get());
         }
     	return Optional.empty();
     }
@@ -565,8 +569,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyFactorySettings(){
     	final var factorySettings = getFactorySettings(); 
-        if(factorySettings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)factorySettings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)factorySettings);
+        if(LoadExceptionTreeProvider.hasExceptions(factorySettings)) {
+            return Optional.of((DefaultConfigMapDef)factorySettings.get());
         }
     	return Optional.empty();
     }
@@ -588,7 +592,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultVendorDef> getFaultyFeature(){
     	final var feature = getFeature(); 
-        if(feature instanceof DefaultVendorDef && ((DefaultVendorDef)feature).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(feature)) {
             return Optional.of((DefaultVendorDef)feature);
         }
     	return Optional.empty();
@@ -611,7 +615,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultVendorDef> getFaultyBundle(){
     	final var bundle = getBundle(); 
-        if(bundle instanceof DefaultVendorDef && ((DefaultVendorDef)bundle).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(bundle)) {
             return Optional.of((DefaultVendorDef)bundle);
         }
     	return Optional.empty();
@@ -634,8 +638,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultyNodeCreationConfig(){
     	final var nodeCreationConfig = getNodeCreationConfig(); 
-        if(nodeCreationConfig instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)nodeCreationConfig).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)nodeCreationConfig);
+        if(LoadExceptionTreeProvider.hasExceptions(nodeCreationConfig)) {
+            return Optional.of((DefaultConfigMapDef)nodeCreationConfig.get());
         }
     	return Optional.empty();
     }
@@ -657,8 +661,8 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     @JsonIgnore
     public Optional<DefaultFilestoreDef> getFaultyFilestore(){
     	final var filestore = getFilestore(); 
-        if(filestore instanceof DefaultFilestoreDef && ((DefaultFilestoreDef)filestore).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultFilestoreDef)filestore);
+        if(LoadExceptionTreeProvider.hasExceptions(filestore)) {
+            return Optional.of((DefaultFilestoreDef)filestore.get());
         }
     	return Optional.empty();
     }

@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * PortTypeDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class PortTypeDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public PortTypeDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -82,19 +103,19 @@ public class PortTypeDefBuilder {
     String m_portObjectClass;
     
 
-    String m_portObjectSpecClass;
+    Optional<String> m_portObjectSpecClass = Optional.empty();
     
 
-    Integer m_color;
+    Optional<Integer> m_color = Optional.empty();
     
 
-    Boolean m_hidden;
+    Boolean m_hidden = false;
     
 
-    Boolean m_optional;
+    Boolean m_optional = false;
     
 
-    String m_name;
+    Optional<String> m_name = Optional.empty();
     
 
     /**
@@ -120,7 +141,7 @@ public class PortTypeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param portObjectClass the class of the port object this port type is associated with
+     * @param portObjectClass the class of the port object this port type is associated with 
      * @return this builder for fluent API.
      */ 
     public PortTypeDefBuilder setPortObjectClass(final String portObjectClass) {
@@ -128,6 +149,7 @@ public class PortTypeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -145,11 +167,18 @@ public class PortTypeDefBuilder {
         m_exceptionalChildren.remove(PortTypeDef.Attribute.PORT_OBJECT_CLASS);
         try {
             m_portObjectClass = portObjectClass.get();
+
+            if(m_portObjectClass == null) {
+                throw new IllegalArgumentException("portObjectClass is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_portObjectClass = defaultValue;
             m_exceptionalChildren.put(PortTypeDef.Attribute.PORT_OBJECT_CLASS, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -158,7 +187,7 @@ public class PortTypeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param portObjectSpecClass Returns the class of the port object spec.
+     * @param portObjectSpecClass Returns the class of the port object spec. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public PortTypeDefBuilder setPortObjectSpecClass(final String portObjectSpecClass) {
@@ -166,8 +195,26 @@ public class PortTypeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS)} will return true and and
+     * {@code getExceptionalChildren().get(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS)} will return the exception.
+     * 
+     * @param portObjectSpecClass see {@link PortTypeDef#getPortObjectSpecClass}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setPortObjectSpecClass(String)
+     */
+    public PortTypeDefBuilder setPortObjectSpecClass(final FallibleSupplier<String> portObjectSpecClass) {
+        setPortObjectSpecClass(portObjectSpecClass, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS)} will return true and and
      * {@code getExceptionalChildren().get(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS)} will return the exception.
@@ -182,12 +229,15 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS);
         try {
-            m_portObjectSpecClass = portObjectSpecClass.get();
+            m_portObjectSpecClass = Optional.ofNullable(portObjectSpecClass.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_portObjectSpecClass = defaultValue;
+            m_portObjectSpecClass = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -196,7 +246,7 @@ public class PortTypeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param color 
+     * @param color  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public PortTypeDefBuilder setColor(final Integer color) {
@@ -204,8 +254,26 @@ public class PortTypeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(PortTypeDef.Attribute.COLOR)} will return true and and
+     * {@code getExceptionalChildren().get(PortTypeDef.Attribute.COLOR)} will return the exception.
+     * 
+     * @param color see {@link PortTypeDef#getColor}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setColor(Integer)
+     */
+    public PortTypeDefBuilder setColor(final FallibleSupplier<Integer> color) {
+        setColor(color, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(PortTypeDef.Attribute.COLOR)} will return true and and
      * {@code getExceptionalChildren().get(PortTypeDef.Attribute.COLOR)} will return the exception.
@@ -220,12 +288,15 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.COLOR);
         try {
-            m_color = color.get();
+            m_color = Optional.ofNullable(color.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_color = defaultValue;
+            m_color = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(PortTypeDef.Attribute.COLOR, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -234,7 +305,7 @@ public class PortTypeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param hidden whether to short this port to users, e.g., in dialogs
+     * @param hidden whether to short this port to users, e.g., in dialogs 
      * @return this builder for fluent API.
      */ 
     public PortTypeDefBuilder setHidden(final Boolean hidden) {
@@ -242,6 +313,7 @@ public class PortTypeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -259,11 +331,18 @@ public class PortTypeDefBuilder {
         m_exceptionalChildren.remove(PortTypeDef.Attribute.HIDDEN);
         try {
             m_hidden = hidden.get();
+
+            if(m_hidden == null) {
+                throw new IllegalArgumentException("hidden is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_hidden = defaultValue;
             m_exceptionalChildren.put(PortTypeDef.Attribute.HIDDEN, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -272,7 +351,7 @@ public class PortTypeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param optional whether this port needs to be connected
+     * @param optional whether this port needs to be connected 
      * @return this builder for fluent API.
      */ 
     public PortTypeDefBuilder setOptional(final Boolean optional) {
@@ -280,6 +359,7 @@ public class PortTypeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -297,11 +377,18 @@ public class PortTypeDefBuilder {
         m_exceptionalChildren.remove(PortTypeDef.Attribute.OPTIONAL);
         try {
             m_optional = optional.get();
+
+            if(m_optional == null) {
+                throw new IllegalArgumentException("optional is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_optional = defaultValue;
             m_exceptionalChildren.put(PortTypeDef.Attribute.OPTIONAL, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -310,7 +397,7 @@ public class PortTypeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param name human-readable name. In case the port type is not registered at the extension point, the port object&#39;s class name is returned.
+     * @param name human-readable name. In case the port type is not registered at the extension point, the port object&#39;s class name is returned. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public PortTypeDefBuilder setName(final String name) {
@@ -318,8 +405,26 @@ public class PortTypeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(PortTypeDef.Attribute.NAME)} will return true and and
+     * {@code getExceptionalChildren().get(PortTypeDef.Attribute.NAME)} will return the exception.
+     * 
+     * @param name see {@link PortTypeDef#getName}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setName(String)
+     */
+    public PortTypeDefBuilder setName(final FallibleSupplier<String> name) {
+        setName(name, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(PortTypeDef.Attribute.NAME)} will return true and and
      * {@code getExceptionalChildren().get(PortTypeDef.Attribute.NAME)} will return the exception.
@@ -334,12 +439,15 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.NAME);
         try {
-            m_name = name.get();
+            m_name = Optional.ofNullable(name.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_name = defaultValue;
+            m_name = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(PortTypeDef.Attribute.NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -352,6 +460,15 @@ public class PortTypeDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultPortTypeDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_portObjectClass == null) setPortObjectClass( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_hidden == null) setHidden( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_optional == null) setOptional( null);
         
     	
         return new DefaultPortTypeDef(this);

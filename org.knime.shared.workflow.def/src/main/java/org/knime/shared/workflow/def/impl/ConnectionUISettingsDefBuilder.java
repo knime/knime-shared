@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.CoordinateDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * ConnectionUISettingsDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ConnectionUISettingsDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ConnectionUISettingsDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -119,6 +140,7 @@ public class ConnectionUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -139,12 +161,19 @@ public class ConnectionUISettingsDefBuilder {
         m_exceptionalChildren.remove(ConnectionUISettingsDef.Attribute.BEND_POINTS);
         try {
             m_bendPointsBulkElements = bendPoints.get();
+
+            if(m_bendPoints == null) {
+                throw new IllegalArgumentException("bendPoints is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
             m_bendPointsBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_bendPointsContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -172,6 +201,9 @@ public class ConnectionUISettingsDefBuilder {
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             toAdd = new DefaultCoordinateDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
         m_bendPoints.add(toAdd);
         return this;
@@ -185,6 +217,9 @@ public class ConnectionUISettingsDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultConnectionUISettingsDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_bendPoints == null) setBendPoints(() ->  null);
         
     	
         // contains the elements set with #setBendPoints (those added with #addToBendPoints have already been inserted into m_bendPoints)

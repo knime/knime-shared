@@ -51,6 +51,8 @@ package org.knime.shared.workflow.storage.multidir.saver;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,6 +62,7 @@ import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.node.config.base.XMLConfig;
 import org.knime.shared.workflow.def.CreatorDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
@@ -77,6 +80,14 @@ final class WorkflowSaver {
 
     WorkflowSaver(final WorkflowDef workflow) {
         m_workflow = workflow;
+        if(workflow instanceof DefaultWorkflowDef) {
+            var loadExceptionTree = ((DefaultWorkflowDef) workflow).getLoadExceptionTree();
+            if(loadExceptionTree.hasExceptions()) {
+                loadExceptionTree.getFlattenedLoadExceptions().forEach(ex -> ex.printStackTrace());
+//                throw new IllegalArgumentException(
+//                    "The workflow to save has load exceptions. This may cause problems, such as null pointer exceptions.");
+            }
+        }
     }
 
     WorkflowSaver(final WorkflowDef workflow, final CreatorDef creator) {
@@ -129,25 +140,28 @@ final class WorkflowSaver {
 
     private void addHeader(final ConfigBase workflowSettings) {
         SaverUtils.addCreatorInfo(workflowSettings, m_creator);
-        workflowSettings.addString(IOConst.METADATA_NAME_KEY.get(), m_workflow.getName());
+        m_workflow.getName().ifPresent(name -> workflowSettings.addString(IOConst.METADATA_NAME_KEY.get(), name));
         if (!workflowSettings.containsKey(IOConst.CUSTOM_DESCRIPTION_KEY.get())) {
             workflowSettings.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), null);
         }
     }
 
     private void addAuthorInfo(final ConfigBase workflowSettings) {
-        var authorInformation = m_workflow.getAuthorInformation();
+        if(m_workflow.getAuthorInformation().isEmpty()) {
+            return;
+        }
+        var authorInformation = m_workflow.getAuthorInformation().get();//NOSONAR
         ConfigBase authorConfig = new SimpleConfig(IOConst.AUTHOR_INFORMATION_KEY.get());
 
         authorConfig.addString(IOConst.AUTHORED_BY_KEY.get(), authorInformation.getAuthoredBy());
-        var authoredWhen = (authorInformation.getAuthoredWhen() == null) ? null
-            : authorInformation.getAuthoredWhen().format(LoaderUtils.DATE_FORMAT);
-        authorConfig.addString(IOConst.AUTHORED_WHEN_KEY.get(), authoredWhen);
+        authorConfig.addString(IOConst.AUTHORED_WHEN_KEY.get(),
+            authorInformation.getAuthoredWhen().format(LoaderUtils.DATE_FORMAT));
 
-        authorConfig.addString(IOConst.LAST_EDITED_BY_KEY.get(), authorInformation.getLastEditedBy());
-        var lastEditedWhen = (authorInformation.getLastEditedWhen() == null) ? null
-            : authorInformation.getLastEditedWhen().format(LoaderUtils.DATE_FORMAT);
-        authorConfig.addString(IOConst.LAST_EDITED_WHEN_KEY.get(), lastEditedWhen);
+        authorInformation.getLastEditedBy()
+            .ifPresent(value -> authorConfig.addString(IOConst.LAST_EDITED_BY_KEY.get(), value));
+        authorInformation.getLastEditedWhen()//
+            .map(d -> d.format(LoaderUtils.DATE_FORMAT))//
+            .ifPresent(value -> authorConfig.addString(IOConst.LAST_EDITED_WHEN_KEY.get(), value));
 
         workflowSettings.addEntry(authorConfig);
     }
@@ -160,7 +174,7 @@ final class WorkflowSaver {
      */
     private void saveChildNodes(final ConfigBase workflowSettings, final File workflowDirectory) {
         var nodes = new SimpleConfig(IOConst.WORKFLOW_NODES_KEY.get());
-        m_workflow.getNodes().forEach((k, n) -> {
+        m_workflow.getNodes().orElse(Map.of()).forEach((k, n) -> {
             try {
                 var workflowNodeSettings = new SimpleConfig(k);
                 var dir = SaverUtils.createNodeDir(workflowDirectory, n);
@@ -175,7 +189,7 @@ final class WorkflowSaver {
 
     private void addConnections(final ConfigBase workflowSettings) {
         var connections = new SimpleConfig(IOConst.WORKFLOW_CONNECTIONS_KEY.get());
-        m_workflow.getConnections().forEach(c -> {
+        m_workflow.getConnections().orElse(List.of()).forEach(c -> {
             var ix = connections.getChildCount();
             var connectionConfig = new SimpleConfig(IOConst.WORKFLOW_CONNECTION_PREFIX.get() + ix);
             connectionConfig.addInt(IOConst.WORKFLOW_CONNECTION_SOURCE_ID.get(), c.getSourceID());
@@ -183,7 +197,7 @@ final class WorkflowSaver {
             connectionConfig.addInt(IOConst.WORKFLOW_CONNECTION_SOURCE_PORT.get(), c.getSourcePort());
             connectionConfig.addInt(IOConst.WORKFLOW_CONNECTION_DESTINATION_PORT.get(), c.getDestPort());
 
-            SaverUtils.addConnectionUISettings(connectionConfig, c.getUiSettings());
+            c.getUiSettings().ifPresent(uiSettings -> SaverUtils.addConnectionUISettings(connectionConfig, uiSettings));
             connections.addEntry(connectionConfig);
         });
         workflowSettings.addEntry(connections);
@@ -192,14 +206,17 @@ final class WorkflowSaver {
     private void addAnnotations(final ConfigBase workflowSettings) {
         if (!m_workflow.getAnnotations().isEmpty()) {
             var annotations = new SimpleConfig(IOConst.WORKFLOW_ANNOTATIONS_KEY.get());
-            m_workflow.getAnnotations()
+            m_workflow.getAnnotations().orElse(Map.of())
                 .forEach((ix, a) -> annotations.addEntry(SaverUtils.annotationToConfig(a, "annotation_" + ix)));
             workflowSettings.addEntry(annotations);
         }
     }
 
     private void addWorkflowUISettings(final ConfigBase workflowSettings) {
-        var workflowEditor = m_workflow.getWorkflowEditorSettings();
+        if(m_workflow.getWorkflowEditorSettings().isEmpty()) {
+            return;
+        }
+        var workflowEditor = m_workflow.getWorkflowEditorSettings().get(); // NOSONAR
         // Metanode workflows don't have any contents here. Using zoom level as a stand-in for other properties:
         // If the zoom level is not null, we assume the same for the other properties.
         if (workflowEditor.getZoomLevel() != null) {

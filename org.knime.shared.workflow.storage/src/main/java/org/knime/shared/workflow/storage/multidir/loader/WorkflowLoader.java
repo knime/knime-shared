@@ -114,8 +114,6 @@ public final class WorkflowLoader {
     private static final AuthorInformationDef DEFAULT_AUTHOR_INFORMATION = new AuthorInformationDefBuilder()//
         .setAuthoredBy("<unknown>") //
         .setAuthoredWhen(OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)) //
-        .setLastEditedBy(null) //
-        .setLastEditedWhen(null) //
         .build();
 
     /**
@@ -140,8 +138,8 @@ public final class WorkflowLoader {
         final LoadVersion loadVersion) {
 
         var builder = new WorkflowDefBuilder() //
-            .setName(() -> loadName(workflowConfig, loadVersion), DEFAULT_WORKFLOW_NAME)//
-            .setAuthorInformation(() -> loadAuthorInformation(workflowConfig, loadVersion), DEFAULT_AUTHOR_INFORMATION)
+            .setName(() -> loadName(workflowConfig, loadVersion))//
+            .setAuthorInformation(() -> loadAuthorInformation(workflowConfig, loadVersion))
             .setWorkflowEditorSettings(() -> loadWorkflowUISettings(workflowConfig, loadVersion),
                 new WorkflowUISettingsDefBuilder().build());
         setNodes(builder, workflowConfig, workflowDirectory, loadVersion);

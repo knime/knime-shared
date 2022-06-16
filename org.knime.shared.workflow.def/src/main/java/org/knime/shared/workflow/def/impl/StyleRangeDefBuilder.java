@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Similar to a HTML span.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class StyleRangeDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public StyleRangeDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -79,19 +100,19 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    Integer m_fontSize;
+    Optional<Integer> m_fontSize = Optional.empty();
     
 
-    Integer m_color;
+    Optional<Integer> m_color = Optional.empty();
     
 
     Integer m_start;
     
 
-    String m_fontName;
+    Optional<String> m_fontName = Optional.empty();
     
 
-    Integer m_fontStyle;
+    Optional<Integer> m_fontStyle = Optional.empty();
     
 
     Integer m_length;
@@ -120,7 +141,7 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param fontSize 
+     * @param fontSize  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public StyleRangeDefBuilder setFontSize(final Integer fontSize) {
@@ -128,8 +149,26 @@ public class StyleRangeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(StyleRangeDef.Attribute.FONT_SIZE)} will return true and and
+     * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.FONT_SIZE)} will return the exception.
+     * 
+     * @param fontSize see {@link StyleRangeDef#getFontSize}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setFontSize(Integer)
+     */
+    public StyleRangeDefBuilder setFontSize(final FallibleSupplier<Integer> fontSize) {
+        setFontSize(fontSize, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(StyleRangeDef.Attribute.FONT_SIZE)} will return true and and
      * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.FONT_SIZE)} will return the exception.
@@ -144,12 +183,15 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.FONT_SIZE);
         try {
-            m_fontSize = fontSize.get();
+            m_fontSize = Optional.ofNullable(fontSize.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_fontSize = defaultValue;
+            m_fontSize = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(StyleRangeDef.Attribute.FONT_SIZE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -158,7 +200,7 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param color 
+     * @param color  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public StyleRangeDefBuilder setColor(final Integer color) {
@@ -166,8 +208,26 @@ public class StyleRangeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(StyleRangeDef.Attribute.COLOR)} will return true and and
+     * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.COLOR)} will return the exception.
+     * 
+     * @param color see {@link StyleRangeDef#getColor}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setColor(Integer)
+     */
+    public StyleRangeDefBuilder setColor(final FallibleSupplier<Integer> color) {
+        setColor(color, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(StyleRangeDef.Attribute.COLOR)} will return true and and
      * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.COLOR)} will return the exception.
@@ -182,12 +242,15 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.COLOR);
         try {
-            m_color = color.get();
+            m_color = Optional.ofNullable(color.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_color = defaultValue;
+            m_color = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(StyleRangeDef.Attribute.COLOR, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -196,7 +259,7 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param start 
+     * @param start  
      * @return this builder for fluent API.
      */ 
     public StyleRangeDefBuilder setStart(final Integer start) {
@@ -204,6 +267,7 @@ public class StyleRangeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -221,11 +285,18 @@ public class StyleRangeDefBuilder {
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.START);
         try {
             m_start = start.get();
+
+            if(m_start == null) {
+                throw new IllegalArgumentException("start is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_start = defaultValue;
             m_exceptionalChildren.put(StyleRangeDef.Attribute.START, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -234,7 +305,7 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param fontName 
+     * @param fontName  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public StyleRangeDefBuilder setFontName(final String fontName) {
@@ -242,8 +313,26 @@ public class StyleRangeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(StyleRangeDef.Attribute.FONT_NAME)} will return true and and
+     * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.FONT_NAME)} will return the exception.
+     * 
+     * @param fontName see {@link StyleRangeDef#getFontName}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setFontName(String)
+     */
+    public StyleRangeDefBuilder setFontName(final FallibleSupplier<String> fontName) {
+        setFontName(fontName, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(StyleRangeDef.Attribute.FONT_NAME)} will return true and and
      * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.FONT_NAME)} will return the exception.
@@ -258,12 +347,15 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.FONT_NAME);
         try {
-            m_fontName = fontName.get();
+            m_fontName = Optional.ofNullable(fontName.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_fontName = defaultValue;
+            m_fontName = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(StyleRangeDef.Attribute.FONT_NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -272,7 +364,7 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param fontStyle 
+     * @param fontStyle  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public StyleRangeDefBuilder setFontStyle(final Integer fontStyle) {
@@ -280,8 +372,26 @@ public class StyleRangeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(StyleRangeDef.Attribute.FONT_STYLE)} will return true and and
+     * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.FONT_STYLE)} will return the exception.
+     * 
+     * @param fontStyle see {@link StyleRangeDef#getFontStyle}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setFontStyle(Integer)
+     */
+    public StyleRangeDefBuilder setFontStyle(final FallibleSupplier<Integer> fontStyle) {
+        setFontStyle(fontStyle, null);
+        return this;
+    }
+
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(StyleRangeDef.Attribute.FONT_STYLE)} will return true and and
      * {@code getExceptionalChildren().get(StyleRangeDef.Attribute.FONT_STYLE)} will return the exception.
@@ -296,12 +406,15 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.FONT_STYLE);
         try {
-            m_fontStyle = fontStyle.get();
+            m_fontStyle = Optional.ofNullable(fontStyle.get());
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_fontStyle = defaultValue;
+            m_fontStyle = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(StyleRangeDef.Attribute.FONT_STYLE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -310,7 +423,7 @@ public class StyleRangeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param length 
+     * @param length  
      * @return this builder for fluent API.
      */ 
     public StyleRangeDefBuilder setLength(final Integer length) {
@@ -318,6 +431,7 @@ public class StyleRangeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -335,11 +449,18 @@ public class StyleRangeDefBuilder {
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.LENGTH);
         try {
             m_length = length.get();
+
+            if(m_length == null) {
+                throw new IllegalArgumentException("length is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_length = defaultValue;
             m_exceptionalChildren.put(StyleRangeDef.Attribute.LENGTH, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -352,6 +473,12 @@ public class StyleRangeDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultStyleRangeDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_start == null) setStart( null);
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_length == null) setLength( null);
         
     	
         return new DefaultStyleRangeDef(this);

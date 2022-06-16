@@ -123,7 +123,7 @@ class MetaNodeSaverTest {
         var creator = StandaloneLoader.load(workflowDir).getCreator();
 
         var parentXML = new SimpleConfig("node_12");
-        var saver = new MetaNodeSaver(metanode, creator);
+        var saver = new MetaNodeSaver(metanode, creator.orElse(StandaloneSaver.DEFAULT_CREATOR));
         saver.save(OUTPUT_DIRECTORY, parentXML);
 
         assertThat(parentXML.getInt(IOConst.ID_KEY.get())).isEqualTo(12);

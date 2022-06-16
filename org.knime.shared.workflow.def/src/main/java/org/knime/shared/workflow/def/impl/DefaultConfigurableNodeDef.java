@@ -70,6 +70,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -80,17 +81,17 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef implements ConfigurableNodeDef {
+public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef implements ConfigurableNodeDef, LoadExceptionTreeProvider {
 
 
     @JsonProperty("modelSettings")
-    protected ConfigMapDef m_modelSettings;
+    protected Optional<ConfigMapDef> m_modelSettings;
 
     @JsonProperty("internalNodeSubSettings")
-    protected ConfigMapDef m_internalNodeSubSettings;
+    protected Optional<ConfigMapDef> m_internalNodeSubSettings;
 
     @JsonProperty("variableSettings")
-    protected ConfigMapDef m_variableSettings;
+    protected Optional<ConfigMapDef> m_variableSettings;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -145,7 +146,8 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
+    @Override
+    public abstract LoadExceptionTree<?> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -161,35 +163,35 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
         return m_nodeType;
     }
     @Override
-    public String getCustomDescription() {
+    public Optional<String> getCustomDescription() {
         return m_customDescription;
     }
     @Override
-    public NodeAnnotationDef getAnnotation() {
+    public Optional<NodeAnnotationDef> getAnnotation() {
         return m_annotation;
     }
     @Override
-    public NodeUIInfoDef getUiInfo() {
+    public Optional<NodeUIInfoDef> getUiInfo() {
         return m_uiInfo;
     }
     @Override
-    public NodeLocksDef getLocks() {
+    public Optional<NodeLocksDef> getLocks() {
         return m_locks;
     }
     @Override
-    public JobManagerDef getJobManager() {
+    public Optional<JobManagerDef> getJobManager() {
         return m_jobManager;
     }
     @Override
-    public ConfigMapDef getModelSettings() {
+    public Optional<ConfigMapDef> getModelSettings() {
         return m_modelSettings;
     }
     @Override
-    public ConfigMapDef getInternalNodeSubSettings() {
+    public Optional<ConfigMapDef> getInternalNodeSubSettings() {
         return m_internalNodeSubSettings;
     }
     @Override
-    public ConfigMapDef getVariableSettings() {
+    public Optional<ConfigMapDef> getVariableSettings() {
         return m_variableSettings;
     }
     

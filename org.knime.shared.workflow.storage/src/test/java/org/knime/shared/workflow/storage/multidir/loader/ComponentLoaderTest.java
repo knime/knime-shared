@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
@@ -88,36 +89,34 @@ class ComponentLoaderTest {
         // Assert ComponentLoader
         // TODO should this really be null? Or an empty dialog settings def?
 //        assertThat(componentDef.getDialogSettings()).isNull();
-        assertThat(componentDef.getInPorts()).hasSize(1).extracting(p -> p.getIndex(), p -> p.getName()) //
+        assertThat(componentDef.getInPorts().get()).hasSize(1).extracting(p -> p.getIndex(), p -> p.getName()) //
             .containsExactlyInAnyOrder( //
-                tuple(0, "inport_0"));
+                tuple(0, Optional.of("inport_0")));
         assertThat(componentDef.getOutPorts()).isEmpty();
         assertThat(componentDef.getVirtualInNodeId()).isEqualTo(3);
         assertThat(componentDef.getVirtualOutNodeId()).isEqualTo(4);
-        assertThat(componentDef.getTemplateInfo().getUpdatedAt().getMonthValue()).isEqualTo(1);
-        assertThat(componentDef.getWorkflow().getNodes()).hasSize(3);
+        assertThat(componentDef.getTemplateLink().get().getVersion().getMonthValue()).isEqualTo(1);
+        assertThat(componentDef.getWorkflow().getNodes().get()).hasSize(3);
 
         // Assert SingleNodeLoader
         //TODO assert the ConfigMap value
-        assertThat(componentDef.getInternalNodeSubSettings().getChildren()).containsKey("memory_policy");
+        assertThat(componentDef.getInternalNodeSubSettings().get().getChildren()).containsKey("memory_policy");
         //        assertThat(nativeNodeDef.getModelSettings().getChildren());
-        assertThat(componentDef.getVariableSettings().getChildren()).isEmpty();
+        assertThat(componentDef.getVariableSettings().get().getChildren()).isEmpty();
 
         // Assert NodeLoader
         assertThat(componentDef.getId()).isEqualTo(1);
-        assertThat(componentDef.getAnnotation().isAnnotationDefault()).isFalse();
-        assertThat(componentDef.getCustomDescription()).isNull();
+        assertThat(componentDef.getAnnotation().get().isAnnotationDefault()).isFalse();
+        assertThat(componentDef.getCustomDescription()).isEmpty();
         assertThat(componentDef.getJobManager()).isNotNull();
-        assertThat(componentDef.getLocks()) //
+        assertThat(componentDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(true, false, false);
-        assertThat(componentDef.getUiInfo()).extracting(n -> n.hasAbsoluteCoordinates(), n -> n.isSymbolRelative(),
-            n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
+        assertThat(componentDef.getUiInfo().get())
+            .extracting(n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
             .containsNull();
 
-//        assertThat(componentDef.getSuppliers()).isEmpty();
-        // TODO add back this assertion
-//        assertThat(componentDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        assertThat(componentDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 
     @Test
@@ -137,35 +136,35 @@ class ComponentLoaderTest {
         // then
 
         // Assert MetaNodeLoader
-        assertThat(componentDef.getInPorts())
+        assertThat(componentDef.getInPorts().get())
             .extracting(p -> p.getIndex(), p -> p.getName(),
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
-            .contains(tuple(0, "inport_0", true));
-        assertThat(componentDef.getOutPorts())
+            .contains(tuple(0, Optional.of("inport_0"), true));
+        assertThat(componentDef.getOutPorts().get())
             .extracting(p -> p.getIndex(), p -> p.getName(),
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
-            .contains(tuple(0, "outport_0", true), tuple(1, "outport_1", true));
+            .contains(tuple(0, Optional.of("outport_0"), true), tuple(1, Optional.of("outport_1"), true));
         assertThat(componentDef.getVirtualInNodeId()).isEqualTo(10);
         assertThat(componentDef.getVirtualOutNodeId()).isEqualTo(11);
-        assertThat(componentDef.getTemplateInfo().getUpdatedAt().getYear()).isEqualTo(2022);
-        assertThat(componentDef.getTemplateInfo().getUri()).isEqualTo("knime://knime.mountpoint/Component");
+        assertThat(componentDef.getTemplateLink().get().getVersion().getYear()).isEqualTo(2022);
+        assertThat(componentDef.getTemplateLink().get().getUri()).isEqualTo("knime://knime.mountpoint/Component");
         assertThat(componentDef.getWorkflow()).isInstanceOf(WorkflowDef.class);
 
         // Assert SingleNodeLoader
         //TODO assert the ConfigMap value
-        assertThat(componentDef.getInternalNodeSubSettings().getChildren()).containsKey("memory_policy");
+        assertThat(componentDef.getInternalNodeSubSettings().get().getChildren()).containsKey("memory_policy");
         //        assertThat(nativeNodeDef.getModelSettings().getChildren());
-        assertThat(componentDef.getVariableSettings()).isInstanceOf(ConfigMapDef.class);
+        assertThat(componentDef.getVariableSettings().get()).isInstanceOf(ConfigMapDef.class);
 
         // Assert NodeLoader
         assertThat(componentDef.getId()).isEqualTo(431);
-        assertThat(componentDef.getAnnotation()).isInstanceOf(NodeAnnotationDef.class);
-        assertThat(componentDef.getCustomDescription()).isNull();
-        assertThat(componentDef.getJobManager()).isInstanceOf(JobManagerDef.class);
-        assertThat(componentDef.getLocks()) //
+        assertThat(componentDef.getAnnotation().get()).isInstanceOf(NodeAnnotationDef.class);
+        assertThat(componentDef.getCustomDescription()).isEmpty();
+        assertThat(componentDef.getJobManager().get()).isInstanceOf(JobManagerDef.class);
+        assertThat(componentDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(true, false, false);
-        assertThat(componentDef.getUiInfo()).extracting(n -> n.getBounds().getLocation().getX(),
+        assertThat(componentDef.getUiInfo().get()).extracting(n -> n.getBounds().getLocation().getX(),
             n -> n.getBounds().getLocation().getY(), n -> n.getBounds().getHeight(), n -> n.getBounds().getWidth())
             .containsExactly(2541, 1117, 122, 65);
 
