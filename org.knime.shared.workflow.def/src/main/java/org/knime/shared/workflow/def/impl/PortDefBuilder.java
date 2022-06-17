@@ -154,7 +154,8 @@ public class PortDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortDef.Attribute.INDEX);
         try {
-            m_index = index.get();
+            var supplied = index.get();
+            m_index = supplied;
 
             if(m_index == null) {
                 throw new IllegalArgumentException("index is required and must not be null.");
@@ -200,7 +201,8 @@ public class PortDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortDef.Attribute.PORT_TYPE);
         try {
-            m_portType = portType.get();
+            var supplied = portType.get();
+            m_portType = supplied;
 
             if(m_portType == null) {
                 throw new IllegalArgumentException("portType is required and must not be null.");
@@ -273,7 +275,8 @@ public class PortDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortDef.Attribute.NAME);
         try {
-            m_name = Optional.ofNullable(name.get());
+            var supplied = name.get();
+            m_name = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -295,9 +298,11 @@ public class PortDefBuilder {
 	 */
     public DefaultPortDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_index == null) setIndex( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_portType == null) setPortType( null);
         

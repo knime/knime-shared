@@ -51,30 +51,31 @@ package org.knime.shared.workflow.def.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
+import org.knime.core.util.workflow.def.LoadException;
 
 /**
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-class MetaNodeBuilderTest {
+class SimpleBuilderTest {
 
     /**
-     * Test that constructing an instance with a faulty child results in a faulty instance.
+     * Test that constructing an instance without setting the required fields will mark the instance as flawed.
      */
     @Test
     void testMissingValuesDeferredErrorCollection() {
-        var faulty = new TemplateMetadataDefBuilder().build();
+        var def = new TemplateLinkDefBuilder().build();
 
-        var metaNodeDef = new MetaNodeDefBuilder().setTemplateMetadata(faulty).build();
+        // has exceptions
+        assertThat(def.getLoadExceptionTree().hasExceptions()).isTrue();
 
-        // has exceptions because child has exceptions
-        assertThat(metaNodeDef.getLoadExceptionTree().hasExceptions()).isTrue();
-
-        var workflowDef = new WorkflowDefBuilder().putToNodes("meta", metaNodeDef).build();
-
-        // has exceptions because a node in the workflow has exceptions
-        assertThat(workflowDef.getLoadExceptionTree().hasExceptions()).isTrue();
+        // URI is required
+        assertThat(def.getUriSupplyException()).isPresent();
+        // update time is also required
+        assertThat(def.getVersionSupplyException()).isPresent();
     }
 
     /**
@@ -86,6 +87,31 @@ class MetaNodeBuilderTest {
         assertThatThrownBy(() -> {
             new TemplateMetadataDefBuilder().strict().build();
         }).isInstanceOf(IllegalStateException.class).hasCauseInstanceOf(IllegalArgumentException.class);
+    }
 
+    /**
+     * Test that a supply exception on a required field is reported.
+     */
+    @Test
+    void supplyException() {
+        var def = new StyleRangeDefBuilder()//
+            .setStart(() -> {
+                throw new IOException("Something went wrong.");
+            }, -1).build();
+        assertThat(def.getStartSupplyException().get().getCause()).hasMessage("Something went wrong.");
+    }
+
+    /**
+     * Test that a supply exception on an optional field is still reported.
+     */
+    @Test
+    void supplyExceptionOnOptional() {
+        var def = new ConfigValueStringArrayDefBuilder()//
+            .setConfigType("ConfigValueStringArray")//
+            .setArray(() -> {
+                throw new IOException("Something went wrong.");
+            }).build();
+        assertThat(def.getArraySupplyException()).containsInstanceOf(LoadException.class);
+        assertThat(def.getArraySupplyException().get().getCause()).hasMessage("Something went wrong.");
     }
 }

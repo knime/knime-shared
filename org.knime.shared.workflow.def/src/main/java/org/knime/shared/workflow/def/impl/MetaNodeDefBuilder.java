@@ -110,7 +110,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    Integer m_id;
+    Optional<Integer> m_id = Optional.empty();
     
 
     NodeTypeEnum m_nodeType;
@@ -131,21 +131,37 @@ public class MetaNodeDefBuilder {
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    Optional<java.util.List<PortDef>> m_inPorts = Optional.of(new java.util.ArrayList<>());
-    /** Temporarily holds onto elements set as a whole with setInPorts these are added to m_inPorts in build */
-    private Optional<java.util.List<PortDef>> m_inPortsBulkElements = Optional.of(new java.util.ArrayList<>());
+    Optional<java.util.List<PortDef>> m_inPorts = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<PortDef>> m_inPortsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setInPorts these are added to m_inPorts in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<PortDef>> m_inPortsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_inPortsContainerSupplyException; 
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    Optional<java.util.List<PortDef>> m_outPorts = Optional.of(new java.util.ArrayList<>());
-    /** Temporarily holds onto elements set as a whole with setOutPorts these are added to m_outPorts in build */
-    private Optional<java.util.List<PortDef>> m_outPortsBulkElements = Optional.of(new java.util.ArrayList<>());
+    Optional<java.util.List<PortDef>> m_outPorts = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<PortDef>> m_outPortsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setOutPorts these are added to m_outPorts in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<PortDef>> m_outPortsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_outPortsContainerSupplyException; 
     
@@ -191,7 +207,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection.  
+     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setId(final Integer id) {
@@ -201,7 +217,23 @@ public class MetaNodeDefBuilder {
  
     
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.ID)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.ID)} will return the exception.
+     * 
+     * @param id see {@link MetaNodeDef#getId}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setId(Integer)
+     */
+    public MetaNodeDefBuilder setId(final FallibleSupplier<Integer> id) {
+        setId(id, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.ID)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.ID)} will return the exception.
@@ -216,15 +248,12 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.ID);
         try {
-            m_id = id.get();
-
-            if(m_id == null) {
-                throw new IllegalArgumentException("id is required and must not be null.");
-            }
+            var supplied = id.get();
+            m_id = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_id = defaultValue;
+            m_id = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.ID, supplyException);
             if(m__failFast){
                 throw new IllegalStateException(e);
@@ -262,7 +291,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.NODE_TYPE);
         try {
-            m_nodeType = nodeType.get();
+            var supplied = nodeType.get();
+            m_nodeType = supplied;
 
             if(m_nodeType == null) {
                 throw new IllegalArgumentException("nodeType is required and must not be null.");
@@ -324,7 +354,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION);
         try {
-            m_customDescription = Optional.ofNullable(customDescription.get());
+            var supplied = customDescription.get();
+            m_customDescription = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -382,7 +413,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.ANNOTATION);
         try {
-            m_annotation = Optional.ofNullable(annotation.get());
+            var supplied = annotation.get();
+            m_annotation = Optional.ofNullable(supplied);
             if (m_annotation.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_annotation.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.ANNOTATION, (LoadExceptionTree<?>)m_annotation.get());
             }
@@ -451,7 +483,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.BOUNDS);
         try {
-            m_bounds = Optional.ofNullable(bounds.get());
+            var supplied = bounds.get();
+            m_bounds = Optional.ofNullable(supplied);
             if (m_bounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds.get());
             }
@@ -520,7 +553,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.LOCKS);
         try {
-            m_locks = Optional.ofNullable(locks.get());
+            var supplied = locks.get();
+            m_locks = Optional.ofNullable(supplied);
             if (m_locks.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_locks.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.LOCKS, (LoadExceptionTree<?>)m_locks.get());
             }
@@ -589,7 +623,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.JOB_MANAGER);
         try {
-            m_jobManager = Optional.ofNullable(jobManager.get());
+            var supplied = jobManager.get();
+            m_jobManager = Optional.ofNullable(supplied);
             if (m_jobManager.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_jobManager.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.JOB_MANAGER, (LoadExceptionTree<?>)m_jobManager.get());
             }
@@ -642,7 +677,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.WORKFLOW);
         try {
-            m_workflow = workflow.get();
+            var supplied = workflow.get();
+            m_workflow = supplied;
 
             if(m_workflow == null) {
                 throw new IllegalArgumentException("workflow is required and must not be null.");
@@ -705,11 +741,15 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS);
         try {
-            m_inPortsBulkElements = Optional.ofNullable(inPorts.get());
+            var supplied = inPorts.get();
+            m_inPorts = Optional.ofNullable(supplied);
+            // we set m_inPorts in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_inPortsBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_inPortsBulkElements = Optional.of(java.util.List.of());
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_inPortsContainerSupplyException = supplyException;
             if(m__failFast){
@@ -736,6 +776,8 @@ public class MetaNodeDefBuilder {
      * @return this builder for fluent API.
      */
     public MetaNodeDefBuilder addToInPorts(FallibleSupplier<PortDef> value, PortDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_inPortsIndividualElements.isEmpty()) m_inPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
         PortDef toAdd = null;
         try {
             toAdd = value.get();
@@ -746,7 +788,7 @@ public class MetaNodeDefBuilder {
                 throw new IllegalStateException(e);
             }
         }
-        m_inPorts.get().add(toAdd);
+        m_inPortsIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -785,11 +827,15 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS);
         try {
-            m_outPortsBulkElements = Optional.ofNullable(outPorts.get());
+            var supplied = outPorts.get();
+            m_outPorts = Optional.ofNullable(supplied);
+            // we set m_outPorts in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_outPortsBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_outPortsBulkElements = Optional.of(java.util.List.of());
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_outPortsContainerSupplyException = supplyException;
             if(m__failFast){
@@ -816,6 +862,8 @@ public class MetaNodeDefBuilder {
      * @return this builder for fluent API.
      */
     public MetaNodeDefBuilder addToOutPorts(FallibleSupplier<PortDef> value, PortDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_outPortsIndividualElements.isEmpty()) m_outPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
         PortDef toAdd = null;
         try {
             toAdd = value.get();
@@ -826,7 +874,7 @@ public class MetaNodeDefBuilder {
                 throw new IllegalStateException(e);
             }
         }
-        m_outPorts.get().add(toAdd);
+        m_outPortsIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -875,7 +923,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.CIPHER);
         try {
-            m_cipher = Optional.ofNullable(cipher.get());
+            var supplied = cipher.get();
+            m_cipher = Optional.ofNullable(supplied);
             if (m_cipher.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_cipher.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.CIPHER, (LoadExceptionTree<?>)m_cipher.get());
             }
@@ -944,7 +993,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.TEMPLATE_METADATA);
         try {
-            m_templateMetadata = Optional.ofNullable(templateMetadata.get());
+            var supplied = templateMetadata.get();
+            m_templateMetadata = Optional.ofNullable(supplied);
             if (m_templateMetadata.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_templateMetadata.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.TEMPLATE_METADATA, (LoadExceptionTree<?>)m_templateMetadata.get());
             }
@@ -1013,7 +1063,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.TEMPLATE_LINK);
         try {
-            m_templateLink = Optional.ofNullable(templateLink.get());
+            var supplied = templateLink.get();
+            m_templateLink = Optional.ofNullable(supplied);
             if (m_templateLink.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_templateLink.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.TEMPLATE_LINK, (LoadExceptionTree<?>)m_templateLink.get());
             }
@@ -1082,7 +1133,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS);
         try {
-            m_inPortsBarBounds = Optional.ofNullable(inPortsBarBounds.get());
+            var supplied = inPortsBarBounds.get();
+            m_inPortsBarBounds = Optional.ofNullable(supplied);
             if (m_inPortsBarBounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_inPortsBarBounds.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS, (LoadExceptionTree<?>)m_inPortsBarBounds.get());
             }
@@ -1151,7 +1203,8 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS);
         try {
-            m_outPortsBarBounds = Optional.ofNullable(outPortsBarBounds.get());
+            var supplied = outPortsBarBounds.get();
+            m_outPortsBarBounds = Optional.ofNullable(supplied);
             if (m_outPortsBarBounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_outPortsBarBounds.get()).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS, (LoadExceptionTree<?>)m_outPortsBarBounds.get());
             }
@@ -1184,37 +1237,46 @@ public class MetaNodeDefBuilder {
 	 */
     public DefaultMetaNodeDef build() {
         
-        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
-        if(m_id == null) setId( null);
-        
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_nodeType == null) setNodeType( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_workflow == null) setWorkflow( null);
         
     	
-        // contains the elements set with #setInPorts (those added with #addToInPorts have already been inserted into m_inPorts)
-        m_inPortsBulkElements = java.util.Objects.requireNonNullElse(m_inPortsBulkElements, Optional.of(java.util.List.of()));
-        m_inPorts.get().addAll(0, m_inPortsBulkElements.get());
+        // if bulk elements are present, add them to individual elements
+        if(m_inPortsBulkElements.isPresent()){
+            if(m_inPortsIndividualElements.isEmpty()) {
+                m_inPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_inPortsIndividualElements.get().addAll(m_inPortsBulkElements.get());    
+        }
+        m_inPorts = m_inPortsIndividualElements;        
+        
                 
         var inPortsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_inPorts.get(), m_inPortsContainerSupplyException);
+            .list(m_inPorts.orElse(new java.util.ArrayList<>()), m_inPortsContainerSupplyException);
         if(inPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS, inPortsLoadExceptionTree);
         }
-        m_inPorts = m_inPorts.get().isEmpty() ? Optional.empty() : m_inPorts;
         
-        // contains the elements set with #setOutPorts (those added with #addToOutPorts have already been inserted into m_outPorts)
-        m_outPortsBulkElements = java.util.Objects.requireNonNullElse(m_outPortsBulkElements, Optional.of(java.util.List.of()));
-        m_outPorts.get().addAll(0, m_outPortsBulkElements.get());
+        // if bulk elements are present, add them to individual elements
+        if(m_outPortsBulkElements.isPresent()){
+            if(m_outPortsIndividualElements.isEmpty()) {
+                m_outPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_outPortsIndividualElements.get().addAll(m_outPortsBulkElements.get());    
+        }
+        m_outPorts = m_outPortsIndividualElements;        
+        
                 
         var outPortsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_outPorts.get(), m_outPortsContainerSupplyException);
+            .list(m_outPorts.orElse(new java.util.ArrayList<>()), m_outPortsContainerSupplyException);
         if(outPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS, outPortsLoadExceptionTree);
         }
-        m_outPorts = m_outPorts.get().isEmpty() ? Optional.empty() : m_outPorts;
         
         return new DefaultMetaNodeDef(this);
     }    

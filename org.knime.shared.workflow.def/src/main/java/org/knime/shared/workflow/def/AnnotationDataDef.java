@@ -69,7 +69,6 @@ public interface AnnotationDataDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
-          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AnnotationDataDef#getText} 
           */
@@ -81,19 +80,16 @@ public interface AnnotationDataDef {
           */
          LOCATION,
          /** 
-          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AnnotationDataDef#getTextAlignment} 
           */
          TEXT_ALIGNMENT,
          /** 
-          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getBorderSize} 
           */
          BORDER_SIZE,
          /** 
-          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getBorderColor} 
           */
@@ -101,7 +97,6 @@ public interface AnnotationDataDef {
          /**  
           * Background color
           *
-          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getBgcolor} 
           */
@@ -113,7 +108,6 @@ public interface AnnotationDataDef {
           */
          WIDTH,
          /** 
-          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getAnnotationVersion} 
           */
@@ -139,9 +133,9 @@ public interface AnnotationDataDef {
     
 
   /**
-   * @return , never <code>null</code>
+   * @return 
    **/
-  public String getText();
+  public Optional<String> getText();
 
   /**
    * @return , never <code>null</code>
@@ -149,24 +143,24 @@ public interface AnnotationDataDef {
   public CoordinateDef getLocation();
 
   /**
-   * @return , never <code>null</code>
+   * @return 
    **/
-  public String getTextAlignment();
+  public Optional<String> getTextAlignment();
 
   /**
-   * @return , never <code>null</code>
+   * @return 
    **/
-  public Integer getBorderSize();
+  public Optional<Integer> getBorderSize();
 
   /**
-   * @return , never <code>null</code>
+   * @return 
    **/
-  public Integer getBorderColor();
+  public Optional<Integer> getBorderColor();
 
   /**
-   * @return Background color, never <code>null</code>
+   * @return Background color
    **/
-  public Integer getBgcolor();
+  public Optional<Integer> getBgcolor();
 
   /**
    * @return , never <code>null</code>
@@ -174,9 +168,9 @@ public interface AnnotationDataDef {
   public Integer getWidth();
 
   /**
-   * @return , never <code>null</code>
+   * @return 
    **/
-  public Integer getAnnotationVersion();
+  public Optional<Integer> getAnnotationVersion();
 
   /**
    * @return 

@@ -59,9 +59,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.ConfigMapDef;
-import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.def.impl.DefaultComponentNodeDef;
 
 /**
  *
@@ -75,14 +75,8 @@ class ComponentLoaderTest {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Component_Template");
 
-        var m_configBaseRO = new SimpleConfig("mock");
-        m_configBaseRO.addInt("id", 1);
-        m_configBaseRO.addString("node_type", "SubNode");
-        m_configBaseRO.addString("customDescription", "");
-
-
         // when
-        var componentDef = ComponentNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);
+        var componentDef = (DefaultComponentNodeDef)StandaloneLoader.load(file).getContents();
 
         // then
 
@@ -95,7 +89,7 @@ class ComponentLoaderTest {
         assertThat(componentDef.getOutPorts()).isEmpty();
         assertThat(componentDef.getVirtualInNodeId()).isEqualTo(3);
         assertThat(componentDef.getVirtualOutNodeId()).isEqualTo(4);
-        assertThat(componentDef.getTemplateLink().get().getVersion().getMonthValue()).isEqualTo(1);
+        assertThat(componentDef.getTemplateMetadata().get().getVersion().getMonthValue()).isEqualTo(1);
         assertThat(componentDef.getWorkflow().getNodes().get()).hasSize(3);
 
         // Assert SingleNodeLoader
@@ -105,13 +99,13 @@ class ComponentLoaderTest {
         assertThat(componentDef.getVariableSettings().get().getChildren()).isEmpty();
 
         // Assert NodeLoader
-        assertThat(componentDef.getId()).isEqualTo(1);
+        assertThat(componentDef.getId()).isEmpty();
         assertThat(componentDef.getAnnotation().get().isAnnotationDefault()).isFalse();
         assertThat(componentDef.getCustomDescription()).isEmpty();
         assertThat(componentDef.getJobManager()).isNotNull();
         assertThat(componentDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
-            .containsExactly(true, false, false);
+            .containsExactly(false, false, false);
         assertThat(componentDef.getBounds()).isEmpty();
 
         assertThat(componentDef.getLoadExceptionTree().hasExceptions()).isFalse();
@@ -129,7 +123,7 @@ class ComponentLoaderTest {
         workflowConfig.addEntry(uiSettings);
 
         // when
-        var componentDef = ComponentNodeLoader.load(workflowConfig, file, LoadVersion.FUTURE);
+        var componentDef = ComponentNodeLoader.load(workflowConfig, file, LoadVersion.FUTURE, false);
 
         // then
 
@@ -155,13 +149,13 @@ class ComponentLoaderTest {
         assertThat(componentDef.getVariableSettings().get()).isInstanceOf(ConfigMapDef.class);
 
         // Assert NodeLoader
-        assertThat(componentDef.getId()).isEqualTo(431);
+        assertThat(componentDef.getId()).contains(431);
         assertThat(componentDef.getAnnotation().get()).isInstanceOf(NodeAnnotationDef.class);
         assertThat(componentDef.getCustomDescription()).isEmpty();
-        assertThat(componentDef.getJobManager().get()).isInstanceOf(JobManagerDef.class);
+        assertThat(componentDef.getJobManager()).isEmpty();
         assertThat(componentDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
-            .containsExactly(true, false, false);
+            .containsExactly(false, false, false);
         assertThat(componentDef.getBounds().get())
             .extracting(n -> n.getLocation().getX(), n -> n.getLocation().getY(), n -> n.getHeight(), n -> n.getWidth())
             .containsExactly(2541, 1117, 122, 65);

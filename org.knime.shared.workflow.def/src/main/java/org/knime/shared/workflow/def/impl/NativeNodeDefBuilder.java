@@ -108,7 +108,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    Integer m_id;
+    Optional<Integer> m_id = Optional.empty();
     
 
     NodeTypeEnum m_nodeType;
@@ -181,7 +181,7 @@ public class NativeNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection.  
+     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public NativeNodeDefBuilder setId(final Integer id) {
@@ -191,7 +191,23 @@ public class NativeNodeDefBuilder {
  
     
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(NativeNodeDef.Attribute.ID)} will return true and and
+     * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.ID)} will return the exception.
+     * 
+     * @param id see {@link NativeNodeDef#getId}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setId(Integer)
+     */
+    public NativeNodeDefBuilder setId(final FallibleSupplier<Integer> id) {
+        setId(id, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(NativeNodeDef.Attribute.ID)} will return true and and
      * {@code getExceptionalChildren().get(NativeNodeDef.Attribute.ID)} will return the exception.
@@ -206,15 +222,12 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.ID);
         try {
-            m_id = id.get();
-
-            if(m_id == null) {
-                throw new IllegalArgumentException("id is required and must not be null.");
-            }
+            var supplied = id.get();
+            m_id = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_id = defaultValue;
+            m_id = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(NativeNodeDef.Attribute.ID, supplyException);
             if(m__failFast){
                 throw new IllegalStateException(e);
@@ -252,7 +265,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.NODE_TYPE);
         try {
-            m_nodeType = nodeType.get();
+            var supplied = nodeType.get();
+            m_nodeType = supplied;
 
             if(m_nodeType == null) {
                 throw new IllegalArgumentException("nodeType is required and must not be null.");
@@ -314,7 +328,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.CUSTOM_DESCRIPTION);
         try {
-            m_customDescription = Optional.ofNullable(customDescription.get());
+            var supplied = customDescription.get();
+            m_customDescription = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -372,7 +387,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.ANNOTATION);
         try {
-            m_annotation = Optional.ofNullable(annotation.get());
+            var supplied = annotation.get();
+            m_annotation = Optional.ofNullable(supplied);
             if (m_annotation.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_annotation.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.ANNOTATION, (LoadExceptionTree<?>)m_annotation.get());
             }
@@ -441,7 +457,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.BOUNDS);
         try {
-            m_bounds = Optional.ofNullable(bounds.get());
+            var supplied = bounds.get();
+            m_bounds = Optional.ofNullable(supplied);
             if (m_bounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds.get());
             }
@@ -510,7 +527,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.LOCKS);
         try {
-            m_locks = Optional.ofNullable(locks.get());
+            var supplied = locks.get();
+            m_locks = Optional.ofNullable(supplied);
             if (m_locks.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_locks.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.LOCKS, (LoadExceptionTree<?>)m_locks.get());
             }
@@ -579,7 +597,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.JOB_MANAGER);
         try {
-            m_jobManager = Optional.ofNullable(jobManager.get());
+            var supplied = jobManager.get();
+            m_jobManager = Optional.ofNullable(supplied);
             if (m_jobManager.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_jobManager.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.JOB_MANAGER, (LoadExceptionTree<?>)m_jobManager.get());
             }
@@ -648,7 +667,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.MODEL_SETTINGS);
         try {
-            m_modelSettings = Optional.ofNullable(modelSettings.get());
+            var supplied = modelSettings.get();
+            m_modelSettings = Optional.ofNullable(supplied);
             if (m_modelSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_modelSettings.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.MODEL_SETTINGS, (LoadExceptionTree<?>)m_modelSettings.get());
             }
@@ -717,7 +737,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS);
         try {
-            m_internalNodeSubSettings = Optional.ofNullable(internalNodeSubSettings.get());
+            var supplied = internalNodeSubSettings.get();
+            m_internalNodeSubSettings = Optional.ofNullable(supplied);
             if (m_internalNodeSubSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_internalNodeSubSettings.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.INTERNAL_NODE_SUB_SETTINGS, (LoadExceptionTree<?>)m_internalNodeSubSettings.get());
             }
@@ -786,7 +807,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.VARIABLE_SETTINGS);
         try {
-            m_variableSettings = Optional.ofNullable(variableSettings.get());
+            var supplied = variableSettings.get();
+            m_variableSettings = Optional.ofNullable(supplied);
             if (m_variableSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_variableSettings.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.VARIABLE_SETTINGS, (LoadExceptionTree<?>)m_variableSettings.get());
             }
@@ -839,7 +861,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.NODE_NAME);
         try {
-            m_nodeName = nodeName.get();
+            var supplied = nodeName.get();
+            m_nodeName = supplied;
 
             if(m_nodeName == null) {
                 throw new IllegalArgumentException("nodeName is required and must not be null.");
@@ -885,7 +908,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FACTORY);
         try {
-            m_factory = factory.get();
+            var supplied = factory.get();
+            m_factory = supplied;
 
             if(m_factory == null) {
                 throw new IllegalArgumentException("factory is required and must not be null.");
@@ -947,7 +971,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FACTORY_SETTINGS);
         try {
-            m_factorySettings = Optional.ofNullable(factorySettings.get());
+            var supplied = factorySettings.get();
+            m_factorySettings = Optional.ofNullable(supplied);
             if (m_factorySettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_factorySettings.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.FACTORY_SETTINGS, (LoadExceptionTree<?>)m_factorySettings.get());
             }
@@ -1000,7 +1025,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FEATURE);
         try {
-            m_feature = feature.get();
+            var supplied = feature.get();
+            m_feature = supplied;
 
             if(m_feature == null) {
                 throw new IllegalArgumentException("feature is required and must not be null.");
@@ -1057,7 +1083,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.BUNDLE);
         try {
-            m_bundle = bundle.get();
+            var supplied = bundle.get();
+            m_bundle = supplied;
 
             if(m_bundle == null) {
                 throw new IllegalArgumentException("bundle is required and must not be null.");
@@ -1130,7 +1157,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.NODE_CREATION_CONFIG);
         try {
-            m_nodeCreationConfig = Optional.ofNullable(nodeCreationConfig.get());
+            var supplied = nodeCreationConfig.get();
+            m_nodeCreationConfig = Optional.ofNullable(supplied);
             if (m_nodeCreationConfig.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_nodeCreationConfig.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.NODE_CREATION_CONFIG, (LoadExceptionTree<?>)m_nodeCreationConfig.get());
             }
@@ -1199,7 +1227,8 @@ public class NativeNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NativeNodeDef.Attribute.FILESTORE);
         try {
-            m_filestore = Optional.ofNullable(filestore.get());
+            var supplied = filestore.get();
+            m_filestore = Optional.ofNullable(supplied);
             if (m_filestore.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_filestore.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NativeNodeDef.Attribute.FILESTORE, (LoadExceptionTree<?>)m_filestore.get());
             }
@@ -1232,21 +1261,23 @@ public class NativeNodeDefBuilder {
 	 */
     public DefaultNativeNodeDef build() {
         
-        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
-        if(m_id == null) setId( null);
-        
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_nodeType == null) setNodeType( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_nodeName == null) setNodeName( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_factory == null) setFactory( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_feature == null) setFeature( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_bundle == null) setBundle( null);
         

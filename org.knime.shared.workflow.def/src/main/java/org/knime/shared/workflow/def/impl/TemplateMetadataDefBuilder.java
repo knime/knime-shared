@@ -147,7 +147,8 @@ public class TemplateMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(TemplateMetadataDef.Attribute.VERSION);
         try {
-            m_version = version.get();
+            var supplied = version.get();
+            m_version = supplied;
 
             if(m_version == null) {
                 throw new IllegalArgumentException("version is required and must not be null.");
@@ -173,6 +174,7 @@ public class TemplateMetadataDefBuilder {
 	 */
     public DefaultTemplateMetadataDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_version == null) setVersion( null);
         

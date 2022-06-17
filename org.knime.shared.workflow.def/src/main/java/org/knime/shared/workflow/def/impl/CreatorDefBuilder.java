@@ -166,7 +166,8 @@ public class CreatorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CreatorDef.Attribute.SAVED_WITH_VERSION);
         try {
-            m_savedWithVersion = Optional.ofNullable(savedWithVersion.get());
+            var supplied = savedWithVersion.get();
+            m_savedWithVersion = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -224,7 +225,8 @@ public class CreatorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CreatorDef.Attribute.NIGHTLY);
         try {
-            m_nightly = Optional.ofNullable(nightly.get());
+            var supplied = nightly.get();
+            m_nightly = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      

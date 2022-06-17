@@ -154,7 +154,8 @@ public class CipherDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CipherDef.Attribute.PASSWORD_DIGEST);
         try {
-            m_passwordDigest = passwordDigest.get();
+            var supplied = passwordDigest.get();
+            m_passwordDigest = supplied;
 
             if(m_passwordDigest == null) {
                 throw new IllegalArgumentException("passwordDigest is required and must not be null.");
@@ -200,7 +201,8 @@ public class CipherDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CipherDef.Attribute.ENCRYPTION_KEY);
         try {
-            m_encryptionKey = encryptionKey.get();
+            var supplied = encryptionKey.get();
+            m_encryptionKey = supplied;
 
             if(m_encryptionKey == null) {
                 throw new IllegalArgumentException("encryptionKey is required and must not be null.");
@@ -262,7 +264,8 @@ public class CipherDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CipherDef.Attribute.PASSWORD_HINT);
         try {
-            m_passwordHint = Optional.ofNullable(passwordHint.get());
+            var supplied = passwordHint.get();
+            m_passwordHint = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -284,9 +287,11 @@ public class CipherDefBuilder {
 	 */
     public DefaultCipherDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_passwordDigest == null) setPasswordDigest( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_encryptionKey == null) setEncryptionKey( null);
         

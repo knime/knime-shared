@@ -84,10 +84,10 @@ abstract class BaseNodeSaver {
     static BaseNodeSaver getInstance(final BaseNodeDef node, final CreatorDef creator) {
         var type = node.getNodeType();
         switch (type) {
-            case NATIVENODE:
+            case NATIVE:
                 return new NativeNodeSaver((NativeNodeDef)node);
-            case METANODE:
-                return new MetaNodeSaver((MetaNodeDef)node, creator);
+            case META:
+                return new MetaNodeSaver((MetaNodeDef)node, false, creator);
             case COMPONENT:
                 return new ComponentNodeSaver((ComponentNodeDef)node, creator);
         }
@@ -99,7 +99,7 @@ abstract class BaseNodeSaver {
      *
      * @param nodeDirectory An already created node directory
      * @param parentWorkflowNodeSettings The parent workflow settings entry corresponding to the node (can be null for
-     *            standalones)
+     *            standalones). If non-null, this is extended to point to the node settings file of the child node.
      * @throws IOException If there's a problem with writing to disk
      */
     abstract void save(final File nodeDirectory, final ConfigBase parentWorkflowNodeSettings) throws IOException;
@@ -123,7 +123,7 @@ abstract class BaseNodeSaver {
      * @param parentWorkflowNodeSettings The {@link ConfigBase} of the corresponding entry (key is e.g. "node_42")
      */
     void addParentWorkflowNodeSettings(final ConfigBase parentWorkflowNodeSettings) {
-        parentWorkflowNodeSettings.addInt(IOConst.ID_KEY.get(), m_baseNode.getId());
+        m_baseNode.getId().ifPresent(id -> parentWorkflowNodeSettings.addInt(IOConst.ID_KEY.get(), id));
         var nodeType = m_baseNode.getNodeType();
         parentWorkflowNodeSettings.addString(IOConst.WORKFLOW_NODES_NODE_TYPE_KEY.get(),
             SaverUtils.nodeTypeString.get(nodeType));

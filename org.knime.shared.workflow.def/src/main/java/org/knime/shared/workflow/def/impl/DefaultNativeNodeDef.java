@@ -270,7 +270,7 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public Integer getId() {
+    public Optional<Integer> getId() {
         return m_id;
     }
     @Override

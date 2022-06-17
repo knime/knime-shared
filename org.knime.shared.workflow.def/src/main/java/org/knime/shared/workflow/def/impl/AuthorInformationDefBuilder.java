@@ -159,7 +159,8 @@ public class AuthorInformationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.AUTHORED_BY);
         try {
-            m_authoredBy = authoredBy.get();
+            var supplied = authoredBy.get();
+            m_authoredBy = supplied;
 
             if(m_authoredBy == null) {
                 throw new IllegalArgumentException("authoredBy is required and must not be null.");
@@ -205,7 +206,8 @@ public class AuthorInformationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.AUTHORED_WHEN);
         try {
-            m_authoredWhen = authoredWhen.get();
+            var supplied = authoredWhen.get();
+            m_authoredWhen = supplied;
 
             if(m_authoredWhen == null) {
                 throw new IllegalArgumentException("authoredWhen is required and must not be null.");
@@ -267,7 +269,8 @@ public class AuthorInformationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.LAST_EDITED_BY);
         try {
-            m_lastEditedBy = Optional.ofNullable(lastEditedBy.get());
+            var supplied = lastEditedBy.get();
+            m_lastEditedBy = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -325,7 +328,8 @@ public class AuthorInformationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AuthorInformationDef.Attribute.LAST_EDITED_WHEN);
         try {
-            m_lastEditedWhen = Optional.ofNullable(lastEditedWhen.get());
+            var supplied = lastEditedWhen.get();
+            m_lastEditedWhen = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -347,9 +351,11 @@ public class AuthorInformationDefBuilder {
 	 */
     public DefaultAuthorInformationDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_authoredBy == null) setAuthoredBy( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_authoredWhen == null) setAuthoredWhen( null);
         

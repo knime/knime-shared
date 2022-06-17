@@ -150,7 +150,8 @@ public class NodeAnnotationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NodeAnnotationDef.Attribute.ANNOTATION_DEFAULT);
         try {
-            m_annotationDefault = annotationDefault.get();
+            var supplied = annotationDefault.get();
+            m_annotationDefault = supplied;
 
             if(m_annotationDefault == null) {
                 throw new IllegalArgumentException("annotationDefault is required and must not be null.");
@@ -212,7 +213,8 @@ public class NodeAnnotationDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NodeAnnotationDef.Attribute.DATA);
         try {
-            m_data = Optional.ofNullable(data.get());
+            var supplied = data.get();
+            m_data = Optional.ofNullable(supplied);
             if (m_data.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_data.get()).hasExceptions()) {
                 m_exceptionalChildren.put(NodeAnnotationDef.Attribute.DATA, (LoadExceptionTree<?>)m_data.get());
             }
@@ -245,6 +247,7 @@ public class NodeAnnotationDefBuilder {
 	 */
     public DefaultNodeAnnotationDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_annotationDefault == null) setAnnotationDefault( null);
         

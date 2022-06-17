@@ -83,10 +83,10 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
 
 
     /** 
-     * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection.  
+     * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow. 
      */
     @JsonProperty("id")
-    protected Integer m_id;
+    protected Optional<Integer> m_id;
 
     /** 
      * states the most specific subtype, i.e., Metanode, Component, or Native Node 
@@ -151,6 +151,18 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
      */
     static DefaultBaseNodeDef withException(BaseNodeDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
+        if (toCopy instanceof org.knime.shared.workflow.def.ComponentNodeDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new ComponentNodeDefBuilder().build());
+            return new org.knime.shared.workflow.def.impl.DefaultComponentNodeDef((org.knime.shared.workflow.def.ComponentNodeDef)toCopy, exception);
+        }
+        if (toCopy instanceof org.knime.shared.workflow.def.NativeNodeDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new NativeNodeDefBuilder().build());
+            return new org.knime.shared.workflow.def.impl.DefaultNativeNodeDef((org.knime.shared.workflow.def.NativeNodeDef)toCopy, exception);
+        }
+        if (toCopy instanceof org.knime.shared.workflow.def.MetaNodeDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new MetaNodeDefBuilder().build());
+            return new org.knime.shared.workflow.def.impl.DefaultMetaNodeDef((org.knime.shared.workflow.def.MetaNodeDef)toCopy, exception);
+        }
         throw new IllegalArgumentException();
     }
     
@@ -171,7 +183,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTr
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public Integer getId() {
+    public Optional<Integer> getId() {
         return m_id;
     }
     @Override

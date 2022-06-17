@@ -166,7 +166,8 @@ public class PortMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortMetadataDef.Attribute.NAME);
         try {
-            m_name = Optional.ofNullable(name.get());
+            var supplied = name.get();
+            m_name = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -224,7 +225,8 @@ public class PortMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortMetadataDef.Attribute.DESCRIPTION);
         try {
-            m_description = Optional.ofNullable(description.get());
+            var supplied = description.get();
+            m_description = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      

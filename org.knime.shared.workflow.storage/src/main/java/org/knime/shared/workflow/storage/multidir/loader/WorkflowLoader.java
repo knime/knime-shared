@@ -56,10 +56,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
+import org.knime.core.util.workflow.def.FallibleSupplier;
+import org.knime.shared.workflow.def.AnnotationDataDef;
 import org.knime.shared.workflow.def.AuthorInformationDef;
 import org.knime.shared.workflow.def.BaseNodeDef;
 import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
@@ -85,6 +88,30 @@ import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
  */
 @SuppressWarnings("javadoc")
 public final class WorkflowLoader {
+
+    /**
+     * RootWorkflowBuilder does not inherit from WorkflowBuilder (although RootWorkflowDef extends WorkflowDef).
+     * This was easier to implement with the code generation. To reuse the loader code, this abstracts from the shared
+     * builder method addToConnections.
+     *
+     * @author Carl Witt, KNIME AG, Zurich, Switzerland
+     */
+    @FunctionalInterface
+    interface ListCollector<T> {
+        void accept(FallibleSupplier<T> value, T defaultValue);
+    }
+
+    /**
+     * RootWorkflowBuilder does not inherit from WorkflowBuilder (although RootWorkflowDef extends WorkflowDef).
+     * This was easier to implement with the code generation. To reuse the loader code, this abstracts from the shared
+     * builder methods putToNodes, putToAnnotations
+     *
+     * @author Carl Witt, KNIME AG, Zurich, Switzerland
+     */
+    @FunctionalInterface
+    interface MapCollector<T> {
+        void accept(String key, FallibleSupplier<T> value, T defaultValue);
+    }
 
     private WorkflowLoader() {
     }
@@ -142,65 +169,67 @@ public final class WorkflowLoader {
             .setAuthorInformation(() -> loadAuthorInformation(workflowConfig, loadVersion))
             .setWorkflowEditorSettings(() -> loadWorkflowUISettings(workflowConfig, loadVersion),
                 new WorkflowUISettingsDefBuilder().build());
-        setNodes(builder, workflowConfig, workflowDirectory, loadVersion);
-        setConnections(builder, workflowConfig, loadVersion);
-        setAnnotations(builder, workflowConfig, loadVersion);
+        setNodes(builder::putToNodes, builder::setNodes, workflowConfig, workflowDirectory, loadVersion);
+        setConnections(builder::addToConnections, builder::setConnections, workflowConfig, loadVersion);
+        setAnnotations(builder::putToAnnotations, builder::setAnnotations, workflowConfig, loadVersion);
 
         return builder.build();
     }
 
-    private static void setNodes(final WorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
+    static void setNodes(final MapCollector<BaseNodeDef> nodeCollector, final Consumer<FallibleSupplier<Map<String, BaseNodeDef>>> errorCollector, final ConfigBaseRO workflowConfig,
         final File directory, final LoadVersion loadVersion) {
         try {
             var nodesSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get());
             if (nodesSettings != null) {
                 nodesSettings.keySet()
-                    .forEach(key -> builder.putToNodes(key,
+                    .forEach(key -> nodeCollector.accept(key,
                         () -> loadNode(nodesSettings.getConfigBase(key), directory, loadVersion),
                         new NativeNodeDefBuilder().build()));
             }
         } catch (InvalidSettingsException ex) {
-            builder.setNodes(() -> {
+            errorCollector.accept(() -> {
                 throw ex;
             });
         }
     }
 
-    private static void setConnections(final WorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
+    static void setConnections(final ListCollector<ConnectionDef> connectionCollector,
+        final Consumer<FallibleSupplier<List<ConnectionDef>>> errorCollector, final ConfigBaseRO workflowConfig,
         final LoadVersion loadVersion) {
         try {
             var connectionsSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_CONNECTIONS_KEY.get());
             if (connectionsSettings != null) {
                 connectionsSettings.keySet()
-                    .forEach(key -> builder.addToConnections(
+                    .forEach(key -> connectionCollector.accept(
                         () -> loadConnection(connectionsSettings.getConfigBase(key), loadVersion),
                         new ConnectionDefBuilder().build()));
             }
         } catch (InvalidSettingsException ex) {
-            builder.setConnections(() -> {
+            errorCollector.accept(() -> {
                 throw ex;
             });
         }
     }
 
-    private static void setAnnotations(final WorkflowDefBuilder builder, final ConfigBaseRO workflowConfig,
+    static void setAnnotations(final MapCollector<AnnotationDataDef> annotationCollector,
+        final Consumer<FallibleSupplier<Map<String, AnnotationDataDef>>> bulkCollector, final ConfigBaseRO workflowConfig,
         final LoadVersion loadVersion) {
         if (loadVersion.isOlderThan(LoadVersion.V230)
             || !workflowConfig.containsKey(IOConst.WORKFLOW_ANNOTATIONS_KEY.get())) {
-            builder.setAnnotations(Map.of());
+            bulkCollector.accept(Map::of);
         } else {
             try {
                 var annoSettings = workflowConfig.getConfigBase(IOConst.WORKFLOW_ANNOTATIONS_KEY.get());
                 if (annoSettings != null) {
                     int annoId = 0;
                     for (String key : annoSettings.keySet()) {
-                        builder.putToAnnotations(String.valueOf(annoId++),
+                        annotationCollector.accept(String.valueOf(annoId++),
                             () -> LoaderUtils.loadAnnotation(annoSettings.getConfigBase(key), loadVersion),
                             new AnnotationDataDefBuilder().build());
                     }
                 }
             } catch (InvalidSettingsException ex) {
-                builder.setConnections(() -> {
+                bulkCollector.accept(() -> {
                     throw ex;
                 });
             }
@@ -222,12 +251,12 @@ public final class WorkflowLoader {
         var nodeDirectory = settingsFile.getParentFile();
 
         switch (loadNodeType(nodeConfig, workflowFormatVersion)) {
-            case METANODE:
-                return MetaNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion);
-            case NATIVENODE:
+            case META:
+                return MetaNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion, false);
+            case NATIVE:
                 return NativeNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion);
             case COMPONENT:
-                return ComponentNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion);
+                return ComponentNodeLoader.load(nodeConfig, nodeDirectory, workflowFormatVersion, false);
             default:
                 throw new IllegalStateException("Unknown node type");
         }
@@ -244,12 +273,12 @@ public final class WorkflowLoader {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
             var factory = settings.getString("factory");
             if (OLD_META_NODES.contains(factory)) {
-                return NodeTypeEnum.METANODE;
+                return NodeTypeEnum.META;
             } else {
-                return NodeTypeEnum.NATIVENODE;
+                return NodeTypeEnum.NATIVE;
             }
         } else if (workflowFormatVersion.isOlderThan(LoadVersion.V2100Pre)) {
-            return settings.getBoolean("node_is_meta") ? NodeTypeEnum.METANODE : NodeTypeEnum.NATIVENODE;
+            return settings.getBoolean("node_is_meta") ? NodeTypeEnum.META : NodeTypeEnum.NATIVE;
         } else {
             final var nodeType = settings.getString("node_type");
             return getNodeType(nodeType);
@@ -259,11 +288,11 @@ public final class WorkflowLoader {
     private static NodeTypeEnum getNodeType(final String nodeType) {
         switch (nodeType.toLowerCase(Locale.ENGLISH)) {
             case "metanode":
-                return NodeTypeEnum.METANODE;
+                return NodeTypeEnum.META;
             case "subnode":
                 return NodeTypeEnum.COMPONENT;
             default:
-                return NodeTypeEnum.NATIVENODE;
+                return NodeTypeEnum.NATIVE;
         }
     }
 
@@ -282,7 +311,7 @@ public final class WorkflowLoader {
         return Optional.ofNullable(className == null || className.equals(CONNECTION_UI_CLASSNAME) ? null : className);
     }
 
-    private static String loadName(final ConfigBaseRO set, final LoadVersion workflowFormatVersion)
+    static String loadName(final ConfigBaseRO set, final LoadVersion workflowFormatVersion)
         throws InvalidSettingsException {
         if (workflowFormatVersion.isOlderThan(LoadVersion.V200)) {
             return WORKFLOW_MANAGER;
@@ -379,7 +408,7 @@ public final class WorkflowLoader {
      * @return
      * @throws InvalidSettingsException
      */
-    private static WorkflowUISettingsDef loadWorkflowUISettings(final ConfigBaseRO workflowConfig,
+    static WorkflowUISettingsDef loadWorkflowUISettings(final ConfigBaseRO workflowConfig,
         final LoadVersion workflowFormatVersion) throws InvalidSettingsException {
         var builder = new WorkflowUISettingsDefBuilder();
         if (workflowFormatVersion.isOlderThan(LoadVersion.V260)
@@ -401,7 +430,7 @@ public final class WorkflowLoader {
         return builder.build();
     }
 
-    private static AuthorInformationDef loadAuthorInformation(final ConfigBaseRO settings,
+    static AuthorInformationDef loadAuthorInformation(final ConfigBaseRO settings,
         final LoadVersion loadVersion) throws InvalidSettingsException {
         if (loadVersion.ordinal() >= LoadVersion.V280.ordinal()
             && settings.containsKey(IOConst.AUTHOR_INFORMATION_KEY.get())) {

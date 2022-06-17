@@ -48,7 +48,6 @@
  */
 package org.knime.shared.workflow.storage.multidir.loader;
 
-import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_CONFIG_MAP;
 import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_EMPTY_STRING;
 import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_NEGATIVE_INDEX;
 
@@ -56,6 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -91,8 +91,6 @@ public final class ComponentNodeLoader {
     private ComponentNodeLoader() {
     }
 
-    private static final byte[] DEFAULT_ICON = new byte[0];
-
     private static final PortDef DEFAULT_PORT_DEF = new PortDefBuilder().build();
 
     /**
@@ -106,7 +104,7 @@ public final class ComponentNodeLoader {
      * @throws IOException whether the settings.xml can't be found.
      */
     public static DefaultComponentNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
-        final LoadVersion workflowFormatVersion) throws IOException {
+        final LoadVersion workflowFormatVersion, final boolean isStandalone) throws IOException {
         var componentConfig = LoaderUtils.readNodeConfigFromFile(nodeDirectory);
 
         var builder = new ComponentNodeDefBuilder() //
@@ -118,25 +116,24 @@ public final class ComponentNodeLoader {
             // The template.knime is redundant for the Components, settings.xml contains the template information.
             .setTemplateMetadata(() -> LoaderUtils.loadTemplateMetadata(componentConfig).orElse(null)) //
             .setTemplateLink(() -> LoaderUtils.loadTemplateLink(componentConfig).orElse(null))//
-            .setMetadata(() -> loadMetadata(componentConfig), new ComponentMetadataDefBuilder() //
-                .build()) //
+            .setMetadata(() -> loadMetadata(componentConfig).orElse(null)) //
             .setWorkflow(() -> WorkflowLoader.load(nodeDirectory, workflowFormatVersion),
                 new WorkflowDefBuilder().build()) //
             // single node properties
-            .setInternalNodeSubSettings(() -> SingleNodeLoader.loadInternalNodeSubSettings(componentConfig),
-                DEFAULT_CONFIG_MAP) //
-            .setModelSettings(() -> SingleNodeLoader.loadModelSettings(componentConfig), DEFAULT_CONFIG_MAP) //
-            .setVariableSettings(() -> SingleNodeLoader.loadVariableSettings(componentConfig), DEFAULT_CONFIG_MAP)
+            .setInternalNodeSubSettings(() -> SingleNodeLoader.loadInternalNodeSubSettings(componentConfig)) //
+            .setModelSettings(() -> SingleNodeLoader.loadModelSettings(componentConfig)) //
+            .setVariableSettings(() -> SingleNodeLoader.loadVariableSettings(componentConfig))
             // base node properties
-            .setId(() -> BaseNodeLoader.loadNodeId(workflowConfig), BaseNodeLoader.getRandomNodeID()) //
-            .setAnnotation(() -> BaseNodeLoader.loadAnnotation(componentConfig, workflowFormatVersion),
-                BaseNodeLoader.DEFAULT_NODE_ANNOTATION) //
-            .setCustomDescription(
-                () -> BaseNodeLoader.loadCustomDescription(workflowConfig, componentConfig, workflowFormatVersion),
-                null) //
-            .setJobManager(() -> BaseNodeLoader.loadJobManager(componentConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
+            .setAnnotation(() -> BaseNodeLoader.loadAnnotation(componentConfig, workflowFormatVersion)) //
+            .setCustomDescription(() -> BaseNodeLoader
+                .loadCustomDescription(workflowConfig, componentConfig, workflowFormatVersion).orElse(null)) //
+            .setJobManager(() -> BaseNodeLoader.loadJobManager(componentConfig).orElse(null)) //
             .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
             .setBounds(() -> BaseNodeLoader.loadBoundsDef(workflowConfig, workflowFormatVersion).orElse(null));
+
+        if(!isStandalone) {
+            builder.setId(() -> BaseNodeLoader.loadNodeId(workflowConfig));
+        }
 
         setInPorts(builder, componentConfig);
         setOutPorts(builder, componentConfig);
@@ -196,8 +193,7 @@ public final class ComponentNodeLoader {
     private static ComponentDialogSettingsDef loadDialogSettings(final ConfigBaseRO settings) {
         return new ComponentDialogSettingsDefBuilder() //
             .setLayoutJSON(settings.getString(IOConst.LAYOUT_JSON_KEY.get(), null)) //
-            .setConfigurationLayoutJSON(
-                settings.getString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(), null)) //
+            .setConfigurationLayoutJSON(settings.getString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(), null)) //
             .setCssStyles(settings.getString(IOConst.CUSTOM_CSS_KEY.get(), null)) //
             .setHideInWizard(settings.getBoolean(IOConst.HIDE_IN_WIZARD_KEY.get(), false)) //
             .build();
@@ -232,17 +228,24 @@ public final class ComponentNodeLoader {
      * @return a {@link ComponenetMetadataDef}
      * @throws InvalidSettingsException
      */
-    private static ComponentMetadataDef loadMetadata(final ConfigBaseRO settings) throws InvalidSettingsException {
+    private static Optional<ComponentMetadataDef> loadMetadata(final ConfigBaseRO settings)
+        throws InvalidSettingsException {
+        if(!settings.containsKey(IOConst.METADATA_KEY.get())) {
+            return Optional.empty();
+        }
         var metadataSettings = settings.getConfigBase(IOConst.METADATA_KEY.get());
+        if (!settings.containsKey(IOConst.METADATA_KEY.get())) {
+            return Optional.empty();
+        }
         if (!metadataSettings.containsKey(IOConst.DESCRIPTION_KEY.get())) {
-            return new ComponentMetadataDefBuilder().build();
+            return Optional.empty();
         }
 
-        return new ComponentMetadataDefBuilder() //
+        return Optional.of(new ComponentMetadataDefBuilder() //
             .setDescription(() -> metadataSettings.getString(IOConst.DESCRIPTION_KEY.get()))
-            .setIcon(() -> loadIcon(metadataSettings), DEFAULT_ICON)
+            .setIcon(() -> loadIcon(metadataSettings).orElse(null))
             .setInPortMetadata(() -> loadPortsMetadata(metadataSettings, IOConst.INPORTS_KEY.get()))
-            .setOutPortMetadata(() -> loadPortsMetadata(metadataSettings, IOConst.OUTPORTS_KEY.get())).build();
+            .setOutPortMetadata(() -> loadPortsMetadata(metadataSettings, IOConst.OUTPORTS_KEY.get())).build());
     }
 
     /**
@@ -254,7 +257,8 @@ public final class ComponentNodeLoader {
      * @return
      * @throws InvalidSettingsException
      */
-    private static List<PortMetadataDef> loadPortsMetadata(final ConfigBaseRO sub, final String portsKey) throws InvalidSettingsException {
+    private static List<PortMetadataDef> loadPortsMetadata(final ConfigBaseRO sub, final String portsKey)
+        throws InvalidSettingsException {
         var inportsSetting = loadSetting(sub, portsKey);
         if (inportsSetting == null) {
             return List.of();
@@ -268,8 +272,8 @@ public final class ComponentNodeLoader {
         for (var key : inportsSetting.keySet()) {
             var portSetting = inportsSetting.getConfigBase(key);
             var index = portSetting.getInt(IOConst.PORT_INDEX_KEY.get(), DEFAULT_NEGATIVE_INDEX);
-            final String name = portSetting.containsKey(nameKey) ? portSetting.getString(nameKey) : null;
-            final String description = portSetting.containsKey(descKey) ? portSetting.getString(descKey) : null;
+            final String name = portSetting.getOptionalString(nameKey).orElse(null);
+            final String description = portSetting.getOptionalString(descKey).orElse(null);
             PortMetadataDef data = new PortMetadataDefBuilder().setName(name).setDescription(description).build();
             treeMap.put(index, data);
         }
@@ -277,23 +281,11 @@ public final class ComponentNodeLoader {
     }
 
     private static ConfigBaseRO loadSetting(final ConfigBaseRO sub, final String key) throws InvalidSettingsException {
-        try {
-            if (sub.containsKey(key)) {
-                return sub.getConfigBase(key);
-            } else {
-                return null;
-            }
-        } catch (InvalidSettingsException e) {
-            var errorMessage = String.format("Unable to load the %s: %s", key, e.getMessage());
-            throw new InvalidSettingsException(errorMessage, e);
-        }
+        return sub.getOptionalConfigBase(key).orElse(null);
     }
 
-    private static byte[] loadIcon(final ConfigBaseRO sub) throws InvalidSettingsException {
-        if (sub.containsKey(IOConst.ICON_KEY.get())) {
-            return DEFAULT_ICON;
-        }
-        return Base64.getDecoder().decode(sub.getString(IOConst.ICON_KEY.get()));
+    private static Optional<byte[]> loadIcon(final ConfigBaseRO sub) {
+        return sub.getOptionalString(IOConst.ICON_KEY.get()).map(string -> Base64.getDecoder().decode(string));
     }
 
     private static PortDef loadPort(final ConfigBaseRO settings) {

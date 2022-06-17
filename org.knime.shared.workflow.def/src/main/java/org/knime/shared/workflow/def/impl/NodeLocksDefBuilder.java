@@ -154,7 +154,8 @@ public class NodeLocksDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NodeLocksDef.Attribute.HAS_DELETE_LOCK);
         try {
-            m_hasDeleteLock = hasDeleteLock.get();
+            var supplied = hasDeleteLock.get();
+            m_hasDeleteLock = supplied;
 
             if(m_hasDeleteLock == null) {
                 throw new IllegalArgumentException("hasDeleteLock is required and must not be null.");
@@ -200,7 +201,8 @@ public class NodeLocksDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NodeLocksDef.Attribute.HAS_RESET_LOCK);
         try {
-            m_hasResetLock = hasResetLock.get();
+            var supplied = hasResetLock.get();
+            m_hasResetLock = supplied;
 
             if(m_hasResetLock == null) {
                 throw new IllegalArgumentException("hasResetLock is required and must not be null.");
@@ -246,7 +248,8 @@ public class NodeLocksDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(NodeLocksDef.Attribute.HAS_CONFIGURE_LOCK);
         try {
-            m_hasConfigureLock = hasConfigureLock.get();
+            var supplied = hasConfigureLock.get();
+            m_hasConfigureLock = supplied;
 
             if(m_hasConfigureLock == null) {
                 throw new IllegalArgumentException("hasConfigureLock is required and must not be null.");
@@ -272,12 +275,15 @@ public class NodeLocksDefBuilder {
 	 */
     public DefaultNodeLocksDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_hasDeleteLock == null) setHasDeleteLock( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_hasResetLock == null) setHasResetLock( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_hasConfigureLock == null) setHasConfigureLock( null);
         

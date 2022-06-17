@@ -50,20 +50,25 @@ package org.knime.shared.workflow.storage.multidir.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.node.config.base.SimpleConfig;
+import org.knime.core.node.config.base.XMLConfig;
 import org.knime.core.util.LoadVersion;
-import org.knime.shared.workflow.def.JobManagerDef;
+import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+import org.knime.shared.workflow.def.MetaNodeDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
+import org.knime.shared.workflow.storage.multidir.util.IOConst;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -72,23 +77,14 @@ import org.knime.shared.workflow.def.NodeAnnotationDef;
 @SuppressWarnings("squid:S2698")
 class MetaNodeLoaderTest {
 
-    private ConfigBaseRO m_configBaseRO;
-
-    @BeforeEach
-    void setUp() {
-        m_configBaseRO = mock(ConfigBaseRO.class);
-    }
 
     @Test
     void templateMetaNodeLoaderTest() throws InvalidSettingsException, IOException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Metanode_Template");
 
-        when(m_configBaseRO.getInt("id")).thenReturn(1);
-        when(m_configBaseRO.containsKey("customDescription")).thenReturn(true);
-
         // when
-        var metanodeDef = MetaNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);
+        MetaNodeDef metanodeDef = (MetaNodeDef)StandaloneLoader.load(file).getContents();
 
         // then
 
@@ -97,13 +93,12 @@ class MetaNodeLoaderTest {
         assertThat(metanodeDef.getOutPorts()).isEmpty();
         assertThat(metanodeDef.getInPortsBarBounds()).isEmpty();
         assertThat(metanodeDef.getOutPortsBarBounds()).isEmpty();
-        assertThat(metanodeDef.getTemplateLink().get().getVersion().getMonthValue()).isEqualTo(1);
-        assertThat(metanodeDef.getTemplateLink().get().getUri()).isNull();
+        assertThat(metanodeDef.getTemplateMetadata().get().getVersion().getMonthValue()).isEqualTo(1);
         assertThat(metanodeDef.getWorkflow()).isNotNull();
         assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(1);
 
         // Assert NodeLoader
-        assertThat(metanodeDef.getId()).isEqualTo(1);
+        assertThat(metanodeDef.getId()).isEmpty(); // standalone metanode does not have an ID
         assertThat(metanodeDef.getAnnotation().get().getData()).isEmpty();
         assertThat(metanodeDef.getCustomDescription()).isEmpty();
         assertThat(metanodeDef.getJobManager()).isNotNull();
@@ -111,25 +106,24 @@ class MetaNodeLoaderTest {
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
         assertThat(metanodeDef.getBounds()).isEmpty();
-        metanodeDef.getLoadExceptionTree().getFlattenedLoadExceptions().forEach(Exception::printStackTrace);
-        assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).as(metanodeDef.getLoadExceptionTree().getFlattenedLoadExceptions().toString()).isFalse();
+        LoadExceptionTree<?> let =((LoadExceptionTreeProvider)metanodeDef).getLoadExceptionTree();
+        assertThat(let.hasExceptions()).as(let.getFlattenedLoadExceptions().toString()).isFalse();
     }
 
     @Test
-    void linkMetaNodeLoaderTest() throws IOException, InvalidSettingsException {
+    void linkMetaNodeLoaderTest() throws IOException, InvalidSettingsException, SAXException, ParserConfigurationException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/MetanodeTest (#12)");
 
-        when(m_configBaseRO.getInt("id")).thenReturn(431);
-        when(m_configBaseRO.containsKey("customDescription")).thenReturn(false);
-        when(m_configBaseRO.containsKey("annotations")).thenReturn(false);
-        when(m_configBaseRO.containsKey("ui_settings")).thenReturn(true);
-        var uiSettings = new SimpleConfig("ui_settings");
-        uiSettings.addIntArray("extrainfo.node.bounds", new int[]{2541, 1117, 122, 65});
-        when(m_configBaseRO.getConfigBase("ui_settings")).thenReturn(uiSettings);
+        var parentWorkflowFile = new File(file.getParent(), IOConst.WORKFLOW_FILE_NAME.get());
+        var workflowConfig = new SimpleConfig("workflow.knime");
+        try (var fis = new FileInputStream(parentWorkflowFile)) {
+            XMLConfig.load(workflowConfig, fis);
+        }
 
         // when
-        var metanodeDef = MetaNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);
+        var metanodeDef = MetaNodeLoader.load(workflowConfig.getConfigBase("nodes").getConfigBase("node_12"), file,
+            LoadVersion.FUTURE, false);
 
         // then
 
@@ -150,16 +144,16 @@ class MetaNodeLoaderTest {
         assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(4);
 
         // Assert NodeLoader
-        assertThat(metanodeDef.getId()).isEqualTo(431);
+        assertThat(metanodeDef.getId()).contains(12);
         assertThat(metanodeDef.getAnnotation().get()).isInstanceOf(NodeAnnotationDef.class);
         assertThat(metanodeDef.getCustomDescription()).isEmpty();
-        assertThat(metanodeDef.getJobManager().get()).isInstanceOf(JobManagerDef.class);
+        assertThat(metanodeDef.getJobManager()).isEmpty();
         assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
         assertThat(metanodeDef.getBounds().get())
             .extracting(n -> n.getLocation().getX(), n -> n.getLocation().getY(), n -> n.getHeight(), n -> n.getWidth())
-            .containsExactly(2541, 1117, 122, 65);
+            .containsExactly(324, 317, 94, 64);
         assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 }

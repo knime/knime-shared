@@ -150,7 +150,8 @@ public class JobManagerDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(JobManagerDef.Attribute.FACTORY);
         try {
-            m_factory = factory.get();
+            var supplied = factory.get();
+            m_factory = supplied;
 
             if(m_factory == null) {
                 throw new IllegalArgumentException("factory is required and must not be null.");
@@ -212,7 +213,8 @@ public class JobManagerDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(JobManagerDef.Attribute.SETTINGS);
         try {
-            m_settings = Optional.ofNullable(settings.get());
+            var supplied = settings.get();
+            m_settings = Optional.ofNullable(supplied);
             if (m_settings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_settings.get()).hasExceptions()) {
                 m_exceptionalChildren.put(JobManagerDef.Attribute.SETTINGS, (LoadExceptionTree<?>)m_settings.get());
             }
@@ -245,6 +247,7 @@ public class JobManagerDefBuilder {
 	 */
     public DefaultJobManagerDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_factory == null) setFactory( null);
         

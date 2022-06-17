@@ -158,13 +158,15 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         // Add in ports
         nodeSettings.addInt(IOConst.VIRTUAL_IN_ID_KEY.get(), m_componentNode.getVirtualInNodeId());
         var inPorts = new SimpleConfig(IOConst.INPORTS_KEY.get());
-        m_componentNode.getInPorts().orElse(List.of()).forEach(port -> SaverUtils.addPort(inPorts, IOConst.INPORT_PREFIX.get(), port));
+        m_componentNode.getInPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(inPorts, IOConst.INPORT_PREFIX.get(), p)));
         nodeSettings.addEntry(inPorts);
 
         // Add out ports
         nodeSettings.addInt(IOConst.VIRTUAL_OUT_ID_KEY.get(), m_componentNode.getVirtualOutNodeId());
         var outPorts = new SimpleConfig(IOConst.OUTPORTS_KEY.get());
-        m_componentNode.getOutPorts().orElse(List.of()).forEach(port -> SaverUtils.addPort(outPorts, IOConst.OUTPORT_PREFIX.get(), port));
+        m_componentNode.getOutPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(outPorts, IOConst.OUTPORT_PREFIX.get(), p)));
         nodeSettings.addEntry(outPorts);
     }
 

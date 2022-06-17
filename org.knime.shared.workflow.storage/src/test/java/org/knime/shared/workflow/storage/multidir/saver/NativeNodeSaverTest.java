@@ -132,7 +132,8 @@ class NativeNodeSaverTest {
         // These settings will be properly tested in the WorkflowSaverTest
         var workflowNodeSettings = new SimpleConfig("node_" + nativeNodeDef.getId());
 
-        String outputDirname = String.format("%s (#%d)", nativeNodeDef.getNodeName(), nativeNodeDef.getId());
+        String outputDirname = nativeNodeDef.getId()
+            .map(id -> String.format("%s (#%d)", nativeNodeDef.getNodeName(), id)).orElse(nativeNodeDef.getNodeName());
         var outputNodeDir = new File(OUTPUT_DIRECTORY, outputDirname);
         outputNodeDir.mkdir();
 

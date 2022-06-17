@@ -151,7 +151,8 @@ public class TemplateLinkDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(TemplateLinkDef.Attribute.URI);
         try {
-            m_uri = uri.get();
+            var supplied = uri.get();
+            m_uri = supplied;
 
             if(m_uri == null) {
                 throw new IllegalArgumentException("uri is required and must not be null.");
@@ -197,7 +198,8 @@ public class TemplateLinkDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(TemplateLinkDef.Attribute.VERSION);
         try {
-            m_version = version.get();
+            var supplied = version.get();
+            m_version = supplied;
 
             if(m_version == null) {
                 throw new IllegalArgumentException("version is required and must not be null.");
@@ -223,9 +225,11 @@ public class TemplateLinkDefBuilder {
 	 */
     public DefaultTemplateLinkDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_uri == null) setUri( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_version == null) setVersion( null);
         

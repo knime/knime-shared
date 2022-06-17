@@ -126,8 +126,8 @@ public final class StandaloneSaver {
         workflowSaver.save(workflowDirectory, s -> {
             workflow.getTableBackendSettings().ifPresent(
                 configDef -> s.addEntry(SaverUtils.toConfigEntry(configDef, IOConst.TABLE_BACKEND_KEY.get())));
-            SaverUtils.addFlowVariables(s, workflow.getFlowVariables());
-            SaverUtils.addCredentials(s, workflow.getCredentialPlaceholders());
+            SaverUtils.addFlowVariables(s, workflow.getFlowVariables().orElse(null));
+            SaverUtils.addCredentials(s, workflow.getCredentialPlaceholders().orElse(null));
         });
     }
 
@@ -148,11 +148,11 @@ public final class StandaloneSaver {
     private void saveMetaNode(final File standaloneDirectory) throws IOException {
         var metaNode = (MetaNodeDef)m_standalone.getContents();
 
-        var metaNodeSaver = new MetaNodeSaver(metaNode, m_standalone.getCreator().orElse(DEFAULT_CREATOR));
+        var metaNodeSaver = new MetaNodeSaver(metaNode, true, m_standalone.getCreator().orElse(DEFAULT_CREATOR));
         metaNodeSaver.save(standaloneDirectory, null);
 
         if(metaNode.getTemplateMetadata().isPresent()) {
-            saveTemplateFile(standaloneDirectory, metaNode.getTemplateMetadata().get(), NodeTypeEnum.METANODE); //NOSONAR
+            saveTemplateFile(standaloneDirectory, metaNode.getTemplateMetadata().get(), NodeTypeEnum.META); //NOSONAR
         }
     }
 

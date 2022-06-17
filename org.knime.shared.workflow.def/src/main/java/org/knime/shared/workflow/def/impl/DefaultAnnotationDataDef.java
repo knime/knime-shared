@@ -84,31 +84,31 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef, LoadExceptio
     private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("text")
-    protected String m_text;
+    protected Optional<String> m_text;
 
     @JsonProperty("location")
     protected CoordinateDef m_location;
 
     @JsonProperty("textAlignment")
-    protected String m_textAlignment;
+    protected Optional<String> m_textAlignment;
 
     @JsonProperty("borderSize")
-    protected Integer m_borderSize;
+    protected Optional<Integer> m_borderSize;
 
     @JsonProperty("borderColor")
-    protected Integer m_borderColor;
+    protected Optional<Integer> m_borderColor;
 
     /** 
      * Background color 
      */
     @JsonProperty("bgcolor")
-    protected Integer m_bgcolor;
+    protected Optional<Integer> m_bgcolor;
 
     @JsonProperty("width")
     protected Integer m_width;
 
     @JsonProperty("annotationVersion")
-    protected Integer m_annotationVersion;
+    protected Optional<Integer> m_annotationVersion;
 
     @JsonProperty("defaultFontSize")
     protected Optional<Integer> m_defaultFontSize;
@@ -251,7 +251,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef, LoadExceptio
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getText() {
+    public Optional<String> getText() {
         return m_text;
     }
     @Override
@@ -259,19 +259,19 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef, LoadExceptio
         return m_location;
     }
     @Override
-    public String getTextAlignment() {
+    public Optional<String> getTextAlignment() {
         return m_textAlignment;
     }
     @Override
-    public Integer getBorderSize() {
+    public Optional<Integer> getBorderSize() {
         return m_borderSize;
     }
     @Override
-    public Integer getBorderColor() {
+    public Optional<Integer> getBorderColor() {
         return m_borderColor;
     }
     @Override
-    public Integer getBgcolor() {
+    public Optional<Integer> getBgcolor() {
         return m_bgcolor;
     }
     @Override
@@ -279,7 +279,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef, LoadExceptio
         return m_width;
     }
     @Override
-    public Integer getAnnotationVersion() {
+    public Optional<Integer> getAnnotationVersion() {
         return m_annotationVersion;
     }
     @Override

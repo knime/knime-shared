@@ -166,7 +166,8 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.PORT_OBJECT_CLASS);
         try {
-            m_portObjectClass = portObjectClass.get();
+            var supplied = portObjectClass.get();
+            m_portObjectClass = supplied;
 
             if(m_portObjectClass == null) {
                 throw new IllegalArgumentException("portObjectClass is required and must not be null.");
@@ -228,7 +229,8 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.PORT_OBJECT_SPEC_CLASS);
         try {
-            m_portObjectSpecClass = Optional.ofNullable(portObjectSpecClass.get());
+            var supplied = portObjectSpecClass.get();
+            m_portObjectSpecClass = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -286,7 +288,8 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.COLOR);
         try {
-            m_color = Optional.ofNullable(color.get());
+            var supplied = color.get();
+            m_color = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -328,7 +331,8 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.HIDDEN);
         try {
-            m_hidden = hidden.get();
+            var supplied = hidden.get();
+            m_hidden = supplied;
 
             if(m_hidden == null) {
                 throw new IllegalArgumentException("hidden is required and must not be null.");
@@ -374,7 +378,8 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.OPTIONAL);
         try {
-            m_optional = optional.get();
+            var supplied = optional.get();
+            m_optional = supplied;
 
             if(m_optional == null) {
                 throw new IllegalArgumentException("optional is required and must not be null.");
@@ -436,7 +441,8 @@ public class PortTypeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(PortTypeDef.Attribute.NAME);
         try {
-            m_name = Optional.ofNullable(name.get());
+            var supplied = name.get();
+            m_name = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -458,12 +464,15 @@ public class PortTypeDefBuilder {
 	 */
     public DefaultPortTypeDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_portObjectClass == null) setPortObjectClass( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_hidden == null) setHidden( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_optional == null) setOptional( null);
         

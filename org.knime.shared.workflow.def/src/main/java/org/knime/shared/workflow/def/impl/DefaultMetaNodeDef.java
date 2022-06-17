@@ -265,7 +265,7 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public Integer getId() {
+    public Optional<Integer> getId() {
         return m_id;
     }
     @Override

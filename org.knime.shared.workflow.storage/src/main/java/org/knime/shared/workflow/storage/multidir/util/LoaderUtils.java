@@ -151,7 +151,7 @@ public final class LoaderUtils {
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
 
     public static final ConfigMapDef DEFAULT_CONFIG_MAP =
-        new ConfigMapDefBuilder().strict().setConfigType("ConfigMap").setKey("default").build();
+        new ConfigMapDefBuilder().strict().setConfigType("ConfigMap").setKey("default").setChildren(Map.of()).build();
 
     static final OffsetDateTime DEFAULT_DATE_TIME = OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
@@ -323,8 +323,11 @@ public final class LoaderUtils {
         if (!templateSettings.containsKey(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get())) {
             return Optional.empty();
         }
-
         var templateInformationSettings = templateSettings.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
+
+        if (!"Link".equals(templateInformationSettings.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get()))) {
+            return Optional.empty();
+        }
         return Optional.of(new TemplateLinkDefBuilder()
             .setUri(templateInformationSettings.getString(IOConst.SOURCE_URI_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .setVersion(() -> parseDate(templateInformationSettings.getString(IOConst.TIMESTAMP.get())),
@@ -345,8 +348,11 @@ public final class LoaderUtils {
         if (!templateSettings.containsKey(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get())) {
             return Optional.empty();
         }
-
         var templateInformationSettings = templateSettings.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
+
+        if (!"Template".equals(templateInformationSettings.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get()))) {
+            return Optional.empty();
+        }
         return Optional.of(new TemplateMetadataDefBuilder()
             .setVersion(() -> parseDate(templateInformationSettings.getString(IOConst.TIMESTAMP.get())),
                 DEFAULT_DATE_TIME) //
@@ -355,17 +361,11 @@ public final class LoaderUtils {
 
     /**
      * @param settings recursive key-value map
-     * @param passwordRedactor post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
+     * @param passwordRedactor post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with
+     *            null
      * @return the recursive key-value map in a different representation
-     * @throws InvalidSettingsException
      */
-    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor)
-        throws InvalidSettingsException {
-
-        if (settings == null) {
-            return null;
-        }
-
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor) {
         return (ConfigMapDef)toConfigDef((AbstractConfigEntry)settings, settings.getKey(), passwordRedactor);
     }
 
@@ -373,9 +373,8 @@ public final class LoaderUtils {
      * Version for internal use that does not redact passwords.
      * @param settings recursive key-value map
      * @return the recursive key-value map in a different representation
-     * @throws InvalidSettingsException
      */
-    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) {
         return toConfigMapDef(settings, PasswordRedactor.unsafe());
     }
 
@@ -387,10 +386,9 @@ public final class LoaderUtils {
      * @param key the name of this subtree
      * @param passwordHandler post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
      * @return a POJO representation of the key-value map
-     * @throws InvalidSettingsException
      */
     public static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key,
-        final PasswordRedactor passwordHandler) throws InvalidSettingsException {
+        final PasswordRedactor passwordHandler) {
 
         if (settings instanceof ConfigBase) {
             // this is a subtree, because every class that extends AbstractConfigEntry and is not a subclass of

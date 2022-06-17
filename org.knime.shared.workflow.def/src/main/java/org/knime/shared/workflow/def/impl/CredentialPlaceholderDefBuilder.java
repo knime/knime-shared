@@ -150,7 +150,8 @@ public class CredentialPlaceholderDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CredentialPlaceholderDef.Attribute.NAME);
         try {
-            m_name = name.get();
+            var supplied = name.get();
+            m_name = supplied;
 
             if(m_name == null) {
                 throw new IllegalArgumentException("name is required and must not be null.");
@@ -196,7 +197,8 @@ public class CredentialPlaceholderDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CredentialPlaceholderDef.Attribute.LOGIN);
         try {
-            m_login = login.get();
+            var supplied = login.get();
+            m_login = supplied;
 
             if(m_login == null) {
                 throw new IllegalArgumentException("login is required and must not be null.");
@@ -222,9 +224,11 @@ public class CredentialPlaceholderDefBuilder {
 	 */
     public DefaultCredentialPlaceholderDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_name == null) setName( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_login == null) setLogin( null);
         

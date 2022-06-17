@@ -139,9 +139,9 @@ class StandaloneSaverTest {
             .isEqualTo(StandaloneDef.ContentTypeEnum.ROOT_WORKFLOW);
 
         var rootWF = (RootWorkflowDef)written.getContents();
-        assertThat(rootWF.getCredentialPlaceholders()).as("Check the contents of the credentials").hasSize(2)
+        assertThat(rootWF.getCredentialPlaceholders().get()).as("Check the contents of the credentials").hasSize(2)
             .extracting(CredentialPlaceholderDef::getName).containsExactly("credential test", "credential test 2");
-        var vars = rootWF.getFlowVariables();
+        var vars = rootWF.getFlowVariables().get();
         assertThat(vars).as("Check that the number of variables is 2").hasSize(2);
         assertThat(vars).extracting(FlowVariableDef::getName).containsExactly("dummy variable", "another var");
         assertThat(vars).extracting(FlowVariableDef::getPropertyClass).containsExactly("INTEGER", "STRING");

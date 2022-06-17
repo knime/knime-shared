@@ -150,7 +150,8 @@ public class FilestoreDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(FilestoreDef.Attribute.ID);
         try {
-            m_id = id.get();
+            var supplied = id.get();
+            m_id = supplied;
 
             if(m_id == null) {
                 throw new IllegalArgumentException("id is required and must not be null.");
@@ -196,7 +197,8 @@ public class FilestoreDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(FilestoreDef.Attribute.LOCATION);
         try {
-            m_location = location.get();
+            var supplied = location.get();
+            m_location = supplied;
 
             if(m_location == null) {
                 throw new IllegalArgumentException("location is required and must not be null.");
@@ -222,9 +224,11 @@ public class FilestoreDefBuilder {
 	 */
     public DefaultFilestoreDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_id == null) setId( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_location == null) setLocation( null);
         

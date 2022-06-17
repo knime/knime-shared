@@ -151,7 +151,8 @@ public class ConfigValueByteArrayDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueByteArrayDef.Attribute.CONFIG_TYPE);
         try {
-            m_configType = configType.get();
+            var supplied = configType.get();
+            m_configType = supplied;
 
             if(m_configType == null) {
                 throw new IllegalArgumentException("configType is required and must not be null.");
@@ -213,7 +214,8 @@ public class ConfigValueByteArrayDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueByteArrayDef.Attribute.ARRAY);
         try {
-            m_array = Optional.ofNullable(array.get());
+            var supplied = array.get();
+            m_array = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -235,6 +237,7 @@ public class ConfigValueByteArrayDefBuilder {
 	 */
     public DefaultConfigValueByteArrayDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType( null);
         

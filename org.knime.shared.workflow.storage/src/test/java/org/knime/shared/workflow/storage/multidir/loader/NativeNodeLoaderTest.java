@@ -61,7 +61,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
-import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 
 
@@ -107,7 +106,7 @@ class NativeNodeLoaderTest {
             .containsExactly(null, null, null, "0.0.0");
         //TODO assert the creation config value
         assertThat(nativeNodeDef.getNodeCreationConfig().get().getChildren()).containsKey("Pass through");
-        assertThat(nativeNodeDef.getFilestore().get()).isInstanceOf(FilestoreDef.class);
+        assertThat(nativeNodeDef.getFilestore()).isEmpty();
 
         // Assert SingleNodeLoader
         //TODO assert the ConfigMap value
@@ -116,11 +115,11 @@ class NativeNodeLoaderTest {
         assertThat(nativeNodeDef.getVariableSettings()).isPresent();
 
         // Assert NodeLoader
-        assertThat(nativeNodeDef.getId()).isEqualTo(1);
+        assertThat(nativeNodeDef.getId()).contains(1);
         assertThat(nativeNodeDef.getAnnotation().get().getData().get())
-            .extracting(a -> a.getText().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, 16777215);
+            .extracting(a -> a.getText().get().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, 16777215);
         assertThat(nativeNodeDef.getCustomDescription()).contains("test");
-        assertThat(nativeNodeDef.getJobManager().get().getFactory()).isEmpty();
+        assertThat(nativeNodeDef.getJobManager()).isEmpty();
         assertThat(nativeNodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
@@ -141,8 +140,8 @@ class NativeNodeLoaderTest {
         var nativeNodeDef = NativeNodeLoader.load(workflowNodeConfig, nativeNodeDir, LoadVersion.FUTURE);
 
         // then
-        assertThat(nativeNodeDef.getId()).isEqualTo(11);
-        assertThat(nativeNodeDef.getNodeType()).isEqualTo(NodeTypeEnum.NATIVENODE);
+        assertThat(nativeNodeDef.getId()).contains(11);
+        assertThat(nativeNodeDef.getNodeType()).isEqualTo(NodeTypeEnum.NATIVE);
         assertThat(nativeNodeDef.getCustomDescription()).isEmpty();
         assertThat(nativeNodeDef.getAnnotation().get().isAnnotationDefault()).isTrue();
         assertThat(nativeNodeDef.getInternalNodeSubSettings().get().getChildren()).hasSize(1);

@@ -57,7 +57,6 @@ import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.ConnectionDef;
 import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
-import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
 import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
 
@@ -98,13 +97,10 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
      * Allows to define workflow-global flow variables and set their values. 
      */
     @JsonProperty("flowVariables")
-    protected java.util.List<FlowVariableDef> m_flowVariables;
+    protected Optional<java.util.List<FlowVariableDef>> m_flowVariables;
 
     @JsonProperty("credentialPlaceholders")
-    protected java.util.List<CredentialPlaceholderDef> m_credentialPlaceholders;
-
-    @JsonProperty("workflow")
-    protected WorkflowDef m_workflow;
+    protected Optional<java.util.List<CredentialPlaceholderDef>> m_credentialPlaceholders;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -134,7 +130,6 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_tableBackendSettings = builder.m_tableBackendSettings;
         m_flowVariables = builder.m_flowVariables;
         m_credentialPlaceholders = builder.m_credentialPlaceholders;
-        m_workflow = builder.m_workflow;
 
         m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
@@ -159,7 +154,6 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_tableBackendSettings = toCopy.getTableBackendSettings();
         m_flowVariables = toCopy.getFlowVariables();
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
-        m_workflow = toCopy.getWorkflow();
         if(toCopy instanceof LoadExceptionTreeProvider){
             var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -186,7 +180,6 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_tableBackendSettings = toCopy.getTableBackendSettings();
         m_flowVariables = toCopy.getFlowVariables();
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
-        m_workflow = toCopy.getWorkflow();
         
         m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
@@ -263,16 +256,12 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         return m_tableBackendSettings;
     }
     @Override
-    public java.util.List<FlowVariableDef> getFlowVariables() {
+    public Optional<java.util.List<FlowVariableDef>> getFlowVariables() {
         return m_flowVariables;
     }
     @Override
-    public java.util.List<CredentialPlaceholderDef> getCredentialPlaceholders() {
+    public Optional<java.util.List<CredentialPlaceholderDef>> getCredentialPlaceholders() {
         return m_credentialPlaceholders;
-    }
-    @Override
-    public WorkflowDef getWorkflow() {
-        return m_workflow;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -463,29 +452,6 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
 
      
  
-    /**
-     * @return The supply exception associated to workflow.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getWorkflowSupplyException(){
-    	return getLoadExceptionTree(RootWorkflowDef.Attribute.WORKFLOW).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
-     
-    /**
-     * @return If there are {@link LoadException}s related to the {@link WorkflowDef} returned by {@link #getWorkflow()}, this
-     * returns the workflow as DefaultWorkflowDef which provides getters for the exceptions. Otherwise an empty optional.
-     */
-    @JsonIgnore
-    public Optional<DefaultWorkflowDef> getFaultyWorkflow(){
-    	final var workflow = getWorkflow(); 
-        if(LoadExceptionTreeProvider.hasExceptions(workflow)) {
-            return Optional.of((DefaultWorkflowDef)workflow);
-        }
-    	return Optional.empty();
-    }
-         
- 
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -508,7 +474,6 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         equalsBuilder.append(m_tableBackendSettings, other.m_tableBackendSettings);
         equalsBuilder.append(m_flowVariables, other.m_flowVariables);
         equalsBuilder.append(m_credentialPlaceholders, other.m_credentialPlaceholders);
-        equalsBuilder.append(m_workflow, other.m_workflow);
         return equalsBuilder.isEquals();
     }
 
@@ -524,7 +489,6 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
                 .append(m_tableBackendSettings)
                 .append(m_flowVariables)
                 .append(m_credentialPlaceholders)
-                .append(m_workflow)
                 .toHashCode();
     }
 

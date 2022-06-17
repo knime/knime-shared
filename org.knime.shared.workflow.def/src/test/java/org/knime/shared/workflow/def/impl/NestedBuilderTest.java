@@ -49,7 +49,6 @@
 package org.knime.shared.workflow.def.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
@@ -57,33 +56,24 @@ import org.junit.jupiter.api.Test;
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-class TemplateInfoDefBuilderTest {
+class NestedBuilderTest {
 
     /**
-     * Test that constructing an instance without setting the required fields with mark the instance as flawed.
+     * Test that constructing an instance with a faulty child results in a faulty instance.
      */
     @Test
     void testMissingValuesDeferredErrorCollection() {
-        var def = new TemplateLinkDefBuilder().build();
+        var faulty = new TemplateMetadataDefBuilder().build();
 
-        // has exceptions
-        assertThat(def.getLoadExceptionTree().hasExceptions()).isTrue();
+        var metaNodeDef = new MetaNodeDefBuilder().setTemplateMetadata(faulty).build();
 
-        // URI is required
-        assertThat(def.getUriSupplyException()).isPresent();
-        // update time is also required
-        assertThat(def.getVersionSupplyException()).isPresent();
+        // has exceptions because child has exceptions
+        assertThat(metaNodeDef.getLoadExceptionTree().hasExceptions()).isTrue();
+
+        var workflowDef = new WorkflowDefBuilder().putToNodes("meta", metaNodeDef).build();
+
+        // has exceptions because a node in the workflow has exceptions
+        assertThat(workflowDef.getLoadExceptionTree().hasExceptions()).isTrue();
     }
 
-    /**
-     * Test that constructing an instance without setting the required fields will throw an exception in strict mode.
-     */
-    @Test
-    void testMissingValuesStrict() {
-        // when using fail-fast mode, the builder will not allow building without providing the required fields.
-        assertThatThrownBy(() -> {
-            new TemplateMetadataDefBuilder().strict().build();
-        }).isInstanceOf(IllegalStateException.class).hasCauseInstanceOf(IllegalArgumentException.class);
-
-    }
 }

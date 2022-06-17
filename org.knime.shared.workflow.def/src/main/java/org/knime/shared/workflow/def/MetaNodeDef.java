@@ -77,9 +77,8 @@ public interface MetaNodeDef extends BaseNodeDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
           *
-          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link MetaNodeDef#getId} 
           */

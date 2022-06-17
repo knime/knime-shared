@@ -182,7 +182,8 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.FONT_SIZE);
         try {
-            m_fontSize = Optional.ofNullable(fontSize.get());
+            var supplied = fontSize.get();
+            m_fontSize = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -240,7 +241,8 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.COLOR);
         try {
-            m_color = Optional.ofNullable(color.get());
+            var supplied = color.get();
+            m_color = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -282,7 +284,8 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.START);
         try {
-            m_start = start.get();
+            var supplied = start.get();
+            m_start = supplied;
 
             if(m_start == null) {
                 throw new IllegalArgumentException("start is required and must not be null.");
@@ -344,7 +347,8 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.FONT_NAME);
         try {
-            m_fontName = Optional.ofNullable(fontName.get());
+            var supplied = fontName.get();
+            m_fontName = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -402,7 +406,8 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.FONT_STYLE);
         try {
-            m_fontStyle = Optional.ofNullable(fontStyle.get());
+            var supplied = fontStyle.get();
+            m_fontStyle = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -444,7 +449,8 @@ public class StyleRangeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StyleRangeDef.Attribute.LENGTH);
         try {
-            m_length = length.get();
+            var supplied = length.get();
+            m_length = supplied;
 
             if(m_length == null) {
                 throw new IllegalArgumentException("length is required and must not be null.");
@@ -470,9 +476,11 @@ public class StyleRangeDefBuilder {
 	 */
     public DefaultStyleRangeDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_start == null) setStart( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_length == null) setLength( null);
         

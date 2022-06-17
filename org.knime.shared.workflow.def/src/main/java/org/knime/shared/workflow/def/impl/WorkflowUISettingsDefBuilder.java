@@ -170,7 +170,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID);
         try {
-            m_snapToGrid = snapToGrid.get();
+            var supplied = snapToGrid.get();
+            m_snapToGrid = supplied;
 
             if(m_snapToGrid == null) {
                 throw new IllegalArgumentException("snapToGrid is required and must not be null.");
@@ -216,7 +217,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.SHOW_GRID);
         try {
-            m_showGrid = showGrid.get();
+            var supplied = showGrid.get();
+            m_showGrid = supplied;
 
             if(m_showGrid == null) {
                 throw new IllegalArgumentException("showGrid is required and must not be null.");
@@ -262,7 +264,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.GRID_X);
         try {
-            m_gridX = gridX.get();
+            var supplied = gridX.get();
+            m_gridX = supplied;
 
             if(m_gridX == null) {
                 throw new IllegalArgumentException("gridX is required and must not be null.");
@@ -308,7 +311,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.GRID_Y);
         try {
-            m_gridY = gridY.get();
+            var supplied = gridY.get();
+            m_gridY = supplied;
 
             if(m_gridY == null) {
                 throw new IllegalArgumentException("gridY is required and must not be null.");
@@ -354,7 +358,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL);
         try {
-            m_zoomLevel = zoomLevel.get();
+            var supplied = zoomLevel.get();
+            m_zoomLevel = supplied;
 
             if(m_zoomLevel == null) {
                 throw new IllegalArgumentException("zoomLevel is required and must not be null.");
@@ -400,7 +405,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS);
         try {
-            m_curvedConnections = curvedConnections.get();
+            var supplied = curvedConnections.get();
+            m_curvedConnections = supplied;
 
             if(m_curvedConnections == null) {
                 throw new IllegalArgumentException("curvedConnections is required and must not be null.");
@@ -446,7 +452,8 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH);
         try {
-            m_connectionLineWidth = connectionLineWidth.get();
+            var supplied = connectionLineWidth.get();
+            m_connectionLineWidth = supplied;
             if(m_connectionLineWidth != null && m_connectionLineWidth < 1) {
                 throw new IllegalArgumentException("connectionLineWidth must not be smaller than 1, but was given: " + m_connectionLineWidth);
             }
@@ -478,24 +485,31 @@ public class WorkflowUISettingsDefBuilder {
 	 */
     public DefaultWorkflowUISettingsDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_snapToGrid == null) setSnapToGrid( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_showGrid == null) setShowGrid( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_gridX == null) setGridX( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_gridY == null) setGridY( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_zoomLevel == null) setZoomLevel( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_curvedConnections == null) setCurvedConnections( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_connectionLineWidth == null) setConnectionLineWidth( null);
         

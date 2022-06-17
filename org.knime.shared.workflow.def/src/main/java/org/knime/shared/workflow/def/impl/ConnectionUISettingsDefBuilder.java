@@ -103,11 +103,19 @@ public class ConnectionUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<CoordinateDef> m_bendPoints = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setBendPoints these are added to m_bendPoints in build */
-    private java.util.List<CoordinateDef> m_bendPointsBulkElements = new java.util.ArrayList<>();
+    java.util.List<CoordinateDef> m_bendPoints = java.util.List.of();
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional, but in case also no bulk elements have been set, {@link #build()} will record a problem.
+     */
+    Optional<java.util.List<CoordinateDef>> m_bendPointsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setBendPoints these are added to m_bendPoints in build.
+     * Setting elements in bulk is optional, but in case also no invidual elements have been set, {@link #build()} will record a problem.
+     */
+    private Optional<java.util.List<CoordinateDef>> m_bendPointsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_bendPointsContainerSupplyException; 
     
@@ -160,7 +168,12 @@ public class ConnectionUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionUISettingsDef.Attribute.BEND_POINTS);
         try {
-            m_bendPointsBulkElements = bendPoints.get();
+            var supplied = bendPoints.get();
+            m_bendPoints = supplied;
+            // we set m_bendPoints in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_bendPointsBulkElements = Optional.ofNullable(supplied);
 
             if(m_bendPoints == null) {
                 throw new IllegalArgumentException("bendPoints is required and must not be null.");
@@ -168,7 +181,6 @@ public class ConnectionUISettingsDefBuilder {
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_bendPointsBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_bendPointsContainerSupplyException = supplyException;
             if(m__failFast){
@@ -195,6 +207,8 @@ public class ConnectionUISettingsDefBuilder {
      * @return this builder for fluent API.
      */
     public ConnectionUISettingsDefBuilder addToBendPoints(FallibleSupplier<CoordinateDef> value, CoordinateDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_bendPointsIndividualElements.isEmpty()) m_bendPointsIndividualElements = Optional.of(new java.util.ArrayList<>());
         CoordinateDef toAdd = null;
         try {
             toAdd = value.get();
@@ -205,7 +219,7 @@ public class ConnectionUISettingsDefBuilder {
                 throw new IllegalStateException(e);
             }
         }
-        m_bendPoints.add(toAdd);
+        m_bendPointsIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -218,13 +232,23 @@ public class ConnectionUISettingsDefBuilder {
 	 */
     public DefaultConnectionUISettingsDef build() {
         
-        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
-        if(m_bendPoints == null) setBendPoints(() ->  null);
-        
+                
     	
-        // contains the elements set with #setBendPoints (those added with #addToBendPoints have already been inserted into m_bendPoints)
-        m_bendPointsBulkElements = java.util.Objects.requireNonNullElse(m_bendPointsBulkElements, java.util.List.of());
-        m_bendPoints.addAll(0, m_bendPointsBulkElements);
+        // if bulk elements are present, add them to individual elements
+        if(m_bendPointsBulkElements.isPresent()){
+            if(m_bendPointsIndividualElements.isEmpty()) {
+                m_bendPointsIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_bendPointsIndividualElements.get().addAll(m_bendPointsBulkElements.get());    
+        }
+        // collect error if we nothing was ever added (not even an empty container)
+        if(m_bendPointsIndividualElements.isEmpty()){
+            setBendPoints(() -> null);
+            m_bendPoints = java.util.List.of();
+        } else {
+            m_bendPoints = m_bendPointsIndividualElements.get();
+        } 
+        
                 
         var bendPointsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
             .list(m_bendPoints, m_bendPointsContainerSupplyException);

@@ -166,7 +166,8 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.SOURCE_ID);
         try {
-            m_sourceID = sourceID.get();
+            var supplied = sourceID.get();
+            m_sourceID = supplied;
 
             if(m_sourceID == null) {
                 throw new IllegalArgumentException("sourceID is required and must not be null.");
@@ -212,7 +213,8 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.DEST_ID);
         try {
-            m_destID = destID.get();
+            var supplied = destID.get();
+            m_destID = supplied;
 
             if(m_destID == null) {
                 throw new IllegalArgumentException("destID is required and must not be null.");
@@ -258,7 +260,8 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.SOURCE_PORT);
         try {
-            m_sourcePort = sourcePort.get();
+            var supplied = sourcePort.get();
+            m_sourcePort = supplied;
 
             if(m_sourcePort == null) {
                 throw new IllegalArgumentException("sourcePort is required and must not be null.");
@@ -304,7 +307,8 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.DEST_PORT);
         try {
-            m_destPort = destPort.get();
+            var supplied = destPort.get();
+            m_destPort = supplied;
 
             if(m_destPort == null) {
                 throw new IllegalArgumentException("destPort is required and must not be null.");
@@ -350,7 +354,8 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.DELETABLE);
         try {
-            m_deletable = deletable.get();
+            var supplied = deletable.get();
+            m_deletable = supplied;
 
             if(m_deletable == null) {
                 throw new IllegalArgumentException("deletable is required and must not be null.");
@@ -412,7 +417,8 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.UI_SETTINGS);
         try {
-            m_uiSettings = Optional.ofNullable(uiSettings.get());
+            var supplied = uiSettings.get();
+            m_uiSettings = Optional.ofNullable(supplied);
             if (m_uiSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiSettings.get()).hasExceptions()) {
                 m_exceptionalChildren.put(ConnectionDef.Attribute.UI_SETTINGS, (LoadExceptionTree<?>)m_uiSettings.get());
             }
@@ -445,18 +451,23 @@ public class ConnectionDefBuilder {
 	 */
     public DefaultConnectionDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_sourceID == null) setSourceID( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_destID == null) setDestID( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_sourcePort == null) setSourcePort( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_destPort == null) setDestPort( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_deletable == null) setDeletable( null);
         

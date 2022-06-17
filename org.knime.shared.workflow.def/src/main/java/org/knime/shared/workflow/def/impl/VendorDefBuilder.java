@@ -158,7 +158,8 @@ public class VendorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(VendorDef.Attribute.NAME);
         try {
-            m_name = name.get();
+            var supplied = name.get();
+            m_name = supplied;
 
             if(m_name == null) {
                 throw new IllegalArgumentException("name is required and must not be null.");
@@ -204,7 +205,8 @@ public class VendorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(VendorDef.Attribute.SYMBOLIC_NAME);
         try {
-            m_symbolicName = symbolicName.get();
+            var supplied = symbolicName.get();
+            m_symbolicName = supplied;
 
             if(m_symbolicName == null) {
                 throw new IllegalArgumentException("symbolicName is required and must not be null.");
@@ -250,7 +252,8 @@ public class VendorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(VendorDef.Attribute.VENDOR);
         try {
-            m_vendor = vendor.get();
+            var supplied = vendor.get();
+            m_vendor = supplied;
 
             if(m_vendor == null) {
                 throw new IllegalArgumentException("vendor is required and must not be null.");
@@ -296,7 +299,8 @@ public class VendorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(VendorDef.Attribute.VERSION);
         try {
-            m_version = version.get();
+            var supplied = version.get();
+            m_version = supplied;
 
             if(m_version == null) {
                 throw new IllegalArgumentException("version is required and must not be null.");
@@ -322,15 +326,19 @@ public class VendorDefBuilder {
 	 */
     public DefaultVendorDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_name == null) setName( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_symbolicName == null) setSymbolicName( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_vendor == null) setVendor( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_version == null) setVersion( null);
         

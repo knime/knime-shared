@@ -151,7 +151,8 @@ public class ConfigValueByteDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueByteDef.Attribute.CONFIG_TYPE);
         try {
-            m_configType = configType.get();
+            var supplied = configType.get();
+            m_configType = supplied;
 
             if(m_configType == null) {
                 throw new IllegalArgumentException("configType is required and must not be null.");
@@ -197,7 +198,8 @@ public class ConfigValueByteDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueByteDef.Attribute.VALUE);
         try {
-            m_value = value.get();
+            var supplied = value.get();
+            m_value = supplied;
             if(m_value != null && m_value < -128) {
                 throw new IllegalArgumentException("value must not be smaller than -128, but was given: " + m_value);
             }
@@ -229,9 +231,11 @@ public class ConfigValueByteDefBuilder {
 	 */
     public DefaultConfigValueByteDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_value == null) setValue( null);
         

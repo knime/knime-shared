@@ -154,7 +154,8 @@ public class BoundsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(BoundsDef.Attribute.LOCATION);
         try {
-            m_location = location.get();
+            var supplied = location.get();
+            m_location = supplied;
 
             if(m_location == null) {
                 throw new IllegalArgumentException("location is required and must not be null.");
@@ -211,7 +212,8 @@ public class BoundsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(BoundsDef.Attribute.WIDTH);
         try {
-            m_width = width.get();
+            var supplied = width.get();
+            m_width = supplied;
 
             if(m_width == null) {
                 throw new IllegalArgumentException("width is required and must not be null.");
@@ -257,7 +259,8 @@ public class BoundsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(BoundsDef.Attribute.HEIGHT);
         try {
-            m_height = height.get();
+            var supplied = height.get();
+            m_height = supplied;
 
             if(m_height == null) {
                 throw new IllegalArgumentException("height is required and must not be null.");
@@ -283,12 +286,15 @@ public class BoundsDefBuilder {
 	 */
     public DefaultBoundsDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_location == null) setLocation( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_width == null) setWidth( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_height == null) setHeight( null);
         

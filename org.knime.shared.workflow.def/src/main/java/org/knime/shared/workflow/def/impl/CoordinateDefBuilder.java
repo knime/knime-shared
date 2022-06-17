@@ -150,7 +150,8 @@ public class CoordinateDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CoordinateDef.Attribute.X);
         try {
-            m_x = x.get();
+            var supplied = x.get();
+            m_x = supplied;
 
             if(m_x == null) {
                 throw new IllegalArgumentException("x is required and must not be null.");
@@ -196,7 +197,8 @@ public class CoordinateDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CoordinateDef.Attribute.Y);
         try {
-            m_y = y.get();
+            var supplied = y.get();
+            m_y = supplied;
 
             if(m_y == null) {
                 throw new IllegalArgumentException("y is required and must not be null.");
@@ -222,9 +224,11 @@ public class CoordinateDefBuilder {
 	 */
     public DefaultCoordinateDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_x == null) setX( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_y == null) setY( null);
         

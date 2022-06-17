@@ -111,7 +111,17 @@ public final class SaverUtils {
 
     public static final int DEFAULT_DEF_FONT_SIZE = 11;
 
-    public static final int DEFAULT_FONT_SIZE = 11;
+    public static final int DEFAULT_BORDER_SIZE = 10;
+
+    public static final int DEFAULT_BG_COLOR = 16777215;
+
+    public static final int DEFAULT_BORDER_COLOR = 16766976;
+
+    public static final int DEFAULT_ANNOTATION_VERSION = 20151123;
+
+    public static final int DEFAULT_FONT_SIZE = 9;
+
+    public static final String DEFAULT_TEXT_ALIGNMENT = "LEFT";
 
     private SaverUtils() {
     }
@@ -120,18 +130,18 @@ public final class SaverUtils {
      * Maps a node type to the appropriate value for the config key "is_node_meta"
      */
     public static final Map<NodeTypeEnum, Boolean> isNodeTypeMeta = Map.of( //NOSONAR
-        NodeTypeEnum.NATIVENODE, false, //
+        NodeTypeEnum.NATIVE, false, //
         NodeTypeEnum.COMPONENT, true, //
-        NodeTypeEnum.METANODE, true //
+        NodeTypeEnum.META, true //
     );
 
     /**
      * Maps a node type to the appropriate String for the config key "node_type"
      */
     public static final Map<NodeTypeEnum, String> nodeTypeString = Map.of( //
-        NodeTypeEnum.NATIVENODE, "NativeNode", //
+        NodeTypeEnum.NATIVE, "NativeNode", //
         NodeTypeEnum.COMPONENT, "SubNode", //
-        NodeTypeEnum.METANODE, "MetaNode" //
+        NodeTypeEnum.META, "MetaNode" //
     );
 
     /**
@@ -261,7 +271,7 @@ public final class SaverUtils {
         templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get(), role);
 
         // always store a version
-        var version = templateLink.map(TemplateLinkDef::getVersion).orElse(templateMetadata.get().getVersion()); // NOSONAR
+        var version = templateLink.map(TemplateLinkDef::getVersion).orElseGet(() -> templateMetadata.get().getVersion()); // NOSONAR
         templateSettings.addString(IOConst.TIMESTAMP.get(), version.format(LoaderUtils.DATE_FORMAT));
 
         // for links, store the source URI
@@ -400,17 +410,18 @@ public final class SaverUtils {
      */
     public static ConfigBase annotationToConfig(final AnnotationDataDef annotationDataDef, final String key) {
         var annotation = new SimpleConfig(key);
-        annotation.addString("text", annotationDataDef.getText());
-        annotation.addInt("bgcolor", annotationDataDef.getBgcolor());
+        annotation.addString("text", annotationDataDef.getText().orElse(null));
+        annotation.addInt("bgcolor", annotationDataDef.getBgcolor().orElse(DEFAULT_BG_COLOR));
         annotation.addInt("x-coordinate", annotationDataDef.getLocation().getX());
         annotation.addInt("y-coordinate", annotationDataDef.getLocation().getY());
         annotation.addInt("width", annotationDataDef.getWidth());
         annotation.addInt("height", annotationDataDef.getHeight());
-        annotation.addString("alignment", annotationDataDef.getTextAlignment());
-        annotation.addInt("borderSize", annotationDataDef.getBorderSize());
-        annotation.addInt("borderColor", annotationDataDef.getBorderColor());
+        annotation.addString("alignment", annotationDataDef.getTextAlignment().orElse(DEFAULT_TEXT_ALIGNMENT));
+        annotation.addInt("borderSize", annotationDataDef.getBorderSize().orElse(DEFAULT_BORDER_SIZE));
+        annotation.addInt("borderColor", annotationDataDef.getBorderColor().orElse(DEFAULT_BORDER_COLOR));
         annotation.addInt("defFontSize", annotationDataDef.getDefaultFontSize().orElse(DEFAULT_DEF_FONT_SIZE));
-        annotation.addInt("annotation-version", annotationDataDef.getAnnotationVersion());
+        annotation.addInt("annotation-version",
+            annotationDataDef.getAnnotationVersion().orElse(DEFAULT_ANNOTATION_VERSION));
 
         var stylesList = annotationDataDef.getStyles().orElse(List.of());
         var styles = new SimpleConfig("styles");
@@ -449,14 +460,15 @@ public final class SaverUtils {
             case COMPONENT:
                 safeNodeName = SaverUtils.getValidFileName(((ComponentNodeDef)node).getWorkflow().getName().orElse(DEFAULT_WORKFLOW_NAME), 12);
                 break;
-            case METANODE:
+            case META:
                 safeNodeName = SaverUtils.getValidFileName(((MetaNodeDef)node).getWorkflow().getName().orElse(DEFAULT_WORKFLOW_NAME), 12);
                 break;
-            case NATIVENODE:
+            case NATIVE:
                 safeNodeName = SaverUtils.getValidFileName(((NativeNodeDef)node).getNodeName(), -1);
                 break;
         }
-        var dirName = String.format("%s (#%d)", safeNodeName, node.getId());
+        final String baseName = safeNodeName;
+        var dirName = node.getId().map(id -> String.format("%s (#%d)", baseName, id)).orElse(safeNodeName);
         var directory = new File(parent, dirName);
         directory.mkdir();
         return directory;

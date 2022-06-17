@@ -106,21 +106,37 @@ public class ComponentMetadataDefBuilder {
 
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    Optional<java.util.List<PortMetadataDef>> m_inPortMetadata = Optional.of(new java.util.ArrayList<>());
-    /** Temporarily holds onto elements set as a whole with setInPortMetadata these are added to m_inPortMetadata in build */
-    private Optional<java.util.List<PortMetadataDef>> m_inPortMetadataBulkElements = Optional.of(new java.util.ArrayList<>());
+    Optional<java.util.List<PortMetadataDef>> m_inPortMetadata = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<PortMetadataDef>> m_inPortMetadataIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setInPortMetadata these are added to m_inPortMetadata in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<PortMetadataDef>> m_inPortMetadataBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_inPortMetadataContainerSupplyException; 
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    Optional<java.util.List<PortMetadataDef>> m_outPortMetadata = Optional.of(new java.util.ArrayList<>());
-    /** Temporarily holds onto elements set as a whole with setOutPortMetadata these are added to m_outPortMetadata in build */
-    private Optional<java.util.List<PortMetadataDef>> m_outPortMetadataBulkElements = Optional.of(new java.util.ArrayList<>());
+    Optional<java.util.List<PortMetadataDef>> m_outPortMetadata = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<PortMetadataDef>> m_outPortMetadataIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setOutPortMetadata these are added to m_outPortMetadata in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<PortMetadataDef>> m_outPortMetadataBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_outPortMetadataContainerSupplyException; 
     
@@ -193,7 +209,8 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.DESCRIPTION);
         try {
-            m_description = Optional.ofNullable(description.get());
+            var supplied = description.get();
+            m_description = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -241,11 +258,15 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.IN_PORT_METADATA);
         try {
-            m_inPortMetadataBulkElements = Optional.ofNullable(inPortMetadata.get());
+            var supplied = inPortMetadata.get();
+            m_inPortMetadata = Optional.ofNullable(supplied);
+            // we set m_inPortMetadata in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_inPortMetadataBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_inPortMetadataBulkElements = Optional.of(java.util.List.of());
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_inPortMetadataContainerSupplyException = supplyException;
             if(m__failFast){
@@ -272,6 +293,8 @@ public class ComponentMetadataDefBuilder {
      * @return this builder for fluent API.
      */
     public ComponentMetadataDefBuilder addToInPortMetadata(FallibleSupplier<PortMetadataDef> value, PortMetadataDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_inPortMetadataIndividualElements.isEmpty()) m_inPortMetadataIndividualElements = Optional.of(new java.util.ArrayList<>());
         PortMetadataDef toAdd = null;
         try {
             toAdd = value.get();
@@ -282,7 +305,7 @@ public class ComponentMetadataDefBuilder {
                 throw new IllegalStateException(e);
             }
         }
-        m_inPortMetadata.get().add(toAdd);
+        m_inPortMetadataIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -321,11 +344,15 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.OUT_PORT_METADATA);
         try {
-            m_outPortMetadataBulkElements = Optional.ofNullable(outPortMetadata.get());
+            var supplied = outPortMetadata.get();
+            m_outPortMetadata = Optional.ofNullable(supplied);
+            // we set m_outPortMetadata in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_outPortMetadataBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_outPortMetadataBulkElements = Optional.of(java.util.List.of());
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_outPortMetadataContainerSupplyException = supplyException;
             if(m__failFast){
@@ -352,6 +379,8 @@ public class ComponentMetadataDefBuilder {
      * @return this builder for fluent API.
      */
     public ComponentMetadataDefBuilder addToOutPortMetadata(FallibleSupplier<PortMetadataDef> value, PortMetadataDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_outPortMetadataIndividualElements.isEmpty()) m_outPortMetadataIndividualElements = Optional.of(new java.util.ArrayList<>());
         PortMetadataDef toAdd = null;
         try {
             toAdd = value.get();
@@ -362,7 +391,7 @@ public class ComponentMetadataDefBuilder {
                 throw new IllegalStateException(e);
             }
         }
-        m_outPortMetadata.get().add(toAdd);
+        m_outPortMetadataIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -411,7 +440,8 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.ICON);
         try {
-            m_icon = Optional.ofNullable(icon.get());
+            var supplied = icon.get();
+            m_icon = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -469,7 +499,8 @@ public class ComponentMetadataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentMetadataDef.Attribute.COMPONENT_TYPE);
         try {
-            m_componentType = Optional.ofNullable(componentType.get());
+            var supplied = componentType.get();
+            m_componentType = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -492,27 +523,37 @@ public class ComponentMetadataDefBuilder {
     public DefaultComponentMetadataDef build() {
         
     	
-        // contains the elements set with #setInPortMetadata (those added with #addToInPortMetadata have already been inserted into m_inPortMetadata)
-        m_inPortMetadataBulkElements = java.util.Objects.requireNonNullElse(m_inPortMetadataBulkElements, Optional.of(java.util.List.of()));
-        m_inPortMetadata.get().addAll(0, m_inPortMetadataBulkElements.get());
+        // if bulk elements are present, add them to individual elements
+        if(m_inPortMetadataBulkElements.isPresent()){
+            if(m_inPortMetadataIndividualElements.isEmpty()) {
+                m_inPortMetadataIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_inPortMetadataIndividualElements.get().addAll(m_inPortMetadataBulkElements.get());    
+        }
+        m_inPortMetadata = m_inPortMetadataIndividualElements;        
+        
                 
         var inPortMetadataLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_inPortMetadata.get(), m_inPortMetadataContainerSupplyException);
+            .list(m_inPortMetadata.orElse(new java.util.ArrayList<>()), m_inPortMetadataContainerSupplyException);
         if(inPortMetadataLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.IN_PORT_METADATA, inPortMetadataLoadExceptionTree);
         }
-        m_inPortMetadata = m_inPortMetadata.get().isEmpty() ? Optional.empty() : m_inPortMetadata;
         
-        // contains the elements set with #setOutPortMetadata (those added with #addToOutPortMetadata have already been inserted into m_outPortMetadata)
-        m_outPortMetadataBulkElements = java.util.Objects.requireNonNullElse(m_outPortMetadataBulkElements, Optional.of(java.util.List.of()));
-        m_outPortMetadata.get().addAll(0, m_outPortMetadataBulkElements.get());
+        // if bulk elements are present, add them to individual elements
+        if(m_outPortMetadataBulkElements.isPresent()){
+            if(m_outPortMetadataIndividualElements.isEmpty()) {
+                m_outPortMetadataIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_outPortMetadataIndividualElements.get().addAll(m_outPortMetadataBulkElements.get());    
+        }
+        m_outPortMetadata = m_outPortMetadataIndividualElements;        
+        
                 
         var outPortMetadataLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_outPortMetadata.get(), m_outPortMetadataContainerSupplyException);
+            .list(m_outPortMetadata.orElse(new java.util.ArrayList<>()), m_outPortMetadataContainerSupplyException);
         if(outPortMetadataLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(ComponentMetadataDef.Attribute.OUT_PORT_METADATA, outPortMetadataLoadExceptionTree);
         }
-        m_outPortMetadata = m_outPortMetadata.get().isEmpty() ? Optional.empty() : m_outPortMetadata;
         
         return new DefaultComponentMetadataDef(this);
     }    

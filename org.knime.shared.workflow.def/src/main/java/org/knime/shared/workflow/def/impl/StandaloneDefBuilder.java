@@ -170,7 +170,8 @@ public class StandaloneDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StandaloneDef.Attribute.CREATOR);
         try {
-            m_creator = Optional.ofNullable(creator.get());
+            var supplied = creator.get();
+            m_creator = Optional.ofNullable(supplied);
             if (m_creator.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_creator.get()).hasExceptions()) {
                 m_exceptionalChildren.put(StandaloneDef.Attribute.CREATOR, (LoadExceptionTree<?>)m_creator.get());
             }
@@ -223,7 +224,8 @@ public class StandaloneDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StandaloneDef.Attribute.CONTENTS);
         try {
-            m_contents = contents.get();
+            var supplied = contents.get();
+            m_contents = supplied;
 
             if(m_contents == null) {
                 throw new IllegalArgumentException("contents is required and must not be null.");
@@ -269,7 +271,8 @@ public class StandaloneDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(StandaloneDef.Attribute.CONTENT_TYPE);
         try {
-            m_contentType = contentType.get();
+            var supplied = contentType.get();
+            m_contentType = supplied;
 
             if(m_contentType == null) {
                 throw new IllegalArgumentException("contentType is required and must not be null.");
@@ -295,9 +298,11 @@ public class StandaloneDefBuilder {
 	 */
     public DefaultStandaloneDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_contents == null) setContents( null);
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_contentType == null) setContentType( null);
         

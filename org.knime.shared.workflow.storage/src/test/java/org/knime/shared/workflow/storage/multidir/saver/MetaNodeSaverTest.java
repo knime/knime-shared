@@ -66,7 +66,7 @@ import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.node.config.base.XMLConfig;
 import org.knime.core.util.LoadVersion;
-import org.knime.shared.workflow.def.MetaNodeDef;
+import org.knime.shared.workflow.def.StandaloneDef;
 import org.knime.shared.workflow.storage.multidir.loader.MetaNodeLoader;
 import org.knime.shared.workflow.storage.multidir.loader.NodeLoaderTestUtils;
 import org.knime.shared.workflow.storage.multidir.loader.StandaloneLoader;
@@ -92,12 +92,13 @@ class MetaNodeSaverTest {
     void testStandaloneMetanode()
         throws IOException, SAXException, ParserConfigurationException, InvalidSettingsException {
         var inputDir = NodeLoaderTestUtils.readResourceFolder("Metanode_Template");
-        MetaNodeDef workflow = MetaNodeLoader.load(new SimpleConfig("dummy"), inputDir, LoadVersion.FUTURE);
+        StandaloneDef metanodeTemplate = StandaloneLoader.load(inputDir);
 
-        var saver = new MetaNodeSaver(workflow);
-        saver.save(OUTPUT_DIRECTORY, null);
+        var saver = new StandaloneSaver(metanodeTemplate);
+        saver.save(OUTPUT_DIRECTORY, "zebra");
 
-        var workflowconfig = new File(OUTPUT_DIRECTORY, IOConst.WORKFLOW_FILE_NAME.get());
+        var workflowconfig =
+            new File(OUTPUT_DIRECTORY.toPath().resolve("zebra").toFile(), IOConst.WORKFLOW_FILE_NAME.get());
         var workflowXML = new SimpleConfig("workflow.knime");
         try (var fis = new FileInputStream(workflowconfig)) {
             XMLConfig.load(workflowXML, fis);
@@ -106,26 +107,41 @@ class MetaNodeSaverTest {
         assertThat(workflowXML.containsKey(IOConst.CUSTOM_DESCRIPTION_KEY.get())).isTrue();
         assertThat(workflowXML.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get())).isNull();
         assertThat(workflowXML.containsKey(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get())).isFalse();
-
     }
 
+    /**
+     * Load a metanode that was inserted into the workflow by dragging and dropping a standalone metanode.
+     */
     @Test
-    void testNestedMetanode() throws IOException, SAXException, ParserConfigurationException, InvalidSettingsException {
+    void testLinkedMetanode() throws IOException, SAXException, ParserConfigurationException, InvalidSettingsException {
         var workflowDir = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");
         var inputDir = new File(workflowDir, "MetanodeTest (#12)");
 
+        /* This is the root workflow's workflow.knime entry for the node we want to load
+         * <config key="node_12">
+            <entry key="id" type="xint" value="12"/>
+            <entry key="node_settings_file" type="xstring" value="MetanodeTest (#12)/workflow.knime"/>
+            <entry key="node_is_meta" type="xboolean" value="true"/>
+            <entry key="node_type" type="xstring" value="MetaNode"/>
+            ...
+        </config>
+         */
         ConfigBase workflowXML = new SimpleConfig("workflow.knime");
         try (var fis = new FileInputStream(new File(workflowDir, "workflow.knime"))) {
             XMLConfig.load(workflowXML, fis);
             workflowXML = workflowXML.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get()).getConfigBase("node_12");
         }
-        var metanode = MetaNodeLoader.load(workflowXML, inputDir, LoadVersion.FUTURE);
-        var creator = StandaloneLoader.load(workflowDir).getCreator();
 
+        // load the metanode
+        var metanode = MetaNodeLoader.load(workflowXML, inputDir, LoadVersion.FUTURE, false);
+        var creator = StandaloneLoader.load(workflowDir).getCreator().get();
+
+        // save the metanode
+        var saver = new MetaNodeSaver(metanode, false, creator);
         var parentXML = new SimpleConfig("node_12");
-        var saver = new MetaNodeSaver(metanode, creator.orElse(StandaloneSaver.DEFAULT_CREATOR));
         saver.save(OUTPUT_DIRECTORY, parentXML);
 
+        // assert that the node data added to the parent xml is correct, e.g., node type is metanode etc.
         assertThat(parentXML.getInt(IOConst.ID_KEY.get())).isEqualTo(12);
         var filename = parentXML.getString(IOConst.NODE_SETTINGS_FILE.get());
         assertThat(filename).isNotNull().isEqualTo(SaverTestUtils.OUTPUT_DIR_NAME + "/workflow.knime");
@@ -158,8 +174,6 @@ class MetaNodeSaverTest {
         assertThat(metanodeXML.getString(IOConst.METADATA_NAME_KEY.get())).isEqualTo("MetanodeTest");
         assertThat(metanodeXML.getConfigBase(IOConst.NODE_ANNOTATION_KEY.get()).getChildCount()).isEqualTo(12);
         assertThat(metanodeXML.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get())).isNull();
-
-        assertThat(metanodeXML.getConfigBase(IOConst.META_IN_PORTS_KEY.get()).getChildCount()).isEqualTo(2);
 
         var outports = metanodeXML.getConfigBase(IOConst.META_OUT_PORTS_KEY.get());
         // TODO This is null in the source, but a default value is written. What should it be?

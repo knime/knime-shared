@@ -174,7 +174,8 @@ public class ComponentDialogSettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentDialogSettingsDef.Attribute.LAYOUT_JSON);
         try {
-            m_layoutJSON = Optional.ofNullable(layoutJSON.get());
+            var supplied = layoutJSON.get();
+            m_layoutJSON = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -232,7 +233,8 @@ public class ComponentDialogSettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentDialogSettingsDef.Attribute.CONFIGURATION_LAYOUT_JSON);
         try {
-            m_configurationLayoutJSON = Optional.ofNullable(configurationLayoutJSON.get());
+            var supplied = configurationLayoutJSON.get();
+            m_configurationLayoutJSON = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -274,7 +276,8 @@ public class ComponentDialogSettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentDialogSettingsDef.Attribute.HIDE_IN_WIZARD);
         try {
-            m_hideInWizard = hideInWizard.get();
+            var supplied = hideInWizard.get();
+            m_hideInWizard = supplied;
 
             if(m_hideInWizard == null) {
                 throw new IllegalArgumentException("hideInWizard is required and must not be null.");
@@ -336,7 +339,8 @@ public class ComponentDialogSettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ComponentDialogSettingsDef.Attribute.CSS_STYLES);
         try {
-            m_cssStyles = Optional.ofNullable(cssStyles.get());
+            var supplied = cssStyles.get();
+            m_cssStyles = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
@@ -358,6 +362,7 @@ public class ComponentDialogSettingsDefBuilder {
 	 */
     public DefaultComponentDialogSettingsDef build() {
         
+         
         // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
         if(m_hideInWizard == null) setHideInWizard( null);
         
