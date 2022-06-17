@@ -52,7 +52,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.knime.core.node.config.base.ConfigBase;
@@ -60,6 +60,7 @@ import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.node.config.base.XMLConfig;
 import org.knime.shared.workflow.def.ComponentNodeDef;
 import org.knime.shared.workflow.def.CreatorDef;
+import org.knime.shared.workflow.def.PortMetadataDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 
@@ -93,6 +94,13 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         save(componentDirectory, parentWorkflowNodeSettings, null);
     }
 
+    /**
+     * Creates the node settings file on disk.
+     * @param componentDirectory
+     * @param parentWorkflowNodeSettings
+     * @param nodeSettingsModifier nullable logic to update the created node settings
+     * @throws IOException
+     */
     void save(final File componentDirectory, final ConfigBase parentWorkflowNodeSettings,
         final Consumer<ConfigBase> nodeSettingsModifier) throws IOException {
         var nodeSettings = new SimpleConfig(IOConst.NODE_SETTINGS_FILE_NAME.get());
@@ -102,8 +110,8 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         var workflowSaver = new WorkflowSaver(m_componentNode.getWorkflow(), m_creator);
         workflowSaver.save(componentDirectory, s -> {
             // annotation data and custom description will be added to the workflow.knime by the WorkflowSaver
-            SaverUtils.addAnnotationData(s, m_componentNode.getAnnotation());
-            s.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), m_componentNode.getCustomDescription());
+            SaverUtils.addAnnotationData(s, m_componentNode.getAnnotation().orElse(null));
+            s.addString(IOConst.CUSTOM_DESCRIPTION_KEY.get(), m_componentNode.getCustomDescription().orElse(null));
         });
 
         // This is the settings.xml of the component
@@ -141,9 +149,8 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         nodeSettings.addString("workflow-file", IOConst.WORKFLOW_FILE_NAME.get());
         addPorts(nodeSettings);
         addMetadata(nodeSettings);
-        if (m_componentNode.getTemplateInfo().getUri() != null) {
-            SaverUtils.addTemplateInfo(nodeSettings, m_componentNode.getTemplateInfo(), m_componentNode.getNodeType());
-        }
+        SaverUtils.addTemplateInfo(nodeSettings, m_componentNode.getTemplateLink(), m_componentNode.getTemplateMetadata(),
+            m_componentNode.getNodeType());
         addDialogSettings(nodeSettings);
     }
 
@@ -151,38 +158,41 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         // Add in ports
         nodeSettings.addInt(IOConst.VIRTUAL_IN_ID_KEY.get(), m_componentNode.getVirtualInNodeId());
         var inPorts = new SimpleConfig(IOConst.INPORTS_KEY.get());
-        m_componentNode.getInPorts().forEach(port -> SaverUtils.addPort(inPorts, IOConst.INPORT_PREFIX.get(), port));
+        m_componentNode.getInPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(inPorts, IOConst.INPORT_PREFIX.get(), p)));
         nodeSettings.addEntry(inPorts);
 
         // Add out ports
         nodeSettings.addInt(IOConst.VIRTUAL_OUT_ID_KEY.get(), m_componentNode.getVirtualOutNodeId());
         var outPorts = new SimpleConfig(IOConst.OUTPORTS_KEY.get());
-        m_componentNode.getOutPorts().forEach(port -> SaverUtils.addPort(outPorts, IOConst.OUTPORT_PREFIX.get(), port));
+        m_componentNode.getOutPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(outPorts, IOConst.OUTPORT_PREFIX.get(), p)));
         nodeSettings.addEntry(outPorts);
     }
 
     private void addMetadata(final ConfigBase nodeSettings) {
-        var metadata = m_componentNode.getMetadata();
+        final var optionalMetadata = m_componentNode.getMetadata();
+        if(optionalMetadata.isEmpty()) {
+            return;
+        }
+        var metadata = optionalMetadata.get();
+
         var metadataSettings = new SimpleConfig(IOConst.METADATA_KEY.get());
 
-        if (metadata.getDescription() != null) {
-            metadataSettings.addString(IOConst.DESCRIPTION_KEY.get(), metadata.getDescription());
-        }
-        if (metadata.getIcon() != null && metadata.getIcon().length > 0) {
-            metadataSettings.addString(IOConst.ICON_KEY.get(), Base64.getEncoder().encodeToString(metadata.getIcon()));
-        }
+        metadata.getDescription().ifPresent(desc -> metadataSettings.addString(IOConst.DESCRIPTION_KEY.get(), desc));
+
+        metadata.getIcon().ifPresent(
+            icon -> metadataSettings.addString(IOConst.ICON_KEY.get(), Base64.getEncoder().encodeToString(icon)));
 
         // These are not saved with SaverUtils#addPort since they additionally include a description and are represented
         //     differently. Also, we assume that (in|out)Names and (in|out)Descriptions have the same length, otherwise
         //     some values will be omitted.
         var inPorts = new SimpleConfig(IOConst.META_IN_PORTS_KEY.get());
-        Iterator<String> inNames = metadata.getInPortNames().iterator();
-        Iterator<String> inDescriptions = metadata.getInPortDescriptions().iterator();
-        while (inNames.hasNext() && inDescriptions.hasNext()) {
+        for(PortMetadataDef portMetadata : metadata.getInPortMetadata().orElse(List.of())) {
             var index = inPorts.getChildCount();
             var port = new SimpleConfig(IOConst.INPORT_PREFIX.get() + index);
-            port.addString(IOConst.PORT_NAME_KEY.get(), inNames.next());
-            port.addString(IOConst.DESCRIPTION_KEY.get(), inDescriptions.next());
+            portMetadata.getName().ifPresent(name -> port.addString(IOConst.PORT_NAME_KEY.get(), name));
+            portMetadata.getDescription().ifPresent(desc -> port.addString(IOConst.DESCRIPTION_KEY.get(), desc));
             port.addInt(IOConst.PORT_INDEX_KEY.get(), index);
             inPorts.addEntry(port);
         }
@@ -191,13 +201,11 @@ final class ComponentNodeSaver extends SingleNodeSaver {
         }
 
         var outPorts = new SimpleConfig(IOConst.META_OUT_PORTS_KEY.get());
-        Iterator<String> outNames = metadata.getOutPortNames().iterator();
-        Iterator<String> outDescriptions = metadata.getOutPortDescriptions().iterator();
-        while (outNames.hasNext() && outDescriptions.hasNext()) {
+        for(PortMetadataDef portMetadata : metadata.getOutPortMetadata().orElse(List.of())) {
             var index = outPorts.getChildCount();
             var port = new SimpleConfig(IOConst.OUTPORT_PREFIX.get() + index);
-            port.addString(IOConst.PORT_NAME_KEY.get(), outNames.next());
-            port.addString(IOConst.DESCRIPTION_KEY.get(), outDescriptions.next());
+            portMetadata.getName().ifPresent(name -> port.addString(IOConst.PORT_NAME_KEY.get(), name));
+            portMetadata.getDescription().ifPresent(desc -> port.addString(IOConst.DESCRIPTION_KEY.get(), desc));
             port.addInt(IOConst.PORT_INDEX_KEY.get(), index);
             outPorts.addEntry(port);
         }
@@ -208,12 +216,15 @@ final class ComponentNodeSaver extends SingleNodeSaver {
     }
 
     private void addDialogSettings(final ConfigBase nodeSettings) {
-        var dialogSettings = m_componentNode.getDialogSettings();
-        nodeSettings.addString(IOConst.LAYOUT_JSON_KEY.get(), dialogSettings.getLayoutJSON());
-        nodeSettings.addString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(),
-            dialogSettings.getConfigurationLayoutJSON());
+        if (m_componentNode.getDialogSettings().isEmpty()) {
+            return;
+        }
+        var dialogSettings = m_componentNode.getDialogSettings().get();
+        dialogSettings.getLayoutJSON().ifPresent(json -> nodeSettings.addString(IOConst.LAYOUT_JSON_KEY.get(), json));
+        dialogSettings.getConfigurationLayoutJSON()
+            .ifPresent(json -> nodeSettings.addString(IOConst.CONFIGURATION_LAYOUT_JSON_KEY.get(), json));
         nodeSettings.addBoolean(IOConst.HIDE_IN_WIZARD_KEY.get(), dialogSettings.isHideInWizard());
-        nodeSettings.addString(IOConst.CUSTOM_CSS_KEY.get(), dialogSettings.getCssStyles());
+        dialogSettings.getCssStyles().ifPresent(css -> nodeSettings.addString(IOConst.CUSTOM_CSS_KEY.get(), css));
     }
 
 }

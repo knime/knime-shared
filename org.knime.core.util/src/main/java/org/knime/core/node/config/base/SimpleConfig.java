@@ -82,4 +82,19 @@ public class SimpleConfig extends ConfigBase {
         }
         return result;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "SimpleConfig [keySet()=\n" + keySet() + ", iterator()=\n" + iterator() + ", toStringValue()=\n"
+                + toStringValue() + ", toString()=\n" + super.toString() + ", getChildCount()=\n" + getChildCount()
+                + ", isLeaf()=\n" + isLeaf() + ", children()=\n" + children() + ", toJSONEntry()=\n" + toJSONEntry()
+                + ", toJSONRoot()=\n" + toJSONRoot() + ", getKey()=\n" + getKey() + ", getType()=\n" + getType() + ", hashCode()=\n"
+                + hashCode() + ", getParent()=\n" + getParent() + ", getAllowsChildren()=\n" + getAllowsChildren()
+                + ", getClass()=\n" + getClass() + "]";
+    }
+
+
 }

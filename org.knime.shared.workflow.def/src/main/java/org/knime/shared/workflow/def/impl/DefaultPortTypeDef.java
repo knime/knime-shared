@@ -64,6 +64,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -74,11 +75,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultPortTypeDef implements PortTypeDef {
+public class DefaultPortTypeDef implements PortTypeDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<PortTypeDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
      * the class of the port object this port type is associated with 
@@ -92,10 +93,10 @@ public class DefaultPortTypeDef implements PortTypeDef {
      * Returns the class of the port object spec. 
      */
     @JsonProperty("portObjectSpecClass")
-    protected String m_portObjectSpecClass;
+    protected Optional<String> m_portObjectSpecClass;
 
     @JsonProperty("color")
-    protected Integer m_color;
+    protected Optional<Integer> m_color;
 
     /** 
      * whether to short this port to users, e.g., in dialogs 
@@ -113,7 +114,7 @@ public class DefaultPortTypeDef implements PortTypeDef {
      * human-readable name. In case the port type is not registered at the extension point, the port object&#39;s class name is returned. 
      */
     @JsonProperty("name")
-    protected String m_name;
+    protected Optional<String> m_name;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -123,7 +124,7 @@ public class DefaultPortTypeDef implements PortTypeDef {
      * Internal constructor for subclasses.
      */
     DefaultPortTypeDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -141,7 +142,7 @@ public class DefaultPortTypeDef implements PortTypeDef {
         m_optional = builder.m_optional;
         m_name = builder.m_name;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -161,13 +162,13 @@ public class DefaultPortTypeDef implements PortTypeDef {
         m_hidden = toCopy.isHidden();
         m_optional = toCopy.isOptional();
         m_name = toCopy.getName();
-        if(toCopy instanceof DefaultPortTypeDef){
-            var childTree = ((DefaultPortTypeDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -185,7 +186,7 @@ public class DefaultPortTypeDef implements PortTypeDef {
         m_optional = toCopy.isOptional();
         m_name = toCopy.getName();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -210,21 +211,21 @@ public class DefaultPortTypeDef implements PortTypeDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(PortTypeDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to PortTypeDef.Attribute
-            return ((LoadExceptionTree<PortTypeDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to PortTypeDef.Attribute
+        return ((LoadExceptionTree<PortTypeDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -236,11 +237,11 @@ public class DefaultPortTypeDef implements PortTypeDef {
         return m_portObjectClass;
     }
     @Override
-    public String getPortObjectSpecClass() {
+    public Optional<String> getPortObjectSpecClass() {
         return m_portObjectSpecClass;
     }
     @Override
-    public Integer getColor() {
+    public Optional<Integer> getColor() {
         return m_color;
     }
     @Override
@@ -252,7 +253,7 @@ public class DefaultPortTypeDef implements PortTypeDef {
         return m_optional;
     }
     @Override
-    public String getName() {
+    public Optional<String> getName() {
         return m_name;
     }
     

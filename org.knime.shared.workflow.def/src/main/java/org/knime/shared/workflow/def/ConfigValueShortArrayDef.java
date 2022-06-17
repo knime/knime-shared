@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueArrayDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValueShortArrayDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -86,7 +87,7 @@ public interface ConfigValueShortArrayDef extends ConfigValueArrayDef {
   /**
    * @return 
    **/
-  public java.util.List<Integer> getArray();
+  public Optional<java.util.List<Integer>> getArray();
 
 
 }

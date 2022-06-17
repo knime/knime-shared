@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Cipher for metanodes and components  
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class CipherDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public CipherDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -85,7 +106,7 @@ public class CipherDefBuilder {
     String m_encryptionKey;
     
 
-    String m_passwordHint;
+    Optional<String> m_passwordHint = Optional.empty();
     
 
     /**
@@ -98,9 +119,9 @@ public class CipherDefBuilder {
      * Create a new builder from an existing instance.
      */
     public CipherDefBuilder(final CipherDef toCopy) {
-        m_passwordDigest = toCopy.getPasswordDigest();
-        m_encryptionKey = toCopy.getEncryptionKey();
-        m_passwordHint = toCopy.getPasswordHint();
+        setPasswordDigest(toCopy.getPasswordDigest());
+        setEncryptionKey(toCopy.getEncryptionKey());
+        setPasswordHint(toCopy.getPasswordHint().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -108,7 +129,7 @@ public class CipherDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param passwordDigest TODO
+     * @param passwordDigest TODO 
      * @return this builder for fluent API.
      */ 
     public CipherDefBuilder setPasswordDigest(final String passwordDigest) {
@@ -116,6 +137,7 @@ public class CipherDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -132,12 +154,20 @@ public class CipherDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CipherDef.Attribute.PASSWORD_DIGEST);
         try {
-            m_passwordDigest = passwordDigest.get();
+            var supplied = passwordDigest.get();
+            m_passwordDigest = supplied;
+
+            if(m_passwordDigest == null) {
+                throw new IllegalArgumentException("passwordDigest is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_passwordDigest = defaultValue;
             m_exceptionalChildren.put(CipherDef.Attribute.PASSWORD_DIGEST, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -146,7 +176,7 @@ public class CipherDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param encryptionKey TODO
+     * @param encryptionKey TODO 
      * @return this builder for fluent API.
      */ 
     public CipherDefBuilder setEncryptionKey(final String encryptionKey) {
@@ -154,6 +184,7 @@ public class CipherDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -170,12 +201,20 @@ public class CipherDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CipherDef.Attribute.ENCRYPTION_KEY);
         try {
-            m_encryptionKey = encryptionKey.get();
+            var supplied = encryptionKey.get();
+            m_encryptionKey = supplied;
+
+            if(m_encryptionKey == null) {
+                throw new IllegalArgumentException("encryptionKey is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_encryptionKey = defaultValue;
             m_exceptionalChildren.put(CipherDef.Attribute.ENCRYPTION_KEY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -184,7 +223,7 @@ public class CipherDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param passwordHint TODO
+     * @param passwordHint TODO This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public CipherDefBuilder setPasswordHint(final String passwordHint) {
@@ -192,8 +231,25 @@ public class CipherDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(CipherDef.Attribute.PASSWORD_HINT)} will return true and and
+     * {@code getExceptionalChildren().get(CipherDef.Attribute.PASSWORD_HINT)} will return the exception.
+     * 
+     * @param passwordHint see {@link CipherDef#getPasswordHint}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setPasswordHint(String)
+     */
+    public CipherDefBuilder setPasswordHint(final FallibleSupplier<String> passwordHint) {
+        setPasswordHint(passwordHint, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(CipherDef.Attribute.PASSWORD_HINT)} will return true and and
      * {@code getExceptionalChildren().get(CipherDef.Attribute.PASSWORD_HINT)} will return the exception.
@@ -208,12 +264,16 @@ public class CipherDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CipherDef.Attribute.PASSWORD_HINT);
         try {
-            m_passwordHint = passwordHint.get();
+            var supplied = passwordHint.get();
+            m_passwordHint = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_passwordHint = defaultValue;
+            m_passwordHint = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(CipherDef.Attribute.PASSWORD_HINT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -226,6 +286,14 @@ public class CipherDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultCipherDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_passwordDigest == null) setPasswordDigest( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_encryptionKey == null) setEncryptionKey( null);
         
     	
         return new DefaultCipherDef(this);

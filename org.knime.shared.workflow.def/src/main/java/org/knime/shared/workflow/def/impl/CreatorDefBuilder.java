@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Information about the KNIME installation that created a top-level element (workflow, shared component, shared metanode).
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class CreatorDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public CreatorDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -79,10 +100,10 @@ public class CreatorDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    String m_savedWithVersion;
+    Optional<String> m_savedWithVersion = Optional.empty();
     
 
-    Boolean m_nightly;
+    Optional<Boolean> m_nightly = Optional.empty();
     
 
     /**
@@ -95,8 +116,8 @@ public class CreatorDefBuilder {
      * Create a new builder from an existing instance.
      */
     public CreatorDefBuilder(final CreatorDef toCopy) {
-        m_savedWithVersion = toCopy.getSavedWithVersion();
-        m_nightly = toCopy.isNightly();
+        setSavedWithVersion(toCopy.getSavedWithVersion().orElse(null));
+        setNightly(toCopy.isNightly().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -104,7 +125,7 @@ public class CreatorDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param savedWithVersion Version of the KNIME instance that saved the workflow. Note that nested workflows implicitly have the same saved-with-version  as the containing workflow. Even if a Component or Meta Node was saved with an earlier version and then imported into a  newer KNIME instance the contained workflow is ultimately saved by the newer version.
+     * @param savedWithVersion Version of the KNIME instance that saved the workflow. Note that nested workflows implicitly have the same saved-with-version  as the containing workflow. Even if a Component or Meta Node was saved with an earlier version and then imported into a  newer KNIME instance the contained workflow is ultimately saved by the newer version. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public CreatorDefBuilder setSavedWithVersion(final String savedWithVersion) {
@@ -112,8 +133,25 @@ public class CreatorDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(CreatorDef.Attribute.SAVED_WITH_VERSION)} will return true and and
+     * {@code getExceptionalChildren().get(CreatorDef.Attribute.SAVED_WITH_VERSION)} will return the exception.
+     * 
+     * @param savedWithVersion see {@link CreatorDef#getSavedWithVersion}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setSavedWithVersion(String)
+     */
+    public CreatorDefBuilder setSavedWithVersion(final FallibleSupplier<String> savedWithVersion) {
+        setSavedWithVersion(savedWithVersion, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(CreatorDef.Attribute.SAVED_WITH_VERSION)} will return true and and
      * {@code getExceptionalChildren().get(CreatorDef.Attribute.SAVED_WITH_VERSION)} will return the exception.
@@ -128,12 +166,16 @@ public class CreatorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CreatorDef.Attribute.SAVED_WITH_VERSION);
         try {
-            m_savedWithVersion = savedWithVersion.get();
+            var supplied = savedWithVersion.get();
+            m_savedWithVersion = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_savedWithVersion = defaultValue;
+            m_savedWithVersion = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(CreatorDef.Attribute.SAVED_WITH_VERSION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -142,7 +184,7 @@ public class CreatorDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param nightly Whether the workflow was created using a non-stable/preview version of KNIME.
+     * @param nightly Whether the workflow was created using a non-stable/preview version of KNIME. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public CreatorDefBuilder setNightly(final Boolean nightly) {
@@ -150,8 +192,25 @@ public class CreatorDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(CreatorDef.Attribute.NIGHTLY)} will return true and and
+     * {@code getExceptionalChildren().get(CreatorDef.Attribute.NIGHTLY)} will return the exception.
+     * 
+     * @param nightly see {@link CreatorDef#isNightly}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setNightly(Boolean)
+     */
+    public CreatorDefBuilder setNightly(final FallibleSupplier<Boolean> nightly) {
+        setNightly(nightly, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(CreatorDef.Attribute.NIGHTLY)} will return true and and
      * {@code getExceptionalChildren().get(CreatorDef.Attribute.NIGHTLY)} will return the exception.
@@ -166,12 +225,16 @@ public class CreatorDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CreatorDef.Attribute.NIGHTLY);
         try {
-            m_nightly = nightly.get();
+            var supplied = nightly.get();
+            m_nightly = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_nightly = defaultValue;
+            m_nightly = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(CreatorDef.Attribute.NIGHTLY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }

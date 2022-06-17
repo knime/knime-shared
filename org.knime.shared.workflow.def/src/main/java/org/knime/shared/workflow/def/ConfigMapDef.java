@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigMapDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -75,11 +76,13 @@ public interface ConfigMapDef extends ConfigDef {
           */
          CONFIG_TYPE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link ConfigMapDef#getKey} 
           */
          KEY,
          /** 
+          * This is a required field.
           * The type of this data attribute is java.util.Map&lt;String, ConfigDef&gt;.
           * Is is returned by {@link ConfigMapDef#getChildren} 
           */
@@ -89,12 +92,12 @@ public interface ConfigMapDef extends ConfigDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public String getKey();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public java.util.Map<String, ConfigDef> getChildren();
 

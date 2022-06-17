@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultPortTypeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface PortTypeDef {
          /**  
           * the class of the port object this port type is associated with
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link PortTypeDef#getPortObjectClass} 
           */
@@ -87,6 +89,7 @@ public interface PortTypeDef {
          /**  
           * whether to short this port to users, e.g., in dialogs
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link PortTypeDef#isHidden} 
           */
@@ -94,6 +97,7 @@ public interface PortTypeDef {
          /**  
           * whether this port needs to be connected
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link PortTypeDef#isOptional} 
           */
@@ -111,34 +115,34 @@ public interface PortTypeDef {
 
   /**
    * Example value: org.knime.core.node.port.flowvariable.FlowVariablePortObject
-   * @return the class of the port object this port type is associated with
+   * @return the class of the port object this port type is associated with, never <code>null</code>
    **/
   public String getPortObjectClass();
 
   /**
    * @return Returns the class of the port object spec.
    **/
-  public String getPortObjectSpecClass();
+  public Optional<String> getPortObjectSpecClass();
 
   /**
    * @return 
    **/
-  public Integer getColor();
+  public Optional<Integer> getColor();
 
   /**
-   * @return whether to short this port to users, e.g., in dialogs
+   * @return whether to short this port to users, e.g., in dialogs, never <code>null</code>
    **/
   public Boolean isHidden();
 
   /**
-   * @return whether this port needs to be connected
+   * @return whether this port needs to be connected, never <code>null</code>
    **/
   public Boolean isOptional();
 
   /**
    * @return human-readable name. In case the port type is not registered at the extension point, the port object&#39;s class name is returned.
    **/
-  public String getName();
+  public Optional<String> getName();
 
 
 }

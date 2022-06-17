@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValueShortDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -75,6 +76,7 @@ public interface ConfigValueShortDef extends ConfigValueDef {
           */
          CONFIG_TYPE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ConfigValueShortDef#getValue} 
           */
@@ -86,7 +88,7 @@ public interface ConfigValueShortDef extends ConfigValueDef {
   /**
    * minimum: -32768
    * maximum: 32767
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getValue();
 

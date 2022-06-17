@@ -45,8 +45,9 @@
 package org.knime.shared.workflow.def;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
-import org.knime.shared.workflow.def.impl.DefaultTemplateInfoDef;
+import org.knime.shared.workflow.def.impl.DefaultTemplateLinkDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -60,40 +61,42 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
-@JsonDeserialize(as = DefaultTemplateInfoDef.class)
+@JsonDeserialize(as = DefaultTemplateLinkDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
-public interface TemplateInfoDef {
+public interface TemplateLinkDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
           * How to resolve the linked Component/Metanode
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
-          * Is is returned by {@link TemplateInfoDef#getUri} 
+          * Is is returned by {@link TemplateLinkDef#getUri} 
           */
          URI,
          /**  
           * When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available.
           *
+          * This is a required field.
           * The type of this data attribute is {@link OffsetDateTime}.
-          * Is is returned by {@link TemplateInfoDef#getUpdatedAt} 
+          * Is is returned by {@link TemplateLinkDef#getVersion} 
           */
-         UPDATED_AT,
+         VERSION,
 ;
     }
     
 
   /**
    * Example value: knime://My-KNIME-Hub/Users/carlwitt/Private/Nice%20looking%20demo%20time%20series%20data
-   * @return How to resolve the linked Component/Metanode
+   * @return How to resolve the linked Component/Metanode, never <code>null</code>
    **/
   public String getUri();
 
   /**
-   * @return When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available.
+   * @return When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available., never <code>null</code>
    **/
-  public OffsetDateTime getUpdatedAt();
+  public OffsetDateTime getVersion();
 
 
 }

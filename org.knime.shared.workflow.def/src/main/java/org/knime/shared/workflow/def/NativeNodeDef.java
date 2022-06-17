@@ -44,14 +44,15 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
-import org.knime.shared.workflow.def.ConfigurableNodeDef;
 import org.knime.shared.workflow.def.FilestoreDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
+import org.knime.shared.workflow.def.SingleNodeDef;
 import org.knime.shared.workflow.def.VendorDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -69,12 +70,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 @JsonDeserialize(as = DefaultNativeNodeDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
-public interface NativeNodeDef extends ConfigurableNodeDef {
+public interface NativeNodeDef extends SingleNodeDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
           *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link NativeNodeDef#getId} 
@@ -83,6 +84,7 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
          /**  
           * states the most specific subtype, i.e., Metanode, Component, or Native Node
           *
+          * This is a required field.
           * The type of this data attribute is {@link NodeTypeEnum}.
           * Is is returned by {@link NativeNodeDef#getNodeType} 
           */
@@ -100,10 +102,10 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link NativeNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link NativeNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link NativeNodeDef#getLocks} 
@@ -129,7 +131,10 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
           * Is is returned by {@link NativeNodeDef#getVariableSettings} 
           */
          VARIABLE_SETTINGS,
-         /** 
+         /**  
+          * Describes and identifies the node in the node repository
+          *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link NativeNodeDef#getNodeName} 
           */
@@ -137,6 +142,7 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
          /**  
           * Qualified class name
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link NativeNodeDef#getFactory} 
           */
@@ -147,11 +153,13 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
           */
          FACTORY_SETTINGS,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link VendorDef}.
           * Is is returned by {@link NativeNodeDef#getFeature} 
           */
          FEATURE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link VendorDef}.
           * Is is returned by {@link NativeNodeDef#getBundle} 
           */
@@ -172,40 +180,40 @@ public interface NativeNodeDef extends ConfigurableNodeDef {
 
   /**
    * Example value: Table Creator
-   * @return 
+   * @return Describes and identifies the node in the node repository, never <code>null</code>
    **/
   public String getNodeName();
 
   /**
    * Example value: org.knime.base.node.io.tablecreator.TableCreator2NodeFactory
-   * @return Qualified class name
+   * @return Qualified class name, never <code>null</code>
    **/
   public String getFactory();
 
   /**
    * @return 
    **/
-  public ConfigMapDef getFactorySettings();
+  public Optional<ConfigMapDef> getFactorySettings();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public VendorDef getFeature();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public VendorDef getBundle();
 
   /**
    * @return 
    **/
-  public ConfigMapDef getNodeCreationConfig();
+  public Optional<ConfigMapDef> getNodeCreationConfig();
 
   /**
    * @return 
    **/
-  public FilestoreDef getFilestore();
+  public Optional<FilestoreDef> getFilestore();
 
 
 }

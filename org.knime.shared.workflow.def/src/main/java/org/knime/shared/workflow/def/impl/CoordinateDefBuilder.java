@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * CoordinateDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class CoordinateDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public CoordinateDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -95,8 +116,8 @@ public class CoordinateDefBuilder {
      * Create a new builder from an existing instance.
      */
     public CoordinateDefBuilder(final CoordinateDef toCopy) {
-        m_x = toCopy.getX();
-        m_y = toCopy.getY();
+        setX(toCopy.getX());
+        setY(toCopy.getY());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -104,7 +125,7 @@ public class CoordinateDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param x Horizontal offset of an object.
+     * @param x Horizontal offset of an object. 
      * @return this builder for fluent API.
      */ 
     public CoordinateDefBuilder setX(final Integer x) {
@@ -112,6 +133,7 @@ public class CoordinateDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -128,12 +150,20 @@ public class CoordinateDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CoordinateDef.Attribute.X);
         try {
-            m_x = x.get();
+            var supplied = x.get();
+            m_x = supplied;
+
+            if(m_x == null) {
+                throw new IllegalArgumentException("x is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_x = defaultValue;
             m_exceptionalChildren.put(CoordinateDef.Attribute.X, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -142,7 +172,7 @@ public class CoordinateDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param y Vertical offset of an object.
+     * @param y Vertical offset of an object. 
      * @return this builder for fluent API.
      */ 
     public CoordinateDefBuilder setY(final Integer y) {
@@ -150,6 +180,7 @@ public class CoordinateDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -166,12 +197,20 @@ public class CoordinateDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(CoordinateDef.Attribute.Y);
         try {
-            m_y = y.get();
+            var supplied = y.get();
+            m_y = supplied;
+
+            if(m_y == null) {
+                throw new IllegalArgumentException("y is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_y = defaultValue;
             m_exceptionalChildren.put(CoordinateDef.Attribute.Y, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -184,6 +223,14 @@ public class CoordinateDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultCoordinateDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_x == null) setX( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_y == null) setY( null);
         
     	
         return new DefaultCoordinateDef(this);

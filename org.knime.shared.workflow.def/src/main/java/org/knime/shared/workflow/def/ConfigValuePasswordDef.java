@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValuePasswordDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -86,7 +87,7 @@ public interface ConfigValuePasswordDef extends ConfigValueDef {
   /**
    * @return 
    **/
-  public String getValue();
+  public Optional<String> getValue();
 
 
 }

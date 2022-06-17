@@ -70,13 +70,22 @@ final class MetaNodeSaver extends BaseNodeSaver {
 
     private CreatorDef m_creator;
 
-    MetaNodeSaver(final MetaNodeDef metaNode) {
+    /**
+     * The {@link MetaNodeDef} does not tell whether it is a standalone or embedded metanode but this saver can be used
+     * for both. Standalones won't store template information in workflow.knime (because they have template.knime for
+     * it). Embedded metanodes will store template information (which is either empty or a link to a template) in
+     * workflow.knime.
+     */
+    private final boolean m_isStandalone;
+
+    MetaNodeSaver(final MetaNodeDef metaNode, final boolean isStandalone) {
         super(metaNode);
+        m_isStandalone = isStandalone;
         m_metaNode = metaNode;
     }
 
-    MetaNodeSaver(final MetaNodeDef metaNode, final CreatorDef creator) {
-        this(metaNode);
+    MetaNodeSaver(final MetaNodeDef metaNode, final boolean isStandalone, final CreatorDef creator) {
+        this(metaNode, isStandalone);
         m_creator = creator;
     }
 
@@ -85,7 +94,7 @@ final class MetaNodeSaver extends BaseNodeSaver {
      */
     @Override
     void save(final File metaNodeDirectory, final ConfigBase parentWorkflowNodeSettings) throws IOException {
-        if (parentWorkflowNodeSettings != null) { // then it's not a standalone and there is a parent config
+        if (!m_isStandalone) { // then it's not a standalone and there is a parent config
             var metaNodeSettingsFile = new File(metaNodeDirectory, IOConst.WORKFLOW_FILE_NAME.get());
             var settingsFilePath = metaNodeDirectory.getParentFile().toURI().relativize(metaNodeSettingsFile.toURI());
             parentWorkflowNodeSettings.addString(IOConst.NODE_SETTINGS_FILE.get(), settingsFilePath.getPath());
@@ -102,8 +111,8 @@ final class MetaNodeSaver extends BaseNodeSaver {
     @Override
     void addNodeSettings(final ConfigBase nodeSettings) {
         super.addNodeSettings(nodeSettings);
-        if (m_metaNode.getLink().getUri() != null) {
-            SaverUtils.addTemplateInfo(nodeSettings, m_metaNode.getLink(), m_metaNode.getNodeType());
+        if(!m_isStandalone) {
+            SaverUtils.addTemplateInfo(nodeSettings, m_metaNode.getTemplateLink(), m_metaNode.getTemplateMetadata(), m_metaNode.getNodeType());
         }
         addMetaInports(nodeSettings);
         addMetaOutports(nodeSettings);
@@ -114,9 +123,10 @@ final class MetaNodeSaver extends BaseNodeSaver {
             return;
         }
         var metaInPorts = new SimpleConfig(IOConst.META_IN_PORTS_KEY.get());
-        SaverUtils.addUiInfo(metaInPorts, m_metaNode.getInPortsBarUIInfo());
+        m_metaNode.getInPortsBarBounds().ifPresent(info -> SaverUtils.addUiInfo(metaInPorts, info));
         var portEnum = new SimpleConfig(IOConst.PORT_ENUM_KEY.get());
-        m_metaNode.getInPorts().forEach(p -> SaverUtils.addPort(portEnum, IOConst.INPORT_PREFIX.get(), p));
+        m_metaNode.getInPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(portEnum, IOConst.INPORT_PREFIX.get(), p)));
         metaInPorts.addEntry(portEnum);
         nodeSettings.addEntry(metaInPorts);
     }
@@ -126,9 +136,10 @@ final class MetaNodeSaver extends BaseNodeSaver {
             return;
         }
         var metaOutPorts = new SimpleConfig(IOConst.META_OUT_PORTS_KEY.get());
-        SaverUtils.addUiInfo(metaOutPorts, m_metaNode.getOutPortsBarUIInfo());
+        m_metaNode.getOutPortsBarBounds().ifPresent(uiInfo -> SaverUtils.addUiInfo(metaOutPorts, uiInfo));
         var portEnum = new SimpleConfig(IOConst.PORT_ENUM_KEY.get());
-        m_metaNode.getOutPorts().forEach(p -> SaverUtils.addPort(portEnum, IOConst.OUTPORT_PREFIX.get(), p));
+        m_metaNode.getOutPorts()
+            .ifPresent(ps -> ps.forEach(p -> SaverUtils.addPort(portEnum, IOConst.OUTPORT_PREFIX.get(), p)));
         metaOutPorts.addEntry(portEnum);
         nodeSettings.addEntry(metaOutPorts);
     }

@@ -48,24 +48,24 @@
  */
 package org.knime.shared.workflow.storage.multidir.loader;
 
-import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAULT_EMPTY_STRING;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Optional;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.shared.workflow.def.BaseNodeDef;
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.MetaNodeDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
 import org.knime.shared.workflow.def.PortTypeDef;
+import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.impl.DefaultMetaNodeDef;
+import org.knime.shared.workflow.def.impl.DefaultPortTypeDef;
 import org.knime.shared.workflow.def.impl.MetaNodeDefBuilder;
-import org.knime.shared.workflow.def.impl.NodeUIInfoDefBuilder;
 import org.knime.shared.workflow.def.impl.PortDefBuilder;
 import org.knime.shared.workflow.def.impl.PortTypeDefBuilder;
 import org.knime.shared.workflow.def.impl.WorkflowDefBuilder;
@@ -83,47 +83,55 @@ public final class MetaNodeLoader {
     private MetaNodeLoader() {
     }
 
-    private static final NodeUIInfoDef DEFAULT_NODE_UI = new NodeUIInfoDefBuilder().build();
+    private static final WorkflowDef DEFAULT_WORKFLOW = new WorkflowDefBuilder().strict().build();
 
-    private static final PortDef DEFAULT_PORT_DEF = new PortDefBuilder().build();
+    private static final DefaultPortTypeDef DEFAULT_PORT_TYPE =
+        new PortTypeDefBuilder().strict().setPortObjectClass("org.knime.core.node.BufferedDataTable").build();
+
+    private static final PortDef DEFAULT_PORT_DEF =
+        new PortDefBuilder().strict().setIndex(-1).setPortType(DEFAULT_PORT_TYPE).build();
 
     /**
-     * Loads the properties of a MetaNode into {@link DefaultMetaNodeDef}, stores the loading exceptions using the
-     * {@link FallibleSupplier}
+     * Loads the properties of a MetaNode in a workflow into {@link DefaultMetaNodeDef}, stores the loading exceptions
+     * using the {@link FallibleSupplier}.
      *
-     * @param workflowConfig a read only representation of the workflow.knime.
+     * @param nodeConfig a read only representation of the part of the workflow.knime that describes the node (e.g.,
+     *            contains node id)
      * @param nodeDirectory a {@link File} of the node folder.
      * @param workflowFormatVersion an {@link LoadVersion}.
+     * @param isStandalone whether true if the metanode is a template, false if it is part of a workflow
      * @return a {@link DefaultMetaNodeDef}
      * @throws IOException whether the settings.xml can't be found.
      */
-    public static DefaultMetaNodeDef load(final ConfigBaseRO workflowConfig, final File nodeDirectory,
-        final LoadVersion workflowFormatVersion) throws IOException {
+    public static DefaultMetaNodeDef load(final ConfigBaseRO nodeConfig, final File nodeDirectory,
+        final LoadVersion workflowFormatVersion, final boolean isStandalone) throws IOException {
         var metaNodeConfig = LoaderUtils.readWorkflowConfigFromFile(nodeDirectory);
         // if the template.knime doesn't exist the template information lives in the MetaNode's workflow.knime.
         var templateConfig = LoaderUtils.readTemplateConfigFromFile(nodeDirectory).orElseGet(() -> metaNodeConfig);
 
         var builder = new MetaNodeDefBuilder()//
-            .setNodeType(BaseNodeDef.NodeTypeEnum.METANODE) //
-            .setWorkflow(() -> WorkflowLoader.load(nodeDirectory, workflowFormatVersion),
-                new WorkflowDefBuilder().build())//
-            .setInPortsBarUIInfo(
-                () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_IN_PORTS_KEY.get(), workflowFormatVersion),
-                DEFAULT_NODE_UI)//
-            .setOutPortsBarUIInfo(
-                () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_OUT_PORTS_KEY.get(), workflowFormatVersion),
-                DEFAULT_NODE_UI)//
-            .setLink(() -> LoaderUtils.loadTemplateLink(templateConfig), LoaderUtils.DEFAULT_TEMPLATE_LINK) //
+            .setNodeType(BaseNodeDef.NodeTypeEnum.META) //
+            .setWorkflow(() -> WorkflowLoader.load(nodeDirectory, workflowFormatVersion), DEFAULT_WORKFLOW)//
+            .setInPortsBarBounds(
+                () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_IN_PORTS_KEY.get(), workflowFormatVersion)
+                    .orElse(null))//
+            .setOutPortsBarBounds(
+                () -> loadPortsBarUIInfo(metaNodeConfig, IOConst.META_OUT_PORTS_KEY.get(), workflowFormatVersion)
+                    .orElse(null))//
+            .setTemplateLink(() -> LoaderUtils.loadTemplateLink(templateConfig).orElse(null)) //
+            .setTemplateMetadata(() -> LoaderUtils.loadTemplateMetadata(templateConfig).orElse(null))//
             // base node properties
-            .setId(() -> BaseNodeLoader.loadNodeId(workflowConfig), BaseNodeLoader.getRandomNodeID()) //
             .setAnnotation(() -> BaseNodeLoader.loadAnnotation(metaNodeConfig, workflowFormatVersion),
                 BaseNodeLoader.DEFAULT_NODE_ANNOTATION) //
-            .setCustomDescription(
-                () -> BaseNodeLoader.loadCustomDescription(workflowConfig, metaNodeConfig, workflowFormatVersion),
-                DEFAULT_EMPTY_STRING) //
-            .setJobManager(() -> BaseNodeLoader.loadJobManager(metaNodeConfig), BaseNodeLoader.DEFAULT_JOB_MANAGER) //
-            .setLocks(BaseNodeLoader.loadLocks(workflowConfig, workflowFormatVersion)) //
-            .setUiInfo(BaseNodeLoader.loadUIInfo(workflowConfig, workflowFormatVersion));
+            .setCustomDescription(() -> BaseNodeLoader
+                .loadCustomDescription(nodeConfig, metaNodeConfig, workflowFormatVersion).orElse(null)) //
+            .setJobManager(() -> BaseNodeLoader.loadJobManager(metaNodeConfig).orElse(null)) //
+            .setLocks(BaseNodeLoader.loadLocks(nodeConfig, workflowFormatVersion)) //
+            .setBounds(() -> BaseNodeLoader.loadBoundsDef(nodeConfig, workflowFormatVersion).orElse(null));
+
+        if(!isStandalone) {
+            builder.setId(() -> BaseNodeLoader.loadNodeId(nodeConfig));
+        }
 
         setInPorts(builder, metaNodeConfig, workflowFormatVersion);
         setOutPorts(builder, metaNodeConfig, workflowFormatVersion);
@@ -139,10 +147,10 @@ public final class MetaNodeLoader {
      * @return a {@link NodeUIInfoDef}
      * @throws InvalidSettingsException
      */
-    private static NodeUIInfoDef loadPortsBarUIInfo(final ConfigBaseRO settings, final String key,
+    private static Optional<BoundsDef> loadPortsBarUIInfo(final ConfigBaseRO settings, final String key,
         final LoadVersion loadVersion) throws InvalidSettingsException {
         if (loadVersion.isOlderThan(LoadVersion.V200)) {
-            return DEFAULT_NODE_UI;
+            return Optional.empty();
         }
         return loadNodeUIInformation(loadPortsSetting(settings, key, loadVersion), loadVersion);
     }
@@ -168,13 +176,18 @@ public final class MetaNodeLoader {
         }
     }
 
+    /**
+     * Uses the builder to add the input ports defined in settings. Does not call anything on the builder if no ports
+     * are defined.
+     *
+     * @param builder
+     * @param settings
+     * @param loadVersion
+     */
     private static void setInPorts(final MetaNodeDefBuilder builder, final ConfigBaseRO settings,
         final LoadVersion loadVersion) {
         try {
             var inPortsSettings = loadSetting(settings, IOConst.META_IN_PORTS_KEY.get(), loadVersion);
-            if (inPortsSettings == null) {
-                builder.setInPorts(List.of());
-            }
             var inPortsEnum = loadPortsSettingsEnum(inPortsSettings);
             if (inPortsEnum != null) {
                 inPortsEnum.keySet().forEach(
@@ -187,13 +200,18 @@ public final class MetaNodeLoader {
         }
     }
 
+    /**
+     * Uses the builder to add the output ports defined in settings. Does not call anything on the builder if no ports
+     * are defined.
+     *
+     * @param builder
+     * @param settings
+     * @param loadVersion
+     */
     private static void setOutPorts(final MetaNodeDefBuilder builder, final ConfigBaseRO settings,
         final LoadVersion loadVersion) {
         try {
             var inPortsSettings = loadSetting(settings, IOConst.META_OUT_PORTS_KEY.get(), loadVersion);
-            if (inPortsSettings == null) {
-                builder.setOutPorts(List.of());
-            }
             var inPortsEnum = loadPortsSettingsEnum(inPortsSettings);
             if (inPortsEnum != null) {
                 inPortsEnum.keySet().forEach(
@@ -212,8 +230,8 @@ public final class MetaNodeLoader {
         }
         return new PortDefBuilder()//
             .setIndex(() -> settings.getInt(IOConst.PORT_INDEX_KEY.get()), -1) // Negative default index
-            .setName(() -> settings.getString(IOConst.PORT_NAME_KEY.get()), DEFAULT_EMPTY_STRING)//
-            .setPortType(() -> loadPortTypeDef(settings), new PortTypeDefBuilder().build()) //
+            .setName(() -> settings.getString(IOConst.PORT_NAME_KEY.get()))//
+            .setPortType(() -> loadPortTypeDef(settings), DEFAULT_PORT_TYPE) //
             .build();
     }
 
@@ -224,22 +242,22 @@ public final class MetaNodeLoader {
             .build();
     }
 
-    private static NodeUIInfoDef loadNodeUIInformation(final ConfigBaseRO portSettings, final LoadVersion loadVersion)
+    private static Optional<BoundsDef> loadNodeUIInformation(final ConfigBaseRO portSettings, final LoadVersion loadVersion)
         throws InvalidSettingsException {
         if (portSettings == null) {
-            return DEFAULT_NODE_UI;
+            return Optional.empty();
         }
 
         // in previous releases, the settings were directly written to the
         // top-most node settings object; since 2.0 they are put into a
         // separate sub-settings object
         if (loadVersion.isOlderThan(LoadVersion.V200)) {
-            return BaseNodeLoader.loadUIInfo(portSettings, loadVersion);
+            return BaseNodeLoader.loadBoundsDef(portSettings, loadVersion);
         } else {
             if (!portSettings.containsKey(IOConst.UI_SETTINGS_KEY.get())) {
-                return DEFAULT_NODE_UI;
+                return Optional.empty();
             } else {
-                return BaseNodeLoader.loadUIInfo(portSettings.getConfigBase(IOConst.UI_SETTINGS_KEY.get()),
+                return BaseNodeLoader.loadBoundsDef(portSettings.getConfigBase(IOConst.UI_SETTINGS_KEY.get()),
                     loadVersion);
             }
         }

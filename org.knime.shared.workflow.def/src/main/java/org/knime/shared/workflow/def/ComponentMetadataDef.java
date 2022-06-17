@@ -44,6 +44,8 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.PortMetadataDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultComponentMetadataDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -71,25 +73,15 @@ public interface ComponentMetadataDef {
           */
          DESCRIPTION,
          /** 
-          * The type of this data attribute is java.util.List&lt;String&gt;.
-          * Is is returned by {@link ComponentMetadataDef#getInPortNames} 
+          * The type of this data attribute is java.util.List&lt;PortMetadataDef&gt;.
+          * Is is returned by {@link ComponentMetadataDef#getInPortMetadata} 
           */
-         IN_PORT_NAMES,
+         IN_PORT_METADATA,
          /** 
-          * The type of this data attribute is java.util.List&lt;String&gt;.
-          * Is is returned by {@link ComponentMetadataDef#getOutPortNames} 
+          * The type of this data attribute is java.util.List&lt;PortMetadataDef&gt;.
+          * Is is returned by {@link ComponentMetadataDef#getOutPortMetadata} 
           */
-         OUT_PORT_NAMES,
-         /** 
-          * The type of this data attribute is java.util.List&lt;String&gt;.
-          * Is is returned by {@link ComponentMetadataDef#getInPortDescriptions} 
-          */
-         IN_PORT_DESCRIPTIONS,
-         /** 
-          * The type of this data attribute is java.util.List&lt;String&gt;.
-          * Is is returned by {@link ComponentMetadataDef#getOutPortDescriptions} 
-          */
-         OUT_PORT_DESCRIPTIONS,
+         OUT_PORT_METADATA,
          /** 
           * The type of this data attribute is {@link byte[]}.
           * Is is returned by {@link ComponentMetadataDef#getIcon} 
@@ -140,37 +132,27 @@ public interface ComponentMetadataDef {
   /**
    * @return 
    **/
-  public String getDescription();
+  public Optional<String> getDescription();
 
   /**
    * @return 
    **/
-  public java.util.List<String> getInPortNames();
+  public Optional<java.util.List<PortMetadataDef>> getInPortMetadata();
 
   /**
    * @return 
    **/
-  public java.util.List<String> getOutPortNames();
+  public Optional<java.util.List<PortMetadataDef>> getOutPortMetadata();
 
   /**
    * @return 
    **/
-  public java.util.List<String> getInPortDescriptions();
-
-  /**
-   * @return 
-   **/
-  public java.util.List<String> getOutPortDescriptions();
-
-  /**
-   * @return 
-   **/
-  public byte[] getIcon();
+  public Optional<byte[]> getIcon();
 
   /**
    * @return Summarizes the kind of functionality of the component.
    **/
-  public ComponentTypeEnum getComponentType();
+  public Optional<ComponentTypeEnum> getComponentType();
 
 
 }

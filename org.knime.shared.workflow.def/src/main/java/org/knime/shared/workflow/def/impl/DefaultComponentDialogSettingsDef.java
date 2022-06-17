@@ -64,6 +64,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -74,23 +75,23 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultComponentDialogSettingsDef implements ComponentDialogSettingsDef {
+public class DefaultComponentDialogSettingsDef implements ComponentDialogSettingsDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<ComponentDialogSettingsDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("layoutJSON")
-    protected String m_layoutJSON;
+    protected Optional<String> m_layoutJSON;
 
     @JsonProperty("configurationLayoutJSON")
-    protected String m_configurationLayoutJSON;
+    protected Optional<String> m_configurationLayoutJSON;
 
     @JsonProperty("hideInWizard")
     protected Boolean m_hideInWizard;
 
     @JsonProperty("cssStyles")
-    protected String m_cssStyles;
+    protected Optional<String> m_cssStyles;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -100,7 +101,7 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
      * Internal constructor for subclasses.
      */
     DefaultComponentDialogSettingsDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -116,7 +117,7 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
         m_hideInWizard = builder.m_hideInWizard;
         m_cssStyles = builder.m_cssStyles;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -134,13 +135,13 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
         m_configurationLayoutJSON = toCopy.getConfigurationLayoutJSON();
         m_hideInWizard = toCopy.isHideInWizard();
         m_cssStyles = toCopy.getCssStyles();
-        if(toCopy instanceof DefaultComponentDialogSettingsDef){
-            var childTree = ((DefaultComponentDialogSettingsDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -156,7 +157,7 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
         m_hideInWizard = toCopy.isHideInWizard();
         m_cssStyles = toCopy.getCssStyles();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -181,21 +182,21 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ComponentDialogSettingsDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to ComponentDialogSettingsDef.Attribute
-            return ((LoadExceptionTree<ComponentDialogSettingsDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to ComponentDialogSettingsDef.Attribute
+        return ((LoadExceptionTree<ComponentDialogSettingsDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -203,11 +204,11 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getLayoutJSON() {
+    public Optional<String> getLayoutJSON() {
         return m_layoutJSON;
     }
     @Override
-    public String getConfigurationLayoutJSON() {
+    public Optional<String> getConfigurationLayoutJSON() {
         return m_configurationLayoutJSON;
     }
     @Override
@@ -215,7 +216,7 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
         return m_hideInWizard;
     }
     @Override
-    public String getCssStyles() {
+    public Optional<String> getCssStyles() {
         return m_cssStyles;
     }
     

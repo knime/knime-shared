@@ -44,10 +44,11 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultBaseNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -60,8 +61,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.knime.shared.workflow.def.impl.DefaultBaseNodeDef;
 import org.knime.shared.workflow.def.impl.DefaultComponentNodeDef;
+import org.knime.shared.workflow.def.impl.DefaultSingleNodeDef;
 import org.knime.shared.workflow.def.impl.DefaultMetaNodeDef;
-import org.knime.shared.workflow.def.impl.DefaultConfigurableNodeDef;
 import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
 
 
@@ -81,11 +82,11 @@ import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
 @JsonSubTypes({
     @Type(value = DefaultBaseNodeDef.class, name="BaseNode")
 ,
-  @Type(value = DefaultNativeNodeDef.class, name = "nativenode")
+  @Type(value = DefaultNativeNodeDef.class, name = "NATIVE")
 ,
-  @Type(value = DefaultComponentNodeDef.class, name = "component")
+  @Type(value = DefaultComponentNodeDef.class, name = "COMPONENT")
 ,
-  @Type(value = DefaultMetaNodeDef.class, name = "metanode")
+  @Type(value = DefaultMetaNodeDef.class, name = "META")
 })
 @JsonDeserialize(as = DefaultBaseNodeDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
@@ -94,7 +95,7 @@ public interface BaseNodeDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
           *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link BaseNodeDef#getId} 
@@ -103,6 +104,7 @@ public interface BaseNodeDef {
          /**  
           * states the most specific subtype, i.e., Metanode, Component, or Native Node
           *
+          * This is a required field.
           * The type of this data attribute is {@link NodeTypeEnum}.
           * Is is returned by {@link BaseNodeDef#getNodeType} 
           */
@@ -120,10 +122,10 @@ public interface BaseNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link BaseNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link BaseNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link BaseNodeDef#getLocks} 
@@ -141,11 +143,11 @@ public interface BaseNodeDef {
    * states the most specific subtype, i.e., Metanode, Component, or Native Node
    */
   public enum NodeTypeEnum {
-    NATIVENODE("nativenode"),
+    NATIVE("NATIVE"),
     
-    COMPONENT("component"),
+    COMPONENT("COMPONENT"),
     
-    METANODE("metanode");
+    META("META");
 
     private String value;
 
@@ -162,39 +164,39 @@ public interface BaseNodeDef {
 
 
   /**
-   * @return Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+   * @return Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
    **/
-  public Integer getId();
+  public Optional<Integer> getId();
 
   /**
-   * @return states the most specific subtype, i.e., Metanode, Component, or Native Node
+   * @return states the most specific subtype, i.e., Metanode, Component, or Native Node, never <code>null</code>
    **/
   public NodeTypeEnum getNodeType();
 
   /**
    * @return A longer description, provided by the user
    **/
-  public String getCustomDescription();
+  public Optional<String> getCustomDescription();
 
   /**
    * @return 
    **/
-  public NodeAnnotationDef getAnnotation();
+  public Optional<NodeAnnotationDef> getAnnotation();
 
   /**
    * @return 
    **/
-  public NodeUIInfoDef getUiInfo();
+  public Optional<BoundsDef> getBounds();
 
   /**
    * @return 
    **/
-  public NodeLocksDef getLocks();
+  public Optional<NodeLocksDef> getLocks();
 
   /**
    * @return 
    **/
-  public JobManagerDef getJobManager();
+  public Optional<JobManagerDef> getJobManager();
 
 
 }

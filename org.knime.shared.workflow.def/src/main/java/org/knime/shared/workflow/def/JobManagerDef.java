@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigMapDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultJobManagerDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -69,6 +70,7 @@ public interface JobManagerDef {
          /**  
           * Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager.
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link JobManagerDef#getFactory} 
           */
@@ -84,14 +86,14 @@ public interface JobManagerDef {
 
   /**
    * Example value: org.knime.core.streaming.SimpleStreamerNodeExecutionJobManagerFactory
-   * @return Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager.
+   * @return Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager., never <code>null</code>
    **/
   public String getFactory();
 
   /**
    * @return 
    **/
-  public ConfigMapDef getSettings();
+  public Optional<ConfigMapDef> getSettings();
 
 
 }

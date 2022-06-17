@@ -94,7 +94,17 @@ public enum IOConst {
         CONFIGURATION_LAYOUT_JSON_KEY("configurationLayoutJSON"),
         CUSTOM_CSS_KEY("customCSS"),
         HIDE_IN_WIZARD_KEY("hideInWizard"),
-
+        /**
+         * The key value map listing
+         *
+         * template role
+         *
+         * timestamp
+         *
+         * source URI: null for standalone metanodes/components a.k.a. templates
+         *
+         * template type (SubNode = Component or MetaNode)
+         */
         WORKFLOW_TEMPLATE_INFORMATION_KEY("workflow_template_information"), //
         WORKFLOW_TEMPLATE_ROLE_KEY("role"),
         WORKFLOW_TEMPLATE_ROLE_TEMPLATE("Template"),

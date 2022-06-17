@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,17 +76,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
+public class DefaultNodeUIInfoDef implements NodeUIInfoDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<NodeUIInfoDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
-
-    @JsonProperty("hasAbsoluteCoordinates")
-    protected Boolean m_hasAbsoluteCoordinates;
-
-    @JsonProperty("symbolRelative")
-    protected Boolean m_symbolRelative;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("bounds")
     protected BoundsDef m_bounds;
@@ -98,7 +93,7 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
      * Internal constructor for subclasses.
      */
     DefaultNodeUIInfoDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -109,11 +104,9 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
         // TODO make immutable copies!!
         
             
-        m_hasAbsoluteCoordinates = builder.m_hasAbsoluteCoordinates;
-        m_symbolRelative = builder.m_symbolRelative;
         m_bounds = builder.m_bounds;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -127,16 +120,14 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
         Objects.requireNonNull(supplyException);
         toCopy = Objects.requireNonNullElse(toCopy, new NodeUIInfoDefBuilder().build());
         
-        m_hasAbsoluteCoordinates = toCopy.hasAbsoluteCoordinates();
-        m_symbolRelative = toCopy.isSymbolRelative();
         m_bounds = toCopy.getBounds();
-        if(toCopy instanceof DefaultNodeUIInfoDef){
-            var childTree = ((DefaultNodeUIInfoDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -147,11 +138,9 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
      * @param toCopy source
      */
     public DefaultNodeUIInfoDef(NodeUIInfoDef toCopy) {
-        m_hasAbsoluteCoordinates = toCopy.hasAbsoluteCoordinates();
-        m_symbolRelative = toCopy.isSymbolRelative();
         m_bounds = toCopy.getBounds();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -176,35 +165,27 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(NodeUIInfoDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to NodeUIInfoDef.Attribute
-            return ((LoadExceptionTree<NodeUIInfoDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to NodeUIInfoDef.Attribute
+        return ((LoadExceptionTree<NodeUIInfoDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Getters
     // -----------------------------------------------------------------------------------------------------------------
 
-    @Override
-    public Boolean hasAbsoluteCoordinates() {
-        return m_hasAbsoluteCoordinates;
-    }
-    @Override
-    public Boolean isSymbolRelative() {
-        return m_symbolRelative;
-    }
     @Override
     public BoundsDef getBounds() {
         return m_bounds;
@@ -214,26 +195,6 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
     // Load Exception Convenience Getters: Cast LoadExceptionTree<?> to more specific type where possible
     // -------------------------------------------------------------------------------------------------------------------  
     
-    /**
-     * @return The supply exception associated to hasAbsoluteCoordinates.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getHasAbsoluteCoordinatesSupplyException(){
-    	return getLoadExceptionTree(NodeUIInfoDef.Attribute.HAS_ABSOLUTE_COORDINATES).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-     
-    /**
-     * @return The supply exception associated to symbolRelative.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getSymbolRelativeSupplyException(){
-    	return getLoadExceptionTree(NodeUIInfoDef.Attribute.SYMBOL_RELATIVE).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-     
     /**
      * @return The supply exception associated to bounds.
      */
@@ -250,7 +211,7 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
     @JsonIgnore
     public Optional<DefaultBoundsDef> getFaultyBounds(){
     	final var bounds = getBounds(); 
-        if(bounds instanceof DefaultBoundsDef && ((DefaultBoundsDef)bounds).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(bounds)) {
             return Optional.of((DefaultBoundsDef)bounds);
         }
     	return Optional.empty();
@@ -276,8 +237,6 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
         }
         DefaultNodeUIInfoDef other = (DefaultNodeUIInfoDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.append(m_hasAbsoluteCoordinates, other.m_hasAbsoluteCoordinates);
-        equalsBuilder.append(m_symbolRelative, other.m_symbolRelative);
         equalsBuilder.append(m_bounds, other.m_bounds);
         return equalsBuilder.isEquals();
     }
@@ -285,8 +244,6 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(m_hasAbsoluteCoordinates)
-                .append(m_symbolRelative)
                 .append(m_bounds)
                 .toHashCode();
     }

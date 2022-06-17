@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.ConfigDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * A value that is propagated along the connections between nodes.  Nodes can use incoming flow variables to control their behavior and export them to control downstream nodes or to add data to all outgoing port objects.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class FlowVariableDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public FlowVariableDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -98,9 +119,9 @@ public class FlowVariableDefBuilder {
      * Create a new builder from an existing instance.
      */
     public FlowVariableDefBuilder(final FlowVariableDef toCopy) {
-        m_name = toCopy.getName();
-        m_propertyClass = toCopy.getPropertyClass();
-        m_value = toCopy.getValue();
+        setName(toCopy.getName());
+        setPropertyClass(toCopy.getPropertyClass());
+        setValue(toCopy.getValue());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -108,7 +129,7 @@ public class FlowVariableDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param name Identifier for the flow variable.
+     * @param name Identifier for the flow variable. 
      * @return this builder for fluent API.
      */ 
     public FlowVariableDefBuilder setName(final String name) {
@@ -116,6 +137,7 @@ public class FlowVariableDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -132,12 +154,20 @@ public class FlowVariableDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(FlowVariableDef.Attribute.NAME);
         try {
-            m_name = name.get();
+            var supplied = name.get();
+            m_name = supplied;
+
+            if(m_name == null) {
+                throw new IllegalArgumentException("name is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_name = defaultValue;
             m_exceptionalChildren.put(FlowVariableDef.Attribute.NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -146,7 +176,7 @@ public class FlowVariableDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param propertyClass If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
+     * @param propertyClass If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec) 
      * @return this builder for fluent API.
      */ 
     public FlowVariableDefBuilder setPropertyClass(final String propertyClass) {
@@ -154,6 +184,7 @@ public class FlowVariableDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -170,12 +201,20 @@ public class FlowVariableDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(FlowVariableDef.Attribute.CLASS);
         try {
-            m_propertyClass = propertyClass.get();
+            var supplied = propertyClass.get();
+            m_propertyClass = supplied;
+
+            if(m_propertyClass == null) {
+                throw new IllegalArgumentException("propertyClass is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_propertyClass = defaultValue;
             m_exceptionalChildren.put(FlowVariableDef.Attribute.CLASS, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -184,7 +223,7 @@ public class FlowVariableDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param value 
+     * @param value  
      * @return this builder for fluent API.
      */ 
     public FlowVariableDefBuilder setValue(final ConfigDef value) {
@@ -192,6 +231,7 @@ public class FlowVariableDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -208,7 +248,12 @@ public class FlowVariableDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(FlowVariableDef.Attribute.VALUE);
         try {
-            m_value = value.get();
+            var supplied = value.get();
+            m_value = supplied;
+
+            if(m_value == null) {
+                throw new IllegalArgumentException("value is required and must not be null.");
+            }
             if (m_value instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_value).hasExceptions()) {
                 m_exceptionalChildren.put(FlowVariableDef.Attribute.VALUE, (LoadExceptionTree<?>)m_value);
             }
@@ -216,16 +261,19 @@ public class FlowVariableDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigDef){
-                var childTree = ((DefaultConfigDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_value = defaultValue;
             m_exceptionalChildren.put(FlowVariableDef.Attribute.VALUE, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -237,6 +285,18 @@ public class FlowVariableDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultFlowVariableDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_name == null) setName( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_propertyClass == null) setPropertyClass( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_value == null) setValue( null);
         
     	
         return new DefaultFlowVariableDef(this);

@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.BoundsDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * NodeUIInfoDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class NodeUIInfoDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public NodeUIInfoDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -80,12 +101,6 @@ public class NodeUIInfoDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    Boolean m_hasAbsoluteCoordinates;
-    
-
-    Boolean m_symbolRelative;
-    
-
     BoundsDef m_bounds;
     
     /**
@@ -98,93 +113,15 @@ public class NodeUIInfoDefBuilder {
      * Create a new builder from an existing instance.
      */
     public NodeUIInfoDefBuilder(final NodeUIInfoDef toCopy) {
-        m_hasAbsoluteCoordinates = toCopy.hasAbsoluteCoordinates();
-        m_symbolRelative = toCopy.isSymbolRelative();
         m_bounds = toCopy.getBounds();
     }
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for hasAbsoluteCoordinates
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * @param hasAbsoluteCoordinates 
-     * @return this builder for fluent API.
-     */ 
-    public NodeUIInfoDefBuilder setHasAbsoluteCoordinates(final Boolean hasAbsoluteCoordinates) {
-        setHasAbsoluteCoordinates(() -> hasAbsoluteCoordinates, hasAbsoluteCoordinates);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(NodeUIInfoDef.Attribute.HAS_ABSOLUTE_COORDINATES)} will return true and and
-     * {@code getExceptionalChildren().get(NodeUIInfoDef.Attribute.HAS_ABSOLUTE_COORDINATES)} will return the exception.
-     * 
-     * @param hasAbsoluteCoordinates see {@link NodeUIInfoDef#hasAbsoluteCoordinates}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setHasAbsoluteCoordinates(Boolean)
-     */
-    public NodeUIInfoDefBuilder setHasAbsoluteCoordinates(final FallibleSupplier<Boolean> hasAbsoluteCoordinates, Boolean defaultValue) {
-        java.util.Objects.requireNonNull(hasAbsoluteCoordinates, () -> "No supplier for hasAbsoluteCoordinates provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(NodeUIInfoDef.Attribute.HAS_ABSOLUTE_COORDINATES);
-        try {
-            m_hasAbsoluteCoordinates = hasAbsoluteCoordinates.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                                     
-            m_hasAbsoluteCoordinates = defaultValue;
-            m_exceptionalChildren.put(NodeUIInfoDef.Attribute.HAS_ABSOLUTE_COORDINATES, supplyException);
-	    }   
-        return this;
-    }
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for symbolRelative
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * @param symbolRelative 
-     * @return this builder for fluent API.
-     */ 
-    public NodeUIInfoDefBuilder setSymbolRelative(final Boolean symbolRelative) {
-        setSymbolRelative(() -> symbolRelative, symbolRelative);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(NodeUIInfoDef.Attribute.SYMBOL_RELATIVE)} will return true and and
-     * {@code getExceptionalChildren().get(NodeUIInfoDef.Attribute.SYMBOL_RELATIVE)} will return the exception.
-     * 
-     * @param symbolRelative see {@link NodeUIInfoDef#isSymbolRelative}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setSymbolRelative(Boolean)
-     */
-    public NodeUIInfoDefBuilder setSymbolRelative(final FallibleSupplier<Boolean> symbolRelative, Boolean defaultValue) {
-        java.util.Objects.requireNonNull(symbolRelative, () -> "No supplier for symbolRelative provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(NodeUIInfoDef.Attribute.SYMBOL_RELATIVE);
-        try {
-            m_symbolRelative = symbolRelative.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                                     
-            m_symbolRelative = defaultValue;
-            m_exceptionalChildren.put(NodeUIInfoDef.Attribute.SYMBOL_RELATIVE, supplyException);
-	    }   
-        return this;
-    }
     // -----------------------------------------------------------------------------------------------------------------
     // Setters for bounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param bounds 
+     * @param bounds  
      * @return this builder for fluent API.
      */ 
     public NodeUIInfoDefBuilder setBounds(final BoundsDef bounds) {
@@ -192,6 +129,7 @@ public class NodeUIInfoDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -209,6 +147,10 @@ public class NodeUIInfoDefBuilder {
         m_exceptionalChildren.remove(NodeUIInfoDef.Attribute.BOUNDS);
         try {
             m_bounds = bounds.get();
+
+            if(m_bounds == null) {
+                throw new IllegalArgumentException("bounds is required and must not be null.");
+            }
             if (m_bounds instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds).hasExceptions()) {
                 m_exceptionalChildren.put(NodeUIInfoDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds);
             }
@@ -216,16 +158,19 @@ public class NodeUIInfoDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultBoundsDef){
-                var childTree = ((DefaultBoundsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_bounds = defaultValue;
             m_exceptionalChildren.put(NodeUIInfoDef.Attribute.BOUNDS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -237,6 +182,9 @@ public class NodeUIInfoDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultNodeUIInfoDef build() {
+        
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_bounds == null) setBounds( null);
         
     	
         return new DefaultNodeUIInfoDef(this);

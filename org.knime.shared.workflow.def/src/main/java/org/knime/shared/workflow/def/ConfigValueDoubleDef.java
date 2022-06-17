@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValueDoubleDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -75,6 +76,7 @@ public interface ConfigValueDoubleDef extends ConfigValueDef {
           */
          CONFIG_TYPE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Double}.
           * Is is returned by {@link ConfigValueDoubleDef#getValue} 
           */
@@ -84,7 +86,7 @@ public interface ConfigValueDoubleDef extends ConfigValueDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Double getValue();
 

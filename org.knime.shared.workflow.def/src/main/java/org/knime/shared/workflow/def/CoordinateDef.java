@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultCoordinateDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface CoordinateDef {
          /**  
           * Horizontal offset of an object.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link CoordinateDef#getX} 
           */
@@ -75,6 +77,7 @@ public interface CoordinateDef {
          /**  
           * Vertical offset of an object.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link CoordinateDef#getY} 
           */
@@ -84,12 +87,12 @@ public interface CoordinateDef {
     
 
   /**
-   * @return Horizontal offset of an object.
+   * @return Horizontal offset of an object., never <code>null</code>
    **/
   public Integer getX();
 
   /**
-   * @return Vertical offset of an object.
+   * @return Vertical offset of an object., never <code>null</code>
    **/
   public Integer getY();
 

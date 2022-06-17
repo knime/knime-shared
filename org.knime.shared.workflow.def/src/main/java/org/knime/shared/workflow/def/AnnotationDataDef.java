@@ -46,6 +46,7 @@ package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.CoordinateDef;
 import org.knime.shared.workflow.def.StyleRangeDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultAnnotationDataDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -73,6 +74,7 @@ public interface AnnotationDataDef {
           */
          TEXT,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link CoordinateDef}.
           * Is is returned by {@link AnnotationDataDef#getLocation} 
           */
@@ -100,6 +102,7 @@ public interface AnnotationDataDef {
           */
          BGCOLOR,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getWidth} 
           */
@@ -120,6 +123,7 @@ public interface AnnotationDataDef {
           */
          STYLES,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getHeight} 
           */
@@ -131,55 +135,55 @@ public interface AnnotationDataDef {
   /**
    * @return 
    **/
-  public String getText();
+  public Optional<String> getText();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public CoordinateDef getLocation();
 
   /**
    * @return 
    **/
-  public String getTextAlignment();
+  public Optional<String> getTextAlignment();
 
   /**
    * @return 
    **/
-  public Integer getBorderSize();
+  public Optional<Integer> getBorderSize();
 
   /**
    * @return 
    **/
-  public Integer getBorderColor();
+  public Optional<Integer> getBorderColor();
 
   /**
    * @return Background color
    **/
-  public Integer getBgcolor();
+  public Optional<Integer> getBgcolor();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getWidth();
 
   /**
    * @return 
    **/
-  public Integer getAnnotationVersion();
+  public Optional<Integer> getAnnotationVersion();
 
   /**
    * @return 
    **/
-  public Integer getDefaultFontSize();
+  public Optional<Integer> getDefaultFontSize();
 
   /**
    * @return 
    **/
-  public java.util.List<StyleRangeDef> getStyles();
+  public Optional<java.util.List<StyleRangeDef>> getStyles();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getHeight();
 

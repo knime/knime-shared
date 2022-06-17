@@ -74,15 +74,16 @@ class WorkflowLoaderTest {
         var workflowDef = (DefaultWorkflowDef)WorkflowLoader.load(file, LoadVersion.FUTURE);
 
         // then
-        assertThat(workflowDef.getAnnotations().values()).hasSize(3).extracting(a -> !a.getText().isEmpty()).containsOnly(true);
-        assertThat(workflowDef.getAuthorInformation()).isInstanceOf(AuthorInformationDef.class);
+        assertThat(workflowDef.getAnnotations().get().values()).hasSize(3).extracting(a -> !a.getText().isEmpty()).containsOnly(true);
+        assertThat(workflowDef.getAuthorInformation().get()).isInstanceOf(AuthorInformationDef.class);
         //        assertThat(workflowDef.getCipher()).isNull();
-        assertThat(workflowDef.getConnections()).hasSize(6).extracting(c -> c.getDestID() != null
+        assertThat(workflowDef.getConnections().get()).hasSize(6).extracting(c -> c.getDestID() != null
             && c.getDestPort() != null && c.getSourceID() != null && c.getSourcePort() != null).containsOnly(true);
-        assertThat(workflowDef.getName()).isNull();
-        assertThat(workflowDef.getNodes()).hasSize(7).containsKeys("node_14", "node_13", "node_12", "node_7", "node_11",
+        // is null in workflow.knime so empty is appropriate
+        assertThat(workflowDef.getName()).isEmpty();
+        assertThat(workflowDef.getNodes().get()).hasSize(7).containsKeys("node_14", "node_13", "node_12", "node_7", "node_11",
             "node_8", "node_10");
-        assertThat(workflowDef.getWorkflowEditorSettings()).isInstanceOf(WorkflowUISettingsDef.class);
+        assertThat(workflowDef.getWorkflowEditorSettings().get()).isInstanceOf(WorkflowUISettingsDef.class);
      // TODO enable when load handling is fixed
 //        assertThat(workflowDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
     }

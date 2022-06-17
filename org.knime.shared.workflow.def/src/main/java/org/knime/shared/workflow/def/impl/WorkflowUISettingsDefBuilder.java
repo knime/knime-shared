@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 // for the Attribute enum and javadoc references
@@ -55,6 +56,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * WorkflowUISettingsDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -63,6 +66,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class WorkflowUISettingsDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public WorkflowUISettingsDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -110,13 +131,13 @@ public class WorkflowUISettingsDefBuilder {
      * Create a new builder from an existing instance.
      */
     public WorkflowUISettingsDefBuilder(final WorkflowUISettingsDef toCopy) {
-        m_snapToGrid = toCopy.isSnapToGrid();
-        m_showGrid = toCopy.isShowGrid();
-        m_gridX = toCopy.getGridX();
-        m_gridY = toCopy.getGridY();
-        m_zoomLevel = toCopy.getZoomLevel();
-        m_curvedConnections = toCopy.isCurvedConnections();
-        m_connectionLineWidth = toCopy.getConnectionLineWidth();
+        setSnapToGrid(toCopy.isSnapToGrid());
+        setShowGrid(toCopy.isShowGrid());
+        setGridX(toCopy.getGridX());
+        setGridY(toCopy.getGridY());
+        setZoomLevel(toCopy.getZoomLevel());
+        setCurvedConnections(toCopy.isCurvedConnections());
+        setConnectionLineWidth(toCopy.getConnectionLineWidth());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -124,7 +145,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param snapToGrid Whether nodes moved in the editor are aligned to the nearest grid point.
+     * @param snapToGrid Whether nodes moved in the editor are aligned to the nearest grid point. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setSnapToGrid(final Boolean snapToGrid) {
@@ -132,6 +153,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -148,12 +170,20 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID);
         try {
-            m_snapToGrid = snapToGrid.get();
+            var supplied = snapToGrid.get();
+            m_snapToGrid = supplied;
+
+            if(m_snapToGrid == null) {
+                throw new IllegalArgumentException("snapToGrid is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_snapToGrid = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.SNAP_TO_GRID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -162,7 +192,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param showGrid Whether to show a grid in the workflow editor background.
+     * @param showGrid Whether to show a grid in the workflow editor background. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setShowGrid(final Boolean showGrid) {
@@ -170,6 +200,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -186,12 +217,20 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.SHOW_GRID);
         try {
-            m_showGrid = showGrid.get();
+            var supplied = showGrid.get();
+            m_showGrid = supplied;
+
+            if(m_showGrid == null) {
+                throw new IllegalArgumentException("showGrid is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_showGrid = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.SHOW_GRID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -200,7 +239,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param gridX Horizontal spacing of grid lines.
+     * @param gridX Horizontal spacing of grid lines. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setGridX(final Integer gridX) {
@@ -208,6 +247,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -224,12 +264,20 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.GRID_X);
         try {
-            m_gridX = gridX.get();
+            var supplied = gridX.get();
+            m_gridX = supplied;
+
+            if(m_gridX == null) {
+                throw new IllegalArgumentException("gridX is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_gridX = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.GRID_X, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -238,7 +286,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param gridY Vertical spacing of grid lines.
+     * @param gridY Vertical spacing of grid lines. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setGridY(final Integer gridY) {
@@ -246,6 +294,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -262,12 +311,20 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.GRID_Y);
         try {
-            m_gridY = gridY.get();
+            var supplied = gridY.get();
+            m_gridY = supplied;
+
+            if(m_gridY == null) {
+                throw new IllegalArgumentException("gridY is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_gridY = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.GRID_Y, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -276,7 +333,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param zoomLevel The current magnification of the workflow in the workflow editor.
+     * @param zoomLevel The current magnification of the workflow in the workflow editor. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setZoomLevel(final Double zoomLevel) {
@@ -284,6 +341,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -300,12 +358,20 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL);
         try {
-            m_zoomLevel = zoomLevel.get();
+            var supplied = zoomLevel.get();
+            m_zoomLevel = supplied;
+
+            if(m_zoomLevel == null) {
+                throw new IllegalArgumentException("zoomLevel is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_zoomLevel = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.ZOOM_LEVEL, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -314,7 +380,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param curvedConnections Whether to use straight or curved segments to connect a connection&#39;s bend points.
+     * @param curvedConnections Whether to use straight or curved segments to connect a connection&#39;s bend points. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setCurvedConnections(final Boolean curvedConnections) {
@@ -322,6 +388,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -338,12 +405,20 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS);
         try {
-            m_curvedConnections = curvedConnections.get();
+            var supplied = curvedConnections.get();
+            m_curvedConnections = supplied;
+
+            if(m_curvedConnections == null) {
+                throw new IllegalArgumentException("curvedConnections is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_curvedConnections = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.CURVED_CONNECTIONS, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -352,7 +427,7 @@ public class WorkflowUISettingsDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param connectionLineWidth The width of the lines connecting a workflow&#39;s nodes in the workflow editor.
+     * @param connectionLineWidth The width of the lines connecting a workflow&#39;s nodes in the workflow editor. 
      * @return this builder for fluent API.
      */ 
     public WorkflowUISettingsDefBuilder setConnectionLineWidth(final Integer connectionLineWidth) {
@@ -360,6 +435,7 @@ public class WorkflowUISettingsDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -376,18 +452,26 @@ public class WorkflowUISettingsDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH);
         try {
-            m_connectionLineWidth = connectionLineWidth.get();
+            var supplied = connectionLineWidth.get();
+            m_connectionLineWidth = supplied;
             if(m_connectionLineWidth != null && m_connectionLineWidth < 1) {
                 throw new IllegalArgumentException("connectionLineWidth must not be smaller than 1, but was given: " + m_connectionLineWidth);
             }
             if(m_connectionLineWidth != null && m_connectionLineWidth > 3) {
                 throw new IllegalArgumentException("connectionLineWidth must not be larger than 3, but was given: " + m_connectionLineWidth);
             }
-            	    } catch (Exception e) {
+            
+            if(m_connectionLineWidth == null) {
+                throw new IllegalArgumentException("connectionLineWidth is required and must not be null.");
+            }
+	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_connectionLineWidth = defaultValue;
             m_exceptionalChildren.put(WorkflowUISettingsDef.Attribute.CONNECTION_LINE_WIDTH, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -400,6 +484,34 @@ public class WorkflowUISettingsDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultWorkflowUISettingsDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_snapToGrid == null) setSnapToGrid( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_showGrid == null) setShowGrid( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_gridX == null) setGridX( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_gridY == null) setGridY( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_zoomLevel == null) setZoomLevel( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_curvedConnections == null) setCurvedConnections( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_connectionLineWidth == null) setConnectionLineWidth( null);
         
     	
         return new DefaultWorkflowUISettingsDef(this);

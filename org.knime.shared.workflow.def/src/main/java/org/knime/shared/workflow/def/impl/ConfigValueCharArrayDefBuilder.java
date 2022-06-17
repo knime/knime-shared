@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.ConfigValueArrayDefBuilder;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * ConfigValueCharArrayDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ConfigValueCharArrayDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ConfigValueCharArrayDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -85,11 +106,19 @@ public class ConfigValueCharArrayDefBuilder {
 
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<Integer> m_array = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setArray these are added to m_array in build */
-    private java.util.List<Integer> m_arrayBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<Integer>> m_array = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<Integer>> m_arrayIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setArray these are added to m_array in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<Integer>> m_arrayBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_arrayContainerSupplyException; 
     
@@ -106,8 +135,8 @@ public class ConfigValueCharArrayDefBuilder {
      * Create a new builder from an existing instance.
      */
     public ConfigValueCharArrayDefBuilder(final ConfigValueCharArrayDef toCopy) {
-        m_configType = toCopy.getConfigType();
-        m_array = toCopy.getArray();
+        setConfigType(toCopy.getConfigType());
+        setArray(toCopy.getArray().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -115,7 +144,7 @@ public class ConfigValueCharArrayDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param configType Discriminator for inheritance. Must be the base name of this type/schema.
+     * @param configType Discriminator for inheritance. Must be the base name of this type/schema. 
      * @return this builder for fluent API.
      */ 
     public ConfigValueCharArrayDefBuilder setConfigType(final String configType) {
@@ -123,6 +152,7 @@ public class ConfigValueCharArrayDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -139,7 +169,8 @@ public class ConfigValueCharArrayDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueCharArrayDef.Attribute.CONFIG_TYPE);
         try {
-            m_configType = configType.get();
+            var supplied = configType.get();
+            m_configType = supplied;
 
             if(m_configType == null) {
                 throw new IllegalArgumentException("configType is required and must not be null.");
@@ -149,6 +180,9 @@ public class ConfigValueCharArrayDefBuilder {
                                      
             m_configType = defaultValue;
             m_exceptionalChildren.put(ConfigValueCharArrayDef.Attribute.CONFIG_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -168,8 +202,9 @@ public class ConfigValueCharArrayDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the array list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
@@ -187,13 +222,20 @@ public class ConfigValueCharArrayDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueCharArrayDef.Attribute.ARRAY);
         try {
-            m_arrayBulkElements = array.get();
+            var supplied = array.get();
+            m_array = Optional.ofNullable(supplied);
+            // we set m_array in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_arrayBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_arrayBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_arrayContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -215,15 +257,20 @@ public class ConfigValueCharArrayDefBuilder {
      * @return this builder for fluent API.
      */
     public ConfigValueCharArrayDefBuilder addToArray(FallibleSupplier<Integer> value, Integer defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_arrayIndividualElements.isEmpty()) m_arrayIndividualElements = Optional.of(new java.util.ArrayList<>());
         Integer toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            m_arrayElementSupplyExceptions.put(m_array.size(), supplyException);
+            m_arrayElementSupplyExceptions.put(m_arrayIndividualElements.get().size(), supplyException);
             toAdd = defaultValue;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_array.add(toAdd);
+        m_arrayIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -236,13 +283,20 @@ public class ConfigValueCharArrayDefBuilder {
 	 */
     public DefaultConfigValueCharArrayDef build() {
         
-        // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
-        if(m_configType == null) setConfigType(null);
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_configType == null) setConfigType( null);
         
     	
-        // contains the elements set with #setArray (those added with #addToArray have already been inserted into m_array)
-        m_arrayBulkElements = java.util.Objects.requireNonNullElse(m_arrayBulkElements, java.util.List.of());
-        m_array.addAll(0, m_arrayBulkElements);
+        // if bulk elements are present, add them to individual elements
+        if(m_arrayBulkElements.isPresent()){
+            if(m_arrayIndividualElements.isEmpty()) {
+                m_arrayIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_arrayIndividualElements.get().addAll(m_arrayBulkElements.get());    
+        }
+        m_array = m_arrayIndividualElements;        
+        
         
         var arrayLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
             .list(m_arrayElementSupplyExceptions, m_arrayContainerSupplyException);

@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,11 +76,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultJobManagerDef implements JobManagerDef {
+public class DefaultJobManagerDef implements JobManagerDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<JobManagerDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
      * Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager. 
@@ -90,7 +91,7 @@ public class DefaultJobManagerDef implements JobManagerDef {
     protected String m_factory;
 
     @JsonProperty("settings")
-    protected ConfigMapDef m_settings;
+    protected Optional<ConfigMapDef> m_settings;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -100,7 +101,7 @@ public class DefaultJobManagerDef implements JobManagerDef {
      * Internal constructor for subclasses.
      */
     DefaultJobManagerDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -114,7 +115,7 @@ public class DefaultJobManagerDef implements JobManagerDef {
         m_factory = builder.m_factory;
         m_settings = builder.m_settings;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -130,13 +131,13 @@ public class DefaultJobManagerDef implements JobManagerDef {
         
         m_factory = toCopy.getFactory();
         m_settings = toCopy.getSettings();
-        if(toCopy instanceof DefaultJobManagerDef){
-            var childTree = ((DefaultJobManagerDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -150,7 +151,7 @@ public class DefaultJobManagerDef implements JobManagerDef {
         m_factory = toCopy.getFactory();
         m_settings = toCopy.getSettings();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -175,21 +176,21 @@ public class DefaultJobManagerDef implements JobManagerDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(JobManagerDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to JobManagerDef.Attribute
-            return ((LoadExceptionTree<JobManagerDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to JobManagerDef.Attribute
+        return ((LoadExceptionTree<JobManagerDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -201,7 +202,7 @@ public class DefaultJobManagerDef implements JobManagerDef {
         return m_factory;
     }
     @Override
-    public ConfigMapDef getSettings() {
+    public Optional<ConfigMapDef> getSettings() {
         return m_settings;
     }
     
@@ -235,8 +236,8 @@ public class DefaultJobManagerDef implements JobManagerDef {
     @JsonIgnore
     public Optional<DefaultConfigMapDef> getFaultySettings(){
     	final var settings = getSettings(); 
-        if(settings instanceof DefaultConfigMapDef && ((DefaultConfigMapDef)settings).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultConfigMapDef)settings);
+        if(LoadExceptionTreeProvider.hasExceptions(settings)) {
+            return Optional.of((DefaultConfigMapDef)settings.get());
         }
     	return Optional.empty();
     }

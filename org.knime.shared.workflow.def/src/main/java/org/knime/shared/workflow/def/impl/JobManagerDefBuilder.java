@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.ConfigMapDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Optional information on the node&#39;s execution job manager.  If missing, the node is executed in a default mode.  If present, combines the factory id and factory configuration of the job manager, e.g.,  a streaming node executor and its chunk size setting.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class JobManagerDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public JobManagerDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -83,7 +104,7 @@ public class JobManagerDefBuilder {
     String m_factory;
     
 
-    ConfigMapDef m_settings;
+    Optional<ConfigMapDef> m_settings = Optional.empty();
     
     /**
      * Create a new builder.
@@ -95,8 +116,8 @@ public class JobManagerDefBuilder {
      * Create a new builder from an existing instance.
      */
     public JobManagerDefBuilder(final JobManagerDef toCopy) {
-        m_factory = toCopy.getFactory();
-        m_settings = toCopy.getSettings();
+        setFactory(toCopy.getFactory());
+        setSettings(toCopy.getSettings().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -104,7 +125,7 @@ public class JobManagerDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param factory Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager.
+     * @param factory Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager. 
      * @return this builder for fluent API.
      */ 
     public JobManagerDefBuilder setFactory(final String factory) {
@@ -112,6 +133,7 @@ public class JobManagerDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -128,12 +150,20 @@ public class JobManagerDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(JobManagerDef.Attribute.FACTORY);
         try {
-            m_factory = factory.get();
+            var supplied = factory.get();
+            m_factory = supplied;
+
+            if(m_factory == null) {
+                throw new IllegalArgumentException("factory is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_factory = defaultValue;
             m_exceptionalChildren.put(JobManagerDef.Attribute.FACTORY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -142,7 +172,7 @@ public class JobManagerDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param settings 
+     * @param settings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public JobManagerDefBuilder setSettings(final ConfigMapDef settings) {
@@ -150,8 +180,25 @@ public class JobManagerDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(JobManagerDef.Attribute.SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(JobManagerDef.Attribute.SETTINGS)} will return the exception.
+     * 
+     * @param settings see {@link JobManagerDef#getSettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setSettings(ConfigMapDef)
+     */
+    public JobManagerDefBuilder setSettings(final FallibleSupplier<ConfigMapDef> settings) {
+        setSettings(settings, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(JobManagerDef.Attribute.SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(JobManagerDef.Attribute.SETTINGS)} will return the exception.
@@ -166,24 +213,28 @@ public class JobManagerDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(JobManagerDef.Attribute.SETTINGS);
         try {
-            m_settings = settings.get();
-            if (m_settings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_settings).hasExceptions()) {
-                m_exceptionalChildren.put(JobManagerDef.Attribute.SETTINGS, (LoadExceptionTree<?>)m_settings);
+            var supplied = settings.get();
+            m_settings = Optional.ofNullable(supplied);
+            if (m_settings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_settings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(JobManagerDef.Attribute.SETTINGS, (LoadExceptionTree<?>)m_settings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConfigMapDef){
-                var childTree = ((DefaultConfigMapDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_settings = defaultValue;
+            m_settings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(JobManagerDef.Attribute.SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -195,6 +246,10 @@ public class JobManagerDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultJobManagerDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_factory == null) setFactory( null);
         
     	
         return new DefaultJobManagerDef(this);

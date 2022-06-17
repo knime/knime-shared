@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,11 +76,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultFlowVariableDef implements FlowVariableDef {
+public class DefaultFlowVariableDef implements FlowVariableDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<FlowVariableDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
      * Identifier for the flow variable. 
@@ -106,7 +107,7 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
      * Internal constructor for subclasses.
      */
     DefaultFlowVariableDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -121,7 +122,7 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
         m_propertyClass = builder.m_propertyClass;
         m_value = builder.m_value;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -138,13 +139,13 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
         m_name = toCopy.getName();
         m_propertyClass = toCopy.getPropertyClass();
         m_value = toCopy.getValue();
-        if(toCopy instanceof DefaultFlowVariableDef){
-            var childTree = ((DefaultFlowVariableDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -159,7 +160,7 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
         m_propertyClass = toCopy.getPropertyClass();
         m_value = toCopy.getValue();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -184,21 +185,21 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(FlowVariableDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to FlowVariableDef.Attribute
-            return ((LoadExceptionTree<FlowVariableDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to FlowVariableDef.Attribute
+        return ((LoadExceptionTree<FlowVariableDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -258,7 +259,7 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
     @JsonIgnore
     public Optional<DefaultConfigDef> getFaultyValue(){
     	final var value = getValue(); 
-        if(value instanceof DefaultConfigDef && ((DefaultConfigDef)value).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(value)) {
             return Optional.of((DefaultConfigDef)value);
         }
     	return Optional.empty();

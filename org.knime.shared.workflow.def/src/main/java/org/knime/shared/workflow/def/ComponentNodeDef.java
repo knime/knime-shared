@@ -44,18 +44,20 @@
  */
 package org.knime.shared.workflow.def;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.ComponentDialogSettingsDef;
 import org.knime.shared.workflow.def.ComponentMetadataDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
-import org.knime.shared.workflow.def.ConfigurableNodeDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.SingleNodeDef;
+import org.knime.shared.workflow.def.TemplateLinkDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultComponentNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -73,12 +75,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 @JsonDeserialize(as = DefaultComponentNodeDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
-public interface ComponentNodeDef extends ConfigurableNodeDef {
+public interface ComponentNodeDef extends SingleNodeDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
           *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ComponentNodeDef#getId} 
@@ -87,6 +89,7 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
          /**  
           * states the most specific subtype, i.e., Metanode, Component, or Native Node
           *
+          * This is a required field.
           * The type of this data attribute is {@link NodeTypeEnum}.
           * Is is returned by {@link ComponentNodeDef#getNodeType} 
           */
@@ -104,10 +107,10 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link ComponentNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link ComponentNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link ComponentNodeDef#getLocks} 
@@ -134,6 +137,7 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
           */
          VARIABLE_SETTINGS,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link WorkflowDef}.
           * Is is returned by {@link ComponentNodeDef#getWorkflow} 
           */
@@ -156,11 +160,13 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
          /**  
           * The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode)
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ComponentNodeDef#getVirtualInNodeId} 
           */
          VIRTUAL_IN_NODE_ID,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ComponentNodeDef#getVirtualOutNodeId} 
           */
@@ -171,10 +177,15 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
           */
          METADATA,
          /** 
-          * The type of this data attribute is {@link TemplateInfoDef}.
-          * Is is returned by {@link ComponentNodeDef#getTemplateInfo} 
+          * The type of this data attribute is {@link TemplateMetadataDef}.
+          * Is is returned by {@link ComponentNodeDef#getTemplateMetadata} 
           */
-         TEMPLATE_INFO,
+         TEMPLATE_METADATA,
+         /** 
+          * The type of this data attribute is {@link TemplateLinkDef}.
+          * Is is returned by {@link ComponentNodeDef#getTemplateLink} 
+          */
+         TEMPLATE_LINK,
          /** 
           * The type of this data attribute is {@link ComponentDialogSettingsDef}.
           * Is is returned by {@link ComponentNodeDef#getDialogSettings} 
@@ -185,49 +196,54 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public WorkflowDef getWorkflow();
 
   /**
    * @return 
    **/
-  public java.util.List<PortDef> getInPorts();
+  public Optional<java.util.List<PortDef>> getInPorts();
 
   /**
    * @return 
    **/
-  public java.util.List<PortDef> getOutPorts();
+  public Optional<java.util.List<PortDef>> getOutPorts();
 
   /**
    * @return 
    **/
-  public CipherDef getCipher();
+  public Optional<CipherDef> getCipher();
 
   /**
-   * @return The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode)
+   * @return The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode), never <code>null</code>
    **/
   public Integer getVirtualInNodeId();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Integer getVirtualOutNodeId();
 
   /**
    * @return 
    **/
-  public ComponentMetadataDef getMetadata();
+  public Optional<ComponentMetadataDef> getMetadata();
 
   /**
    * @return 
    **/
-  public TemplateInfoDef getTemplateInfo();
+  public Optional<TemplateMetadataDef> getTemplateMetadata();
 
   /**
    * @return 
    **/
-  public ComponentDialogSettingsDef getDialogSettings();
+  public Optional<TemplateLinkDef> getTemplateLink();
+
+  /**
+   * @return 
+   **/
+  public Optional<ComponentDialogSettingsDef> getDialogSettings();
 
 
 }

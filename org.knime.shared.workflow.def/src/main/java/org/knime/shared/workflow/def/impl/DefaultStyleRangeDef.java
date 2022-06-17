@@ -64,6 +64,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -74,26 +75,26 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultStyleRangeDef implements StyleRangeDef {
+public class DefaultStyleRangeDef implements StyleRangeDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<StyleRangeDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("fontSize")
-    protected Integer m_fontSize;
+    protected Optional<Integer> m_fontSize;
 
     @JsonProperty("color")
-    protected Integer m_color;
+    protected Optional<Integer> m_color;
 
     @JsonProperty("start")
     protected Integer m_start;
 
     @JsonProperty("fontName")
-    protected String m_fontName;
+    protected Optional<String> m_fontName;
 
     @JsonProperty("fontStyle")
-    protected Integer m_fontStyle;
+    protected Optional<Integer> m_fontStyle;
 
     @JsonProperty("length")
     protected Integer m_length;
@@ -106,7 +107,7 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
      * Internal constructor for subclasses.
      */
     DefaultStyleRangeDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -124,7 +125,7 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
         m_fontStyle = builder.m_fontStyle;
         m_length = builder.m_length;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -144,13 +145,13 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
         m_fontName = toCopy.getFontName();
         m_fontStyle = toCopy.getFontStyle();
         m_length = toCopy.getLength();
-        if(toCopy instanceof DefaultStyleRangeDef){
-            var childTree = ((DefaultStyleRangeDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -168,7 +169,7 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
         m_fontStyle = toCopy.getFontStyle();
         m_length = toCopy.getLength();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -193,21 +194,21 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(StyleRangeDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to StyleRangeDef.Attribute
-            return ((LoadExceptionTree<StyleRangeDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to StyleRangeDef.Attribute
+        return ((LoadExceptionTree<StyleRangeDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -215,11 +216,11 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public Integer getFontSize() {
+    public Optional<Integer> getFontSize() {
         return m_fontSize;
     }
     @Override
-    public Integer getColor() {
+    public Optional<Integer> getColor() {
         return m_color;
     }
     @Override
@@ -227,11 +228,11 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
         return m_start;
     }
     @Override
-    public String getFontName() {
+    public Optional<String> getFontName() {
         return m_fontName;
     }
     @Override
-    public Integer getFontStyle() {
+    public Optional<Integer> getFontStyle() {
         return m_fontStyle;
     }
     @Override

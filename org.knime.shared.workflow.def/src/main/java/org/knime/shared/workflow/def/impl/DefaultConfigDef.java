@@ -87,6 +87,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -97,7 +98,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultConfigDef implements ConfigDef {
+public abstract class DefaultConfigDef implements ConfigDef, LoadExceptionTreeProvider {
 
 
     /** 
@@ -141,90 +142,6 @@ public abstract class DefaultConfigDef implements ConfigDef {
      */
     static DefaultConfigDef withException(ConfigDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
-        if (toCopy instanceof ConfigValueFloatArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueFloatArrayDefBuilder().build());
-            return new DefaultConfigValueFloatArrayDef((ConfigValueFloatArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueStringArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueStringArrayDefBuilder().build());
-            return new DefaultConfigValueStringArrayDef((ConfigValueStringArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueCharArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueCharArrayDefBuilder().build());
-            return new DefaultConfigValueCharArrayDef((ConfigValueCharArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueStringDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueStringDefBuilder().build());
-            return new DefaultConfigValueStringDef((ConfigValueStringDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueCharDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueCharDefBuilder().build());
-            return new DefaultConfigValueCharDef((ConfigValueCharDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueDoubleDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueDoubleDefBuilder().build());
-            return new DefaultConfigValueDoubleDef((ConfigValueDoubleDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueBooleanArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueBooleanArrayDefBuilder().build());
-            return new DefaultConfigValueBooleanArrayDef((ConfigValueBooleanArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueIntArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueIntArrayDefBuilder().build());
-            return new DefaultConfigValueIntArrayDef((ConfigValueIntArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValuePasswordDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValuePasswordDefBuilder().build());
-            return new DefaultConfigValuePasswordDef((ConfigValuePasswordDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueByteDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueByteDefBuilder().build());
-            return new DefaultConfigValueByteDef((ConfigValueByteDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueTransientStringDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueTransientStringDefBuilder().build());
-            return new DefaultConfigValueTransientStringDef((ConfigValueTransientStringDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueDoubleArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueDoubleArrayDefBuilder().build());
-            return new DefaultConfigValueDoubleArrayDef((ConfigValueDoubleArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueLongDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueLongDefBuilder().build());
-            return new DefaultConfigValueLongDef((ConfigValueLongDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigMapDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigMapDefBuilder().build());
-            return new DefaultConfigMapDef((ConfigMapDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueByteArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueByteArrayDefBuilder().build());
-            return new DefaultConfigValueByteArrayDef((ConfigValueByteArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueShortDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueShortDefBuilder().build());
-            return new DefaultConfigValueShortDef((ConfigValueShortDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueLongArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueLongArrayDefBuilder().build());
-            return new DefaultConfigValueLongArrayDef((ConfigValueLongArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueShortArrayDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueShortArrayDefBuilder().build());
-            return new DefaultConfigValueShortArrayDef((ConfigValueShortArrayDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueBooleanDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueBooleanDefBuilder().build());
-            return new DefaultConfigValueBooleanDef((ConfigValueBooleanDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueFloatDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueFloatDefBuilder().build());
-            return new DefaultConfigValueFloatDef((ConfigValueFloatDef)toCopy, exception);
-        }
-        if (toCopy instanceof ConfigValueIntDef) {
-            toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueIntDefBuilder().build());
-            return new DefaultConfigValueIntDef((ConfigValueIntDef)toCopy, exception);
-        }
         throw new IllegalArgumentException();
     }
     
@@ -236,7 +153,8 @@ public abstract class DefaultConfigDef implements ConfigDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
+    @Override
+    public abstract LoadExceptionTree<?> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------

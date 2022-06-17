@@ -51,6 +51,7 @@ package org.knime.shared.workflow.storage.multidir.saver;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.shared.workflow.def.ConfigurableNodeDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
+import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 
 /**
@@ -73,11 +74,14 @@ abstract class SingleNodeSaver extends BaseNodeSaver {
     @Override
     void addNodeSettings(final ConfigBase nodeSettings) {
         nodeSettings.addString(IOConst.NODE_FILE_KEY.get(), IOConst.NODE_SETTINGS_FILE_NAME.get());
-        nodeSettings.addEntry(SaverUtils.toConfigEntry(m_singleNode.getInternalNodeSubSettings(),
-            IOConst.INTERNAL_NODE_SUBSETTINGS.get()));
-        nodeSettings.addEntry(SaverUtils.toConfigEntry(m_singleNode.getModelSettings(), IOConst.MODEL_KEY.get()));
-        nodeSettings
-            .addEntry(SaverUtils.toConfigEntry(m_singleNode.getVariableSettings(), IOConst.VARIABLES_KEY.get()));
+        // legacy format stores absent values as empty, not leaving them out
+        nodeSettings.addEntry(
+            SaverUtils.toConfigEntry(m_singleNode.getInternalNodeSubSettings().orElse(LoaderUtils.DEFAULT_CONFIG_MAP),
+                IOConst.INTERNAL_NODE_SUBSETTINGS.get()));
+        nodeSettings.addEntry(SaverUtils.toConfigEntry(
+            m_singleNode.getModelSettings().orElse(LoaderUtils.DEFAULT_CONFIG_MAP), IOConst.MODEL_KEY.get()));
+        nodeSettings.addEntry(SaverUtils.toConfigEntry(
+            m_singleNode.getVariableSettings().orElse(LoaderUtils.DEFAULT_CONFIG_MAP), IOConst.VARIABLES_KEY.get()));
 
         super.addNodeSettings(nodeSettings);
     }
