@@ -54,7 +54,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
- * Flow variables store a class identifier that is used to obtain that type&#39;s instance which in turn is used to  load the value.
+ * A value that is propagated along the connections between nodes.  Nodes can use incoming flow variables to control their behavior and export them to control downstream nodes or to add data to all outgoing port objects.
  *
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
@@ -67,7 +67,7 @@ public interface FlowVariableDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifier for the flow variable
+          * Identifier for the flow variable.
           *
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link FlowVariableDef#getName} 
@@ -90,7 +90,7 @@ public interface FlowVariableDef {
     
 
   /**
-   * @return Identifier for the flow variable
+   * @return Identifier for the flow variable.
    **/
   public String getName();
 

@@ -57,7 +57,7 @@ import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
 /**
- * Flow variables store a class identifier that is used to obtain that type&#39;s instance which in turn is used to  load the value.
+ * A value that is propagated along the connections between nodes.  Nodes can use incoming flow variables to control their behavior and export them to control downstream nodes or to add data to all outgoing port objects.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
@@ -108,7 +108,7 @@ public class FlowVariableDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param name Identifier for the flow variable
+     * @param name Identifier for the flow variable.
      * @return this builder for fluent API.
      */ 
     public FlowVariableDefBuilder setName(final String name) {

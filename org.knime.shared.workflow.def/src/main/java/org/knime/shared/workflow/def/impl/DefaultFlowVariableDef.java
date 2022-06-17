@@ -69,7 +69,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
 /**
- * Flow variables store a class identifier that is used to obtain that type&#39;s instance which in turn is used to  load the value.
+ * A value that is propagated along the connections between nodes.  Nodes can use incoming flow variables to control their behavior and export them to control downstream nodes or to add data to all outgoing port objects.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
@@ -82,7 +82,7 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
     /** 
-     * Identifier for the flow variable 
+     * Identifier for the flow variable. 
      */
     @JsonProperty("name")
     protected String m_name;

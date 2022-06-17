@@ -119,7 +119,9 @@ public interface ComponentMetadataDef {
     
     SOURCE("SOURCE"),
     
-    VISUALIZER("VISUALIZER");
+    VISUALIZER("VISUALIZER"),
+    
+    OTHER("OTHER");
 
     private String value;
 
