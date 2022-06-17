@@ -54,6 +54,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,7 +118,7 @@ class NativeNodeLoaderTest {
         // Assert NodeLoader
         assertThat(nativeNodeDef.getId()).contains(1);
         assertThat(nativeNodeDef.getAnnotation().get().getData().get())
-            .extracting(a -> a.getText().get().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, 16777215);
+            .extracting(a -> a.getText().get().startsWith("Test Node"), a -> a.getBgcolor()).contains(true, Optional.of(16777215));
         assertThat(nativeNodeDef.getCustomDescription()).contains("test");
         assertThat(nativeNodeDef.getJobManager()).isEmpty();
         assertThat(nativeNodeDef.getLocks().get()) //
