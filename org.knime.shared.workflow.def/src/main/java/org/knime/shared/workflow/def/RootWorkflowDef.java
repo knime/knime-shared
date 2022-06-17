@@ -53,6 +53,7 @@ import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultRootWorkflowDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -129,11 +130,6 @@ public interface RootWorkflowDef extends WorkflowDef {
           * Is is returned by {@link RootWorkflowDef#getCredentialPlaceholders} 
           */
          CREDENTIAL_PLACEHOLDERS,
-         /** 
-          * The type of this data attribute is {@link WorkflowDef}.
-          * Is is returned by {@link RootWorkflowDef#getWorkflow} 
-          */
-         WORKFLOW,
 ;
     }
     
@@ -141,22 +137,17 @@ public interface RootWorkflowDef extends WorkflowDef {
   /**
    * @return 
    **/
-  public ConfigMapDef getTableBackendSettings();
+  public Optional<ConfigMapDef> getTableBackendSettings();
 
   /**
    * @return Allows to define workflow-global flow variables and set their values.
    **/
-  public java.util.List<FlowVariableDef> getFlowVariables();
+  public Optional<java.util.List<FlowVariableDef>> getFlowVariables();
 
   /**
    * @return 
    **/
-  public java.util.List<CredentialPlaceholderDef> getCredentialPlaceholders();
-
-  /**
-   * @return 
-   **/
-  public WorkflowDef getWorkflow();
+  public Optional<java.util.List<CredentialPlaceholderDef>> getCredentialPlaceholders();
 
 
 }

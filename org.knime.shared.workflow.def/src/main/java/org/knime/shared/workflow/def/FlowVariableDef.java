@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultFlowVariableDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -69,6 +70,7 @@ public interface FlowVariableDef {
          /**  
           * Identifier for the flow variable.
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link FlowVariableDef#getName} 
           */
@@ -76,11 +78,13 @@ public interface FlowVariableDef {
          /**  
           * If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link FlowVariableDef#getPropertyClass} 
           */
          CLASS,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link ConfigDef}.
           * Is is returned by {@link FlowVariableDef#getValue} 
           */
@@ -90,18 +94,18 @@ public interface FlowVariableDef {
     
 
   /**
-   * @return Identifier for the flow variable.
+   * @return Identifier for the flow variable., never <code>null</code>
    **/
   public String getName();
 
   /**
    * Example value: INTEGER_ARRAY
-   * @return If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
+   * @return If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec), never <code>null</code>
    **/
   public String getPropertyClass();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public ConfigDef getValue();
 

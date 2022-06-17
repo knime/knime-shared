@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultNodeLocksDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface NodeLocksDef {
          /**  
           * Whether a user is allowed to delete the node in the workflow editor.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link NodeLocksDef#hasDeleteLock} 
           */
@@ -75,6 +77,7 @@ public interface NodeLocksDef {
          /**  
           * Whether a user is allowed to reset the node in the workflow editor (the node might contain data).
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link NodeLocksDef#hasResetLock} 
           */
@@ -82,6 +85,7 @@ public interface NodeLocksDef {
          /**  
           * Whether a user is allowed to configure the node in the workflow editor.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Boolean}.
           * Is is returned by {@link NodeLocksDef#hasConfigureLock} 
           */
@@ -91,17 +95,17 @@ public interface NodeLocksDef {
     
 
   /**
-   * @return Whether a user is allowed to delete the node in the workflow editor.
+   * @return Whether a user is allowed to delete the node in the workflow editor., never <code>null</code>
    **/
   public Boolean hasDeleteLock();
 
   /**
-   * @return Whether a user is allowed to reset the node in the workflow editor (the node might contain data).
+   * @return Whether a user is allowed to reset the node in the workflow editor (the node might contain data)., never <code>null</code>
    **/
   public Boolean hasResetLock();
 
   /**
-   * @return Whether a user is allowed to configure the node in the workflow editor.
+   * @return Whether a user is allowed to configure the node in the workflow editor., never <code>null</code>
    **/
   public Boolean hasConfigureLock();
 

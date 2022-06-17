@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.CreatorDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultStandaloneDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -74,6 +75,7 @@ public interface StandaloneDef {
          /**  
           * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
           *
+          * This is a required field.
           * The type of this data attribute is {@link Object}.
           * Is is returned by {@link StandaloneDef#getContents} 
           */
@@ -81,6 +83,7 @@ public interface StandaloneDef {
          /**  
           * Describes the type of the contents field.
           *
+          * This is a required field.
           * The type of this data attribute is {@link ContentTypeEnum}.
           * Is is returned by {@link StandaloneDef#getContentType} 
           */
@@ -117,15 +120,15 @@ public interface StandaloneDef {
   /**
    * @return 
    **/
-  public CreatorDef getCreator();
+  public Optional<CreatorDef> getCreator();
 
   /**
-   * @return This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
+   * @return This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. , never <code>null</code>
    **/
   public Object getContents();
 
   /**
-   * @return Describes the type of the contents field.
+   * @return Describes the type of the contents field., never <code>null</code>
    **/
   public ContentTypeEnum getContentType();
 

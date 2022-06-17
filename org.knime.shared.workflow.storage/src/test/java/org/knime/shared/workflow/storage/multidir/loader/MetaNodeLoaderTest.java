@@ -50,20 +50,25 @@ package org.knime.shared.workflow.storage.multidir.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.core.node.config.base.SimpleConfig;
+import org.knime.core.node.config.base.XMLConfig;
 import org.knime.core.util.LoadVersion;
-import org.knime.shared.workflow.def.JobManagerDef;
+import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+import org.knime.shared.workflow.def.MetaNodeDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
+import org.knime.shared.workflow.storage.multidir.util.IOConst;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -72,97 +77,83 @@ import org.knime.shared.workflow.def.NodeUIInfoDef;
 @SuppressWarnings("squid:S2698")
 class MetaNodeLoaderTest {
 
-    private ConfigBaseRO m_configBaseRO;
-
-    @BeforeEach
-    void setUp() {
-        m_configBaseRO = mock(ConfigBaseRO.class);
-    }
 
     @Test
-    void templateMetaNodetLoaderTest() throws InvalidSettingsException, IOException {
+    void templateMetaNodeLoaderTest() throws InvalidSettingsException, IOException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Metanode_Template");
 
-        when(m_configBaseRO.getInt("id")).thenReturn(1);
-        when(m_configBaseRO.containsKey("customDescription")).thenReturn(true);
-
         // when
-        var metanodeDef = MetaNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);
+        MetaNodeDef metanodeDef = (MetaNodeDef)StandaloneLoader.load(file).getContents();
 
         // then
 
         // Assert MetaNodeLoader
         assertThat(metanodeDef.getInPorts()).isEmpty();
         assertThat(metanodeDef.getOutPorts()).isEmpty();
-        assertThat(metanodeDef.getInPortsBarUIInfo()).isNotNull();
-        assertThat(metanodeDef.getOutPortsBarUIInfo()).isNotNull();
-        assertThat(metanodeDef.getLink().getUpdatedAt().getMonthValue()).isEqualTo(1);
-        assertThat(metanodeDef.getLink().getUri()).isNull();
+        assertThat(metanodeDef.getInPortsBarBounds()).isEmpty();
+        assertThat(metanodeDef.getOutPortsBarBounds()).isEmpty();
+        assertThat(metanodeDef.getTemplateMetadata().get().getVersion().getMonthValue()).isEqualTo(1);
         assertThat(metanodeDef.getWorkflow()).isNotNull();
-        assertThat(metanodeDef.getWorkflow().getNodes()).hasSize(1);
+        assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(1);
 
         // Assert NodeLoader
-        assertThat(metanodeDef.getId()).isEqualTo(1);
-        assertThat(metanodeDef.getAnnotation().getData()).isNull();
-        assertThat(metanodeDef.getCustomDescription()).isNull();
+        assertThat(metanodeDef.getId()).isEmpty(); // standalone metanode does not have an ID
+        assertThat(metanodeDef.getAnnotation().get().getData()).isEmpty();
+        assertThat(metanodeDef.getCustomDescription()).isEmpty();
         assertThat(metanodeDef.getJobManager()).isNotNull();
-        assertThat(metanodeDef.getLocks()) //
+        assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(metanodeDef.getUiInfo()).extracting(n -> n.hasAbsoluteCoordinates(), n -> n.isSymbolRelative(),
-            n -> n.getBounds().getHeight(), n -> n.getBounds().getLocation(), n -> n.getBounds().getWidth())
-            .containsNull();
-     // TODO enable when load handling is fixed
-//        assertThat(metanodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        assertThat(metanodeDef.getBounds()).isEmpty();
+        LoadExceptionTree<?> let =((LoadExceptionTreeProvider)metanodeDef).getLoadExceptionTree();
+        assertThat(let.hasExceptions()).as(let.getFlattenedLoadExceptions().toString()).isFalse();
     }
 
     @Test
-    void linkMetaNodetLoaderTest() throws IOException, InvalidSettingsException {
+    void linkMetaNodeLoaderTest() throws IOException, InvalidSettingsException, SAXException, ParserConfigurationException {
         // given
         var file = NodeLoaderTestUtils.readResourceFolder("Workflow_Test/MetanodeTest (#12)");
 
-        when(m_configBaseRO.getInt("id")).thenReturn(431);
-        when(m_configBaseRO.containsKey("customDescription")).thenReturn(false);
-        when(m_configBaseRO.containsKey("annotations")).thenReturn(false);
-        when(m_configBaseRO.containsKey("ui_settings")).thenReturn(true);
-        var uiSettings = new SimpleConfig("ui_settings");
-        uiSettings.addIntArray("extrainfo.node.bounds", new int[]{2541, 1117, 122, 65});
-        when(m_configBaseRO.getConfigBase("ui_settings")).thenReturn(uiSettings);
+        var parentWorkflowFile = new File(file.getParent(), IOConst.WORKFLOW_FILE_NAME.get());
+        var workflowConfig = new SimpleConfig("workflow.knime");
+        try (var fis = new FileInputStream(parentWorkflowFile)) {
+            XMLConfig.load(workflowConfig, fis);
+        }
 
         // when
-        var metanodeDef = MetaNodeLoader.load(m_configBaseRO, file, LoadVersion.FUTURE);
+        var metanodeDef = MetaNodeLoader.load(workflowConfig.getConfigBase("nodes").getConfigBase("node_12"), file,
+            LoadVersion.FUTURE, false);
 
         // then
 
         // Assert MetaNodeLoader
-        assertThat(metanodeDef.getInPorts())
+        assertThat(metanodeDef.getInPorts().get())
             .extracting(p -> p.getIndex(), p -> p.getName(),
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
-            .contains(tuple(0, "Inport 0", true));
-        assertThat(metanodeDef.getOutPorts())
+            .contains(tuple(0, Optional.of("Inport 0"), true));
+        assertThat(metanodeDef.getOutPorts().get())
             .extracting(p -> p.getIndex(), p -> p.getName(),
                 p -> p.getPortType().getPortObjectClass().endsWith("BufferedDataTable"))
-            .contains(tuple(0, "Connected to: Concatenated table", true),
-                tuple(1, "Connected to: Concatenated table", true));
-        assertThat(metanodeDef.getInPortsBarUIInfo()).isInstanceOf(NodeUIInfoDef.class);
-        assertThat(metanodeDef.getOutPortsBarUIInfo()).isInstanceOf(NodeUIInfoDef.class);
-        assertThat(metanodeDef.getLink().getUpdatedAt().getYear()).isEqualTo(2022);
-        assertThat(metanodeDef.getLink().getUri()).isEqualTo("knime://knime.mountpoint/MetanodeTest");
-        assertThat(metanodeDef.getWorkflow().getNodes()).hasSize(4);
+            .contains(tuple(0, Optional.of("Connected to: Concatenated table"), true),
+                tuple(1, Optional.of("Connected to: Concatenated table"), true));
+        assertThat(metanodeDef.getInPortsBarBounds()).isEmpty();
+        assertThat(metanodeDef.getOutPortsBarBounds()).isEmpty();
+        assertThat(metanodeDef.getTemplateLink().get().getVersion().getYear()).isEqualTo(2022);
+        assertThat(metanodeDef.getTemplateLink().get().getUri()).isEqualTo("knime://knime.mountpoint/MetanodeTest");
+        assertThat(metanodeDef.getWorkflow().getNodes().get()).hasSize(4);
 
         // Assert NodeLoader
-        assertThat(metanodeDef.getId()).isEqualTo(431);
-        assertThat(metanodeDef.getAnnotation()).isInstanceOf(NodeAnnotationDef.class);
-        assertThat(metanodeDef.getCustomDescription()).isNull();
-        assertThat(metanodeDef.getJobManager()).isInstanceOf(JobManagerDef.class);
-        assertThat(metanodeDef.getLocks()) //
+        assertThat(metanodeDef.getId()).contains(12);
+        assertThat(metanodeDef.getAnnotation().get()).isInstanceOf(NodeAnnotationDef.class);
+        assertThat(metanodeDef.getCustomDescription()).isEmpty();
+        assertThat(metanodeDef.getJobManager()).isEmpty();
+        assertThat(metanodeDef.getLocks().get()) //
             .extracting("m_hasDeleteLock", "m_hasResetLock", "m_hasConfigureLock") //
             .containsExactly(false, false, false);
-        assertThat(metanodeDef.getUiInfo()).extracting(n -> n.getBounds().getLocation().getX(),
-            n -> n.getBounds().getLocation().getY(), n -> n.getBounds().getHeight(), n -> n.getBounds().getWidth())
-            .containsExactly(2541, 1117, 122, 65);
-        // TODO enable when load handling is fixed
-//        assertThat(metanodeDef.getLoadExceptionTree().get().hasExceptions()).isFalse();
+        assertThat(metanodeDef.getBounds().get())
+            .extracting(n -> n.getLocation().getX(), n -> n.getLocation().getY(), n -> n.getHeight(), n -> n.getWidth())
+            .containsExactly(324, 317, 94, 64);
+        assertThat(metanodeDef.getLoadExceptionTree().hasExceptions()).isFalse();
     }
 }

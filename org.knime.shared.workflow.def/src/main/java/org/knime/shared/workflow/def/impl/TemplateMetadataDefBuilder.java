@@ -45,25 +45,46 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import java.time.OffsetDateTime;
 
 // for the Attribute enum and javadoc references
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 // for types that define enums
-import org.knime.shared.workflow.def.TemplateInfoDef.*;
+import org.knime.shared.workflow.def.TemplateMetadataDef.*;
 import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
- * For metanodes and components that have been inserted into a workflow by inserting a template metanode/component. The link allows to fetch the inserted content again for updating. 
+ * For metanodes and components that can be inserted into a workflow. The info provides the current version that consumers can compare against to check for updates.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
-public class TemplateInfoDefBuilder {
+public class TemplateMetadataDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public TemplateMetadataDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -75,104 +96,71 @@ public class TemplateInfoDefBuilder {
      * {@link LoadException}s associated to their loading. Instead, separate {@link LoadExceptionTree} instances are
      * referenced in this map.
      */
-    Map<TemplateInfoDef.Attribute, LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>(TemplateInfoDef.Attribute.class);
+    Map<TemplateMetadataDef.Attribute, LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>(TemplateMetadataDef.Attribute.class);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    String m_uri;
-    
-
-    OffsetDateTime m_updatedAt;
+    OffsetDateTime m_version;
     
 
     /**
      * Create a new builder.
      */
-    public TemplateInfoDefBuilder() {
+    public TemplateMetadataDefBuilder() {
     }
 
     /**
      * Create a new builder from an existing instance.
      */
-    public TemplateInfoDefBuilder(final TemplateInfoDef toCopy) {
-        m_uri = toCopy.getUri();
-        m_updatedAt = toCopy.getUpdatedAt();
+    public TemplateMetadataDefBuilder(final TemplateMetadataDef toCopy) {
+        setVersion(toCopy.getVersion());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for uri
+    // Setters for version
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uri How to resolve the linked Component/Metanode
+     * @param version When the template was last updated. If this date is newer than the updated date of the linked component or metanode, an update is available. 
      * @return this builder for fluent API.
      */ 
-    public TemplateInfoDefBuilder setUri(final String uri) {
-        setUri(() -> uri, uri);
+    public TemplateMetadataDefBuilder setVersion(final OffsetDateTime version) {
+        setVersion(() -> version, version);
         return this;
     }
  
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(TemplateInfoDef.Attribute.URI)} will return true and and
-     * {@code getExceptionalChildren().get(TemplateInfoDef.Attribute.URI)} will return the exception.
-     * 
-     * @param uri see {@link TemplateInfoDef#getUri}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setUri(String)
-     */
-    public TemplateInfoDefBuilder setUri(final FallibleSupplier<String> uri, String defaultValue) {
-        java.util.Objects.requireNonNull(uri, () -> "No supplier for uri provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(TemplateInfoDef.Attribute.URI);
-        try {
-            m_uri = uri.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                                     
-            m_uri = defaultValue;
-            m_exceptionalChildren.put(TemplateInfoDef.Attribute.URI, supplyException);
-	    }   
-        return this;
-    }
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for updatedAt
-    // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param updatedAt When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available.
-     * @return this builder for fluent API.
-     */ 
-    public TemplateInfoDefBuilder setUpdatedAt(final OffsetDateTime updatedAt) {
-        setUpdatedAt(() -> updatedAt, updatedAt);
-        return this;
-    }
- 
-    /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(TemplateInfoDef.Attribute.UPDATED_AT)} will return true and and
-     * {@code getExceptionalChildren().get(TemplateInfoDef.Attribute.UPDATED_AT)} will return the exception.
+     * {@code hasExceptions(TemplateMetadataDef.Attribute.VERSION)} will return true and and
+     * {@code getExceptionalChildren().get(TemplateMetadataDef.Attribute.VERSION)} will return the exception.
      * 
-     * @param updatedAt see {@link TemplateInfoDef#getUpdatedAt}
+     * @param version see {@link TemplateMetadataDef#getVersion}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUpdatedAt(OffsetDateTime)
+     * @see #setVersion(OffsetDateTime)
      */
-    public TemplateInfoDefBuilder setUpdatedAt(final FallibleSupplier<OffsetDateTime> updatedAt, OffsetDateTime defaultValue) {
-        java.util.Objects.requireNonNull(updatedAt, () -> "No supplier for updatedAt provided.");
+    public TemplateMetadataDefBuilder setVersion(final FallibleSupplier<OffsetDateTime> version, OffsetDateTime defaultValue) {
+        java.util.Objects.requireNonNull(version, () -> "No supplier for version provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(TemplateInfoDef.Attribute.UPDATED_AT);
+        m_exceptionalChildren.remove(TemplateMetadataDef.Attribute.VERSION);
         try {
-            m_updatedAt = updatedAt.get();
+            var supplied = version.get();
+            m_version = supplied;
+
+            if(m_version == null) {
+                throw new IllegalArgumentException("version is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_updatedAt = defaultValue;
-            m_exceptionalChildren.put(TemplateInfoDef.Attribute.UPDATED_AT, supplyException);
+            m_version = defaultValue;
+            m_exceptionalChildren.put(TemplateMetadataDef.Attribute.VERSION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -180,14 +168,18 @@ public class TemplateInfoDefBuilder {
     // Build method
     // -----------------------------------------------------------------------------------------------------------------
     /**
-	 * @return the {@link TemplateInfoDef} created from the data passed to the setters. Implements 
+	 * @return the {@link TemplateMetadataDef} created from the data passed to the setters. Implements 
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public DefaultTemplateInfoDef build() {
+    public DefaultTemplateMetadataDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_version == null) setVersion( null);
         
     	
-        return new DefaultTemplateInfoDef(this);
+        return new DefaultTemplateMetadataDef(this);
     }    
 
 }

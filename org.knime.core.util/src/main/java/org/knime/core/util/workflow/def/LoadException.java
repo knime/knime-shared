@@ -59,7 +59,7 @@ import java.util.Optional;
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-public class LoadException extends Exception implements LoadExceptionTree<Void> {
+public class LoadException extends Exception implements LoadExceptionTree<Void>, LoadExceptionTreeProvider {
 
     private static final long serialVersionUID = 1L;
 
@@ -115,6 +115,11 @@ public class LoadException extends Exception implements LoadExceptionTree<Void> 
     @Override
     public Map<Void, LoadExceptionTree<?>> getExceptionalChildren() {
         return Map.of();
+    }
+
+    @Override
+    public LoadExceptionTree<?> getLoadExceptionTree() {
+        return this;
     }
 
 }

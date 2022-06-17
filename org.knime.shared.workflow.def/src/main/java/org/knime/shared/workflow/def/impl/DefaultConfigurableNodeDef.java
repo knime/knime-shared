@@ -50,11 +50,11 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.impl.DefaultBaseNodeDef;
 
 import org.knime.shared.workflow.def.ConfigurableNodeDef;
@@ -70,6 +70,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -80,17 +81,17 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef implements ConfigurableNodeDef {
+public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef implements ConfigurableNodeDef, LoadExceptionTreeProvider {
 
 
     @JsonProperty("modelSettings")
-    protected ConfigMapDef m_modelSettings;
+    protected Optional<ConfigMapDef> m_modelSettings;
 
     @JsonProperty("internalNodeSubSettings")
-    protected ConfigMapDef m_internalNodeSubSettings;
+    protected Optional<ConfigMapDef> m_internalNodeSubSettings;
 
     @JsonProperty("variableSettings")
-    protected ConfigMapDef m_variableSettings;
+    protected Optional<ConfigMapDef> m_variableSettings;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -113,7 +114,7 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         m_modelSettings = toCopy.getModelSettings();
@@ -145,7 +146,8 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
+    @Override
+    public abstract LoadExceptionTree<?> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -153,7 +155,7 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public Integer getId() {
+    public Optional<Integer> getId() {
         return m_id;
     }
     @Override
@@ -161,35 +163,35 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
         return m_nodeType;
     }
     @Override
-    public String getCustomDescription() {
+    public Optional<String> getCustomDescription() {
         return m_customDescription;
     }
     @Override
-    public NodeAnnotationDef getAnnotation() {
+    public Optional<NodeAnnotationDef> getAnnotation() {
         return m_annotation;
     }
     @Override
-    public NodeUIInfoDef getUiInfo() {
-        return m_uiInfo;
+    public Optional<BoundsDef> getBounds() {
+        return m_bounds;
     }
     @Override
-    public NodeLocksDef getLocks() {
+    public Optional<NodeLocksDef> getLocks() {
         return m_locks;
     }
     @Override
-    public JobManagerDef getJobManager() {
+    public Optional<JobManagerDef> getJobManager() {
         return m_jobManager;
     }
     @Override
-    public ConfigMapDef getModelSettings() {
+    public Optional<ConfigMapDef> getModelSettings() {
         return m_modelSettings;
     }
     @Override
-    public ConfigMapDef getInternalNodeSubSettings() {
+    public Optional<ConfigMapDef> getInternalNodeSubSettings() {
         return m_internalNodeSubSettings;
     }
     @Override
-    public ConfigMapDef getVariableSettings() {
+    public Optional<ConfigMapDef> getVariableSettings() {
         return m_variableSettings;
     }
     
@@ -224,7 +226,7 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
                 .append(m_nodeType)
                 .append(m_customDescription)
                 .append(m_annotation)
-                .append(m_uiInfo)
+                .append(m_bounds)
                 .append(m_locks)
                 .append(m_jobManager)
                 .append(m_modelSettings)

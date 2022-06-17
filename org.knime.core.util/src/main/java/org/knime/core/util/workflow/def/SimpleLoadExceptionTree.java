@@ -67,7 +67,12 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @param <K> identical to the meaning of the type parameter of {@link LoadExceptionTree}.
  */
-public final class SimpleLoadExceptionTree<K> implements LoadExceptionTree<K> {
+public final class SimpleLoadExceptionTree<K> implements LoadExceptionTree<K>, LoadExceptionTreeProvider {
+
+    /**
+     * A reusable instance to indicate no load exceptions are present.
+     */
+    public static final LoadExceptionTree<?> EMPTY = new SimpleLoadExceptionTree<>(null, Map.of());
 
     /** @see #getSupplyException() */
     private final Optional<LoadException> m_supplierException;
@@ -136,9 +141,8 @@ public final class SimpleLoadExceptionTree<K> implements LoadExceptionTree<K> {
             // if the list element is a LoadExceptionSupplier, return it as a pair with its index
             .<Pair<Integer, LoadExceptionTree<?>>> mapToObj(i -> { // TODO use Stream.mapMulti
                 var e = elementsNonNull.get(i);
-                var les = e instanceof LoadExceptionTree<?> ? (LoadExceptionTree<?>)e : null;
-                var hasExceptions = les != null && les.hasExceptions();
-                return hasExceptions ? Pair.of(i, les) : null;
+                return LoadExceptionTreeProvider.hasExceptions(e) ? //
+                Pair.of(i, LoadExceptionTreeProvider.getTree(e)) : null;
             }).filter(Objects::nonNull) // ignore the elements that have no load exceptions
             .collect(Collectors.toUnmodifiableMap(Pair::getLeft, Pair::getRight));
         return new SimpleLoadExceptionTree<>(supplierException, childSuppliers);
@@ -202,9 +206,8 @@ public final class SimpleLoadExceptionTree<K> implements LoadExceptionTree<K> {
     public static <K, V> LoadExceptionTree<K> map(final Map<K, V> map, final LoadException containerSupplyException) {
         var nonNullMap = Objects.requireNonNullElse(map, Map.<K, V> of());
         final var exceptionalChildren = nonNullMap.entrySet().stream()//
-            .filter(entry -> entry.getValue() instanceof LoadExceptionTree<?>)//
-            .filter(entry -> ((LoadExceptionTree<?>)entry.getValue()).hasExceptions())//
-            .collect(Collectors.toUnmodifiableMap(Entry::getKey, e -> (LoadExceptionTree<?>)e.getValue()));
+            .filter(entry -> LoadExceptionTreeProvider.hasExceptions(entry.getValue()))//
+            .collect(Collectors.toUnmodifiableMap(Entry::getKey, e -> LoadExceptionTreeProvider.getTree(e.getValue())));
         return new SimpleLoadExceptionTree<>(containerSupplyException, exceptionalChildren);
     }
 
@@ -220,6 +223,11 @@ public final class SimpleLoadExceptionTree<K> implements LoadExceptionTree<K> {
      */
     public static <K> LoadExceptionTree<K> tree(final LoadExceptionTree<K> tree, final LoadException supplyException) {
         return new SimpleLoadExceptionTree<>(supplyException, tree.getExceptionalChildren());
+    }
+
+    @Override
+    public LoadExceptionTree<?> getLoadExceptionTree() {
+        return this;
     }
 
 }

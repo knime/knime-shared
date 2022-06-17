@@ -61,6 +61,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.AbstractConfigEntry;
 import org.knime.core.node.config.base.ConfigBase;
@@ -106,7 +107,8 @@ import org.knime.shared.workflow.def.ConfigValueStringDef;
 import org.knime.shared.workflow.def.ConfigValueTransientStringDef;
 import org.knime.shared.workflow.def.CoordinateDef;
 import org.knime.shared.workflow.def.StyleRangeDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateLinkDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 import org.knime.shared.workflow.def.impl.AnnotationDataDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigMapDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueBooleanArrayDefBuilder;
@@ -131,7 +133,8 @@ import org.knime.shared.workflow.def.impl.ConfigValueStringDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueTransientStringDefBuilder;
 import org.knime.shared.workflow.def.impl.CoordinateDefBuilder;
 import org.knime.shared.workflow.def.impl.StyleRangeDefBuilder;
-import org.knime.shared.workflow.def.impl.TemplateInfoDefBuilder;
+import org.knime.shared.workflow.def.impl.TemplateLinkDefBuilder;
+import org.knime.shared.workflow.def.impl.TemplateMetadataDefBuilder;
 import org.knime.shared.workflow.storage.util.PasswordRedactor;
 
 /**
@@ -150,9 +153,10 @@ public final class LoaderUtils {
 
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
 
-    public static final ConfigMapDef DEFAULT_CONFIG_MAP = new ConfigMapDefBuilder().build();
+    public static final ConfigMapDef DEFAULT_CONFIG_MAP =
+        new ConfigMapDefBuilder().strict().setConfigType("ConfigMap").setKey("default").setChildren(Map.of()).build();
 
-    public static final TemplateInfoDef DEFAULT_TEMPLATE_LINK = new TemplateInfoDefBuilder().build();
+    static final OffsetDateTime DEFAULT_DATE_TIME = OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     public static OffsetDateTime parseDate(final String s) {
         synchronized (DATE_FORMAT) {
@@ -281,10 +285,12 @@ public final class LoaderUtils {
             .setTextAlignment(workflowFormatVersion.ordinal() >= LoadVersion.V250.ordinal()
                 ? annotationConfig.getString("alignment") : "LEFT");
 
-        ConfigBaseRO styleConfigs = annotationConfig.getConfigBase("styles");
-        for (String key : styleConfigs.keySet()) {
-            builder.addToStyles(() -> loadStyleRangeDef(styleConfigs.getConfigBase(key)),
-                new StyleRangeDefBuilder().build());
+        if(annotationConfig.containsKey("styles")) {
+            ConfigBaseRO styleConfigs = annotationConfig.getConfigBase("styles");
+            for (String key : styleConfigs.keySet()) {
+                builder.addToStyles(() -> loadStyleRangeDef(styleConfigs.getConfigBase(key)),
+                    new StyleRangeDefBuilder().build());
+            }
         }
         return builder.build();
     }
@@ -316,32 +322,53 @@ public final class LoaderUtils {
      * @return a {@link TemplateLinkDef}.
      * @throws InvalidSettingsException
      */
-    public static TemplateInfoDef loadTemplateLink(final ConfigBaseRO templateSettings) throws InvalidSettingsException {
+    public static Optional<TemplateLinkDef> loadTemplateLink(final ConfigBaseRO templateSettings) throws InvalidSettingsException {
         if (!templateSettings.containsKey(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get())) {
-            return DEFAULT_TEMPLATE_LINK;
+            return Optional.empty();
         }
-
         var templateInformationSettings = templateSettings.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
-        return new TemplateInfoDefBuilder()
+
+        if (!"Link".equals(templateInformationSettings.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get()))) {
+            return Optional.empty();
+        }
+        return Optional.of(new TemplateLinkDefBuilder()
             .setUri(templateInformationSettings.getString(IOConst.SOURCE_URI_KEY.get(), DEFAULT_EMPTY_STRING)) //
-            .setUpdatedAt(() -> parseDate(templateInformationSettings.getString(IOConst.TIMESTAMP.get())),
-                OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)) //
-            .build();
+            .setVersion(() -> parseDate(templateInformationSettings.getString(IOConst.TIMESTAMP.get())),
+                DEFAULT_DATE_TIME) //
+            .build());
+    }
+
+    /**
+     * Loads the template link of a Component or MetaNode from the {@code templateSettings}. The only usage of
+     * template.knime is to read the template information for the stand alone MetaNodes (Template role). Components, and
+     * MetaNodes as NativeNodes, have the template information in their settings.xml and workflow.knime accordingly.
+     *
+     * @param templateSettings a read only representation either of template.knime, settings.xml or workflow.knime.
+     * @return a {@link TemplateLinkDef}.
+     * @throws InvalidSettingsException
+     */
+    public static Optional<TemplateMetadataDef> loadTemplateMetadata(final ConfigBaseRO templateSettings) throws InvalidSettingsException {
+        if (!templateSettings.containsKey(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get())) {
+            return Optional.empty();
+        }
+        var templateInformationSettings = templateSettings.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
+
+        if (!"Template".equals(templateInformationSettings.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get()))) {
+            return Optional.empty();
+        }
+        return Optional.of(new TemplateMetadataDefBuilder()
+            .setVersion(() -> parseDate(templateInformationSettings.getString(IOConst.TIMESTAMP.get())),
+                DEFAULT_DATE_TIME) //
+            .build());
     }
 
     /**
      * @param settings recursive key-value map
-     * @param passwordRedactor post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
+     * @param passwordRedactor post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with
+     *            null
      * @return the recursive key-value map in a different representation
-     * @throws InvalidSettingsException
      */
-    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor)
-        throws InvalidSettingsException {
-
-        if (settings == null) {
-            return null;
-        }
-
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings, final PasswordRedactor passwordRedactor) {
         return (ConfigMapDef)toConfigDef((AbstractConfigEntry)settings, settings.getKey(), passwordRedactor);
     }
 
@@ -349,9 +376,8 @@ public final class LoaderUtils {
      * Version for internal use that does not redact passwords.
      * @param settings recursive key-value map
      * @return the recursive key-value map in a different representation
-     * @throws InvalidSettingsException
      */
-    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) throws InvalidSettingsException {
+    public static ConfigMapDef toConfigMapDef(final ConfigBaseRO settings) {
         return toConfigMapDef(settings, PasswordRedactor.unsafe());
     }
 
@@ -363,10 +389,9 @@ public final class LoaderUtils {
      * @param key the name of this subtree
      * @param passwordHandler post-processing for all {@link ConfigValuePasswordDef} entries, e.g., to replace with null
      * @return a POJO representation of the key-value map
-     * @throws InvalidSettingsException
      */
     public static ConfigDef toConfigDef(final AbstractConfigEntry settings, final String key,
-        final PasswordRedactor passwordHandler) throws InvalidSettingsException {
+        final PasswordRedactor passwordHandler) {
 
         if (settings instanceof ConfigBase) {
             // this is a subtree, because every class that extends AbstractConfigEntry and is not a subclass of
@@ -630,76 +655,59 @@ public final class LoaderUtils {
    }
 
    /**
+    * ConfigBase allows everything for arrays: non-empty, empty, and null.
+    *
+    * To avoid accidental conversions, we add null when the def array is Optional.empty (this will create the key but no
+    * config entry that describes the size of the array). For Optional.present, we just convert to primitive array and
+    * add. ArrayUtils is handy because it can handle a null input (although it will throw an exception when one of the
+    * elements in the array is null).
+    *
     * @param def describes an array of configuration values (booleans, strings, chars, etc.)
     * @return
     */
-   private static <T extends ConfigBase> T toSettingsArray(final ConfigValueArrayDef def, final String arrayKey,
+   static <T extends ConfigBase> T toSettingsArray(final ConfigValueArrayDef def, final String arrayKey,
        final Function<String, T> constructor) {
        T temp = constructor.apply("");
        if (def instanceof ConfigValueBooleanArrayDef) {
-           List<Boolean> values = ((ConfigValueBooleanArrayDef)def).getArray();
-           boolean[] array = new boolean[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = values.get(i);
-           }
-           temp.addBooleanArray(arrayKey, array);
+           Boolean[] boxed = ((ConfigValueBooleanArrayDef)def).getArray()
+               .map(list -> list.stream().toArray(Boolean[]::new)).orElse(null);
+           temp.addBooleanArray(arrayKey, ArrayUtils.toPrimitive(boxed));
        } else if (def instanceof ConfigValueByteArrayDef) {
-           temp.addByteArray(arrayKey, ((ConfigValueByteArrayDef)def).getArray());
+           temp.addByteArray(arrayKey, ((ConfigValueByteArrayDef)def).getArray().orElse(null));
        } else if (def instanceof ConfigValueCharArrayDef) {
-           List<Integer> values = ((ConfigValueCharArrayDef)def).getArray();
-           char[] array = new char[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = (char)values.get(i).intValue();
-           }
-           temp.addCharArray(arrayKey, array);
+           Character[] boxed = ((ConfigValueCharArrayDef)def).getArray()
+               .map(list -> list.stream().toArray(Character[]::new)).orElse(null);
+           temp.addCharArray(arrayKey, ArrayUtils.toPrimitive(boxed));
        } else if (def instanceof ConfigValueDoubleArrayDef) {
-           List<Double> values = ((ConfigValueDoubleArrayDef)def).getArray();
-           double[] array = new double[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = values.get(i);
-           }
-           temp.addDoubleArray(arrayKey, array);
+           double[] values = ((ConfigValueDoubleArrayDef)def).getArray()
+               .map(l -> l.stream().mapToDouble(d -> d).toArray()).orElse(null);
+           temp.addDoubleArray(arrayKey, values);
        } else if (def instanceof ConfigValueFloatArrayDef) {
-           List<Float> values = ((ConfigValueFloatArrayDef)def).getArray();
-           float[] array = new float[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = values.get(i);
-           }
-           temp.addFloatArray(arrayKey, array);
+           Float[] boxed =
+               ((ConfigValueFloatArrayDef)def).getArray().map(list -> list.stream().toArray(Float[]::new)).orElse(null);
+           temp.addFloatArray(arrayKey, ArrayUtils.toPrimitive(boxed));
        } else if (def instanceof ConfigValueIntArrayDef) {
-           List<Integer> values = ((ConfigValueIntArrayDef)def).getArray();
-           int[] array = new int[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = values.get(i);
-           }
-           temp.addIntArray(arrayKey, array);
+           int[] values =
+               ((ConfigValueIntArrayDef)def).getArray().map(l -> l.stream().mapToInt(d -> d).toArray()).orElse(null);
+           temp.addIntArray(arrayKey, values);
        } else if (def instanceof ConfigValueLongArrayDef) {
-           List<Long> values = ((ConfigValueLongArrayDef)def).getArray();
-           long[] array = new long[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = values.get(i);
-           }
-           temp.addLongArray(arrayKey, array);
+           long[] values =
+               ((ConfigValueLongArrayDef)def).getArray().map(l -> l.stream().mapToLong(d -> d).toArray()).orElse(null);
+           temp.addLongArray(arrayKey, values);
        } else if (def instanceof ConfigValueShortArrayDef) {
-           List<Integer> values = ((ConfigValueShortArrayDef)def).getArray();
-           short[] array = new short[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = (short)values.get(i).intValue();
-           }
-           temp.addShortArray(arrayKey, array);
+           Short[] boxed =
+               ((ConfigValueShortArrayDef)def).getArray().map(list -> list.stream().toArray(Short[]::new)).orElse(null);
+           temp.addShortArray(arrayKey, ArrayUtils.toPrimitive(boxed));
        } else if (def instanceof ConfigValueStringArrayDef) {
-           List<String> values = ((ConfigValueStringArrayDef)def).getArray();
-           String[] array = new String[values.size()];
-           for (int i = 0; i < values.size(); i++) {
-               array[i] = values.get(i);
-           }
-           temp.addStringArray(arrayKey, array);
+           String[] values = ((ConfigValueStringArrayDef)def).getArray()
+               .map(list -> list.stream().toArray(String[]::new)).orElse(null);
+           temp.addStringArray(arrayKey, values);
        }
 
-       if (temp.containsKey(arrayKey)) {
-           return (T)temp.getEntry(arrayKey);
+       if (!temp.containsKey(arrayKey)) {
+           throw new IllegalStateException();
        }
-       return null;
+       return (T)temp.getEntry(arrayKey);
    }
 
    /**
@@ -756,7 +764,7 @@ public final class LoaderUtils {
            settings.addShort(key, value);
        }
        if (leafDef instanceof ConfigValueStringDef) {
-           String value = ((ConfigValueStringDef)leafDef).getValue();
+           String value = ((ConfigValueStringDef)leafDef).getValue().orElse(null);
            settings.addString(key, value);
        }
    }

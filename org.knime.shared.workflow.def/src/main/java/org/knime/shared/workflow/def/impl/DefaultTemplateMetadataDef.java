@@ -52,12 +52,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.time.OffsetDateTime;
 
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 
 
 
 // for types that define enums
-import org.knime.shared.workflow.def.TemplateInfoDef.*;
+import org.knime.shared.workflow.def.TemplateMetadataDef.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -65,35 +65,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
 /**
- * For metanodes and components that have been inserted into a workflow by inserting a template metanode/component. The link allows to fetch the inserted content again for updating. 
+ * For metanodes and components that can be inserted into a workflow. The info provides the current version that consumers can compare against to check for updates.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultTemplateInfoDef implements TemplateInfoDef {
+public class DefaultTemplateMetadataDef implements TemplateMetadataDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
-     * a LoadExceptionTree<TemplateInfoDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+     * a LoadExceptionTree<TemplateMetadataDef.Attribute> instance. */
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
-     * How to resolve the linked Component/Metanode 
-     * 
-     * Example value: knime://My-KNIME-Hub/Users/carlwitt/Private/Nice%20looking%20demo%20time%20series%20data
+     * When the template was last updated. If this date is newer than the updated date of the linked component or metanode, an update is available. 
      */
-    @JsonProperty("uri")
-    protected String m_uri;
-
-    /** 
-     * When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available. 
-     */
-    @JsonProperty("updatedAt")
-    protected OffsetDateTime m_updatedAt;
+    @JsonProperty("version")
+    protected OffsetDateTime m_version;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -102,44 +95,42 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     /**
      * Internal constructor for subclasses.
      */
-    DefaultTemplateInfoDef() {
-        m_exceptionTree = Optional.empty();
+    DefaultTemplateMetadataDef() {
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
-     * Builder constructor. Only for use in {@link TemplateInfoDefBuilder}.
+     * Builder constructor. Only for use in {@link TemplateMetadataDefBuilder}.
      * @param builder source
      */
-    DefaultTemplateInfoDef(TemplateInfoDefBuilder builder) {
+    DefaultTemplateMetadataDef(TemplateMetadataDefBuilder builder) {
         // TODO make immutable copies!!
         
             
-        m_uri = builder.m_uri;
-        m_updatedAt = builder.m_updatedAt;
+        m_version = builder.m_version;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
      * LoadExceptionTree constructor. Copies the given instance and sets the {@link LoadException} as supply
      * exception, marking it as a default value that had to be used due to the given {@link LoadException}.
-     * Only for use in {@link TemplateInfoDefBuilder}.
+     * Only for use in {@link TemplateMetadataDefBuilder}.
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    DefaultTemplateInfoDef(TemplateInfoDef toCopy, final LoadException supplyException) {
+    DefaultTemplateMetadataDef(TemplateMetadataDef toCopy, final LoadException supplyException) {
         Objects.requireNonNull(supplyException);
-        toCopy = Objects.requireNonNullElse(toCopy, new TemplateInfoDefBuilder().build());
+        toCopy = Objects.requireNonNullElse(toCopy, new TemplateMetadataDefBuilder().build());
         
-        m_uri = toCopy.getUri();
-        m_updatedAt = toCopy.getUpdatedAt();
-        if(toCopy instanceof DefaultTemplateInfoDef){
-            var childTree = ((DefaultTemplateInfoDef)toCopy).getLoadExceptionTree();                
+        m_version = toCopy.getVersion();
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -149,15 +140,14 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
      * Copy constructor.
      * @param toCopy source
      */
-    public DefaultTemplateInfoDef(TemplateInfoDef toCopy) {
-        m_uri = toCopy.getUri();
-        m_updatedAt = toCopy.getUpdatedAt();
+    public DefaultTemplateMetadataDef(TemplateMetadataDef toCopy) {
+        m_version = toCopy.getVersion();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Factory method to attach a LoadException to an existing TemplateInfo
+    // Factory method to attach a LoadException to an existing TemplateMetadata
     // -----------------------------------------------------------------------------------------------------------------
     /**
      * Factory method that copies all subtype information but returns the more general type, e.g., for inclusion in a container.
@@ -165,7 +155,7 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    static DefaultTemplateInfoDef withException(TemplateInfoDef toCopy, final LoadException exception) {
+    static DefaultTemplateMetadataDef withException(TemplateMetadataDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
         throw new IllegalArgumentException();
     }
@@ -178,21 +168,21 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(TemplateInfoDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to TemplateInfoDef.Attribute
-            return ((LoadExceptionTree<TemplateInfoDef.Attribute>)t).getExceptionTree(attribute);
-        });
+    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(TemplateMetadataDef.Attribute attribute){
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to TemplateMetadataDef.Attribute
+        return ((LoadExceptionTree<TemplateMetadataDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -200,12 +190,8 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getUri() {
-        return m_uri;
-    }
-    @Override
-    public OffsetDateTime getUpdatedAt() {
-        return m_updatedAt;
+    public OffsetDateTime getVersion() {
+        return m_version;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -213,21 +199,11 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     // -------------------------------------------------------------------------------------------------------------------  
     
     /**
-     * @return The supply exception associated to uri.
+     * @return The supply exception associated to version.
      */
     @JsonIgnore
-    public Optional<LoadException> getUriSupplyException(){
-    	return getLoadExceptionTree(TemplateInfoDef.Attribute.URI).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-     
-    /**
-     * @return The supply exception associated to updatedAt.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getUpdatedAtSupplyException(){
-    	return getLoadExceptionTree(TemplateInfoDef.Attribute.UPDATED_AT).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getVersionSupplyException(){
+    	return getLoadExceptionTree(TemplateMetadataDef.Attribute.VERSION).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
@@ -249,18 +225,16 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
         if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
-        DefaultTemplateInfoDef other = (DefaultTemplateInfoDef)o;
+        DefaultTemplateMetadataDef other = (DefaultTemplateMetadataDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.append(m_uri, other.m_uri);
-        equalsBuilder.append(m_updatedAt, other.m_updatedAt);
+        equalsBuilder.append(m_version, other.m_version);
         return equalsBuilder.isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(m_uri)
-                .append(m_updatedAt)
+                .append(m_version)
                 .toHashCode();
     }
 

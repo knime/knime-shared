@@ -50,6 +50,8 @@ package org.knime.shared.workflow.storage.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
@@ -99,12 +101,8 @@ class PasswordRedactorTest {
     void testRedactToNull() throws InvalidSettingsException, JsonProcessingException {
         // ConfigBase -> Def
         var def = LoaderUtils.toConfigMapDef(SENSITIVE_SETTINGS, PasswordRedactor.asNull());
-        // the value in the def is nulled
-        assertThat(getPasswordNode(def))//
-            // key-value pair is present
-            .asInstanceOf(InstanceOfAssertFactories.type(ConfigValuePasswordDef.class))//
-            // but password is null
-            .extracting("value").isNull();
+        // the value in the def is removed
+        assertThat(getPasswordNode(def).getValue()).isEmpty();
 
         // Def -> String
         var json = ObjectMapperUtil.toString(def);
@@ -118,11 +116,7 @@ class PasswordRedactorTest {
         // String -> Def
         var restoredDef = ObjectMapperUtil.fromString(json, ConfigMapDef.class);
         // the value in the def is nulled
-        assertThat(getPasswordNode(restoredDef))//
-            // and is restored as password entry
-            .asInstanceOf(InstanceOfAssertFactories.type(ConfigValuePasswordDef.class))//
-            // but contains no value
-            .extracting("value").isNull();
+        assertThat(getPasswordNode(restoredDef).getValue()).isEmpty();
 
         // Def -> ConfigBase
         var config = LoaderUtils.toConfigBase(restoredDef, PasswordRedactor.asNull());
@@ -146,7 +140,8 @@ class PasswordRedactorTest {
         assertThat(getPasswordNode(def))//
             .asInstanceOf(InstanceOfAssertFactories.type(ConfigValuePasswordDef.class))//
             // is not null
-            .extracting("value").asInstanceOf(InstanceOfAssertFactories.STRING)
+            .extracting(ConfigValuePasswordDef::getValue)
+            .extracting(Optional::get).asInstanceOf(InstanceOfAssertFactories.STRING)
             // does not contain plaintext
             .doesNotContain(PASSWORD);
 
@@ -180,10 +175,7 @@ class PasswordRedactorTest {
         // when reading them back, the value is null
         var restoredDef = ObjectMapperUtil.fromString(string, ConfigMapDef.class);
         // the value in the def is nulled
-        assertThat(getPasswordNode(restoredDef))//
-            // and is restored as password entry
-            .asInstanceOf(InstanceOfAssertFactories.type(ConfigValuePasswordDef.class))//
-            .extracting("value").asInstanceOf(InstanceOfAssertFactories.STRING)
+        assertThat(getPasswordNode(restoredDef).getValue().get())//
             // password not leaked
             .doesNotContain(PASSWORD);
 

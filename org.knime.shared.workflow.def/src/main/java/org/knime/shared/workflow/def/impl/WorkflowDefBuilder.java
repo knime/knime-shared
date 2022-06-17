@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.AnnotationDataDef;
 import org.knime.shared.workflow.def.AuthorInformationDef;
@@ -60,6 +61,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * Defines a data processing pipeline.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -68,6 +71,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class WorkflowDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public WorkflowDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -84,42 +105,66 @@ public class WorkflowDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    String m_name;
+    Optional<String> m_name = Optional.empty();
     
 
-    AuthorInformationDef m_authorInformation;
+    Optional<AuthorInformationDef> m_authorInformation = Optional.empty();
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this map.
      */
-    java.util.Map<String, BaseNodeDef> m_nodes = new java.util.HashMap<>();
-    /** Temporarily holds onto elements set as a whole with setNodes these are added to m_nodes in build */
-    private java.util.Map<String, BaseNodeDef> m_nodesBulkElements = new java.util.HashMap<>();
+    Optional<java.util.Map<String, BaseNodeDef>> m_nodes = Optional.of(java.util.Map.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this map.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.Map<String, BaseNodeDef>> m_nodesIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setNodes these are added to m_nodes in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.Map<String, BaseNodeDef>> m_nodesBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_nodesContainerSupplyException; 
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<ConnectionDef> m_connections = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setConnections these are added to m_connections in build */
-    private java.util.List<ConnectionDef> m_connectionsBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<ConnectionDef>> m_connections = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<ConnectionDef>> m_connectionsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setConnections these are added to m_connections in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<ConnectionDef>> m_connectionsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_connectionsContainerSupplyException; 
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this map.
      */
-    java.util.Map<String, AnnotationDataDef> m_annotations = new java.util.HashMap<>();
-    /** Temporarily holds onto elements set as a whole with setAnnotations these are added to m_annotations in build */
-    private java.util.Map<String, AnnotationDataDef> m_annotationsBulkElements = new java.util.HashMap<>();
+    Optional<java.util.Map<String, AnnotationDataDef>> m_annotations = Optional.of(java.util.Map.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this map.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.Map<String, AnnotationDataDef>> m_annotationsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setAnnotations these are added to m_annotations in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.Map<String, AnnotationDataDef>> m_annotationsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_annotationsContainerSupplyException; 
     
-    WorkflowUISettingsDef m_workflowEditorSettings;
+    Optional<WorkflowUISettingsDef> m_workflowEditorSettings = Optional.empty();
     
     /**
      * Create a new builder.
@@ -131,12 +176,12 @@ public class WorkflowDefBuilder {
      * Create a new builder from an existing instance.
      */
     public WorkflowDefBuilder(final WorkflowDef toCopy) {
-        m_name = toCopy.getName();
-        m_authorInformation = toCopy.getAuthorInformation();
-        m_nodes = toCopy.getNodes();
-        m_connections = toCopy.getConnections();
-        m_annotations = toCopy.getAnnotations();
-        m_workflowEditorSettings = toCopy.getWorkflowEditorSettings();
+        setName(toCopy.getName().orElse(null));
+        setAuthorInformation(toCopy.getAuthorInformation().orElse(null));
+        setNodes(toCopy.getNodes().orElse(null));
+        setConnections(toCopy.getConnections().orElse(null));
+        setAnnotations(toCopy.getAnnotations().orElse(null));
+        setWorkflowEditorSettings(toCopy.getWorkflowEditorSettings().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -144,7 +189,7 @@ public class WorkflowDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param name A user-chosen identifier for the workflow.
+     * @param name A user-chosen identifier for the workflow. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public WorkflowDefBuilder setName(final String name) {
@@ -152,8 +197,25 @@ public class WorkflowDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(WorkflowDef.Attribute.NAME)} will return true and and
+     * {@code getExceptionalChildren().get(WorkflowDef.Attribute.NAME)} will return the exception.
+     * 
+     * @param name see {@link WorkflowDef#getName}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setName(String)
+     */
+    public WorkflowDefBuilder setName(final FallibleSupplier<String> name) {
+        setName(name, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowDef.Attribute.NAME)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowDef.Attribute.NAME)} will return the exception.
@@ -168,12 +230,16 @@ public class WorkflowDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowDef.Attribute.NAME);
         try {
-            m_name = name.get();
+            var supplied = name.get();
+            m_name = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_name = defaultValue;
+            m_name = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(WorkflowDef.Attribute.NAME, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -182,7 +248,7 @@ public class WorkflowDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param authorInformation 
+     * @param authorInformation  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public WorkflowDefBuilder setAuthorInformation(final AuthorInformationDef authorInformation) {
@@ -190,8 +256,25 @@ public class WorkflowDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(WorkflowDef.Attribute.AUTHOR_INFORMATION)} will return true and and
+     * {@code getExceptionalChildren().get(WorkflowDef.Attribute.AUTHOR_INFORMATION)} will return the exception.
+     * 
+     * @param authorInformation see {@link WorkflowDef#getAuthorInformation}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setAuthorInformation(AuthorInformationDef)
+     */
+    public WorkflowDefBuilder setAuthorInformation(final FallibleSupplier<AuthorInformationDef> authorInformation) {
+        setAuthorInformation(authorInformation, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowDef.Attribute.AUTHOR_INFORMATION)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowDef.Attribute.AUTHOR_INFORMATION)} will return the exception.
@@ -206,24 +289,28 @@ public class WorkflowDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowDef.Attribute.AUTHOR_INFORMATION);
         try {
-            m_authorInformation = authorInformation.get();
-            if (m_authorInformation instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_authorInformation).hasExceptions()) {
-                m_exceptionalChildren.put(WorkflowDef.Attribute.AUTHOR_INFORMATION, (LoadExceptionTree<?>)m_authorInformation);
+            var supplied = authorInformation.get();
+            m_authorInformation = Optional.ofNullable(supplied);
+            if (m_authorInformation.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_authorInformation.get()).hasExceptions()) {
+                m_exceptionalChildren.put(WorkflowDef.Attribute.AUTHOR_INFORMATION, (LoadExceptionTree<?>)m_authorInformation.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultAuthorInformationDef){
-                var childTree = ((DefaultAuthorInformationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_authorInformation = defaultValue;
+            m_authorInformation = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(WorkflowDef.Attribute.AUTHOR_INFORMATION, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -243,8 +330,9 @@ public class WorkflowDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the nodes map,
      * whereas exceptions thrown in putTo allows to register a {@link LoadException} 
@@ -262,13 +350,20 @@ public class WorkflowDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowDef.Attribute.NODES);
         try {
-            m_nodesBulkElements = nodes.get();
+            var supplied = nodes.get();
+            m_nodes = Optional.ofNullable(supplied);
+            // we set m_nodes in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_nodesBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_nodesBulkElements = java.util.Map.of();
             // merged together with map element exceptions into a single LoadExceptionTree in #build()
             m_nodesContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -292,15 +387,19 @@ public class WorkflowDefBuilder {
      * @return this builder for fluent API.
      */
     public WorkflowDefBuilder putToNodes(String key, FallibleSupplier<BaseNodeDef> value, BaseNodeDef defaultValue) {
+        // we're always putting an element (to have something to link the exception to), so make sure the list is present
+        if(m_nodesIndividualElements.isEmpty()) m_nodesIndividualElements = Optional.of(new java.util.HashMap<>());
         BaseNodeDef toPut = null;
         try {
             toPut = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
             toPut = DefaultBaseNodeDef.withException(defaultValue, supplyException);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_nodes.put(key, toPut);
+        m_nodesIndividualElements.get().put(key, toPut);
         return this;
     }
 
@@ -320,8 +419,9 @@ public class WorkflowDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the connections list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
@@ -339,13 +439,20 @@ public class WorkflowDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowDef.Attribute.CONNECTIONS);
         try {
-            m_connectionsBulkElements = connections.get();
+            var supplied = connections.get();
+            m_connections = Optional.ofNullable(supplied);
+            // we set m_connections in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_connectionsBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_connectionsBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_connectionsContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -367,14 +474,19 @@ public class WorkflowDefBuilder {
      * @return this builder for fluent API.
      */
     public WorkflowDefBuilder addToConnections(FallibleSupplier<ConnectionDef> value, ConnectionDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_connectionsIndividualElements.isEmpty()) m_connectionsIndividualElements = Optional.of(new java.util.ArrayList<>());
         ConnectionDef toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             toAdd = new DefaultConnectionDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_connections.add(toAdd);
+        m_connectionsIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -394,8 +506,9 @@ public class WorkflowDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the annotations map,
      * whereas exceptions thrown in putTo allows to register a {@link LoadException} 
@@ -413,13 +526,20 @@ public class WorkflowDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowDef.Attribute.ANNOTATIONS);
         try {
-            m_annotationsBulkElements = annotations.get();
+            var supplied = annotations.get();
+            m_annotations = Optional.ofNullable(supplied);
+            // we set m_annotations in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_annotationsBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_annotationsBulkElements = java.util.Map.of();
             // merged together with map element exceptions into a single LoadExceptionTree in #build()
             m_annotationsContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -443,15 +563,20 @@ public class WorkflowDefBuilder {
      * @return this builder for fluent API.
      */
     public WorkflowDefBuilder putToAnnotations(String key, FallibleSupplier<AnnotationDataDef> value, AnnotationDataDef defaultValue) {
+        // we're always putting an element (to have something to link the exception to), so make sure the list is present
+        if(m_annotationsIndividualElements.isEmpty()) m_annotationsIndividualElements = Optional.of(new java.util.HashMap<>());
         AnnotationDataDef toPut = null;
         try {
             toPut = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
-            toPut = DefaultAnnotationDataDef.withException(defaultValue, supplyException);
+             
+            toPut = new DefaultAnnotationDataDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_annotations.put(key, toPut);
+        m_annotationsIndividualElements.get().put(key, toPut);
         return this;
     }
 
@@ -460,7 +585,7 @@ public class WorkflowDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param workflowEditorSettings 
+     * @param workflowEditorSettings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public WorkflowDefBuilder setWorkflowEditorSettings(final WorkflowUISettingsDef workflowEditorSettings) {
@@ -468,8 +593,25 @@ public class WorkflowDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS)} will return the exception.
+     * 
+     * @param workflowEditorSettings see {@link WorkflowDef#getWorkflowEditorSettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setWorkflowEditorSettings(WorkflowUISettingsDef)
+     */
+    public WorkflowDefBuilder setWorkflowEditorSettings(final FallibleSupplier<WorkflowUISettingsDef> workflowEditorSettings) {
+        setWorkflowEditorSettings(workflowEditorSettings, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS)} will return the exception.
@@ -484,24 +626,28 @@ public class WorkflowDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS);
         try {
-            m_workflowEditorSettings = workflowEditorSettings.get();
-            if (m_workflowEditorSettings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_workflowEditorSettings).hasExceptions()) {
-                m_exceptionalChildren.put(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS, (LoadExceptionTree<?>)m_workflowEditorSettings);
+            var supplied = workflowEditorSettings.get();
+            m_workflowEditorSettings = Optional.ofNullable(supplied);
+            if (m_workflowEditorSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_workflowEditorSettings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS, (LoadExceptionTree<?>)m_workflowEditorSettings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultWorkflowUISettingsDef){
-                var childTree = ((DefaultWorkflowUISettingsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_workflowEditorSettings = defaultValue;
+            m_workflowEditorSettings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(WorkflowDef.Attribute.WORKFLOW_EDITOR_SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -515,40 +661,50 @@ public class WorkflowDefBuilder {
     public DefaultWorkflowDef build() {
         
     	
-        // contains the elements set with #setNodes (those added with #addToNodes have already been inserted into m_nodes)
-        m_nodesBulkElements = java.util.Objects.requireNonNullElse(m_nodesBulkElements, java.util.Map.of());
-        final java.util.Map<String, BaseNodeDef> nodesMerged = new java.util.HashMap<>();
-        // in rough analogy to list containers, the bulk elements go first and then the individual elements are added
-        nodesMerged.putAll(m_nodesBulkElements);
-        nodesMerged.putAll(m_nodes);
-        m_nodes = nodesMerged;
+        // if bulk elements are present, add them to individual elements
+        if(m_nodesBulkElements.isPresent()){
+            if(m_nodesIndividualElements.isEmpty()) {
+                m_nodesIndividualElements = Optional.of(new java.util.HashMap<>());
+            }
+            m_nodesIndividualElements.get().putAll(m_nodesBulkElements.get());    
+        }
+        m_nodes = m_nodesIndividualElements;        
+        
                 
         var nodesLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .map(m_nodes, m_nodesContainerSupplyException);
+            .map(m_nodes.orElse(new java.util.HashMap<>()), m_nodesContainerSupplyException);
         if(nodesLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(WorkflowDef.Attribute.NODES, nodesLoadExceptionTree);
         }
         
-        // contains the elements set with #setConnections (those added with #addToConnections have already been inserted into m_connections)
-        m_connectionsBulkElements = java.util.Objects.requireNonNullElse(m_connectionsBulkElements, java.util.List.of());
-        m_connections.addAll(0, m_connectionsBulkElements);
+        // if bulk elements are present, add them to individual elements
+        if(m_connectionsBulkElements.isPresent()){
+            if(m_connectionsIndividualElements.isEmpty()) {
+                m_connectionsIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_connectionsIndividualElements.get().addAll(m_connectionsBulkElements.get());    
+        }
+        m_connections = m_connectionsIndividualElements;        
+        
                 
         var connectionsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_connections, m_connectionsContainerSupplyException);
+            .list(m_connections.orElse(new java.util.ArrayList<>()), m_connectionsContainerSupplyException);
         if(connectionsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(WorkflowDef.Attribute.CONNECTIONS, connectionsLoadExceptionTree);
         }
         
-        // contains the elements set with #setAnnotations (those added with #addToAnnotations have already been inserted into m_annotations)
-        m_annotationsBulkElements = java.util.Objects.requireNonNullElse(m_annotationsBulkElements, java.util.Map.of());
-        final java.util.Map<String, AnnotationDataDef> annotationsMerged = new java.util.HashMap<>();
-        // in rough analogy to list containers, the bulk elements go first and then the individual elements are added
-        annotationsMerged.putAll(m_annotationsBulkElements);
-        annotationsMerged.putAll(m_annotations);
-        m_annotations = annotationsMerged;
+        // if bulk elements are present, add them to individual elements
+        if(m_annotationsBulkElements.isPresent()){
+            if(m_annotationsIndividualElements.isEmpty()) {
+                m_annotationsIndividualElements = Optional.of(new java.util.HashMap<>());
+            }
+            m_annotationsIndividualElements.get().putAll(m_annotationsBulkElements.get());    
+        }
+        m_annotations = m_annotationsIndividualElements;        
+        
                 
         var annotationsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .map(m_annotations, m_annotationsContainerSupplyException);
+            .map(m_annotations.orElse(new java.util.HashMap<>()), m_annotationsContainerSupplyException);
         if(annotationsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(WorkflowDef.Attribute.ANNOTATIONS, annotationsLoadExceptionTree);
         }

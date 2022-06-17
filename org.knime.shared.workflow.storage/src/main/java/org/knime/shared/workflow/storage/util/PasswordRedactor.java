@@ -70,7 +70,7 @@ public interface PasswordRedactor {
         return new PasswordRedactor() {
             @Override
             public ConfigValuePasswordDef apply(final ConfigValuePasswordDef t) {
-                return new ConfigValuePasswordDefBuilder(t).setValue(null).build();
+                return new ConfigValuePasswordDefBuilder(t).setValue((String)null).build();
             }
 
             @Override
@@ -82,7 +82,7 @@ public interface PasswordRedactor {
 
             @Override
             public ConfigValueTransientStringDef apply(final ConfigValueTransientStringDef t) {
-                return new ConfigValueTransientStringDefBuilder(t).setValue(null).build();
+                return new ConfigValueTransientStringDefBuilder(t).setValue((String)null).build();
             }
 
             @Override
@@ -105,7 +105,7 @@ public interface PasswordRedactor {
 
             @Override
             public void restore(final ConfigBase settings, final String key, final ConfigValuePasswordDef redacted) {
-                settings.addEncryptedPassword(key, redacted.getValue());
+                settings.addEncryptedPassword(key, redacted.getValue().orElse(null));
             }
 
             @Override

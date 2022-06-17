@@ -114,7 +114,7 @@ class WorkflowSaverTest {
         //then
         assertThat(OUTPUT_DIRECTORY).as("At least *something* should have been written").isNotEmptyDirectory();
 
-        assertThat(XML.getString(IOConst.METADATA_NAME_KEY.get())).isNull();
+        assertThat(XML.containsKey(IOConst.METADATA_NAME_KEY.get())).isFalse();
         assertThat(XML.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get())).isNull();
 
         var authorInformation = XML.getConfigBase(IOConst.AUTHOR_INFORMATION_KEY.get());

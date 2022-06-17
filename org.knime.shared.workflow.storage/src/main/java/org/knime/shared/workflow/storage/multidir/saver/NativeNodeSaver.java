@@ -109,9 +109,9 @@ final class NativeNodeSaver extends SingleNodeSaver {
         nodeSettings.addString(IOConst.NODE_NAME_KEY.get(), m_nativeNode.getNodeName());
         saveBundle(nodeSettings);
         saveFeature(nodeSettings);
-        SaverUtils.addEntryIfNotNull(nodeSettings, m_nativeNode.getFactorySettings(),
+        SaverUtils.addEntryIfNotNull(nodeSettings, m_nativeNode.getFactorySettings().orElse(null),
             IOConst.FACTORY_SETTINGS_KEY.get());
-        SaverUtils.addEntryIfNotNull(nodeSettings, m_nativeNode.getNodeCreationConfig(),
+        SaverUtils.addEntryIfNotNull(nodeSettings, m_nativeNode.getNodeCreationConfig().orElse(null),
             IOConst.NODE_CREATION_CONFIG_KEY.get());
         nodeSettings.addString(IOConst.METADATA_NAME_KEY.get(), m_nativeNode.getNodeName());
         super.addNodeSettings(nodeSettings);

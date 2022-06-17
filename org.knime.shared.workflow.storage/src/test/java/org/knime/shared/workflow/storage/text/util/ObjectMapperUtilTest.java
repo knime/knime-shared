@@ -84,7 +84,7 @@ class ObjectMapperUtilTest {
         var wfAsString = ObjectMapperUtil.toString(wf);
         WorkflowDef parsedBack = ObjectMapperUtil.fromString(wfAsString, WorkflowDef.class);
 
-        assertThat(parsedBack.getAnnotations().get("0").getText())
+        assertThat(parsedBack.getAnnotations().get().get("0").getText())
             .as("Read annotation text differs from the text that was written.").isEqualTo(annotationText);
     }
 

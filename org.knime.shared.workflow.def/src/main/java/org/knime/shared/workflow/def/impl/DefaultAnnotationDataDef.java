@@ -66,6 +66,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -76,44 +77,44 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultAnnotationDataDef implements AnnotationDataDef {
+public class DefaultAnnotationDataDef implements AnnotationDataDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<AnnotationDataDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("text")
-    protected String m_text;
+    protected Optional<String> m_text;
 
     @JsonProperty("location")
     protected CoordinateDef m_location;
 
     @JsonProperty("textAlignment")
-    protected String m_textAlignment;
+    protected Optional<String> m_textAlignment;
 
     @JsonProperty("borderSize")
-    protected Integer m_borderSize;
+    protected Optional<Integer> m_borderSize;
 
     @JsonProperty("borderColor")
-    protected Integer m_borderColor;
+    protected Optional<Integer> m_borderColor;
 
     /** 
      * Background color 
      */
     @JsonProperty("bgcolor")
-    protected Integer m_bgcolor;
+    protected Optional<Integer> m_bgcolor;
 
     @JsonProperty("width")
     protected Integer m_width;
 
     @JsonProperty("annotationVersion")
-    protected Integer m_annotationVersion;
+    protected Optional<Integer> m_annotationVersion;
 
     @JsonProperty("defaultFontSize")
-    protected Integer m_defaultFontSize;
+    protected Optional<Integer> m_defaultFontSize;
 
     @JsonProperty("styles")
-    protected java.util.List<StyleRangeDef> m_styles;
+    protected Optional<java.util.List<StyleRangeDef>> m_styles;
 
     @JsonProperty("height")
     protected Integer m_height;
@@ -126,7 +127,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
      * Internal constructor for subclasses.
      */
     DefaultAnnotationDataDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -149,7 +150,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         m_styles = builder.m_styles;
         m_height = builder.m_height;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -174,13 +175,13 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         m_defaultFontSize = toCopy.getDefaultFontSize();
         m_styles = toCopy.getStyles();
         m_height = toCopy.getHeight();
-        if(toCopy instanceof DefaultAnnotationDataDef){
-            var childTree = ((DefaultAnnotationDataDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -203,7 +204,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         m_styles = toCopy.getStyles();
         m_height = toCopy.getHeight();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -228,21 +229,21 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(AnnotationDataDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to AnnotationDataDef.Attribute
-            return ((LoadExceptionTree<AnnotationDataDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to AnnotationDataDef.Attribute
+        return ((LoadExceptionTree<AnnotationDataDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -250,7 +251,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getText() {
+    public Optional<String> getText() {
         return m_text;
     }
     @Override
@@ -258,19 +259,19 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         return m_location;
     }
     @Override
-    public String getTextAlignment() {
+    public Optional<String> getTextAlignment() {
         return m_textAlignment;
     }
     @Override
-    public Integer getBorderSize() {
+    public Optional<Integer> getBorderSize() {
         return m_borderSize;
     }
     @Override
-    public Integer getBorderColor() {
+    public Optional<Integer> getBorderColor() {
         return m_borderColor;
     }
     @Override
-    public Integer getBgcolor() {
+    public Optional<Integer> getBgcolor() {
         return m_bgcolor;
     }
     @Override
@@ -278,15 +279,15 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         return m_width;
     }
     @Override
-    public Integer getAnnotationVersion() {
+    public Optional<Integer> getAnnotationVersion() {
         return m_annotationVersion;
     }
     @Override
-    public Integer getDefaultFontSize() {
+    public Optional<Integer> getDefaultFontSize() {
         return m_defaultFontSize;
     }
     @Override
-    public java.util.List<StyleRangeDef> getStyles() {
+    public Optional<java.util.List<StyleRangeDef>> getStyles() {
         return m_styles;
     }
     @Override
@@ -324,7 +325,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     @JsonIgnore
     public Optional<DefaultCoordinateDef> getFaultyLocation(){
     	final var location = getLocation(); 
-        if(location instanceof DefaultCoordinateDef && ((DefaultCoordinateDef)location).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(location)) {
             return Optional.of((DefaultCoordinateDef)location);
         }
     	return Optional.empty();

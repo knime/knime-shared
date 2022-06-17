@@ -71,6 +71,7 @@ import org.knime.shared.workflow.def.impl.DefaultStandaloneDef;
 import org.knime.shared.workflow.def.impl.FlowVariableDefBuilder;
 import org.knime.shared.workflow.def.impl.RootWorkflowDefBuilder;
 import org.knime.shared.workflow.def.impl.StandaloneDefBuilder;
+import org.knime.shared.workflow.def.impl.WorkflowUISettingsDefBuilder;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 import org.knime.shared.workflow.storage.util.PasswordRedactor;
@@ -104,7 +105,7 @@ public final class StandaloneLoader {
         var workflowConfig = LoaderUtils.readWorkflowConfigFromFile(directory);
         var templateConfig = LoaderUtils.readTemplateConfigFromFile(directory);
         try {
-            //TODO Use the uknownpolicy here
+            //TODO Use the unknownpolicy here
             var contentType = getStandaloneType(directory);
             var loadVersion = LoadVersion.fromVersionString((templateConfig.isPresent())
                 ? templateConfig.get().getString("version") : workflowConfig.getString("version"));
@@ -114,10 +115,10 @@ public final class StandaloneLoader {
                     CreatorLoader.loadCreator((templateConfig.isPresent()) ? templateConfig.get() : workflowConfig)); //
             switch (contentType) {
                 case COMPONENT:
-                    builder.setContents(ComponentNodeLoader.load(workflowConfig, directory, loadVersion));
+                    builder.setContents(ComponentNodeLoader.load(workflowConfig, directory, loadVersion, true));
                     break;
                 case METANODE:
-                    builder.setContents(MetaNodeLoader.load(workflowConfig, directory, loadVersion));
+                    builder.setContents(MetaNodeLoader.load(workflowConfig, directory, loadVersion, true));
                     break;
                 case ROOT_WORKFLOW:
                     builder.setContents(loadRootWorkflow(workflowConfig, directory, loadVersion));
@@ -154,19 +155,19 @@ public final class StandaloneLoader {
      */
     private static RootWorkflowDef loadRootWorkflow(final ConfigBaseRO workflowConfig, final File directory,
         final LoadVersion loadVersion) {
+
         var builder = new RootWorkflowDefBuilder() //
+            .setName(() -> WorkflowLoader.loadName(workflowConfig, loadVersion))//
+            .setAuthorInformation(() -> WorkflowLoader.loadAuthorInformation(workflowConfig, loadVersion))
+            .setWorkflowEditorSettings(() -> WorkflowLoader.loadWorkflowUISettings(workflowConfig, loadVersion),
+                new WorkflowUISettingsDefBuilder().build())
             .setTableBackendSettings(() -> loadTableBackendSettings(workflowConfig), DEFAULT_CONFIG_MAP);
         setCredentialPlaceholders(builder, workflowConfig, loadVersion);
         setWorkflowVariables(builder, workflowConfig, loadVersion);
 
-        // copy properties of workflow
-        var workflow = WorkflowLoader.load(directory, workflowConfig, loadVersion);
-        builder.setName(workflow.getName()) //
-            .setAuthorInformation(workflow.getAuthorInformation()) //
-            .setWorkflowEditorSettings(workflow.getWorkflowEditorSettings());
-        workflow.getConnections().forEach(builder::addToConnections);
-        workflow.getAnnotations().forEach(builder::putToAnnotations);
-        workflow.getNodes().forEach(builder::putToNodes);
+        WorkflowLoader.setNodes(builder::putToNodes, builder::setNodes, workflowConfig, directory, loadVersion);
+        WorkflowLoader.setConnections(builder::addToConnections, builder::setConnections, workflowConfig, loadVersion);
+        WorkflowLoader.setAnnotations(builder::putToAnnotations, builder::setAnnotations, workflowConfig, loadVersion);
 
         return builder.build();
     }

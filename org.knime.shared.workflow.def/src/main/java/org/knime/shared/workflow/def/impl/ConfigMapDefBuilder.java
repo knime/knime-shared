@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.impl.ConfigDefBuilder;
@@ -57,6 +58,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * ConfigMapDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -65,6 +68,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ConfigMapDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ConfigMapDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -89,11 +110,19 @@ public class ConfigMapDefBuilder {
 
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this map.
      */
-    java.util.Map<String, ConfigDef> m_children = new java.util.HashMap<>();
-    /** Temporarily holds onto elements set as a whole with setChildren these are added to m_children in build */
-    private java.util.Map<String, ConfigDef> m_childrenBulkElements = new java.util.HashMap<>();
+    java.util.Map<String, ConfigDef> m_children = java.util.Map.of();
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this map.
+     * Setting elements individually is optional, but in case also no bulk elements have been set, {@link #build()} will record a problem.
+     */
+    Optional<java.util.Map<String, ConfigDef>> m_childrenIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setChildren these are added to m_children in build.
+     * Setting elements in bulk is optional, but in case also no invidual elements have been set, {@link #build()} will record a problem.
+     */
+    private Optional<java.util.Map<String, ConfigDef>> m_childrenBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_childrenContainerSupplyException; 
     
@@ -107,9 +136,9 @@ public class ConfigMapDefBuilder {
      * Create a new builder from an existing instance.
      */
     public ConfigMapDefBuilder(final ConfigMapDef toCopy) {
-        m_configType = toCopy.getConfigType();
-        m_key = toCopy.getKey();
-        m_children = toCopy.getChildren();
+        setConfigType(toCopy.getConfigType());
+        setKey(toCopy.getKey());
+        setChildren(toCopy.getChildren());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -117,7 +146,7 @@ public class ConfigMapDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param configType Discriminator for inheritance. Must be the base name of this type/schema.
+     * @param configType Discriminator for inheritance. Must be the base name of this type/schema. 
      * @return this builder for fluent API.
      */ 
     public ConfigMapDefBuilder setConfigType(final String configType) {
@@ -125,6 +154,7 @@ public class ConfigMapDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -141,7 +171,8 @@ public class ConfigMapDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigMapDef.Attribute.CONFIG_TYPE);
         try {
-            m_configType = configType.get();
+            var supplied = configType.get();
+            m_configType = supplied;
 
             if(m_configType == null) {
                 throw new IllegalArgumentException("configType is required and must not be null.");
@@ -151,6 +182,9 @@ public class ConfigMapDefBuilder {
                                      
             m_configType = defaultValue;
             m_exceptionalChildren.put(ConfigMapDef.Attribute.CONFIG_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -159,7 +193,7 @@ public class ConfigMapDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param key 
+     * @param key  
      * @return this builder for fluent API.
      */ 
     public ConfigMapDefBuilder setKey(final String key) {
@@ -167,6 +201,7 @@ public class ConfigMapDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -183,12 +218,20 @@ public class ConfigMapDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigMapDef.Attribute.KEY);
         try {
-            m_key = key.get();
+            var supplied = key.get();
+            m_key = supplied;
+
+            if(m_key == null) {
+                throw new IllegalArgumentException("key is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_key = defaultValue;
             m_exceptionalChildren.put(ConfigMapDef.Attribute.KEY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -209,6 +252,7 @@ public class ConfigMapDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -228,13 +272,24 @@ public class ConfigMapDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigMapDef.Attribute.CHILDREN);
         try {
-            m_childrenBulkElements = children.get();
+            var supplied = children.get();
+            m_children = supplied;
+            // we set m_children in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_childrenBulkElements = Optional.ofNullable(supplied);
+
+            if(m_children == null) {
+                throw new IllegalArgumentException("children is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_childrenBulkElements = java.util.Map.of();
             // merged together with map element exceptions into a single LoadExceptionTree in #build()
             m_childrenContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -258,15 +313,19 @@ public class ConfigMapDefBuilder {
      * @return this builder for fluent API.
      */
     public ConfigMapDefBuilder putToChildren(String key, FallibleSupplier<ConfigDef> value, ConfigDef defaultValue) {
+        // we're always putting an element (to have something to link the exception to), so make sure the list is present
+        if(m_childrenIndividualElements.isEmpty()) m_childrenIndividualElements = Optional.of(new java.util.HashMap<>());
         ConfigDef toPut = null;
         try {
             toPut = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
-            // copies values to a new def (of the appropriate subtype, if any) and adds the load exception
             toPut = DefaultConfigDef.withException(defaultValue, supplyException);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_children.put(key, toPut);
+        m_childrenIndividualElements.get().put(key, toPut);
         return this;
     }
 
@@ -280,17 +339,31 @@ public class ConfigMapDefBuilder {
 	 */
     public DefaultConfigMapDef build() {
         
-        // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
-        if(m_configType == null) setConfigType(null);
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_configType == null) setConfigType( null);
         
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_key == null) setKey( null);
+        
+                
     	
-        // contains the elements set with #setChildren (those added with #addToChildren have already been inserted into m_children)
-        m_childrenBulkElements = java.util.Objects.requireNonNullElse(m_childrenBulkElements, java.util.Map.of());
-        final java.util.Map<String, ConfigDef> childrenMerged = new java.util.HashMap<>();
-        // in rough analogy to list containers, the bulk elements go first and then the individual elements are added
-        childrenMerged.putAll(m_childrenBulkElements);
-        childrenMerged.putAll(m_children);
-        m_children = childrenMerged;
+        // if bulk elements are present, add them to individual elements
+        if(m_childrenBulkElements.isPresent()){
+            if(m_childrenIndividualElements.isEmpty()) {
+                m_childrenIndividualElements = Optional.of(new java.util.HashMap<>());
+            }
+            m_childrenIndividualElements.get().putAll(m_childrenBulkElements.get());    
+        }
+        // collect error if we nothing was ever added (not even an empty container)
+        if(m_childrenIndividualElements.isEmpty()){
+            setChildren(() -> null);
+            m_children = java.util.Map.of();
+        } else {
+            m_children = m_childrenIndividualElements.get();
+        } 
+        
                 
         var childrenLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
             .map(m_children, m_childrenContainerSupplyException);

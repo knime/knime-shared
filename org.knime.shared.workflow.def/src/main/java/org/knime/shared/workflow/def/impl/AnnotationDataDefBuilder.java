@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.CoordinateDef;
 import org.knime.shared.workflow.def.StyleRangeDef;
@@ -57,6 +58,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * AnnotationDataDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -65,6 +68,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class AnnotationDataDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public AnnotationDataDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -81,39 +102,47 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    String m_text;
+    Optional<String> m_text = Optional.empty();
     
 
     CoordinateDef m_location;
     
-    String m_textAlignment = "LEFT";
+    Optional<String> m_textAlignment = Optional.of("LEFT");
     
 
-    Integer m_borderSize;
+    Optional<Integer> m_borderSize = Optional.empty();
     
 
-    Integer m_borderColor;
+    Optional<Integer> m_borderColor = Optional.empty();
     
 
-    Integer m_bgcolor;
+    Optional<Integer> m_bgcolor = Optional.empty();
     
 
     Integer m_width;
     
 
-    Integer m_annotationVersion;
+    Optional<Integer> m_annotationVersion = Optional.empty();
     
 
-    Integer m_defaultFontSize;
+    Optional<Integer> m_defaultFontSize = Optional.empty();
     
 
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<StyleRangeDef> m_styles = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setStyles these are added to m_styles in build */
-    private java.util.List<StyleRangeDef> m_stylesBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<StyleRangeDef>> m_styles = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<StyleRangeDef>> m_stylesIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setStyles these are added to m_styles in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<StyleRangeDef>> m_stylesBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_stylesContainerSupplyException; 
     
@@ -130,17 +159,17 @@ public class AnnotationDataDefBuilder {
      * Create a new builder from an existing instance.
      */
     public AnnotationDataDefBuilder(final AnnotationDataDef toCopy) {
-        m_text = toCopy.getText();
-        m_location = toCopy.getLocation();
-        m_textAlignment = toCopy.getTextAlignment();
-        m_borderSize = toCopy.getBorderSize();
-        m_borderColor = toCopy.getBorderColor();
-        m_bgcolor = toCopy.getBgcolor();
-        m_width = toCopy.getWidth();
-        m_annotationVersion = toCopy.getAnnotationVersion();
-        m_defaultFontSize = toCopy.getDefaultFontSize();
-        m_styles = toCopy.getStyles();
-        m_height = toCopy.getHeight();
+        setText(toCopy.getText().orElse(null));
+        setLocation(toCopy.getLocation());
+        setTextAlignment(toCopy.getTextAlignment().orElse(null));
+        setBorderSize(toCopy.getBorderSize().orElse(null));
+        setBorderColor(toCopy.getBorderColor().orElse(null));
+        setBgcolor(toCopy.getBgcolor().orElse(null));
+        setWidth(toCopy.getWidth());
+        setAnnotationVersion(toCopy.getAnnotationVersion().orElse(null));
+        setDefaultFontSize(toCopy.getDefaultFontSize().orElse(null));
+        setStyles(toCopy.getStyles().orElse(null));
+        setHeight(toCopy.getHeight());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -148,7 +177,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param text 
+     * @param text  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setText(final String text) {
@@ -156,8 +185,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.TEXT)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.TEXT)} will return the exception.
+     * 
+     * @param text see {@link AnnotationDataDef#getText}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setText(String)
+     */
+    public AnnotationDataDefBuilder setText(final FallibleSupplier<String> text) {
+        setText(text, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.TEXT)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.TEXT)} will return the exception.
@@ -172,12 +218,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.TEXT);
         try {
-            m_text = text.get();
+            var supplied = text.get();
+            m_text = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_text = defaultValue;
+            m_text = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.TEXT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -186,7 +236,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param location 
+     * @param location  
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setLocation(final CoordinateDef location) {
@@ -194,6 +244,7 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -210,7 +261,12 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.LOCATION);
         try {
-            m_location = location.get();
+            var supplied = location.get();
+            m_location = supplied;
+
+            if(m_location == null) {
+                throw new IllegalArgumentException("location is required and must not be null.");
+            }
             if (m_location instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_location).hasExceptions()) {
                 m_exceptionalChildren.put(AnnotationDataDef.Attribute.LOCATION, (LoadExceptionTree<?>)m_location);
             }
@@ -218,16 +274,19 @@ public class AnnotationDataDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultCoordinateDef){
-                var childTree = ((DefaultCoordinateDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_location = defaultValue;
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.LOCATION, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -235,7 +294,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param textAlignment 
+     * @param textAlignment  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setTextAlignment(final String textAlignment) {
@@ -243,8 +302,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.TEXT_ALIGNMENT)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.TEXT_ALIGNMENT)} will return the exception.
+     * 
+     * @param textAlignment see {@link AnnotationDataDef#getTextAlignment}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setTextAlignment(String)
+     */
+    public AnnotationDataDefBuilder setTextAlignment(final FallibleSupplier<String> textAlignment) {
+        setTextAlignment(textAlignment, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.TEXT_ALIGNMENT)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.TEXT_ALIGNMENT)} will return the exception.
@@ -259,12 +335,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.TEXT_ALIGNMENT);
         try {
-            m_textAlignment = textAlignment.get();
+            var supplied = textAlignment.get();
+            m_textAlignment = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_textAlignment = defaultValue;
+            m_textAlignment = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.TEXT_ALIGNMENT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -273,7 +353,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param borderSize 
+     * @param borderSize  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setBorderSize(final Integer borderSize) {
@@ -281,8 +361,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.BORDER_SIZE)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.BORDER_SIZE)} will return the exception.
+     * 
+     * @param borderSize see {@link AnnotationDataDef#getBorderSize}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setBorderSize(Integer)
+     */
+    public AnnotationDataDefBuilder setBorderSize(final FallibleSupplier<Integer> borderSize) {
+        setBorderSize(borderSize, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.BORDER_SIZE)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.BORDER_SIZE)} will return the exception.
@@ -297,12 +394,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.BORDER_SIZE);
         try {
-            m_borderSize = borderSize.get();
+            var supplied = borderSize.get();
+            m_borderSize = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_borderSize = defaultValue;
+            m_borderSize = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.BORDER_SIZE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -311,7 +412,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param borderColor 
+     * @param borderColor  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setBorderColor(final Integer borderColor) {
@@ -319,8 +420,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.BORDER_COLOR)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.BORDER_COLOR)} will return the exception.
+     * 
+     * @param borderColor see {@link AnnotationDataDef#getBorderColor}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setBorderColor(Integer)
+     */
+    public AnnotationDataDefBuilder setBorderColor(final FallibleSupplier<Integer> borderColor) {
+        setBorderColor(borderColor, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.BORDER_COLOR)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.BORDER_COLOR)} will return the exception.
@@ -335,12 +453,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.BORDER_COLOR);
         try {
-            m_borderColor = borderColor.get();
+            var supplied = borderColor.get();
+            m_borderColor = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_borderColor = defaultValue;
+            m_borderColor = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.BORDER_COLOR, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -349,7 +471,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param bgcolor Background color
+     * @param bgcolor Background color This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setBgcolor(final Integer bgcolor) {
@@ -357,8 +479,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.BGCOLOR)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.BGCOLOR)} will return the exception.
+     * 
+     * @param bgcolor see {@link AnnotationDataDef#getBgcolor}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setBgcolor(Integer)
+     */
+    public AnnotationDataDefBuilder setBgcolor(final FallibleSupplier<Integer> bgcolor) {
+        setBgcolor(bgcolor, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.BGCOLOR)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.BGCOLOR)} will return the exception.
@@ -373,12 +512,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.BGCOLOR);
         try {
-            m_bgcolor = bgcolor.get();
+            var supplied = bgcolor.get();
+            m_bgcolor = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_bgcolor = defaultValue;
+            m_bgcolor = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.BGCOLOR, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -387,7 +530,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param width 
+     * @param width  
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setWidth(final Integer width) {
@@ -395,6 +538,7 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -411,12 +555,20 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.WIDTH);
         try {
-            m_width = width.get();
+            var supplied = width.get();
+            m_width = supplied;
+
+            if(m_width == null) {
+                throw new IllegalArgumentException("width is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_width = defaultValue;
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.WIDTH, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -425,7 +577,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param annotationVersion 
+     * @param annotationVersion  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setAnnotationVersion(final Integer annotationVersion) {
@@ -433,8 +585,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.ANNOTATION_VERSION)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.ANNOTATION_VERSION)} will return the exception.
+     * 
+     * @param annotationVersion see {@link AnnotationDataDef#getAnnotationVersion}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setAnnotationVersion(Integer)
+     */
+    public AnnotationDataDefBuilder setAnnotationVersion(final FallibleSupplier<Integer> annotationVersion) {
+        setAnnotationVersion(annotationVersion, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.ANNOTATION_VERSION)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.ANNOTATION_VERSION)} will return the exception.
@@ -449,12 +618,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.ANNOTATION_VERSION);
         try {
-            m_annotationVersion = annotationVersion.get();
+            var supplied = annotationVersion.get();
+            m_annotationVersion = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_annotationVersion = defaultValue;
+            m_annotationVersion = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.ANNOTATION_VERSION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -463,7 +636,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param defaultFontSize 
+     * @param defaultFontSize  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setDefaultFontSize(final Integer defaultFontSize) {
@@ -471,8 +644,25 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.DEFAULT_FONT_SIZE)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.DEFAULT_FONT_SIZE)} will return the exception.
+     * 
+     * @param defaultFontSize see {@link AnnotationDataDef#getDefaultFontSize}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setDefaultFontSize(Integer)
+     */
+    public AnnotationDataDefBuilder setDefaultFontSize(final FallibleSupplier<Integer> defaultFontSize) {
+        setDefaultFontSize(defaultFontSize, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(AnnotationDataDef.Attribute.DEFAULT_FONT_SIZE)} will return true and and
      * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.DEFAULT_FONT_SIZE)} will return the exception.
@@ -487,12 +677,16 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.DEFAULT_FONT_SIZE);
         try {
-            m_defaultFontSize = defaultFontSize.get();
+            var supplied = defaultFontSize.get();
+            m_defaultFontSize = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_defaultFontSize = defaultValue;
+            m_defaultFontSize = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.DEFAULT_FONT_SIZE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -512,8 +706,9 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the styles list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
@@ -531,13 +726,20 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.STYLES);
         try {
-            m_stylesBulkElements = styles.get();
+            var supplied = styles.get();
+            m_styles = Optional.ofNullable(supplied);
+            // we set m_styles in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_stylesBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_stylesBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_stylesContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -559,14 +761,19 @@ public class AnnotationDataDefBuilder {
      * @return this builder for fluent API.
      */
     public AnnotationDataDefBuilder addToStyles(FallibleSupplier<StyleRangeDef> value, StyleRangeDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_stylesIndividualElements.isEmpty()) m_stylesIndividualElements = Optional.of(new java.util.ArrayList<>());
         StyleRangeDef toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             toAdd = new DefaultStyleRangeDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_styles.add(toAdd);
+        m_stylesIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -574,7 +781,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param height 
+     * @param height  
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setHeight(final Integer height) {
@@ -582,6 +789,7 @@ public class AnnotationDataDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -598,12 +806,20 @@ public class AnnotationDataDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(AnnotationDataDef.Attribute.HEIGHT);
         try {
-            m_height = height.get();
+            var supplied = height.get();
+            m_height = supplied;
+
+            if(m_height == null) {
+                throw new IllegalArgumentException("height is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_height = defaultValue;
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.HEIGHT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -617,13 +833,31 @@ public class AnnotationDataDefBuilder {
 	 */
     public DefaultAnnotationDataDef build() {
         
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_location == null) setLocation( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_width == null) setWidth( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_height == null) setHeight( null);
+        
     	
-        // contains the elements set with #setStyles (those added with #addToStyles have already been inserted into m_styles)
-        m_stylesBulkElements = java.util.Objects.requireNonNullElse(m_stylesBulkElements, java.util.List.of());
-        m_styles.addAll(0, m_stylesBulkElements);
+        // if bulk elements are present, add them to individual elements
+        if(m_stylesBulkElements.isPresent()){
+            if(m_stylesIndividualElements.isEmpty()) {
+                m_stylesIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_stylesIndividualElements.get().addAll(m_stylesBulkElements.get());    
+        }
+        m_styles = m_stylesIndividualElements;        
+        
                 
         var stylesLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_styles, m_stylesContainerSupplyException);
+            .list(m_styles.orElse(new java.util.ArrayList<>()), m_stylesContainerSupplyException);
         if(stylesLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.STYLES, stylesLoadExceptionTree);
         }

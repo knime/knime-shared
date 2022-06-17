@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,14 +76,14 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultStandaloneDef implements StandaloneDef {
+public class DefaultStandaloneDef implements StandaloneDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<StandaloneDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("creator")
-    protected CreatorDef m_creator;
+    protected Optional<CreatorDef> m_creator;
 
     /** 
      * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content.  
@@ -104,7 +105,7 @@ public class DefaultStandaloneDef implements StandaloneDef {
      * Internal constructor for subclasses.
      */
     DefaultStandaloneDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -119,7 +120,7 @@ public class DefaultStandaloneDef implements StandaloneDef {
         m_contents = builder.m_contents;
         m_contentType = builder.m_contentType;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -136,13 +137,13 @@ public class DefaultStandaloneDef implements StandaloneDef {
         m_creator = toCopy.getCreator();
         m_contents = toCopy.getContents();
         m_contentType = toCopy.getContentType();
-        if(toCopy instanceof DefaultStandaloneDef){
-            var childTree = ((DefaultStandaloneDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -157,7 +158,7 @@ public class DefaultStandaloneDef implements StandaloneDef {
         m_contents = toCopy.getContents();
         m_contentType = toCopy.getContentType();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -182,21 +183,21 @@ public class DefaultStandaloneDef implements StandaloneDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(StandaloneDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to StandaloneDef.Attribute
-            return ((LoadExceptionTree<StandaloneDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to StandaloneDef.Attribute
+        return ((LoadExceptionTree<StandaloneDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -204,7 +205,7 @@ public class DefaultStandaloneDef implements StandaloneDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public CreatorDef getCreator() {
+    public Optional<CreatorDef> getCreator() {
         return m_creator;
     }
     @Override
@@ -236,8 +237,8 @@ public class DefaultStandaloneDef implements StandaloneDef {
     @JsonIgnore
     public Optional<DefaultCreatorDef> getFaultyCreator(){
     	final var creator = getCreator(); 
-        if(creator instanceof DefaultCreatorDef && ((DefaultCreatorDef)creator).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultCreatorDef)creator);
+        if(LoadExceptionTreeProvider.hasExceptions(creator)) {
+            return Optional.of((DefaultCreatorDef)creator.get());
         }
     	return Optional.empty();
     }

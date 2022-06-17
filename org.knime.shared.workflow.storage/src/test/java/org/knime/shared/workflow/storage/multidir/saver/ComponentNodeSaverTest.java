@@ -94,11 +94,11 @@ class ComponentNodeSaverTest {
     void testStandaloneComponent()
         throws IOException, SAXException, ParserConfigurationException, InvalidSettingsException {
         var inputDir = NodeLoaderTestUtils.readResourceFolder("Component_Template");
-        ComponentNodeDef component = ComponentNodeLoader.load(new SimpleConfig("dummy"), inputDir, LoadVersion.FUTURE);
+        ComponentNodeDef component = (ComponentNodeDef)StandaloneLoader.load(inputDir).getContents();
 
         var saver = new ComponentNodeSaver(component);
-        saver.save(OUTPUT_DIRECTORY, null,
-            s -> SaverUtils.addTemplateInfo(s, component.getTemplateInfo(), component.getNodeType()));
+        saver.save(OUTPUT_DIRECTORY, null, s -> SaverUtils.addTemplateInfo(s, component.getTemplateLink(),
+            component.getTemplateMetadata(), component.getNodeType()));
 
         var workflowconfig = new File(OUTPUT_DIRECTORY, IOConst.WORKFLOW_FILE_NAME.get());
         var workflowXML = new SimpleConfig("workflow.knime");
@@ -146,7 +146,7 @@ class ComponentNodeSaverTest {
         assertThat(nodeXML.getConfigBase(IOConst.OUTPORTS_KEY.get()).getChildCount()).isZero();
 
         var metadata = nodeXML.getConfigBase(IOConst.METADATA_KEY.get());
-        assertThat(metadata.getChildCount()).isEqualTo(2);
+        assertThat(metadata.getChildCount()).as(metadata.keySet().toString()).isEqualTo(2);
         assertThat(metadata.getString(IOConst.DESCRIPTION_KEY.get())).isEmpty();
         var metaInports = metadata.getConfigBase(IOConst.META_IN_PORTS_KEY.get());
         assertThat(metaInports.getChildCount()).isOne();
@@ -179,11 +179,11 @@ class ComponentNodeSaverTest {
                 parentWorkflowXML.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get()).getConfigBase("node_14");
         }
 
-        var metanode = ComponentNodeLoader.load(parentWorkflowXML, inputDir, LoadVersion.FUTURE);
+        var componentnode = ComponentNodeLoader.load(parentWorkflowXML, inputDir, LoadVersion.FUTURE, false);
         var creator = StandaloneLoader.load(workflowDir).getCreator();
 
         var parentXML = new SimpleConfig("node_14");
-        var saver = new ComponentNodeSaver(metanode, creator);
+        var saver = new ComponentNodeSaver(componentnode, creator.orElse(StandaloneSaver.DEFAULT_CREATOR));
         saver.save(OUTPUT_DIRECTORY, parentXML);
 
         assertThat(parentXML.getInt(IOConst.ID_KEY.get())).isEqualTo(14);
@@ -245,7 +245,7 @@ class ComponentNodeSaverTest {
             .getString(IOConst.PORT_OBJECT_CLASS_KEY.get())).isEqualTo("org.knime.core.node.BufferedDataTable");
 
         var metadata = componentNodeXML.getConfigBase(IOConst.METADATA_KEY.get());
-        assertThat(metadata.getChildCount()).isEqualTo(3);
+        assertThat(metadata.getChildCount()).as(metadata.toString()).isEqualTo(3);
         assertThat(metadata.getString(IOConst.DESCRIPTION_KEY.get())).isEmpty();
         var metaOutports = metadata.getConfigBase(IOConst.META_OUT_PORTS_KEY.get());
         assertThat(metaOutports.getChildCount()).isEqualTo(2);
@@ -290,11 +290,11 @@ class ComponentNodeSaverTest {
                 parentWorkflowXML.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get()).getConfigBase("node_7");
         }
 
-        var metanode = ComponentNodeLoader.load(parentWorkflowXML, inputDir, LoadVersion.FUTURE);
+        var metanode = ComponentNodeLoader.load(parentWorkflowXML, inputDir, LoadVersion.FUTURE, false);
         var creator = StandaloneLoader.load(workflowDir).getCreator();
 
         var parentXML = new SimpleConfig("node_7");
-        var saver = new ComponentNodeSaver(metanode, creator);
+        var saver = new ComponentNodeSaver(metanode, creator.orElse(StandaloneSaver.DEFAULT_CREATOR));
         saver.save(OUTPUT_DIRECTORY, parentXML);
 
         var componentNodeSettingsFile = new File(OUTPUT_DIRECTORY, IOConst.NODE_SETTINGS_FILE_NAME.get());

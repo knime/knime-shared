@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,11 +76,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultAuthorInformationDef implements AuthorInformationDef {
+public class DefaultAuthorInformationDef implements AuthorInformationDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<AuthorInformationDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("authoredBy")
     protected String m_authoredBy;
@@ -88,10 +89,10 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
     protected OffsetDateTime m_authoredWhen;
 
     @JsonProperty("lastEditedBy")
-    protected String m_lastEditedBy;
+    protected Optional<String> m_lastEditedBy;
 
     @JsonProperty("lastEditedWhen")
-    protected OffsetDateTime m_lastEditedWhen;
+    protected Optional<OffsetDateTime> m_lastEditedWhen;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -101,7 +102,7 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
      * Internal constructor for subclasses.
      */
     DefaultAuthorInformationDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -117,7 +118,7 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
         m_lastEditedBy = builder.m_lastEditedBy;
         m_lastEditedWhen = builder.m_lastEditedWhen;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -135,13 +136,13 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
         m_authoredWhen = toCopy.getAuthoredWhen();
         m_lastEditedBy = toCopy.getLastEditedBy();
         m_lastEditedWhen = toCopy.getLastEditedWhen();
-        if(toCopy instanceof DefaultAuthorInformationDef){
-            var childTree = ((DefaultAuthorInformationDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -157,7 +158,7 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
         m_lastEditedBy = toCopy.getLastEditedBy();
         m_lastEditedWhen = toCopy.getLastEditedWhen();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -182,21 +183,21 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(AuthorInformationDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to AuthorInformationDef.Attribute
-            return ((LoadExceptionTree<AuthorInformationDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to AuthorInformationDef.Attribute
+        return ((LoadExceptionTree<AuthorInformationDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -212,11 +213,11 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
         return m_authoredWhen;
     }
     @Override
-    public String getLastEditedBy() {
+    public Optional<String> getLastEditedBy() {
         return m_lastEditedBy;
     }
     @Override
-    public OffsetDateTime getLastEditedWhen() {
+    public Optional<OffsetDateTime> getLastEditedWhen() {
         return m_lastEditedWhen;
     }
     

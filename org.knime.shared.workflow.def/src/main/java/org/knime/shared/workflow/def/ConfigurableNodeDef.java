@@ -45,11 +45,12 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigurableNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -72,7 +73,7 @@ public interface ConfigurableNodeDef extends BaseNodeDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
           *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link ConfigurableNodeDef#getId} 
@@ -81,6 +82,7 @@ public interface ConfigurableNodeDef extends BaseNodeDef {
          /**  
           * states the most specific subtype, i.e., Metanode, Component, or Native Node
           *
+          * This is a required field.
           * The type of this data attribute is {@link NodeTypeEnum}.
           * Is is returned by {@link ConfigurableNodeDef#getNodeType} 
           */
@@ -98,10 +100,10 @@ public interface ConfigurableNodeDef extends BaseNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link ConfigurableNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link ConfigurableNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link ConfigurableNodeDef#getLocks} 
@@ -134,17 +136,17 @@ public interface ConfigurableNodeDef extends BaseNodeDef {
   /**
    * @return 
    **/
-  public ConfigMapDef getModelSettings();
+  public Optional<ConfigMapDef> getModelSettings();
 
   /**
    * @return 
    **/
-  public ConfigMapDef getInternalNodeSubSettings();
+  public Optional<ConfigMapDef> getInternalNodeSubSettings();
 
   /**
    * @return 
    **/
-  public ConfigMapDef getVariableSettings();
+  public Optional<ConfigMapDef> getVariableSettings();
 
 
 }

@@ -132,7 +132,8 @@ class NativeNodeSaverTest {
         // These settings will be properly tested in the WorkflowSaverTest
         var workflowNodeSettings = new SimpleConfig("node_" + nativeNodeDef.getId());
 
-        String outputDirname = String.format("%s (#%d)", nativeNodeDef.getNodeName(), nativeNodeDef.getId());
+        String outputDirname = nativeNodeDef.getId()
+            .map(id -> String.format("%s (#%d)", nativeNodeDef.getNodeName(), id)).orElse(nativeNodeDef.getNodeName());
         var outputNodeDir = new File(OUTPUT_DIRECTORY, outputDirname);
         outputNodeDir.mkdir();
 
@@ -161,7 +162,7 @@ class NativeNodeSaverTest {
                 continue;
             }
             assertThat(afterSave).as("Check if key '%s' is present in output", key).contains(key);
-            assertThat(beforeSave.getEntry(key)).as("Check if the contents of key '%s' match", key)
+            assertThat(beforeSave.getEntry(key)).as("Contents of key '%s' do not match%nBefore save: %s%nAfter save: %s", key, beforeSave.getEntry(key), afterSave.getEntry(key))
                 .isEqualTo(afterSave.getEntry(key));
         }
     }

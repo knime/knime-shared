@@ -50,6 +50,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.knime.shared.workflow.def.PortMetadataDef;
 
 import org.knime.shared.workflow.def.ComponentMetadataDef;
 
@@ -64,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -74,35 +76,29 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultComponentMetadataDef implements ComponentMetadataDef {
+public class DefaultComponentMetadataDef implements ComponentMetadataDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<ComponentMetadataDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     @JsonProperty("description")
-    protected String m_description;
+    protected Optional<String> m_description;
 
-    @JsonProperty("inPortNames")
-    protected java.util.List<String> m_inPortNames;
+    @JsonProperty("inPortMetadata")
+    protected Optional<java.util.List<PortMetadataDef>> m_inPortMetadata;
 
-    @JsonProperty("outPortNames")
-    protected java.util.List<String> m_outPortNames;
-
-    @JsonProperty("inPortDescriptions")
-    protected java.util.List<String> m_inPortDescriptions;
-
-    @JsonProperty("outPortDescriptions")
-    protected java.util.List<String> m_outPortDescriptions;
+    @JsonProperty("outPortMetadata")
+    protected Optional<java.util.List<PortMetadataDef>> m_outPortMetadata;
 
     @JsonProperty("icon")
-    protected byte[] m_icon;
+    protected Optional<byte[]> m_icon;
 
     /** 
      * Summarizes the kind of functionality of the component. 
      */
     @JsonProperty("componentType")
-    protected ComponentTypeEnum m_componentType;
+    protected Optional<ComponentTypeEnum> m_componentType;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -112,7 +108,7 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
      * Internal constructor for subclasses.
      */
     DefaultComponentMetadataDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -124,14 +120,12 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         
             
         m_description = builder.m_description;
-        m_inPortNames = builder.m_inPortNames;
-        m_outPortNames = builder.m_outPortNames;
-        m_inPortDescriptions = builder.m_inPortDescriptions;
-        m_outPortDescriptions = builder.m_outPortDescriptions;
+        m_inPortMetadata = builder.m_inPortMetadata;
+        m_outPortMetadata = builder.m_outPortMetadata;
         m_icon = builder.m_icon;
         m_componentType = builder.m_componentType;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -146,19 +140,17 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         toCopy = Objects.requireNonNullElse(toCopy, new ComponentMetadataDefBuilder().build());
         
         m_description = toCopy.getDescription();
-        m_inPortNames = toCopy.getInPortNames();
-        m_outPortNames = toCopy.getOutPortNames();
-        m_inPortDescriptions = toCopy.getInPortDescriptions();
-        m_outPortDescriptions = toCopy.getOutPortDescriptions();
+        m_inPortMetadata = toCopy.getInPortMetadata();
+        m_outPortMetadata = toCopy.getOutPortMetadata();
         m_icon = toCopy.getIcon();
         m_componentType = toCopy.getComponentType();
-        if(toCopy instanceof DefaultComponentMetadataDef){
-            var childTree = ((DefaultComponentMetadataDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -170,14 +162,12 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
      */
     public DefaultComponentMetadataDef(ComponentMetadataDef toCopy) {
         m_description = toCopy.getDescription();
-        m_inPortNames = toCopy.getInPortNames();
-        m_outPortNames = toCopy.getOutPortNames();
-        m_inPortDescriptions = toCopy.getInPortDescriptions();
-        m_outPortDescriptions = toCopy.getOutPortDescriptions();
+        m_inPortMetadata = toCopy.getInPortMetadata();
+        m_outPortMetadata = toCopy.getOutPortMetadata();
         m_icon = toCopy.getIcon();
         m_componentType = toCopy.getComponentType();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -202,21 +192,21 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ComponentMetadataDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to ComponentMetadataDef.Attribute
-            return ((LoadExceptionTree<ComponentMetadataDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to ComponentMetadataDef.Attribute
+        return ((LoadExceptionTree<ComponentMetadataDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -224,31 +214,23 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getDescription() {
+    public Optional<String> getDescription() {
         return m_description;
     }
     @Override
-    public java.util.List<String> getInPortNames() {
-        return m_inPortNames;
+    public Optional<java.util.List<PortMetadataDef>> getInPortMetadata() {
+        return m_inPortMetadata;
     }
     @Override
-    public java.util.List<String> getOutPortNames() {
-        return m_outPortNames;
+    public Optional<java.util.List<PortMetadataDef>> getOutPortMetadata() {
+        return m_outPortMetadata;
     }
     @Override
-    public java.util.List<String> getInPortDescriptions() {
-        return m_inPortDescriptions;
-    }
-    @Override
-    public java.util.List<String> getOutPortDescriptions() {
-        return m_outPortDescriptions;
-    }
-    @Override
-    public byte[] getIcon() {
+    public Optional<byte[]> getIcon() {
         return m_icon;
     }
     @Override
-    public ComponentTypeEnum getComponentType() {
+    public Optional<ComponentTypeEnum> getComponentType() {
         return m_componentType;
     }
     
@@ -267,129 +249,47 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
  
      
     /**
-     * @return The supply exception associated to inPortNames.
+     * @return The supply exception associated to inPortMetadata.
      */
     @JsonIgnore
-    public Optional<LoadException> getInPortNamesSupplyException(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.IN_PORT_NAMES).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getInPortMetadataSupplyException(){
+    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.IN_PORT_METADATA).flatMap(LoadExceptionTree::getSupplyException);
     }
     
- 
+         
     /**
-     * @return the InPortNames that have load exceptions or descendants with load exceptions.
+     * @return the {@link LoadExceptionTree} associated to this {{vendorExtensions.containerType}, containing the supply exception for the container itself
+     * and all its children with load exceptions.
      */
-    @SuppressWarnings("unchecked")
     @JsonIgnore
-    public Optional<LoadExceptionTree<Integer>> getInPortNamesExceptionTree(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.IN_PORT_NAMES).map(les -> (LoadExceptionTree<Integer>)les);
+    @SuppressWarnings("unchecked")
+    public Optional<LoadExceptionTree<Integer>> getInPortMetadataExceptionTree(){
+    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.IN_PORT_METADATA).map(let -> (LoadExceptionTree<Integer>)let);
     }
 
-    /**
-     * @param childIdentifier the element in the list to get the exceptions for
-     * @return the load exception associated to the given element of the InPortNames container.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getInPortNamesElementSupplyException(Integer childIdentifier){
-    	return getInPortNamesExceptionTree()//
-            // optional load exceptions associated to the inPortNames
-            .flatMap(iles -> iles.getExceptionTree(childIdentifier))//
-            // if present, it is a LoadExceptionTree, but since this is a type without children, just return the terminal supply exception
-            .flatMap(LoadExceptionTree::getSupplyException);
-    }
      
+ 
     /**
-     * @return The supply exception associated to outPortNames.
+     * @return The supply exception associated to outPortMetadata.
      */
     @JsonIgnore
-    public Optional<LoadException> getOutPortNamesSupplyException(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.OUT_PORT_NAMES).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getOutPortMetadataSupplyException(){
+    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.OUT_PORT_METADATA).flatMap(LoadExceptionTree::getSupplyException);
     }
     
- 
+         
     /**
-     * @return the OutPortNames that have load exceptions or descendants with load exceptions.
+     * @return the {@link LoadExceptionTree} associated to this {{vendorExtensions.containerType}, containing the supply exception for the container itself
+     * and all its children with load exceptions.
      */
-    @SuppressWarnings("unchecked")
     @JsonIgnore
-    public Optional<LoadExceptionTree<Integer>> getOutPortNamesExceptionTree(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.OUT_PORT_NAMES).map(les -> (LoadExceptionTree<Integer>)les);
+    @SuppressWarnings("unchecked")
+    public Optional<LoadExceptionTree<Integer>> getOutPortMetadataExceptionTree(){
+    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.OUT_PORT_METADATA).map(let -> (LoadExceptionTree<Integer>)let);
     }
 
-    /**
-     * @param childIdentifier the element in the list to get the exceptions for
-     * @return the load exception associated to the given element of the OutPortNames container.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getOutPortNamesElementSupplyException(Integer childIdentifier){
-    	return getOutPortNamesExceptionTree()//
-            // optional load exceptions associated to the outPortNames
-            .flatMap(iles -> iles.getExceptionTree(childIdentifier))//
-            // if present, it is a LoadExceptionTree, but since this is a type without children, just return the terminal supply exception
-            .flatMap(LoadExceptionTree::getSupplyException);
-    }
      
-    /**
-     * @return The supply exception associated to inPortDescriptions.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getInPortDescriptionsSupplyException(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.IN_PORT_DESCRIPTIONS).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
  
-    /**
-     * @return the InPortDescriptions that have load exceptions or descendants with load exceptions.
-     */
-    @SuppressWarnings("unchecked")
-    @JsonIgnore
-    public Optional<LoadExceptionTree<Integer>> getInPortDescriptionsExceptionTree(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.IN_PORT_DESCRIPTIONS).map(les -> (LoadExceptionTree<Integer>)les);
-    }
-
-    /**
-     * @param childIdentifier the element in the list to get the exceptions for
-     * @return the load exception associated to the given element of the InPortDescriptions container.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getInPortDescriptionsElementSupplyException(Integer childIdentifier){
-    	return getInPortDescriptionsExceptionTree()//
-            // optional load exceptions associated to the inPortDescriptions
-            .flatMap(iles -> iles.getExceptionTree(childIdentifier))//
-            // if present, it is a LoadExceptionTree, but since this is a type without children, just return the terminal supply exception
-            .flatMap(LoadExceptionTree::getSupplyException);
-    }
-     
-    /**
-     * @return The supply exception associated to outPortDescriptions.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getOutPortDescriptionsSupplyException(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-    /**
-     * @return the OutPortDescriptions that have load exceptions or descendants with load exceptions.
-     */
-    @SuppressWarnings("unchecked")
-    @JsonIgnore
-    public Optional<LoadExceptionTree<Integer>> getOutPortDescriptionsExceptionTree(){
-    	return getLoadExceptionTree(ComponentMetadataDef.Attribute.OUT_PORT_DESCRIPTIONS).map(les -> (LoadExceptionTree<Integer>)les);
-    }
-
-    /**
-     * @param childIdentifier the element in the list to get the exceptions for
-     * @return the load exception associated to the given element of the OutPortDescriptions container.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getOutPortDescriptionsElementSupplyException(Integer childIdentifier){
-    	return getOutPortDescriptionsExceptionTree()//
-            // optional load exceptions associated to the outPortDescriptions
-            .flatMap(iles -> iles.getExceptionTree(childIdentifier))//
-            // if present, it is a LoadExceptionTree, but since this is a type without children, just return the terminal supply exception
-            .flatMap(LoadExceptionTree::getSupplyException);
-    }
-     
     /**
      * @return The supply exception associated to icon.
      */
@@ -430,10 +330,8 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
         DefaultComponentMetadataDef other = (DefaultComponentMetadataDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
         equalsBuilder.append(m_description, other.m_description);
-        equalsBuilder.append(m_inPortNames, other.m_inPortNames);
-        equalsBuilder.append(m_outPortNames, other.m_outPortNames);
-        equalsBuilder.append(m_inPortDescriptions, other.m_inPortDescriptions);
-        equalsBuilder.append(m_outPortDescriptions, other.m_outPortDescriptions);
+        equalsBuilder.append(m_inPortMetadata, other.m_inPortMetadata);
+        equalsBuilder.append(m_outPortMetadata, other.m_outPortMetadata);
         equalsBuilder.append(m_icon, other.m_icon);
         equalsBuilder.append(m_componentType, other.m_componentType);
         return equalsBuilder.isEquals();
@@ -443,10 +341,8 @@ public class DefaultComponentMetadataDef implements ComponentMetadataDef {
     public int hashCode() {
         return new HashCodeBuilder()
                 .append(m_description)
-                .append(m_inPortNames)
-                .append(m_outPortNames)
-                .append(m_inPortDescriptions)
-                .append(m_outPortDescriptions)
+                .append(m_inPortMetadata)
+                .append(m_outPortMetadata)
                 .append(m_icon)
                 .append(m_componentType)
                 .toHashCode();

@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultVendorDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface VendorDef {
          /**  
           * For a bundle, see the example value; for a feature it can be an empty string
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link VendorDef#getName} 
           */
@@ -75,6 +77,7 @@ public interface VendorDef {
          /**  
           * For a bundle, see the example value; for a feature it can be an empty string
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link VendorDef#getSymbolicName} 
           */
@@ -82,6 +85,7 @@ public interface VendorDef {
          /**  
           * For a bundle, see the example value; for a feature it can be an empty string
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link VendorDef#getVendor} 
           */
@@ -89,6 +93,7 @@ public interface VendorDef {
          /**  
           * For a bundle, see the example value; for a feature, it can be, e.g., \&quot;0.0.0\&quot;
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link VendorDef#getVersion} 
           */
@@ -99,25 +104,25 @@ public interface VendorDef {
 
   /**
    * Example value: KNIME Base Nodes
-   * @return For a bundle, see the example value; for a feature it can be an empty string
+   * @return For a bundle, see the example value; for a feature it can be an empty string, never <code>null</code>
    **/
   public String getName();
 
   /**
    * Example value: org.knime.base
-   * @return For a bundle, see the example value; for a feature it can be an empty string
+   * @return For a bundle, see the example value; for a feature it can be an empty string, never <code>null</code>
    **/
   public String getSymbolicName();
 
   /**
    * Example value: KNIME AG, Zurich, Switzerland
-   * @return For a bundle, see the example value; for a feature it can be an empty string
+   * @return For a bundle, see the example value; for a feature it can be an empty string, never <code>null</code>
    **/
   public String getVendor();
 
   /**
    * Example value: 4.6.0.v202201041551
-   * @return For a bundle, see the example value; for a feature, it can be, e.g., \&quot;0.0.0\&quot;
+   * @return For a bundle, see the example value; for a feature, it can be, e.g., \&quot;0.0.0\&quot;, never <code>null</code>
    **/
   public String getVersion();
 

@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.ConnectionUISettingsDef;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * ConnectionDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ConnectionDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ConnectionDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -92,10 +113,10 @@ public class ConnectionDefBuilder {
     Integer m_destPort;
     
 
-    Boolean m_deletable;
+    Boolean m_deletable = true;
     
 
-    ConnectionUISettingsDef m_uiSettings;
+    Optional<ConnectionUISettingsDef> m_uiSettings = Optional.empty();
     
     /**
      * Create a new builder.
@@ -107,12 +128,12 @@ public class ConnectionDefBuilder {
      * Create a new builder from an existing instance.
      */
     public ConnectionDefBuilder(final ConnectionDef toCopy) {
-        m_sourceID = toCopy.getSourceID();
-        m_destID = toCopy.getDestID();
-        m_sourcePort = toCopy.getSourcePort();
-        m_destPort = toCopy.getDestPort();
-        m_deletable = toCopy.isDeletable();
-        m_uiSettings = toCopy.getUiSettings();
+        setSourceID(toCopy.getSourceID());
+        setDestID(toCopy.getDestID());
+        setSourcePort(toCopy.getSourcePort());
+        setDestPort(toCopy.getDestPort());
+        setDeletable(toCopy.isDeletable());
+        setUiSettings(toCopy.getUiSettings().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -120,7 +141,7 @@ public class ConnectionDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param sourceID 
+     * @param sourceID  
      * @return this builder for fluent API.
      */ 
     public ConnectionDefBuilder setSourceID(final Integer sourceID) {
@@ -128,6 +149,7 @@ public class ConnectionDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -144,12 +166,20 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.SOURCE_ID);
         try {
-            m_sourceID = sourceID.get();
+            var supplied = sourceID.get();
+            m_sourceID = supplied;
+
+            if(m_sourceID == null) {
+                throw new IllegalArgumentException("sourceID is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_sourceID = defaultValue;
             m_exceptionalChildren.put(ConnectionDef.Attribute.SOURCE_ID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -158,7 +188,7 @@ public class ConnectionDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param destID 
+     * @param destID  
      * @return this builder for fluent API.
      */ 
     public ConnectionDefBuilder setDestID(final Integer destID) {
@@ -166,6 +196,7 @@ public class ConnectionDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -182,12 +213,20 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.DEST_ID);
         try {
-            m_destID = destID.get();
+            var supplied = destID.get();
+            m_destID = supplied;
+
+            if(m_destID == null) {
+                throw new IllegalArgumentException("destID is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_destID = defaultValue;
             m_exceptionalChildren.put(ConnectionDef.Attribute.DEST_ID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -196,7 +235,7 @@ public class ConnectionDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param sourcePort 
+     * @param sourcePort  
      * @return this builder for fluent API.
      */ 
     public ConnectionDefBuilder setSourcePort(final Integer sourcePort) {
@@ -204,6 +243,7 @@ public class ConnectionDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -220,12 +260,20 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.SOURCE_PORT);
         try {
-            m_sourcePort = sourcePort.get();
+            var supplied = sourcePort.get();
+            m_sourcePort = supplied;
+
+            if(m_sourcePort == null) {
+                throw new IllegalArgumentException("sourcePort is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_sourcePort = defaultValue;
             m_exceptionalChildren.put(ConnectionDef.Attribute.SOURCE_PORT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -234,7 +282,7 @@ public class ConnectionDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param destPort 
+     * @param destPort  
      * @return this builder for fluent API.
      */ 
     public ConnectionDefBuilder setDestPort(final Integer destPort) {
@@ -242,6 +290,7 @@ public class ConnectionDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -258,12 +307,20 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.DEST_PORT);
         try {
-            m_destPort = destPort.get();
+            var supplied = destPort.get();
+            m_destPort = supplied;
+
+            if(m_destPort == null) {
+                throw new IllegalArgumentException("destPort is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_destPort = defaultValue;
             m_exceptionalChildren.put(ConnectionDef.Attribute.DEST_PORT, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -272,7 +329,7 @@ public class ConnectionDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param deletable 
+     * @param deletable  
      * @return this builder for fluent API.
      */ 
     public ConnectionDefBuilder setDeletable(final Boolean deletable) {
@@ -280,6 +337,7 @@ public class ConnectionDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -296,12 +354,20 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.DELETABLE);
         try {
-            m_deletable = deletable.get();
+            var supplied = deletable.get();
+            m_deletable = supplied;
+
+            if(m_deletable == null) {
+                throw new IllegalArgumentException("deletable is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_deletable = defaultValue;
             m_exceptionalChildren.put(ConnectionDef.Attribute.DELETABLE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -310,7 +376,7 @@ public class ConnectionDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uiSettings 
+     * @param uiSettings  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public ConnectionDefBuilder setUiSettings(final ConnectionUISettingsDef uiSettings) {
@@ -318,8 +384,25 @@ public class ConnectionDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ConnectionDef.Attribute.UI_SETTINGS)} will return true and and
+     * {@code getExceptionalChildren().get(ConnectionDef.Attribute.UI_SETTINGS)} will return the exception.
+     * 
+     * @param uiSettings see {@link ConnectionDef#getUiSettings}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setUiSettings(ConnectionUISettingsDef)
+     */
+    public ConnectionDefBuilder setUiSettings(final FallibleSupplier<ConnectionUISettingsDef> uiSettings) {
+        setUiSettings(uiSettings, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(ConnectionDef.Attribute.UI_SETTINGS)} will return true and and
      * {@code getExceptionalChildren().get(ConnectionDef.Attribute.UI_SETTINGS)} will return the exception.
@@ -334,24 +417,28 @@ public class ConnectionDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConnectionDef.Attribute.UI_SETTINGS);
         try {
-            m_uiSettings = uiSettings.get();
-            if (m_uiSettings instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiSettings).hasExceptions()) {
-                m_exceptionalChildren.put(ConnectionDef.Attribute.UI_SETTINGS, (LoadExceptionTree<?>)m_uiSettings);
+            var supplied = uiSettings.get();
+            m_uiSettings = Optional.ofNullable(supplied);
+            if (m_uiSettings.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiSettings.get()).hasExceptions()) {
+                m_exceptionalChildren.put(ConnectionDef.Attribute.UI_SETTINGS, (LoadExceptionTree<?>)m_uiSettings.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultConnectionUISettingsDef){
-                var childTree = ((DefaultConnectionUISettingsDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_uiSettings = defaultValue;
+            m_uiSettings = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(ConnectionDef.Attribute.UI_SETTINGS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -363,6 +450,26 @@ public class ConnectionDefBuilder {
      *      of the suppliers passed to the setters.
 	 */
     public DefaultConnectionDef build() {
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_sourceID == null) setSourceID( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_destID == null) setDestID( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_sourcePort == null) setSourcePort( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_destPort == null) setDestPort( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_deletable == null) setDeletable( null);
         
     	
         return new DefaultConnectionDef(this);

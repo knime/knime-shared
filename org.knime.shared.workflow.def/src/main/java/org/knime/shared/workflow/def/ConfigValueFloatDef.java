@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValueFloatDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -75,6 +76,7 @@ public interface ConfigValueFloatDef extends ConfigValueDef {
           */
          CONFIG_TYPE,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link Float}.
           * Is is returned by {@link ConfigValueFloatDef#getValue} 
           */
@@ -84,7 +86,7 @@ public interface ConfigValueFloatDef extends ConfigValueDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public Float getValue();
 

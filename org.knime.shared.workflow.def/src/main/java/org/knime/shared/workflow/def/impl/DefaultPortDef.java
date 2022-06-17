@@ -65,6 +65,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -75,11 +76,11 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultPortDef implements PortDef {
+public class DefaultPortDef implements PortDef, LoadExceptionTreeProvider {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
      * a LoadExceptionTree<PortDef.Attribute> instance. */
-    final private Optional<LoadExceptionTree<?>> m_exceptionTree;
+    private final LoadExceptionTree<?> m_exceptionTree;
 
     /** 
      * the offset of the port relative to its siblings 
@@ -91,7 +92,7 @@ public class DefaultPortDef implements PortDef {
     protected PortTypeDef m_portType;
 
     @JsonProperty("name")
-    protected String m_name;
+    protected Optional<String> m_name;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -101,7 +102,7 @@ public class DefaultPortDef implements PortDef {
      * Internal constructor for subclasses.
      */
     DefaultPortDef() {
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     /**
@@ -116,7 +117,7 @@ public class DefaultPortDef implements PortDef {
         m_portType = builder.m_portType;
         m_name = builder.m_name;
 
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.map(builder.m_exceptionalChildren);
     }
 
     /**
@@ -133,13 +134,13 @@ public class DefaultPortDef implements PortDef {
         m_index = toCopy.getIndex();
         m_portType = toCopy.getPortType();
         m_name = toCopy.getName();
-        if(toCopy instanceof DefaultPortDef){
-            var childTree = ((DefaultPortDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof LoadExceptionTreeProvider){
+            var childTree = ((LoadExceptionTreeProvider)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
-            var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            m_exceptionTree = Optional.of(merged);
+            var merged = childTree.hasExceptions() ? SimpleLoadExceptionTree.tree(childTree, supplyException) : supplyException;
+            m_exceptionTree = merged;
         } else {
-            m_exceptionTree = Optional.of(supplyException);
+            m_exceptionTree = supplyException;
         }
     }
 
@@ -154,7 +155,7 @@ public class DefaultPortDef implements PortDef {
         m_portType = toCopy.getPortType();
         m_name = toCopy.getName();
         
-        m_exceptionTree = Optional.empty();
+        m_exceptionTree = SimpleLoadExceptionTree.EMPTY;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -179,21 +180,21 @@ public class DefaultPortDef implements PortDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(){
+    public LoadExceptionTree<?> getLoadExceptionTree(){
         return m_exceptionTree;
     }
 
     /**
      * @param attribute identifies the child
-     * @return the load exceptions for the requested child instance and its descendants
+     * @return the load exceptions for the requested child instance and its descendants.
      */
     @SuppressWarnings("unchecked")
     public Optional<LoadExceptionTree<?>> getLoadExceptionTree(PortDef.Attribute attribute){
-        return m_exceptionTree.flatMap(t -> {
-            if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to PortDef.Attribute
-            return ((LoadExceptionTree<PortDef.Attribute>)t).getExceptionTree(attribute);
-        });
+        if (m_exceptionTree instanceof LoadException) {
+            return Optional.empty();
+        }
+        // if the tree is not a leaf, it is typed to PortDef.Attribute
+        return ((LoadExceptionTree<PortDef.Attribute>)m_exceptionTree).getExceptionTree(attribute);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -209,7 +210,7 @@ public class DefaultPortDef implements PortDef {
         return m_portType;
     }
     @Override
-    public String getName() {
+    public Optional<String> getName() {
         return m_name;
     }
     
@@ -243,7 +244,7 @@ public class DefaultPortDef implements PortDef {
     @JsonIgnore
     public Optional<DefaultPortTypeDef> getFaultyPortType(){
     	final var portType = getPortType(); 
-        if(portType instanceof DefaultPortTypeDef && ((DefaultPortTypeDef)portType).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+        if(LoadExceptionTreeProvider.hasExceptions(portType)) {
             return Optional.of((DefaultPortTypeDef)portType);
         }
     	return Optional.empty();

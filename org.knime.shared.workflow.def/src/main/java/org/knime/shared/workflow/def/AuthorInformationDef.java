@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultAuthorInformationDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -67,11 +68,13 @@ public interface AuthorInformationDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AuthorInformationDef#getAuthoredBy} 
           */
          AUTHORED_BY,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link OffsetDateTime}.
           * Is is returned by {@link AuthorInformationDef#getAuthoredWhen} 
           */
@@ -91,24 +94,24 @@ public interface AuthorInformationDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public String getAuthoredBy();
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public OffsetDateTime getAuthoredWhen();
 
   /**
    * @return 
    **/
-  public String getLastEditedBy();
+  public Optional<String> getLastEditedBy();
 
   /**
    * @return 
    **/
-  public OffsetDateTime getLastEditedWhen();
+  public Optional<OffsetDateTime> getLastEditedWhen();
 
 
 }

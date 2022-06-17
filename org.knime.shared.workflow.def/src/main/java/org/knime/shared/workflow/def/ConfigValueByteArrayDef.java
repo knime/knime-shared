@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueArrayDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValueByteArrayDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -86,7 +87,7 @@ public interface ConfigValueByteArrayDef extends ConfigValueArrayDef {
   /**
    * @return 
    **/
-  public byte[] getArray();
+  public Optional<byte[]> getArray();
 
 
 }

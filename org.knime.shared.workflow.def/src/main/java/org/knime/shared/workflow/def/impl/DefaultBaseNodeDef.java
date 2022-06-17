@@ -50,10 +50,10 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
 
@@ -68,6 +68,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
 import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
@@ -78,14 +79,14 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultBaseNodeDef implements BaseNodeDef {
+public abstract class DefaultBaseNodeDef implements BaseNodeDef, LoadExceptionTreeProvider {
 
 
     /** 
-     * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection.  
+     * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow. 
      */
     @JsonProperty("id")
-    protected Integer m_id;
+    protected Optional<Integer> m_id;
 
     /** 
      * states the most specific subtype, i.e., Metanode, Component, or Native Node 
@@ -97,19 +98,19 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
      * A longer description, provided by the user 
      */
     @JsonProperty("customDescription")
-    protected String m_customDescription;
+    protected Optional<String> m_customDescription;
 
     @JsonProperty("annotation")
-    protected NodeAnnotationDef m_annotation;
+    protected Optional<NodeAnnotationDef> m_annotation;
 
-    @JsonProperty("uiInfo")
-    protected NodeUIInfoDef m_uiInfo;
+    @JsonProperty("bounds")
+    protected Optional<BoundsDef> m_bounds;
 
     @JsonProperty("locks")
-    protected NodeLocksDef m_locks;
+    protected Optional<NodeLocksDef> m_locks;
 
     @JsonProperty("jobManager")
-    protected JobManagerDef m_jobManager;
+    protected Optional<JobManagerDef> m_jobManager;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -132,7 +133,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
         m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
+        m_bounds = toCopy.getBounds();
         m_locks = toCopy.getLocks();
         m_jobManager = toCopy.getJobManager();
         
@@ -150,6 +151,18 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
      */
     static DefaultBaseNodeDef withException(BaseNodeDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
+        if (toCopy instanceof org.knime.shared.workflow.def.ComponentNodeDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new ComponentNodeDefBuilder().build());
+            return new org.knime.shared.workflow.def.impl.DefaultComponentNodeDef((org.knime.shared.workflow.def.ComponentNodeDef)toCopy, exception);
+        }
+        if (toCopy instanceof org.knime.shared.workflow.def.NativeNodeDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new NativeNodeDefBuilder().build());
+            return new org.knime.shared.workflow.def.impl.DefaultNativeNodeDef((org.knime.shared.workflow.def.NativeNodeDef)toCopy, exception);
+        }
+        if (toCopy instanceof org.knime.shared.workflow.def.MetaNodeDef) {
+            toCopy = Objects.requireNonNullElse(toCopy, new MetaNodeDefBuilder().build());
+            return new org.knime.shared.workflow.def.impl.DefaultMetaNodeDef((org.knime.shared.workflow.def.MetaNodeDef)toCopy, exception);
+        }
         throw new IllegalArgumentException();
     }
     
@@ -161,7 +174,8 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
      * @return the load exceptions for this instance and its descendants
      */
     @JsonIgnore
-    public abstract Optional<LoadExceptionTree<?>> getLoadExceptionTree();
+    @Override
+    public abstract LoadExceptionTree<?> getLoadExceptionTree();
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -169,7 +183,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public Integer getId() {
+    public Optional<Integer> getId() {
         return m_id;
     }
     @Override
@@ -177,23 +191,23 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
         return m_nodeType;
     }
     @Override
-    public String getCustomDescription() {
+    public Optional<String> getCustomDescription() {
         return m_customDescription;
     }
     @Override
-    public NodeAnnotationDef getAnnotation() {
+    public Optional<NodeAnnotationDef> getAnnotation() {
         return m_annotation;
     }
     @Override
-    public NodeUIInfoDef getUiInfo() {
-        return m_uiInfo;
+    public Optional<BoundsDef> getBounds() {
+        return m_bounds;
     }
     @Override
-    public NodeLocksDef getLocks() {
+    public Optional<NodeLocksDef> getLocks() {
         return m_locks;
     }
     @Override
-    public JobManagerDef getJobManager() {
+    public Optional<JobManagerDef> getJobManager() {
         return m_jobManager;
     }
     
@@ -219,7 +233,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
         equalsBuilder.append(m_nodeType, other.m_nodeType);
         equalsBuilder.append(m_customDescription, other.m_customDescription);
         equalsBuilder.append(m_annotation, other.m_annotation);
-        equalsBuilder.append(m_uiInfo, other.m_uiInfo);
+        equalsBuilder.append(m_bounds, other.m_bounds);
         equalsBuilder.append(m_locks, other.m_locks);
         equalsBuilder.append(m_jobManager, other.m_jobManager);
         return equalsBuilder.isEquals();
@@ -232,7 +246,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
                 .append(m_nodeType)
                 .append(m_customDescription)
                 .append(m_annotation)
-                .append(m_uiInfo)
+                .append(m_bounds)
                 .append(m_locks)
                 .append(m_jobManager)
                 .toHashCode();

@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.ConfigValueArrayDefBuilder;
 
@@ -56,6 +57,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * this is a special type because byte[] is natively supported for the string/binary type used below
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -64,6 +67,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ConfigValueByteArrayDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public ConfigValueByteArrayDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -83,7 +104,7 @@ public class ConfigValueByteArrayDefBuilder {
     String m_configType;
     
 
-    byte[] m_array;
+    Optional<byte[]> m_array = Optional.empty();
     
 
     /**
@@ -96,8 +117,8 @@ public class ConfigValueByteArrayDefBuilder {
      * Create a new builder from an existing instance.
      */
     public ConfigValueByteArrayDefBuilder(final ConfigValueByteArrayDef toCopy) {
-        m_configType = toCopy.getConfigType();
-        m_array = toCopy.getArray();
+        setConfigType(toCopy.getConfigType());
+        setArray(toCopy.getArray().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -105,7 +126,7 @@ public class ConfigValueByteArrayDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param configType Discriminator for inheritance. Must be the base name of this type/schema.
+     * @param configType Discriminator for inheritance. Must be the base name of this type/schema. 
      * @return this builder for fluent API.
      */ 
     public ConfigValueByteArrayDefBuilder setConfigType(final String configType) {
@@ -113,6 +134,7 @@ public class ConfigValueByteArrayDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -129,7 +151,8 @@ public class ConfigValueByteArrayDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueByteArrayDef.Attribute.CONFIG_TYPE);
         try {
-            m_configType = configType.get();
+            var supplied = configType.get();
+            m_configType = supplied;
 
             if(m_configType == null) {
                 throw new IllegalArgumentException("configType is required and must not be null.");
@@ -139,6 +162,9 @@ public class ConfigValueByteArrayDefBuilder {
                                      
             m_configType = defaultValue;
             m_exceptionalChildren.put(ConfigValueByteArrayDef.Attribute.CONFIG_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -147,7 +173,7 @@ public class ConfigValueByteArrayDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param array 
+     * @param array  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public ConfigValueByteArrayDefBuilder setArray(final byte[] array) {
@@ -155,8 +181,25 @@ public class ConfigValueByteArrayDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ConfigValueByteArrayDef.Attribute.ARRAY)} will return true and and
+     * {@code getExceptionalChildren().get(ConfigValueByteArrayDef.Attribute.ARRAY)} will return the exception.
+     * 
+     * @param array see {@link ConfigValueByteArrayDef#getArray}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setArray(byte[])
+     */
+    public ConfigValueByteArrayDefBuilder setArray(final FallibleSupplier<byte[]> array) {
+        setArray(array, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(ConfigValueByteArrayDef.Attribute.ARRAY)} will return true and and
      * {@code getExceptionalChildren().get(ConfigValueByteArrayDef.Attribute.ARRAY)} will return the exception.
@@ -171,12 +214,16 @@ public class ConfigValueByteArrayDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(ConfigValueByteArrayDef.Attribute.ARRAY);
         try {
-            m_array = array.get();
+            var supplied = array.get();
+            m_array = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_array = defaultValue;
+            m_array = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(ConfigValueByteArrayDef.Attribute.ARRAY, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -190,8 +237,9 @@ public class ConfigValueByteArrayDefBuilder {
 	 */
     public DefaultConfigValueByteArrayDef build() {
         
-        // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
-        if(m_configType == null) setConfigType(null);
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_configType == null) setConfigType( null);
         
     	
         return new DefaultConfigValueByteArrayDef(this);

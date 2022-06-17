@@ -49,6 +49,7 @@ import org.knime.shared.workflow.def.AuthorInformationDef;
 import org.knime.shared.workflow.def.BaseNodeDef;
 import org.knime.shared.workflow.def.ConnectionDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -115,32 +116,32 @@ public interface WorkflowDef {
   /**
    * @return A user-chosen identifier for the workflow.
    **/
-  public String getName();
+  public Optional<String> getName();
 
   /**
    * @return 
    **/
-  public AuthorInformationDef getAuthorInformation();
+  public Optional<AuthorInformationDef> getAuthorInformation();
 
   /**
    * @return The executable blocks in this workflow.
    **/
-  public java.util.Map<String, BaseNodeDef> getNodes();
+  public Optional<java.util.Map<String, BaseNodeDef>> getNodes();
 
   /**
    * @return Define the data flow between nodes.
    **/
-  public java.util.List<ConnectionDef> getConnections();
+  public Optional<java.util.List<ConnectionDef>> getConnections();
 
   /**
    * @return Explanatory text boxes that are shown in the workflow editor.
    **/
-  public java.util.Map<String, AnnotationDataDef> getAnnotations();
+  public Optional<java.util.Map<String, AnnotationDataDef>> getAnnotations();
 
   /**
    * @return 
    **/
-  public WorkflowUISettingsDef getWorkflowEditorSettings();
+  public Optional<WorkflowUISettingsDef> getWorkflowEditorSettings();
 
 
 }

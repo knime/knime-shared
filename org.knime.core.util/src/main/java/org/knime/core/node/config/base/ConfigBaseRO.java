@@ -48,6 +48,8 @@ package org.knime.core.node.config.base;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -484,4 +486,160 @@ public interface ConfigBaseRO extends Iterable<String> {
      * @see ConfigBaseWO#addTransientString(String, String)
      */
     public String getTransientString(final String key);
+
+    default Optional<ConfigBase> getOptionalConfigBase(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getConfigBase(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default OptionalInt getOptionalInt(final String key) {
+        try {
+            return containsKey(key) ? OptionalInt.of(getInt(key)) : OptionalInt.empty();
+        } catch (InvalidSettingsException ex) {
+            return OptionalInt.empty();
+        }
+    }
+
+    default Optional<Double> getOptionalDouble(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getDouble(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<Character> getOptionalChar(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getChar(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<Byte> getOptionalByte(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getByte(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<String> getOptionalString(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getString(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<int[]> getOptionalIntArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getIntArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<double[]> getOptionalDoubleArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getDoubleArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<Float> getOptionalFloat(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getFloat(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<float[]> getOptionalFloatArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getFloatArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<char[]> getOptionalCharArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getCharArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<byte[]> getOptionalByteArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getByteArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<short[]> getOptionalShortArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getShortArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<long[]> getOptionalLongArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getLongArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<Short> getOptionalShort(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getShort(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<Long> getOptionalLong(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getLong(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<Boolean> getOptionalBoolean(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getBoolean(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<boolean[]> getOptionalBooleanArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getBooleanArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<String[]> getOptionalStringArray(final String key) {
+        try {
+            return Optional.ofNullable(containsKey(key) ? getStringArray(key) : null);
+        } catch (InvalidSettingsException ex) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<String> getOptionalTransientString(final String key) {
+        return Optional.ofNullable(containsKey(key) ? getTransientString(key) : null);
+    }
 }

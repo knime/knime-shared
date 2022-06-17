@@ -45,14 +45,16 @@
 package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateLinkDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.impl.BaseNodeDefBuilder;
 
@@ -64,6 +66,8 @@ import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
+import org.knime.core.util.workflow.def.LoadExceptionTreeProvider;
+
 /**
  * MetaNodeDefBuilder
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
@@ -72,6 +76,24 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class MetaNodeDefBuilder {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public MetaNodeDefBuilder strict(){
+        m__failFast = true;
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -88,52 +110,70 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    Integer m_id;
+    Optional<Integer> m_id = Optional.empty();
     
 
     NodeTypeEnum m_nodeType;
     
 
-    String m_customDescription;
+    Optional<String> m_customDescription = Optional.empty();
     
 
-    NodeAnnotationDef m_annotation;
+    Optional<NodeAnnotationDef> m_annotation = Optional.empty();
     
-    NodeUIInfoDef m_uiInfo;
+    Optional<BoundsDef> m_bounds = Optional.empty();
     
-    NodeLocksDef m_locks;
+    Optional<NodeLocksDef> m_locks = Optional.empty();
     
-    JobManagerDef m_jobManager;
+    Optional<JobManagerDef> m_jobManager = Optional.empty();
     
     WorkflowDef m_workflow;
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<PortDef> m_inPorts = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setInPorts these are added to m_inPorts in build */
-    private java.util.List<PortDef> m_inPortsBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<PortDef>> m_inPorts = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<PortDef>> m_inPortsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setInPorts these are added to m_inPorts in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<PortDef>> m_inPortsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_inPortsContainerSupplyException; 
     
     /**
      * Holds the final result of merging the bulk and individual elements in #build().
-     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
      */
-    java.util.List<PortDef> m_outPorts = new java.util.ArrayList<>();
-    /** Temporarily holds onto elements set as a whole with setOutPorts these are added to m_outPorts in build */
-    private java.util.List<PortDef> m_outPortsBulkElements = new java.util.ArrayList<>();
+    Optional<java.util.List<PortDef>> m_outPorts = Optional.of(java.util.List.of());
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this list so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException.
+     * Setting elements individually is optional.
+     */
+    Optional<java.util.List<PortDef>> m_outPortsIndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with setOutPorts these are added to m_outPorts in build.
+     * Setting elements in bulk is optional.
+     */
+    private Optional<java.util.List<PortDef>> m_outPortsBulkElements = Optional.empty();
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_outPortsContainerSupplyException; 
     
-    CipherDef m_cipher;
+    Optional<CipherDef> m_cipher = Optional.empty();
     
-    TemplateInfoDef m_link;
+    Optional<TemplateMetadataDef> m_templateMetadata = Optional.empty();
     
-    NodeUIInfoDef m_inPortsBarUIInfo;
+    Optional<TemplateLinkDef> m_templateLink = Optional.empty();
     
-    NodeUIInfoDef m_outPortsBarUIInfo;
+    Optional<BoundsDef> m_inPortsBarBounds = Optional.empty();
+    
+    Optional<BoundsDef> m_outPortsBarBounds = Optional.empty();
     
     /**
      * Create a new builder.
@@ -145,20 +185,21 @@ public class MetaNodeDefBuilder {
      * Create a new builder from an existing instance.
      */
     public MetaNodeDefBuilder(final MetaNodeDef toCopy) {
-        m_id = toCopy.getId();
-        m_nodeType = toCopy.getNodeType();
-        m_customDescription = toCopy.getCustomDescription();
-        m_annotation = toCopy.getAnnotation();
-        m_uiInfo = toCopy.getUiInfo();
-        m_locks = toCopy.getLocks();
-        m_jobManager = toCopy.getJobManager();
-        m_workflow = toCopy.getWorkflow();
-        m_inPorts = toCopy.getInPorts();
-        m_outPorts = toCopy.getOutPorts();
-        m_cipher = toCopy.getCipher();
-        m_link = toCopy.getLink();
-        m_inPortsBarUIInfo = toCopy.getInPortsBarUIInfo();
-        m_outPortsBarUIInfo = toCopy.getOutPortsBarUIInfo();
+        setId(toCopy.getId().orElse(null));
+        setNodeType(toCopy.getNodeType());
+        setCustomDescription(toCopy.getCustomDescription().orElse(null));
+        setAnnotation(toCopy.getAnnotation().orElse(null));
+        setBounds(toCopy.getBounds().orElse(null));
+        setLocks(toCopy.getLocks().orElse(null));
+        setJobManager(toCopy.getJobManager().orElse(null));
+        setWorkflow(toCopy.getWorkflow());
+        setInPorts(toCopy.getInPorts().orElse(null));
+        setOutPorts(toCopy.getOutPorts().orElse(null));
+        setCipher(toCopy.getCipher().orElse(null));
+        setTemplateMetadata(toCopy.getTemplateMetadata().orElse(null));
+        setTemplateLink(toCopy.getTemplateLink().orElse(null));
+        setInPortsBarBounds(toCopy.getInPortsBarBounds().orElse(null));
+        setOutPortsBarBounds(toCopy.getOutPortsBarBounds().orElse(null));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -166,7 +207,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+     * @param id Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow. This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setId(final Integer id) {
@@ -174,8 +215,25 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.ID)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.ID)} will return the exception.
+     * 
+     * @param id see {@link MetaNodeDef#getId}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setId(Integer)
+     */
+    public MetaNodeDefBuilder setId(final FallibleSupplier<Integer> id) {
+        setId(id, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.ID)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.ID)} will return the exception.
@@ -190,12 +248,16 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.ID);
         try {
-            m_id = id.get();
+            var supplied = id.get();
+            m_id = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_id = defaultValue;
+            m_id = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.ID, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -204,7 +266,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param nodeType states the most specific subtype, i.e., Metanode, Component, or Native Node
+     * @param nodeType states the most specific subtype, i.e., Metanode, Component, or Native Node 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setNodeType(final NodeTypeEnum nodeType) {
@@ -212,6 +274,7 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -228,12 +291,20 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.NODE_TYPE);
         try {
-            m_nodeType = nodeType.get();
+            var supplied = nodeType.get();
+            m_nodeType = supplied;
+
+            if(m_nodeType == null) {
+                throw new IllegalArgumentException("nodeType is required and must not be null.");
+            }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_nodeType = defaultValue;
             m_exceptionalChildren.put(MetaNodeDef.Attribute.NODE_TYPE, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -242,7 +313,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param customDescription A longer description, provided by the user
+     * @param customDescription A longer description, provided by the user This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setCustomDescription(final String customDescription) {
@@ -250,8 +321,25 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return the exception.
+     * 
+     * @param customDescription see {@link MetaNodeDef#getCustomDescription}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setCustomDescription(String)
+     */
+    public MetaNodeDefBuilder setCustomDescription(final FallibleSupplier<String> customDescription) {
+        setCustomDescription(customDescription, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION)} will return the exception.
@@ -266,12 +354,16 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION);
         try {
-            m_customDescription = customDescription.get();
+            var supplied = customDescription.get();
+            m_customDescription = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_customDescription = defaultValue;
+            m_customDescription = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.CUSTOM_DESCRIPTION, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -280,7 +372,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param annotation 
+     * @param annotation  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setAnnotation(final NodeAnnotationDef annotation) {
@@ -288,8 +380,25 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.ANNOTATION)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.ANNOTATION)} will return the exception.
+     * 
+     * @param annotation see {@link MetaNodeDef#getAnnotation}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setAnnotation(NodeAnnotationDef)
+     */
+    public MetaNodeDefBuilder setAnnotation(final FallibleSupplier<NodeAnnotationDef> annotation) {
+        setAnnotation(annotation, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.ANNOTATION)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.ANNOTATION)} will return the exception.
@@ -304,73 +413,98 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.ANNOTATION);
         try {
-            m_annotation = annotation.get();
-            if (m_annotation instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_annotation).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.ANNOTATION, (LoadExceptionTree<?>)m_annotation);
+            var supplied = annotation.get();
+            m_annotation = Optional.ofNullable(supplied);
+            if (m_annotation.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_annotation.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.ANNOTATION, (LoadExceptionTree<?>)m_annotation.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeAnnotationDef){
-                var childTree = ((DefaultNodeAnnotationDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_annotation = defaultValue;
+            m_annotation = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.ANNOTATION, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for uiInfo
+    // Setters for bounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param uiInfo 
+     * @param bounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setUiInfo(final NodeUIInfoDef uiInfo) {
-        setUiInfo(() -> uiInfo, uiInfo);
+    public MetaNodeDefBuilder setBounds(final BoundsDef bounds) {
+        setBounds(() -> bounds, bounds);
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.BOUNDS)} will return the exception.
      * 
-     * @param uiInfo see {@link MetaNodeDef#getUiInfo}
+     * @param bounds see {@link MetaNodeDef#getBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setUiInfo(NodeUIInfoDef)
+     * @see #setBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setUiInfo(final FallibleSupplier<NodeUIInfoDef> uiInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(uiInfo, () -> "No supplier for uiInfo provided.");
+    public MetaNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds) {
+        setBounds(bounds, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.BOUNDS)} will return the exception.
+     * 
+     * @param bounds see {@link MetaNodeDef#getBounds}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setBounds(BoundsDef)
+     */
+    public MetaNodeDefBuilder setBounds(final FallibleSupplier<BoundsDef> bounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(bounds, () -> "No supplier for bounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.UI_INFO);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.BOUNDS);
         try {
-            m_uiInfo = uiInfo.get();
-            if (m_uiInfo instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_uiInfo).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.UI_INFO, (LoadExceptionTree<?>)m_uiInfo);
+            var supplied = bounds.get();
+            m_bounds = Optional.ofNullable(supplied);
+            if (m_bounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_bounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.BOUNDS, (LoadExceptionTree<?>)m_bounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeUIInfoDef){
-                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_uiInfo = defaultValue;
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.UI_INFO, exceptionTree);
-            	    }   
+            m_bounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.BOUNDS, exceptionTree);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -378,7 +512,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param locks 
+     * @param locks  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setLocks(final NodeLocksDef locks) {
@@ -386,8 +520,25 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.LOCKS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.LOCKS)} will return the exception.
+     * 
+     * @param locks see {@link MetaNodeDef#getLocks}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setLocks(NodeLocksDef)
+     */
+    public MetaNodeDefBuilder setLocks(final FallibleSupplier<NodeLocksDef> locks) {
+        setLocks(locks, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.LOCKS)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.LOCKS)} will return the exception.
@@ -402,24 +553,28 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.LOCKS);
         try {
-            m_locks = locks.get();
-            if (m_locks instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_locks).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.LOCKS, (LoadExceptionTree<?>)m_locks);
+            var supplied = locks.get();
+            m_locks = Optional.ofNullable(supplied);
+            if (m_locks.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_locks.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.LOCKS, (LoadExceptionTree<?>)m_locks.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeLocksDef){
-                var childTree = ((DefaultNodeLocksDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_locks = defaultValue;
+            m_locks = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.LOCKS, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -427,7 +582,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param jobManager 
+     * @param jobManager  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setJobManager(final JobManagerDef jobManager) {
@@ -435,8 +590,25 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.JOB_MANAGER)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.JOB_MANAGER)} will return the exception.
+     * 
+     * @param jobManager see {@link MetaNodeDef#getJobManager}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setJobManager(JobManagerDef)
+     */
+    public MetaNodeDefBuilder setJobManager(final FallibleSupplier<JobManagerDef> jobManager) {
+        setJobManager(jobManager, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.JOB_MANAGER)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.JOB_MANAGER)} will return the exception.
@@ -451,24 +623,28 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.JOB_MANAGER);
         try {
-            m_jobManager = jobManager.get();
-            if (m_jobManager instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_jobManager).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.JOB_MANAGER, (LoadExceptionTree<?>)m_jobManager);
+            var supplied = jobManager.get();
+            m_jobManager = Optional.ofNullable(supplied);
+            if (m_jobManager.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_jobManager.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.JOB_MANAGER, (LoadExceptionTree<?>)m_jobManager.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultJobManagerDef){
-                var childTree = ((DefaultJobManagerDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_jobManager = defaultValue;
+            m_jobManager = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.JOB_MANAGER, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -476,7 +652,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param workflow 
+     * @param workflow  
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setWorkflow(final WorkflowDef workflow) {
@@ -484,6 +660,7 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
@@ -500,7 +677,12 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.WORKFLOW);
         try {
-            m_workflow = workflow.get();
+            var supplied = workflow.get();
+            m_workflow = supplied;
+
+            if(m_workflow == null) {
+                throw new IllegalArgumentException("workflow is required and must not be null.");
+            }
             if (m_workflow instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_workflow).hasExceptions()) {
                 m_exceptionalChildren.put(MetaNodeDef.Attribute.WORKFLOW, (LoadExceptionTree<?>)m_workflow);
             }
@@ -508,16 +690,19 @@ public class MetaNodeDefBuilder {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultWorkflowDef){
-                var childTree = ((DefaultWorkflowDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
             m_workflow = defaultValue;
             m_exceptionalChildren.put(MetaNodeDef.Attribute.WORKFLOW, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -536,8 +721,9 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the inPorts list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
@@ -555,13 +741,20 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS);
         try {
-            m_inPortsBulkElements = inPorts.get();
+            var supplied = inPorts.get();
+            m_inPorts = Optional.ofNullable(supplied);
+            // we set m_inPorts in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_inPortsBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_inPortsBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_inPortsContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -583,14 +776,19 @@ public class MetaNodeDefBuilder {
      * @return this builder for fluent API.
      */
     public MetaNodeDefBuilder addToInPorts(FallibleSupplier<PortDef> value, PortDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_inPortsIndividualElements.isEmpty()) m_inPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
         PortDef toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             toAdd = new DefaultPortDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_inPorts.add(toAdd);
+        m_inPortsIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -609,8 +807,9 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * A thrown {@link LoadException} is associated to the outPorts list,
      * whereas exceptions thrown in addTo allows to register a {@link LoadException} 
@@ -628,13 +827,20 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS);
         try {
-            m_outPortsBulkElements = outPorts.get();
+            var supplied = outPorts.get();
+            m_outPorts = Optional.ofNullable(supplied);
+            // we set m_outPorts in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_outPortsBulkElements = Optional.ofNullable(supplied);
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
              
-            m_outPortsBulkElements = java.util.List.of();
             // merged together with list element exceptions into a single LoadExceptionTree in #build()
             m_outPortsContainerSupplyException = supplyException;
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
 	    }   
         return this;
     }
@@ -656,14 +862,19 @@ public class MetaNodeDefBuilder {
      * @return this builder for fluent API.
      */
     public MetaNodeDefBuilder addToOutPorts(FallibleSupplier<PortDef> value, PortDef defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_outPortsIndividualElements.isEmpty()) m_outPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
         PortDef toAdd = null;
         try {
             toAdd = value.get();
         } catch (Exception e) {
             var supplyException = new LoadException(e);
             toAdd = new DefaultPortDef(defaultValue, supplyException);
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
         }
-        m_outPorts.add(toAdd);
+        m_outPortsIndividualElements.get().add(toAdd);
         return this;
     } 
     // -----------------------------------------------------------------------------------------------------------------
@@ -671,7 +882,7 @@ public class MetaNodeDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param cipher 
+     * @param cipher  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
     public MetaNodeDefBuilder setCipher(final CipherDef cipher) {
@@ -679,8 +890,25 @@ public class MetaNodeDefBuilder {
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.CIPHER)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.CIPHER)} will return the exception.
+     * 
+     * @param cipher see {@link MetaNodeDef#getCipher}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setCipher(CipherDef)
+     */
+    public MetaNodeDefBuilder setCipher(final FallibleSupplier<CipherDef> cipher) {
+        setCipher(cipher, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
      * {@code hasExceptions(MetaNodeDef.Attribute.CIPHER)} will return true and and
      * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.CIPHER)} will return the exception.
@@ -695,171 +923,308 @@ public class MetaNodeDefBuilder {
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
         m_exceptionalChildren.remove(MetaNodeDef.Attribute.CIPHER);
         try {
-            m_cipher = cipher.get();
-            if (m_cipher instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_cipher).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.CIPHER, (LoadExceptionTree<?>)m_cipher);
+            var supplied = cipher.get();
+            m_cipher = Optional.ofNullable(supplied);
+            if (m_cipher.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_cipher.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.CIPHER, (LoadExceptionTree<?>)m_cipher.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultCipherDef){
-                var childTree = ((DefaultCipherDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_cipher = defaultValue;
+            m_cipher = Optional.ofNullable(defaultValue);
             m_exceptionalChildren.put(MetaNodeDef.Attribute.CIPHER, exceptionTree);
-            	    }   
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for link
+    // Setters for templateMetadata
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param link 
+     * @param templateMetadata  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setLink(final TemplateInfoDef link) {
-        setLink(() -> link, link);
+    public MetaNodeDefBuilder setTemplateMetadata(final TemplateMetadataDef templateMetadata) {
+        setTemplateMetadata(() -> templateMetadata, templateMetadata);
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.LINK)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.LINK)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.TEMPLATE_METADATA)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.TEMPLATE_METADATA)} will return the exception.
      * 
-     * @param link see {@link MetaNodeDef#getLink}
+     * @param templateMetadata see {@link MetaNodeDef#getTemplateMetadata}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setLink(TemplateInfoDef)
+     * @see #setTemplateMetadata(TemplateMetadataDef)
      */
-    public MetaNodeDefBuilder setLink(final FallibleSupplier<TemplateInfoDef> link, TemplateInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(link, () -> "No supplier for link provided.");
+    public MetaNodeDefBuilder setTemplateMetadata(final FallibleSupplier<TemplateMetadataDef> templateMetadata) {
+        setTemplateMetadata(templateMetadata, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.TEMPLATE_METADATA)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.TEMPLATE_METADATA)} will return the exception.
+     * 
+     * @param templateMetadata see {@link MetaNodeDef#getTemplateMetadata}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setTemplateMetadata(TemplateMetadataDef)
+     */
+    public MetaNodeDefBuilder setTemplateMetadata(final FallibleSupplier<TemplateMetadataDef> templateMetadata, TemplateMetadataDef defaultValue) {
+        java.util.Objects.requireNonNull(templateMetadata, () -> "No supplier for templateMetadata provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.LINK);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.TEMPLATE_METADATA);
         try {
-            m_link = link.get();
-            if (m_link instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_link).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.LINK, (LoadExceptionTree<?>)m_link);
+            var supplied = templateMetadata.get();
+            m_templateMetadata = Optional.ofNullable(supplied);
+            if (m_templateMetadata.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_templateMetadata.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.TEMPLATE_METADATA, (LoadExceptionTree<?>)m_templateMetadata.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultTemplateInfoDef){
-                var childTree = ((DefaultTemplateInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_link = defaultValue;
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.LINK, exceptionTree);
-            	    }   
+            m_templateMetadata = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.TEMPLATE_METADATA, exceptionTree);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for inPortsBarUIInfo
+    // Setters for templateLink
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param inPortsBarUIInfo 
+     * @param templateLink  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setInPortsBarUIInfo(final NodeUIInfoDef inPortsBarUIInfo) {
-        setInPortsBarUIInfo(() -> inPortsBarUIInfo, inPortsBarUIInfo);
+    public MetaNodeDefBuilder setTemplateLink(final TemplateLinkDef templateLink) {
+        setTemplateLink(() -> templateLink, templateLink);
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.TEMPLATE_LINK)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.TEMPLATE_LINK)} will return the exception.
      * 
-     * @param inPortsBarUIInfo see {@link MetaNodeDef#getInPortsBarUIInfo}
+     * @param templateLink see {@link MetaNodeDef#getTemplateLink}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setInPortsBarUIInfo(NodeUIInfoDef)
+     * @see #setTemplateLink(TemplateLinkDef)
      */
-    public MetaNodeDefBuilder setInPortsBarUIInfo(final FallibleSupplier<NodeUIInfoDef> inPortsBarUIInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(inPortsBarUIInfo, () -> "No supplier for inPortsBarUIInfo provided.");
+    public MetaNodeDefBuilder setTemplateLink(final FallibleSupplier<TemplateLinkDef> templateLink) {
+        setTemplateLink(templateLink, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.TEMPLATE_LINK)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.TEMPLATE_LINK)} will return the exception.
+     * 
+     * @param templateLink see {@link MetaNodeDef#getTemplateLink}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setTemplateLink(TemplateLinkDef)
+     */
+    public MetaNodeDefBuilder setTemplateLink(final FallibleSupplier<TemplateLinkDef> templateLink, TemplateLinkDef defaultValue) {
+        java.util.Objects.requireNonNull(templateLink, () -> "No supplier for templateLink provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.TEMPLATE_LINK);
         try {
-            m_inPortsBarUIInfo = inPortsBarUIInfo.get();
-            if (m_inPortsBarUIInfo instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_inPortsBarUIInfo).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO, (LoadExceptionTree<?>)m_inPortsBarUIInfo);
+            var supplied = templateLink.get();
+            m_templateLink = Optional.ofNullable(supplied);
+            if (m_templateLink.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_templateLink.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.TEMPLATE_LINK, (LoadExceptionTree<?>)m_templateLink.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeUIInfoDef){
-                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_inPortsBarUIInfo = defaultValue;
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_UI_INFO, exceptionTree);
-            	    }   
+            m_templateLink = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.TEMPLATE_LINK, exceptionTree);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for outPortsBarUIInfo
+    // Setters for inPortsBarBounds
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param outPortsBarUIInfo 
+     * @param inPortsBarBounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
      * @return this builder for fluent API.
      */ 
-    public MetaNodeDefBuilder setOutPortsBarUIInfo(final NodeUIInfoDef outPortsBarUIInfo) {
-        setOutPortsBarUIInfo(() -> outPortsBarUIInfo, outPortsBarUIInfo);
+    public MetaNodeDefBuilder setInPortsBarBounds(final BoundsDef inPortsBarBounds) {
+        setInPortsBarBounds(() -> inPortsBarBounds, inPortsBarBounds);
         return this;
     }
  
+    
     /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO)} will return true and and
-     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO)} will return the exception.
+     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return the exception.
      * 
-     * @param outPortsBarUIInfo see {@link MetaNodeDef#getOutPortsBarUIInfo}
+     * @param inPortsBarBounds see {@link MetaNodeDef#getInPortsBarBounds}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setOutPortsBarUIInfo(NodeUIInfoDef)
+     * @see #setInPortsBarBounds(BoundsDef)
      */
-    public MetaNodeDefBuilder setOutPortsBarUIInfo(final FallibleSupplier<NodeUIInfoDef> outPortsBarUIInfo, NodeUIInfoDef defaultValue) {
-        java.util.Objects.requireNonNull(outPortsBarUIInfo, () -> "No supplier for outPortsBarUIInfo provided.");
+    public MetaNodeDefBuilder setInPortsBarBounds(final FallibleSupplier<BoundsDef> inPortsBarBounds) {
+        setInPortsBarBounds(inPortsBarBounds, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS)} will return the exception.
+     * 
+     * @param inPortsBarBounds see {@link MetaNodeDef#getInPortsBarBounds}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setInPortsBarBounds(BoundsDef)
+     */
+    public MetaNodeDefBuilder setInPortsBarBounds(final FallibleSupplier<BoundsDef> inPortsBarBounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(inPortsBarBounds, () -> "No supplier for inPortsBarBounds provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO);
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS);
         try {
-            m_outPortsBarUIInfo = outPortsBarUIInfo.get();
-            if (m_outPortsBarUIInfo instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_outPortsBarUIInfo).hasExceptions()) {
-                m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO, (LoadExceptionTree<?>)m_outPortsBarUIInfo);
+            var supplied = inPortsBarBounds.get();
+            m_inPortsBarBounds = Optional.ofNullable(supplied);
+            if (m_inPortsBarBounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_inPortsBarBounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS, (LoadExceptionTree<?>)m_inPortsBarBounds.get());
             }
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                          
             LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultNodeUIInfoDef){
-                var childTree = ((DefaultNodeUIInfoDef)defaultValue).getLoadExceptionTree();                
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
                 // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
             } else {
                 exceptionTree = supplyException;
             }
-            m_outPortsBarUIInfo = defaultValue;
-            m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_UI_INFO, exceptionTree);
-            	    }   
+            m_inPortsBarBounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS_BAR_BOUNDS, exceptionTree);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for outPortsBarBounds
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param outPortsBarBounds  This is an optional field. Passing <code>null</code> will leave the field empty. 
+     * @return this builder for fluent API.
+     */ 
+    public MetaNodeDefBuilder setOutPortsBarBounds(final BoundsDef outPortsBarBounds) {
+        setOutPortsBarBounds(() -> outPortsBarBounds, outPortsBarBounds);
+        return this;
+    }
+ 
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return the exception.
+     * 
+     * @param outPortsBarBounds see {@link MetaNodeDef#getOutPortsBarBounds}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setOutPortsBarBounds(BoundsDef)
+     */
+    public MetaNodeDefBuilder setOutPortsBarBounds(final FallibleSupplier<BoundsDef> outPortsBarBounds) {
+        setOutPortsBarBounds(outPortsBarBounds, null);
+        return this;
+    }
+    
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return true and and
+     * {@code getExceptionalChildren().get(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS)} will return the exception.
+     * 
+     * @param outPortsBarBounds see {@link MetaNodeDef#getOutPortsBarBounds}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setOutPortsBarBounds(BoundsDef)
+     */
+    public MetaNodeDefBuilder setOutPortsBarBounds(final FallibleSupplier<BoundsDef> outPortsBarBounds, BoundsDef defaultValue) {
+        java.util.Objects.requireNonNull(outPortsBarBounds, () -> "No supplier for outPortsBarBounds provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS);
+        try {
+            var supplied = outPortsBarBounds.get();
+            m_outPortsBarBounds = Optional.ofNullable(supplied);
+            if (m_outPortsBarBounds.orElse(null) instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_outPortsBarBounds.get()).hasExceptions()) {
+                m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS, (LoadExceptionTree<?>)m_outPortsBarBounds.get());
+            }
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                         
+            LoadExceptionTree<?> exceptionTree;
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
+                // if present, merge child tree with supply exception
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
+            } else {
+                exceptionTree = supplyException;
+            }
+            m_outPortsBarBounds = Optional.ofNullable(defaultValue);
+            m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS_BAR_BOUNDS, exceptionTree);
+                        if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -872,23 +1237,43 @@ public class MetaNodeDefBuilder {
 	 */
     public DefaultMetaNodeDef build() {
         
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_nodeType == null) setNodeType( null);
+        
+         
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_workflow == null) setWorkflow( null);
+        
     	
-        // contains the elements set with #setInPorts (those added with #addToInPorts have already been inserted into m_inPorts)
-        m_inPortsBulkElements = java.util.Objects.requireNonNullElse(m_inPortsBulkElements, java.util.List.of());
-        m_inPorts.addAll(0, m_inPortsBulkElements);
+        // if bulk elements are present, add them to individual elements
+        if(m_inPortsBulkElements.isPresent()){
+            if(m_inPortsIndividualElements.isEmpty()) {
+                m_inPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_inPortsIndividualElements.get().addAll(m_inPortsBulkElements.get());    
+        }
+        m_inPorts = m_inPortsIndividualElements;        
+        
                 
         var inPortsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_inPorts, m_inPortsContainerSupplyException);
+            .list(m_inPorts.orElse(new java.util.ArrayList<>()), m_inPortsContainerSupplyException);
         if(inPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(MetaNodeDef.Attribute.IN_PORTS, inPortsLoadExceptionTree);
         }
         
-        // contains the elements set with #setOutPorts (those added with #addToOutPorts have already been inserted into m_outPorts)
-        m_outPortsBulkElements = java.util.Objects.requireNonNullElse(m_outPortsBulkElements, java.util.List.of());
-        m_outPorts.addAll(0, m_outPortsBulkElements);
+        // if bulk elements are present, add them to individual elements
+        if(m_outPortsBulkElements.isPresent()){
+            if(m_outPortsIndividualElements.isEmpty()) {
+                m_outPortsIndividualElements = Optional.of(new java.util.ArrayList<>());
+            }
+            m_outPortsIndividualElements.get().addAll(m_outPortsBulkElements.get());    
+        }
+        m_outPorts = m_outPortsIndividualElements;        
+        
                 
         var outPortsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
-            .list(m_outPorts, m_outPortsContainerSupplyException);
+            .list(m_outPorts.orElse(new java.util.ArrayList<>()), m_outPortsContainerSupplyException);
         if(outPortsLoadExceptionTree.hasExceptions()){
             m_exceptionalChildren.put(MetaNodeDef.Attribute.OUT_PORTS, outPortsLoadExceptionTree);
         }

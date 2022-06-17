@@ -45,6 +45,7 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.CoordinateDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultBoundsDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -67,6 +68,7 @@ public interface BoundsDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link CoordinateDef}.
           * Is is returned by {@link BoundsDef#getLocation} 
           */
@@ -74,6 +76,7 @@ public interface BoundsDef {
          /**  
           * Width of an object in pixels.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link BoundsDef#getWidth} 
           */
@@ -81,6 +84,7 @@ public interface BoundsDef {
          /**  
           * Height of an object in pixels.
           *
+          * This is a required field.
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link BoundsDef#getHeight} 
           */
@@ -90,17 +94,17 @@ public interface BoundsDef {
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public CoordinateDef getLocation();
 
   /**
-   * @return Width of an object in pixels.
+   * @return Width of an object in pixels., never <code>null</code>
    **/
   public Integer getWidth();
 
   /**
-   * @return Height of an object in pixels.
+   * @return Height of an object in pixels., never <code>null</code>
    **/
   public Integer getHeight();
 

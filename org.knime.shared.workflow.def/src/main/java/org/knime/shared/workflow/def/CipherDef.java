@@ -44,6 +44,7 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultCipherDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -68,6 +69,7 @@ public interface CipherDef {
          /**  
           * TODO
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link CipherDef#getPasswordDigest} 
           */
@@ -75,6 +77,7 @@ public interface CipherDef {
          /**  
           * TODO
           *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link CipherDef#getEncryptionKey} 
           */
@@ -91,19 +94,19 @@ public interface CipherDef {
     
 
   /**
-   * @return TODO
+   * @return TODO, never <code>null</code>
    **/
   public String getPasswordDigest();
 
   /**
-   * @return TODO
+   * @return TODO, never <code>null</code>
    **/
   public String getEncryptionKey();
 
   /**
    * @return TODO
    **/
-  public String getPasswordHint();
+  public Optional<String> getPasswordHint();
 
 
 }

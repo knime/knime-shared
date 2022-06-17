@@ -45,14 +45,16 @@
 package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.BaseNodeDef;
+import org.knime.shared.workflow.def.BoundsDef;
 import org.knime.shared.workflow.def.CipherDef;
 import org.knime.shared.workflow.def.JobManagerDef;
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
-import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
-import org.knime.shared.workflow.def.TemplateInfoDef;
+import org.knime.shared.workflow.def.TemplateLinkDef;
+import org.knime.shared.workflow.def.TemplateMetadataDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import java.util.Optional;
 
 import org.knime.shared.workflow.def.impl.DefaultMetaNodeDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -75,7 +77,7 @@ public interface MetaNodeDef extends BaseNodeDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
+          * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
           *
           * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link MetaNodeDef#getId} 
@@ -84,6 +86,7 @@ public interface MetaNodeDef extends BaseNodeDef {
          /**  
           * states the most specific subtype, i.e., Metanode, Component, or Native Node
           *
+          * This is a required field.
           * The type of this data attribute is {@link NodeTypeEnum}.
           * Is is returned by {@link MetaNodeDef#getNodeType} 
           */
@@ -101,10 +104,10 @@ public interface MetaNodeDef extends BaseNodeDef {
           */
          ANNOTATION,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getUiInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link MetaNodeDef#getBounds} 
           */
-         UI_INFO,
+         BOUNDS,
          /** 
           * The type of this data attribute is {@link NodeLocksDef}.
           * Is is returned by {@link MetaNodeDef#getLocks} 
@@ -116,6 +119,7 @@ public interface MetaNodeDef extends BaseNodeDef {
           */
          JOB_MANAGER,
          /** 
+          * This is a required field.
           * The type of this data attribute is {@link WorkflowDef}.
           * Is is returned by {@link MetaNodeDef#getWorkflow} 
           */
@@ -140,58 +144,68 @@ public interface MetaNodeDef extends BaseNodeDef {
           */
          CIPHER,
          /** 
-          * The type of this data attribute is {@link TemplateInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getLink} 
+          * The type of this data attribute is {@link TemplateMetadataDef}.
+          * Is is returned by {@link MetaNodeDef#getTemplateMetadata} 
           */
-         LINK,
+         TEMPLATE_METADATA,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getInPortsBarUIInfo} 
+          * The type of this data attribute is {@link TemplateLinkDef}.
+          * Is is returned by {@link MetaNodeDef#getTemplateLink} 
           */
-         IN_PORTS_BAR_UI_INFO,
+         TEMPLATE_LINK,
          /** 
-          * The type of this data attribute is {@link NodeUIInfoDef}.
-          * Is is returned by {@link MetaNodeDef#getOutPortsBarUIInfo} 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link MetaNodeDef#getInPortsBarBounds} 
           */
-         OUT_PORTS_BAR_UI_INFO,
+         IN_PORTS_BAR_BOUNDS,
+         /** 
+          * The type of this data attribute is {@link BoundsDef}.
+          * Is is returned by {@link MetaNodeDef#getOutPortsBarBounds} 
+          */
+         OUT_PORTS_BAR_BOUNDS,
 ;
     }
     
 
   /**
-   * @return 
+   * @return , never <code>null</code>
    **/
   public WorkflowDef getWorkflow();
 
   /**
    * @return Defines the endpoints for incoming data connections.
    **/
-  public java.util.List<PortDef> getInPorts();
+  public Optional<java.util.List<PortDef>> getInPorts();
 
   /**
    * @return Defines the endpoints for outgoing data connections.
    **/
-  public java.util.List<PortDef> getOutPorts();
+  public Optional<java.util.List<PortDef>> getOutPorts();
 
   /**
    * @return 
    **/
-  public CipherDef getCipher();
+  public Optional<CipherDef> getCipher();
 
   /**
    * @return 
    **/
-  public TemplateInfoDef getLink();
+  public Optional<TemplateMetadataDef> getTemplateMetadata();
 
   /**
    * @return 
    **/
-  public NodeUIInfoDef getInPortsBarUIInfo();
+  public Optional<TemplateLinkDef> getTemplateLink();
 
   /**
    * @return 
    **/
-  public NodeUIInfoDef getOutPortsBarUIInfo();
+  public Optional<BoundsDef> getInPortsBarBounds();
+
+  /**
+   * @return 
+   **/
+  public Optional<BoundsDef> getOutPortsBarBounds();
 
 
 }
