@@ -49,21 +49,21 @@
 package org.knime.shared.workflow.storage.multidir.saver;
 
 import org.knime.core.node.config.base.ConfigBase;
-import org.knime.shared.workflow.def.ConfigurableNodeDef;
+import org.knime.shared.workflow.def.SingleNodeDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 import org.knime.shared.workflow.storage.multidir.util.SaverUtils;
 
 /**
- * This class holds methods that extend given settings by the attributes of a {@link ConfigurableNodeDef}
+ * This class holds methods that extend given settings by the attributes of a {@link SingleNodeDef}
  *
  * @author Jasper Krauter, KNIME GmbH, Konstanz, Germany
  */
 abstract class SingleNodeSaver extends BaseNodeSaver {
 
-    private final ConfigurableNodeDef m_singleNode;
+    private final SingleNodeDef m_singleNode;
 
-    SingleNodeSaver(final ConfigurableNodeDef singleNode) {
+    SingleNodeSaver(final SingleNodeDef singleNode) {
         super(singleNode);
         m_singleNode = singleNode;
     }
