@@ -53,12 +53,12 @@ import static org.knime.shared.workflow.storage.multidir.util.LoaderUtils.DEFAUL
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBaseRO;
 import org.knime.shared.workflow.def.ConfigMapDef;
-import org.knime.shared.workflow.def.ConfigurableNodeDef;
+import org.knime.shared.workflow.def.SingleNodeDef;
 import org.knime.shared.workflow.storage.multidir.util.IOConst;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 
 /**
- * Loads the description of a SingleNode into {@link ConfigurableNodeDef}.
+ * Loads the description of a SingleNode into {@link SingleNodeDef}.
  *
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  * @author Carl Witt, KNIME GmbH, Berlin, Germany

@@ -57,12 +57,12 @@ import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.impl.DefaultBaseNodeDef;
 
-import org.knime.shared.workflow.def.ConfigurableNodeDef;
+import org.knime.shared.workflow.def.SingleNodeDef;
 
 
 
 // for types that define enums
-import org.knime.shared.workflow.def.ConfigurableNodeDef.*;
+import org.knime.shared.workflow.def.SingleNodeDef.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -81,7 +81,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef implements ConfigurableNodeDef, LoadExceptionTreeProvider {
+public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef implements SingleNodeDef, LoadExceptionTreeProvider {
 
 
     @JsonProperty("modelSettings")
@@ -109,7 +109,7 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
      * Copy constructor.
      * @param toCopy source
      */
-    public DefaultConfigurableNodeDef(ConfigurableNodeDef toCopy) {
+    public DefaultConfigurableNodeDef(SingleNodeDef toCopy) {
         m_id = toCopy.getId();
         m_nodeType = toCopy.getNodeType();
         m_customDescription = toCopy.getCustomDescription();
@@ -133,7 +133,7 @@ public abstract class DefaultConfigurableNodeDef extends DefaultBaseNodeDef impl
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    static DefaultConfigurableNodeDef withException(ConfigurableNodeDef toCopy, final LoadException exception) {
+    static DefaultConfigurableNodeDef withException(SingleNodeDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
         throw new IllegalArgumentException();
     }
