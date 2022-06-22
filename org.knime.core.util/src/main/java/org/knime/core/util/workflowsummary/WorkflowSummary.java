@@ -136,7 +136,7 @@ public interface WorkflowSummary {
     }
 
     @JsonPropertyOrder({"id", "name", "type", "state", "graphDepth", "annotation", "metanode", "component", "encrypted",
-        "factoryKey", "nodeMessage", "settings", "outputs", "subWorkflow", "executionStatistics", "jobManager",
+        "factoryKey", "nodeMessage", "settings", "outputs", "subWorkflow", "executionStatistics", "storageInformation", "jobManager",
         "deprecated", "parentId", "linkInfo", "flowVariables"})
     public interface Node {
 
@@ -189,6 +189,8 @@ public interface WorkflowSummary {
 
         ExecutionStatistics getExecutionStatistics();
 
+        StorageInformation getStorageInformation();
+
         JobManager getJobManager();
 
         LinkInfo getLinkInfo();
@@ -235,6 +237,20 @@ public interface WorkflowSummary {
 
         @JacksonXmlProperty(isAttribute = true)
         int getExecutionCountSinceStart();
+
+    }
+
+    @JsonPropertyOrder({"savedToDisk", "path", "sizeOnDisk"})
+    public interface StorageInformation {
+
+        @JacksonXmlProperty(isAttribute = true)
+        boolean isSavedToDisk();
+
+        @JacksonXmlProperty(isAttribute = true)
+        String getPath();
+
+        @JacksonXmlProperty(isAttribute = true)
+        Long getSizeOnDisk();
 
     }
 
