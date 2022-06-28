@@ -13,7 +13,7 @@
 
 	<groupId>org.knime</groupId>
 	<artifactId>org.knime.core.util</artifactId>
-	<version>5.21.0-SNAPSHOT</version>
+	<version>5.20.0-SNAPSHOT</version>
 	<packaging>${packaging.default}</packaging>
 	<build>
 		<plugins>
