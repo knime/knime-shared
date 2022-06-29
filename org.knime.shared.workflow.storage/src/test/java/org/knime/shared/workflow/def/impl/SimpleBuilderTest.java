@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
-import org.knime.core.util.workflow.def.LoadException;
+import org.knime.shared.workflow.def.LoadException;
 
 /**
  *

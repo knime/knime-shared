@@ -37,11 +37,6 @@
 			<artifactId>jsonschema2pojo-core</artifactId>
 			<version>1.1.1</version>
 		</dependency>
-        <dependency>
-            <groupId>org.knime</groupId>
-            <artifactId>core.util</artifactId>
-            <version>[5.13-alpha,6)</version>
-        </dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
