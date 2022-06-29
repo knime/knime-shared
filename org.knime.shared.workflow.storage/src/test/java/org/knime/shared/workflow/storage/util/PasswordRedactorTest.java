@@ -53,9 +53,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.SimpleConfig;
+import org.knime.shared.workflow.def.ConfigDef;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.ConfigValuePasswordDef;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef;
+import org.knime.shared.workflow.storage.clipboard.DefClipboard;
 import org.knime.shared.workflow.storage.multidir.util.LoaderUtils;
 import org.knime.shared.workflow.storage.text.util.ObjectMapperUtil;
 
@@ -188,5 +192,47 @@ class PasswordRedactorTest {
         assertThat(config.getPassword(KEY, ENCRYPTION_KEY))
             // the key is present (to avoid InvalidSettingsException due to removal of the key-value pair)
             .isEqualTo(PASSWORD);
+    }
+
+    /**
+     * Transient string entries are an alternative way to store passwords in {@link ConfigBase}. Unlike password
+     * entries, they are never persisted, just held in main memory. The counterpart
+     * {@link ConfigValueTransientStringDef} holds the same cleartext string value (e.g., for use in the internal
+     * {@link DefClipboard} that allows copy & paste of password content) and is only redacted when used externally,
+     * e.g., in the workflow manager's copyToDef method.
+     *
+     * Test that when converting between {@link ConfigBase} and {@link ConfigDef}, the value is
+     *
+     * @throws InvalidSettingsException
+     */
+    @Test
+    void testKeepTransientString() throws InvalidSettingsException {
+        SimpleConfig withTransient = new SimpleConfig("test");
+        withTransient.addTransientString("transient", "only held in memory");
+
+        // keep full information when converting to ConfigDef
+        var def = LoaderUtils.toConfigDef(withTransient, "test", PasswordRedactor.unsafe());
+        final ConfigDef transientChild = ((ConfigMapDef)def).getChildren().get("transient");
+        assertThat(transientChild).isInstanceOf(ConfigValueTransientStringDef.class);
+        assertThat(((ConfigValueTransientStringDef)transientChild).getValue()).isEqualTo("only held in memory");
+        // and back to ConfigBase
+        var config = LoaderUtils.toConfigBase(def, PasswordRedactor.unsafe());
+        assertThat(config.getTransientString("transient")).isEqualTo("only held in memory");
+    }
+
+    /**
+     * See {@link #testKeepTransientString()}
+     * @throws InvalidSettingsException
+     */
+    @Test
+    void testDiscardTransientString() throws InvalidSettingsException {
+        SimpleConfig withTransient = new SimpleConfig("test");
+        withTransient.addTransientString("transient", "only held in memory");
+
+        // discard string when converting to ConfigDef
+        var def = LoaderUtils.toConfigDef(withTransient, "test", PasswordRedactor.asNull());
+        final var transientChild = ((ConfigMapDef)def).getChildren().get("transient");
+        assertThat(transientChild).isInstanceOf(ConfigValueTransientStringDef.class);
+        assertThat(((ConfigValueTransientStringDef)transientChild).getValue()).isNull();
     }
 }

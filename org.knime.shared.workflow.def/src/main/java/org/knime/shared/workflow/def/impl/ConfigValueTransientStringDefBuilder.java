@@ -49,21 +49,21 @@ import java.util.Map;
 import org.knime.shared.workflow.def.impl.ConfigValueDefBuilder;
 
 // for the Attribute enum and javadoc references
-import org.knime.shared.workflow.def.ConfigValuePasswordDef;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef;
 // for types that define enums
-import org.knime.shared.workflow.def.ConfigValuePasswordDef.*;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef.*;
 import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
 import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
 /**
- * A string that is either omitted from serialization or serialized in an encrypted form.
+ * A string that is only kept in memory, never serialized. Used for passwords.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
-public class ConfigValuePasswordDefBuilder {
+public class ConfigValueTransientStringDefBuilder {
 
     // -----------------------------------------------------------------------------------------------------------------
     // LoadExceptionTree data
@@ -75,7 +75,7 @@ public class ConfigValuePasswordDefBuilder {
      * {@link LoadException}s associated to their loading. Instead, separate {@link LoadExceptionTree} instances are
      * referenced in this map.
      */
-    Map<ConfigValuePasswordDef.Attribute, LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>(ConfigValuePasswordDef.Attribute.class);
+    Map<ConfigValueTransientStringDef.Attribute, LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>(ConfigValueTransientStringDef.Attribute.class);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
@@ -89,13 +89,13 @@ public class ConfigValuePasswordDefBuilder {
     /**
      * Create a new builder.
      */
-    public ConfigValuePasswordDefBuilder() {
+    public ConfigValueTransientStringDefBuilder() {
     }
 
     /**
      * Create a new builder from an existing instance.
      */
-    public ConfigValuePasswordDefBuilder(final ConfigValuePasswordDef toCopy) {
+    public ConfigValueTransientStringDefBuilder(final ConfigValueTransientStringDef toCopy) {
         m_configType = toCopy.getConfigType();
         m_value = toCopy.getValue();
     }
@@ -108,7 +108,7 @@ public class ConfigValuePasswordDefBuilder {
      * @param configType Discriminator for inheritance. Must be the base name of this type/schema.
      * @return this builder for fluent API.
      */ 
-    public ConfigValuePasswordDefBuilder setConfigType(final String configType) {
+    public ConfigValueTransientStringDefBuilder setConfigType(final String configType) {
         setConfigType(() -> configType, configType);
         return this;
     }
@@ -116,18 +116,18 @@ public class ConfigValuePasswordDefBuilder {
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ConfigValuePasswordDef.Attribute.CONFIG_TYPE)} will return true and and
-     * {@code getExceptionalChildren().get(ConfigValuePasswordDef.Attribute.CONFIG_TYPE)} will return the exception.
+     * {@code hasExceptions(ConfigValueTransientStringDef.Attribute.CONFIG_TYPE)} will return true and and
+     * {@code getExceptionalChildren().get(ConfigValueTransientStringDef.Attribute.CONFIG_TYPE)} will return the exception.
      * 
-     * @param configType see {@link ConfigValuePasswordDef#getConfigType}
+     * @param configType see {@link ConfigValueTransientStringDef#getConfigType}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setConfigType(String)
      */
-    public ConfigValuePasswordDefBuilder setConfigType(final FallibleSupplier<String> configType, String defaultValue) {
+    public ConfigValueTransientStringDefBuilder setConfigType(final FallibleSupplier<String> configType, String defaultValue) {
         java.util.Objects.requireNonNull(configType, () -> "No supplier for configType provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ConfigValuePasswordDef.Attribute.CONFIG_TYPE);
+        m_exceptionalChildren.remove(ConfigValueTransientStringDef.Attribute.CONFIG_TYPE);
         try {
             m_configType = configType.get();
 
@@ -138,7 +138,7 @@ public class ConfigValuePasswordDefBuilder {
             var supplyException = new LoadException(e);
                                      
             m_configType = defaultValue;
-            m_exceptionalChildren.put(ConfigValuePasswordDef.Attribute.CONFIG_TYPE, supplyException);
+            m_exceptionalChildren.put(ConfigValueTransientStringDef.Attribute.CONFIG_TYPE, supplyException);
 	    }   
         return this;
     }
@@ -150,7 +150,7 @@ public class ConfigValuePasswordDefBuilder {
      * @param value 
      * @return this builder for fluent API.
      */ 
-    public ConfigValuePasswordDefBuilder setValue(final String value) {
+    public ConfigValueTransientStringDefBuilder setValue(final String value) {
         setValue(() -> value, value);
         return this;
     }
@@ -158,25 +158,25 @@ public class ConfigValuePasswordDefBuilder {
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ConfigValuePasswordDef.Attribute.VALUE)} will return true and and
-     * {@code getExceptionalChildren().get(ConfigValuePasswordDef.Attribute.VALUE)} will return the exception.
+     * {@code hasExceptions(ConfigValueTransientStringDef.Attribute.VALUE)} will return true and and
+     * {@code getExceptionalChildren().get(ConfigValueTransientStringDef.Attribute.VALUE)} will return the exception.
      * 
-     * @param value see {@link ConfigValuePasswordDef#getValue}
+     * @param value see {@link ConfigValueTransientStringDef#getValue}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setValue(String)
      */
-    public ConfigValuePasswordDefBuilder setValue(final FallibleSupplier<String> value, String defaultValue) {
+    public ConfigValueTransientStringDefBuilder setValue(final FallibleSupplier<String> value, String defaultValue) {
         java.util.Objects.requireNonNull(value, () -> "No supplier for value provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ConfigValuePasswordDef.Attribute.VALUE);
+        m_exceptionalChildren.remove(ConfigValueTransientStringDef.Attribute.VALUE);
         try {
             m_value = value.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
             m_value = defaultValue;
-            m_exceptionalChildren.put(ConfigValuePasswordDef.Attribute.VALUE, supplyException);
+            m_exceptionalChildren.put(ConfigValueTransientStringDef.Attribute.VALUE, supplyException);
 	    }   
         return this;
     }
@@ -184,17 +184,17 @@ public class ConfigValuePasswordDefBuilder {
     // Build method
     // -----------------------------------------------------------------------------------------------------------------
     /**
-	 * @return the {@link ConfigValuePasswordDef} created from the data passed to the setters. Implements 
+	 * @return the {@link ConfigValueTransientStringDef} created from the data passed to the setters. Implements 
      *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
      *      of the suppliers passed to the setters.
 	 */
-    public DefaultConfigValuePasswordDef build() {
+    public DefaultConfigValueTransientStringDef build() {
         
         // in case the setter has never been called, the field is still null, but no load exception was recorded. Do that now.
         if(m_configType == null) setConfigType(null);
         
     	
-        return new DefaultConfigValuePasswordDef(this);
+        return new DefaultConfigValueTransientStringDef(this);
     }    
 
 }

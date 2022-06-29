@@ -48,13 +48,13 @@
  */
 package org.knime.shared.workflow.storage.util;
 
-import java.util.logging.Logger;
-
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.ConfigPasswordEntry;
 import org.knime.shared.workflow.def.ConfigMapDef;
 import org.knime.shared.workflow.def.ConfigValuePasswordDef;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef;
 import org.knime.shared.workflow.def.impl.ConfigValuePasswordDefBuilder;
+import org.knime.shared.workflow.def.impl.ConfigValueTransientStringDefBuilder;
 
 /**
  * Exchangeable logic for handling passwords in {@link ConfigBase} instances.
@@ -70,10 +70,7 @@ public interface PasswordRedactor {
         return new PasswordRedactor() {
             @Override
             public ConfigValuePasswordDef apply(final ConfigValuePasswordDef t) {
-                return new ConfigValuePasswordDefBuilder()//
-                    .setConfigType("ConfigValuePassword")//
-                    .setValue(null)//
-                    .build();
+                return new ConfigValuePasswordDefBuilder(t).setValue(null).build();
             }
 
             @Override
@@ -81,7 +78,17 @@ public interface PasswordRedactor {
                 // add an entry (to avoid errors due to missing keys in the node settings)
                 // but replace the password with an empty string
                 settings.addEncryptedPassword(key, "");
-                Logger.getLogger(PasswordRedactor.class.getName()).warning(() -> "Password removed: " + key);
+            }
+
+            @Override
+            public ConfigValueTransientStringDef apply(final ConfigValueTransientStringDef t) {
+                return new ConfigValueTransientStringDefBuilder(t).setValue(null).build();
+            }
+
+            @Override
+            public void restore(final ConfigBase settings, final String key,
+                final ConfigValueTransientStringDef redacted) {
+                settings.addTransientString(key, null);
             }
         };
     }
@@ -100,6 +107,17 @@ public interface PasswordRedactor {
             public void restore(final ConfigBase settings, final String key, final ConfigValuePasswordDef redacted) {
                 settings.addEncryptedPassword(key, redacted.getValue());
             }
+
+            @Override
+            public ConfigValueTransientStringDef apply(final ConfigValueTransientStringDef t) {
+                return t;
+            }
+
+            @Override
+            public void restore(final ConfigBase settings, final String key,
+                final ConfigValueTransientStringDef redacted) {
+                settings.addTransientString(key, redacted.getValue());
+            }
         };
     }
 
@@ -111,7 +129,7 @@ public interface PasswordRedactor {
      * @return the returned value will be inserted into the {@link ConfigMapDef} to represent the
      *         {@link ConfigPasswordEntry}
      */
-    public ConfigValuePasswordDef apply(final ConfigValuePasswordDef t);
+    ConfigValuePasswordDef apply(final ConfigValuePasswordDef t);
 
     /**
      * This will be called when converting {@link ConfigMapDef} to {@link ConfigBase}.
@@ -123,5 +141,23 @@ public interface PasswordRedactor {
      * @param key the key of the entry currently being added
      * @param redacted the def, as previously produced by {@link #apply(ConfigValuePasswordDef)}.
      */
-    public void restore(ConfigBase settings, String key, ConfigValuePasswordDef redacted);
+    void restore(ConfigBase settings, String key, ConfigValuePasswordDef redacted);
+
+    /**
+     * Analogous to {@link #apply(ConfigValuePasswordDef)}
+     *
+     * @param t contains the string value of a transient string entry in a {@link ConfigBase} object
+     * @return value unchanged when def is used only internally (internal clipboard) or value set to null when def is
+     *         used externally (e.g., copied to system clipboard)
+     */
+    ConfigValueTransientStringDef apply(ConfigValueTransientStringDef t);
+
+    /**
+     * Analogous to {@link #restore(ConfigBase, String, ConfigValuePasswordDef)}
+     *
+     * @param settings the instance currently being constructed
+     * @param key the key of the entry currently being added
+     * @param redacted the def, as previously produced by {@link #apply(ConfigValueTransientStringDef)}.
+     */
+    void restore(ConfigBase settings, String key, ConfigValueTransientStringDef redacted);
 }
