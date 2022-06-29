@@ -116,7 +116,7 @@ public interface PasswordRedactor {
             @Override
             public void restore(final ConfigBase settings, final String key,
                 final ConfigValueTransientStringDef redacted) {
-                settings.addTransientString(key, redacted.getValue());
+                settings.addTransientString(key, redacted.getValue().orElse(null));
             }
         };
     }
