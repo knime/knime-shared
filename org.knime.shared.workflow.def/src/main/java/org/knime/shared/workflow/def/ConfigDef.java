@@ -76,6 +76,7 @@ import org.knime.shared.workflow.def.impl.DefaultConfigValueIntArrayDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueArrayDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigMapDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueCharDef;
+import org.knime.shared.workflow.def.impl.DefaultConfigValueTransientStringDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigValueFloatArrayDef;
 
 
@@ -115,6 +116,7 @@ import org.knime.shared.workflow.def.impl.DefaultConfigValueFloatArrayDef;
 , @Type(value = DefaultConfigValueArrayDef.class, name = "ConfigValueArray")
 , @Type(value = DefaultConfigMapDef.class, name = "ConfigMap")
 , @Type(value = DefaultConfigValueCharDef.class, name = "ConfigValueChar")
+, @Type(value = DefaultConfigValueTransientStringDef.class, name = "ConfigValueTransientString")
 , @Type(value = DefaultConfigValueFloatArrayDef.class, name = "ConfigValueFloatArray")
 })
 @JsonDeserialize(as = DefaultConfigDef.class)

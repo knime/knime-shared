@@ -76,6 +76,7 @@ import org.knime.core.node.config.base.ConfigLongEntry;
 import org.knime.core.node.config.base.ConfigPasswordEntry;
 import org.knime.core.node.config.base.ConfigShortEntry;
 import org.knime.core.node.config.base.ConfigStringEntry;
+import org.knime.core.node.config.base.ConfigTransientStringEntry;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.AnnotationDataDef;
@@ -102,6 +103,7 @@ import org.knime.shared.workflow.def.ConfigValueShortArrayDef;
 import org.knime.shared.workflow.def.ConfigValueShortDef;
 import org.knime.shared.workflow.def.ConfigValueStringArrayDef;
 import org.knime.shared.workflow.def.ConfigValueStringDef;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef;
 import org.knime.shared.workflow.def.CoordinateDef;
 import org.knime.shared.workflow.def.StyleRangeDef;
 import org.knime.shared.workflow.def.TemplateInfoDef;
@@ -126,6 +128,7 @@ import org.knime.shared.workflow.def.impl.ConfigValueShortArrayDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueShortDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueStringArrayDefBuilder;
 import org.knime.shared.workflow.def.impl.ConfigValueStringDefBuilder;
+import org.knime.shared.workflow.def.impl.ConfigValueTransientStringDefBuilder;
 import org.knime.shared.workflow.def.impl.CoordinateDefBuilder;
 import org.knime.shared.workflow.def.impl.StyleRangeDefBuilder;
 import org.knime.shared.workflow.def.impl.TemplateInfoDefBuilder;
@@ -548,6 +551,14 @@ public final class LoaderUtils {
            // apply logic to protected password, e.g., remove or leave unchanged
            final var redacted = passwordHandler.apply(defaultDef);
            return Optional.of(redacted);
+       } else if (child instanceof ConfigTransientStringEntry) {
+           final var defaultDef = new ConfigValueTransientStringDefBuilder()//
+               .setValue(((ConfigTransientStringEntry)child).getTransientString())//
+               .setConfigType("ConfigValueTransientString")//
+               .build();
+           // apply logic to protected password, e.g., remove or leave unchanged
+           final var redacted = passwordHandler.apply(defaultDef);
+           return Optional.of(redacted);
        } else if (child instanceof ConfigShortEntry) {
            return Optional.of(new ConfigValueShortDefBuilder()//
                .setValue((int)((ConfigShortEntry)child).getShort())//
@@ -735,6 +746,10 @@ public final class LoaderUtils {
            var redactedPasswordDef = ((ConfigValuePasswordDef)leafDef);
            // the password may have been redacted, in which case we make no attempt to restore it
            passwordHandler.restore(settings, key, redactedPasswordDef);
+       }
+       if (leafDef instanceof ConfigValueTransientStringDef) {
+           var redactedStringDef = ((ConfigValueTransientStringDef)leafDef);
+           passwordHandler.restore(settings, key, redactedStringDef);
        }
        if (leafDef instanceof ConfigValueShortDef) {
            short value = (short)((ConfigValueShortDef)leafDef).getValue().intValue();

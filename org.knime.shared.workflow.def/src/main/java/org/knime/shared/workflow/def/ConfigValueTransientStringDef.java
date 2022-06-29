@@ -46,7 +46,7 @@ package org.knime.shared.workflow.def;
 
 import org.knime.shared.workflow.def.ConfigValueDef;
 
-import org.knime.shared.workflow.def.impl.DefaultConfigValuePasswordDef;
+import org.knime.shared.workflow.def.impl.DefaultConfigValueTransientStringDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -54,15 +54,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
- * A string that is either omitted from serialization or serialized in an encrypted form.
+ * A string that is only kept in memory, never serialized. Used for passwords.
  *
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
-@JsonDeserialize(as = DefaultConfigValuePasswordDef.class)
+@JsonDeserialize(as = DefaultConfigValueTransientStringDef.class)
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
-public interface ConfigValuePasswordDef extends ConfigValueDef {
+public interface ConfigValueTransientStringDef extends ConfigValueDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
@@ -71,12 +71,12 @@ public interface ConfigValuePasswordDef extends ConfigValueDef {
           *
           * This is a required field.
           * The type of this data attribute is {@link String}.
-          * Is is returned by {@link ConfigValuePasswordDef#getConfigType} 
+          * Is is returned by {@link ConfigValueTransientStringDef#getConfigType} 
           */
          CONFIG_TYPE,
          /** 
           * The type of this data attribute is {@link String}.
-          * Is is returned by {@link ConfigValuePasswordDef#getValue} 
+          * Is is returned by {@link ConfigValueTransientStringDef#getValue} 
           */
          VALUE,
 ;

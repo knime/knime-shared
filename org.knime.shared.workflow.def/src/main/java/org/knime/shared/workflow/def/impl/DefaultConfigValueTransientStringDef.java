@@ -52,12 +52,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import org.knime.shared.workflow.def.impl.DefaultConfigValueDef;
 
-import org.knime.shared.workflow.def.ConfigValuePasswordDef;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef;
 
 
 
 // for types that define enums
-import org.knime.shared.workflow.def.ConfigValuePasswordDef.*;
+import org.knime.shared.workflow.def.ConfigValueTransientStringDef.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -69,16 +69,16 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
 /**
- * A string that is either omitted from serialization or serialized in an encrypted form.
+ * A string that is only kept in memory, never serialized. Used for passwords.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
 // @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef implements ConfigValuePasswordDef {
+public class DefaultConfigValueTransientStringDef extends DefaultConfigValueDef implements ConfigValueTransientStringDef {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
-     * a LoadExceptionTree<ConfigValuePasswordDef.Attribute> instance. */
+     * a LoadExceptionTree<ConfigValueTransientStringDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
     @JsonProperty("value")
@@ -91,15 +91,15 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
     /**
      * Internal constructor for subclasses.
      */
-    DefaultConfigValuePasswordDef() {
+    DefaultConfigValueTransientStringDef() {
         m_exceptionTree = Optional.empty();
     }
 
     /**
-     * Builder constructor. Only for use in {@link ConfigValuePasswordDefBuilder}.
+     * Builder constructor. Only for use in {@link ConfigValueTransientStringDefBuilder}.
      * @param builder source
      */
-    DefaultConfigValuePasswordDef(ConfigValuePasswordDefBuilder builder) {
+    DefaultConfigValueTransientStringDef(ConfigValueTransientStringDefBuilder builder) {
         // TODO make immutable copies!!
         super();
             
@@ -112,18 +112,18 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
     /**
      * LoadExceptionTree constructor. Copies the given instance and sets the {@link LoadException} as supply
      * exception, marking it as a default value that had to be used due to the given {@link LoadException}.
-     * Only for use in {@link ConfigValuePasswordDefBuilder}.
+     * Only for use in {@link ConfigValueTransientStringDefBuilder}.
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    DefaultConfigValuePasswordDef(ConfigValuePasswordDef toCopy, final LoadException supplyException) {
+    DefaultConfigValueTransientStringDef(ConfigValueTransientStringDef toCopy, final LoadException supplyException) {
         Objects.requireNonNull(supplyException);
-        toCopy = Objects.requireNonNullElse(toCopy, new ConfigValuePasswordDefBuilder().build());
+        toCopy = Objects.requireNonNullElse(toCopy, new ConfigValueTransientStringDefBuilder().build());
         
         m_configType = toCopy.getConfigType();
         m_value = toCopy.getValue();
-        if(toCopy instanceof DefaultConfigValuePasswordDef){
-            var childTree = ((DefaultConfigValuePasswordDef)toCopy).getLoadExceptionTree();                
+        if(toCopy instanceof DefaultConfigValueTransientStringDef){
+            var childTree = ((DefaultConfigValueTransientStringDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
             var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             m_exceptionTree = Optional.of(merged);
@@ -138,7 +138,7 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
      * Copy constructor.
      * @param toCopy source
      */
-    public DefaultConfigValuePasswordDef(ConfigValuePasswordDef toCopy) {
+    public DefaultConfigValueTransientStringDef(ConfigValueTransientStringDef toCopy) {
         m_configType = toCopy.getConfigType();
         m_value = toCopy.getValue();
         
@@ -146,7 +146,7 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Factory method to attach a LoadException to an existing ConfigValuePassword
+    // Factory method to attach a LoadException to an existing ConfigValueTransientString
     // -----------------------------------------------------------------------------------------------------------------
     /**
      * Factory method that copies all subtype information but returns the more general type, e.g., for inclusion in a container.
@@ -154,7 +154,7 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    static DefaultConfigValuePasswordDef withException(ConfigValuePasswordDef toCopy, final LoadException exception) {
+    static DefaultConfigValueTransientStringDef withException(ConfigValueTransientStringDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
         throw new IllegalArgumentException();
     }
@@ -176,11 +176,11 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
      * @return the load exceptions for the requested child instance and its descendants
      */
     @SuppressWarnings("unchecked")
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ConfigValuePasswordDef.Attribute attribute){
+    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ConfigValueTransientStringDef.Attribute attribute){
         return m_exceptionTree.flatMap(t -> {
             if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to ConfigValuePasswordDef.Attribute
-            return ((LoadExceptionTree<ConfigValuePasswordDef.Attribute>)t).getExceptionTree(attribute);
+            // if the tree is not a leaf, it is typed to ConfigValueTransientStringDef.Attribute
+            return ((LoadExceptionTree<ConfigValueTransientStringDef.Attribute>)t).getExceptionTree(attribute);
         });
     }
 
@@ -206,7 +206,7 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
      */
     @JsonIgnore
     public Optional<LoadException> getConfigTypeSupplyException(){
-    	return getLoadExceptionTree(ConfigValuePasswordDef.Attribute.CONFIG_TYPE).flatMap(LoadExceptionTree::getSupplyException);
+    	return getLoadExceptionTree(ConfigValueTransientStringDef.Attribute.CONFIG_TYPE).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
@@ -216,7 +216,7 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
      */
     @JsonIgnore
     public Optional<LoadException> getValueSupplyException(){
-    	return getLoadExceptionTree(ConfigValuePasswordDef.Attribute.VALUE).flatMap(LoadExceptionTree::getSupplyException);
+    	return getLoadExceptionTree(ConfigValueTransientStringDef.Attribute.VALUE).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
@@ -238,7 +238,7 @@ public class DefaultConfigValuePasswordDef extends DefaultConfigValueDef impleme
         if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
-        DefaultConfigValuePasswordDef other = (DefaultConfigValuePasswordDef)o;
+        DefaultConfigValueTransientStringDef other = (DefaultConfigValueTransientStringDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
         equalsBuilder.append(m_value, other.m_value);
         return equalsBuilder.isEquals();
