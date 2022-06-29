@@ -56,8 +56,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 /**
  * {@link LoadExceptionTree} implementation that can be constructed from lists or maps of {@link LoadExceptionTree}s.
  * Adds all elements of the given collection that return true for {@link LoadExceptionTree#hasExceptions()} to
@@ -139,12 +137,12 @@ public final class SimpleLoadExceptionTree<K> implements LoadExceptionTree<K>, L
         final var elementsNonNull = Objects.requireNonNullElse(elements, List.<LoadException> of());
         final var childSuppliers = IntStream.range(0, elementsNonNull.size())//
             // if the list element is a LoadExceptionSupplier, return it as a pair with its index
-            .<Pair<Integer, LoadExceptionTree<?>>> mapToObj(i -> { // TODO use Stream.mapMulti
+            .<Map.Entry<Integer, LoadExceptionTree<?>>> mapToObj(i -> { // TODO use Stream.mapMulti
                 var e = elementsNonNull.get(i);
                 return LoadExceptionTreeProvider.hasExceptions(e) ? //
-                Pair.of(i, LoadExceptionTreeProvider.getTree(e)) : null;
+                Map.entry(i, LoadExceptionTreeProvider.getTree(e)) : null;
             }).filter(Objects::nonNull) // ignore the elements that have no load exceptions
-            .collect(Collectors.toUnmodifiableMap(Pair::getLeft, Pair::getRight));
+            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
         return new SimpleLoadExceptionTree<>(supplierException, childSuppliers);
     }
 
