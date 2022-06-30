@@ -1,0 +1,1048 @@
+# Specification to generate POJOs for describing a workflow (without data).
+#
+# Note that the only validation constraints defined here are range constraints on the ConfigValue* types.
+# This is because this schema does not define logical integrity constraints - which are mostly too complex,
+# such as asserting a directed acyclic graph structure on the nodes and connections.
+# Even simpler constraints, like which members are required to be non-null, depend on the consumer of the loaded workflow
+# and are thus not added to the schema.
+#
+# The vendor extension x-knime-marker-interface is used to prevent non-leaf elements in the class hierarchy to implement
+# the LoadExceptionSupplier interface - which would conflict with the LoadExceptionSupplier interface implementation of
+# any child class. 
+openapi: 3.0.0
+info:
+  title: KNIME Core Workflow Schema
+  version: 1.0.0
+  description: >-
+    Describes all aspects required to load a workflow - both semantics (defining the computation), metadata, 
+    and visual appearance of the workflow.
+
+paths: {}
+
+components:
+  schemas:
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Workflow Semantics - Top Level Elements
+# 
+# Top level elements can be opened and edited (shared components, shared metanodes) or executed (workflows) in the AP.
+# A workflow that is not top-level cannot be opened directly (only by opening its containing workflow).
+# The same holds for non top-level components and metanodes (non shared components and metanodes).
+# ----------------------------------------------------------------------------------------------------------------------
+
+    Standalone:
+      type: object
+      description: >-
+        Represents a standalone, loadable unit for editing in the workflow editor. In case this is a workflow,
+        it is also executable. Standalone components and metanodes cannot be executed but referenced into a workflow
+        and updated when the referenced component/metanode changed. 
+      required:
+        - contents
+        - contentType
+      properties:
+        creator: 
+          $ref: "#/components/schemas/Creator"
+        contents:
+          description: >-
+            This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType.
+            Having a workflow is useful when adding version information to copied content. 
+          type: object
+        contentType:
+          description: Describes the type of the contents field.
+          type: string
+          enum: [Workflow, Root Workflow, Metanode, Component]
+
+    Creator:
+      type: object
+      description: >- 
+        Information about the KNIME installation that created a top-level element (workflow, shared component, shared metanode).
+      properties: 
+        savedWithVersion:
+          description: >-
+            Version of the KNIME instance that saved the workflow. Note that nested workflows implicitly have the same saved-with-version 
+            as the containing workflow. Even if a Component or Meta Node was saved with an earlier version and then imported into a 
+            newer KNIME instance the contained workflow is ultimately saved by the newer version.
+          example: "4.5.0.v202111181047"
+          type: string
+        nightly:
+          description: Whether the workflow was created using a non-stable/preview version of KNIME.
+          type: boolean
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Workflow Semantics - Workflow
+#
+# Combines nodes into a data flow.
+# ----------------------------------------------------------------------------------------------------------------------
+
+    Workflow:
+      type: object
+      description: Defines a data processing pipeline.
+      properties:
+        name:
+          description: A user-chosen identifier for the workflow. 
+          type: string
+        authorInformation:
+          $ref: "#/components/schemas/AuthorInformation"
+        nodes:
+          description: The executable blocks in this workflow.
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/BaseNode"
+        connections:
+          description: Define the data flow between nodes.
+          type: array
+          items:
+            $ref: "#/components/schemas/Connection"
+        annotations:
+          description: Explanatory text boxes that are shown in the workflow editor. 
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AnnotationData"
+        workflowEditorSettings:
+          $ref: "#/components/schemas/WorkflowUISettings"
+
+    RootWorkflow:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Workflow"
+        - type: object
+          description: >-
+            This represents the top-most workflow that defines certain basic properties that apply for all sub-workflows, e.g.,
+            sub-workflows (metanodes, components) cannot define a different load version or a different table backend.
+          properties:
+            tableBackendSettings:
+              $ref: "#/components/schemas/ConfigMap"
+              description: Contains the bundle, feature, class name and a short name for the used backend (e.g., legacy or columnar)
+            flowVariables:
+              description: Allows to define workflow-global flow variables and set their values.
+              type: array
+              items:
+                $ref: "#/components/schemas/FlowVariable"
+            credentialPlaceholders:
+              type: array
+              items:
+                $ref: "#/components/schemas/CredentialPlaceholder"
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Workflow Semantics - Nodes and execution blocks
+# ----------------------------------------------------------------------------------------------------------------------
+    
+    BaseNode:
+      description: Basic information about an executable block (node) in a workflow.
+      type: object
+      required:
+        - nodeType
+      discriminator:
+        propertyName: nodeType
+        mapping:
+          NATIVE: "#/components/schemas/NativeNode"
+          COMPONENT: "#/components/schemas/ComponentNode"
+          META: "#/components/schemas/MetaNode"
+      properties:
+        id:
+          description: >-
+            Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target
+            of a connection. Standalone metanodes and components do not have an id since they have no containing workflow.
+          type: integer
+        nodeType:
+          description: states the most specific subtype, i.e., Metanode, Component, or Native Node
+          type: string
+          enum: [NATIVE, COMPONENT, META]
+        customDescription:
+          description: A longer description, provided by the user
+          type: string
+        annotation:
+          description: A short descrption, provided by the user (typically shown below the node).
+          $ref: "#/components/schemas/NodeAnnotation"
+        bounds:
+          $ref: "#/components/schemas/Bounds"
+        locks:
+          $ref: "#/components/schemas/NodeLocks"
+        jobManager:
+          $ref: "#/components/schemas/JobManager"
+      x-knime-marker-interface: true
+
+    MetaNode:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseNode"
+        - type: object
+          description: >-
+            Represents a metanode, the historical predecessor of components (a.k.a "wrapped metanodes").
+            Describes port bars that serve as port connectors to the containing workflow.
+          required:
+            - workflow
+          properties:
+            workflow:
+              $ref: "#/components/schemas/Workflow"
+            inPorts:
+              description: Defines the endpoints for incoming data connections. 
+              type: array
+              items:
+                $ref: "#/components/schemas/Port"
+            outPorts:
+              description: Defines the endpoints for outgoing data connections.
+              type: array
+              items:
+                $ref: "#/components/schemas/Port"
+            cipher:
+              $ref: "#/components/schemas/Cipher"
+            templateMetadata:
+              description: >-
+                Only for linkable metanodes (standalone metanode a.k.a. template). States the version of the metanode. 
+                If the templateMetadata is set, the link must not be set.
+              $ref: "#/components/schemas/TemplateMetadata"
+            templateLink:
+              description: >-
+                Only for linked metanodes. States the source and version of the metanode that is currently in the workflow.
+                If the link is set the templateMetadata must not be set.
+              $ref: "#/components/schemas/TemplateLink"
+            inPortsBarBounds:
+              description: The inports bar makes the incoming ports available. Its styling is described here. 
+              $ref: "#/components/schemas/Bounds"
+            outPortsBarBounds:
+              $ref: "#/components/schemas/Bounds"
+
+    SingleNode:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseNode"
+        - type: object
+          description: >-
+            Super type for native nodes and components. Note that meta nodes are not considered "single nodes" because they 
+            do not have model settings or flow variable definitions (the grouping is just a visual concept, they are supposed to be multiple nodes).
+          properties:
+            modelSettings:
+              description: Node-model specific settings.
+              example: What type of join (inner, outer, etc.) to perform on the join node.  
+              $ref: "#/components/schemas/ConfigMap"
+            internalNodeSubSettings:
+              description: >-
+                Additional settings that can be configured for the node, e.g., the memory policy states whether to 
+                cache small tables or whether to always write to disk.
+              $ref: "#/components/schemas/ConfigMap"
+            variableSettings:
+              $ref: "#/components/schemas/ConfigMap"
+      x-knime-marker-interface: true
+    
+    ComponentNode:
+      type: object
+      description: >-
+        A node that contains a workflow. Similar to a metanode, except it has more flexibility, e.g., filtering the
+        incoming and outgoing flow variables.
+      allOf:
+        - $ref: "#/components/schemas/SingleNode"
+        - type: object
+          required:
+            - workflow
+            - virtualInNodeId
+            - virtualOutNodeId
+          properties:
+            workflow:
+              $ref: "#/components/schemas/Workflow"
+            inPorts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Port"
+            outPorts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Port"
+            cipher:
+              $ref: "#/components/schemas/Cipher"
+            virtualInNodeId:
+              description: The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode)
+              type: integer
+            virtualOutNodeId:
+              type: integer
+            metadata:
+              $ref: "#/components/schemas/ComponentMetadata"
+            templateMetadata:
+              description: >-
+                Only for linkable components (standalone component a.k.a. template). States the version of the component. 
+                If the templateMetadata is set, the link must not be set.
+              $ref: "#/components/schemas/TemplateMetadata"
+            templateLink:
+              description: >-
+                Only for linked components. States the source and version of the component that is currently in the workflow.
+                If the link is set the templateMetadata must not be set.
+              $ref: "#/components/schemas/TemplateLink"
+            dialogSettings:
+              $ref: "#/components/schemas/ComponentDialogSettings"
+
+    NativeNode:
+      type: object
+      description: >-
+        The basic executable building block of a workflow. 
+      allOf:
+        - $ref: "#/components/schemas/SingleNode"
+        - type: object
+          required:
+            - nodeName
+            - factory
+            - feature
+            - bundle
+          properties:
+            nodeName:
+              description: Describes and identifies the node in the node repository
+              example: Table Creator
+              type: string
+            factory:
+              description: Qualified class name 
+              example: org.knime.base.node.io.tablecreator.TableCreator2NodeFactory
+              type: string
+            factorySettings:
+              description: Additional factory settings
+              $ref: "#/components/schemas/ConfigMap"
+            feature:
+              description: Installable unit, makes bundles installable; TODO could be grouped together
+              $ref: "#/components/schemas/Vendor"
+            bundle:
+              description: A.k.a plugin (see also MANIFEST.MF that declares bundle properties), contains factories, e.g., org.knime.base - if not present, fallback to feature
+              $ref: "#/components/schemas/Vendor"
+            nodeCreationConfig:
+              $ref: "#/components/schemas/ConfigMap"
+            filestore:
+              $ref: "#/components/schemas/Filestore"
+
+    Filestore:
+      description: >-
+        For metanodes and components  
+      type: object
+      required:
+        - id
+        - location
+      properties:
+        id:
+          type: string
+        location:
+          type: string
+
+    TemplateLink:
+      description: >-
+        For metanodes and components that have been inserted into a workflow by inserting a template metanode/component.
+        The link allows to fetch the inserted content again for updating. 
+      type: object
+      required:
+        - uri
+        - version
+      properties:
+        uri:
+          description: How to resolve the linked Component/Metanode
+          example: knime://My-KNIME-Hub/Users/carlwitt/Private/Nice%20looking%20demo%20time%20series%20data
+          type: string
+        version:
+          description: When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available.
+          type: string
+          format: date-time
+
+    Vendor:
+      description: >-
+        The author/provider of a native node. Describes bundles and features that contain the code to execute
+         a native node.
+      type: object
+      required:
+        - name
+        - symbolicName
+        - vendor
+        - version
+      properties:
+        name:
+          description: For a bundle, see the example value; for a feature it can be an empty string
+          example: KNIME Base Nodes
+          type: string
+        symbolicName:
+          description: For a bundle, see the example value; for a feature it can be an empty string
+          example: org.knime.base
+          type: string
+        vendor:
+          description: For a bundle, see the example value; for a feature it can be an empty string
+          example: KNIME AG, Zurich, Switzerland
+          type: string
+        version:
+          description: For a bundle, see the example value; for a feature, it can be, e.g., "0.0.0"
+          example: 4.6.0.v202201041551 
+          type: string
+
+    JobManager:
+      description: >-
+        Optional information on the node's execution job manager. 
+        If missing, the node is executed in a default mode. 
+        If present, combines the factory id and factory configuration of the job manager, e.g., 
+        a streaming node executor and its chunk size setting.
+      type: object
+      required:
+        - factory
+      properties:
+        factory:
+          description: >-
+            Qualified name of a class that implements NodeExecutionJobManagerFactory
+            This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node's job manager.
+          example: org.knime.core.streaming.SimpleStreamerNodeExecutionJobManagerFactory 
+          type: string
+        settings:
+          $ref: "#/components/schemas/ConfigMap"
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Workflow Semantics - Connections and Data Flow
+# ----------------------------------------------------------------------------------------------------------------------
+
+    Connection:
+      type: object
+      required:
+        - sourceID
+        - destID
+        - sourcePort
+        - destPort
+        - deletable
+      properties:
+        sourceID:
+          type: integer
+        destID:
+          type: integer
+        sourcePort:
+          type: integer
+        destPort:
+          type: integer
+        deletable:
+          type: boolean
+          default: true
+        uiSettings:
+          $ref: "#/components/schemas/ConnectionUISettings"
+
+    Port:
+      type: object
+      required:
+        - index
+        - portType
+      properties:
+        index:
+          description: the offset of the port relative to its siblings
+          type: integer
+        # TODO maybe change to string property portObjectClass, I think the additional information (color, hidden, optional, etc.) is provided by the port type registry
+        portType:
+          $ref: "#/components/schemas/PortType"
+        name:
+          type: string
+
+    PortType:
+      type: object
+      required:
+        - portObjectClass
+        - hidden
+        - optional
+      properties:
+        portObjectClass:
+          description: the class of the port object this port type is associated with
+          example: org.knime.core.node.port.flowvariable.FlowVariablePortObject
+          type: string
+        portObjectSpecClass:
+          # TODO just added for completeness, not sure if read somewhere
+          description:  Returns the class of the port object spec. 
+          type: string
+        color:
+          # TODO just added for completeness, not sure if read somewhere
+          type: integer
+        hidden:
+          # TODO just added for completeness, not sure if read somewhere
+          description: whether to short this port to users, e.g., in dialogs
+          type: boolean
+          default: false
+        optional:
+          # TODO just added for completeness, not sure if read somewhere
+          description: whether this port needs to be connected
+          type: boolean
+          default: false
+        name:
+          description: >-
+            human-readable name. In case the port type is not registered at the extension point,
+            the port object's class name is returned.
+          type: string
+
+    FlowVariable:
+      description: >- 
+        A value that is propagated along the connections between nodes. 
+        Nodes can use incoming flow variables to control their behavior and export them to control downstream nodes or to add data to all outgoing port objects.
+      type: object
+      required:
+        - name
+        - class
+        - value
+      properties:
+        name: 
+          description: Identifier for the flow variable.
+          type: string
+        class: 
+          description: >-
+            If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER).
+            If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
+          example: INTEGER_ARRAY
+          type: string
+        value: 
+          description: Either a single value (see ConfigValue) or multiple, possibly nested values (see ConfigMap) used to instantiate the flow variable.
+          $ref: "#/components/schemas/Config"
+        
+# ----------------------------------------------------------------------------------------------------------------------
+# Credentials
+# ----------------------------------------------------------------------------------------------------------------------
+
+    CredentialPlaceholder:
+      type: object
+      description: >-
+            This is referred to as Workflow Credentials in KNIME.
+            It allows defining placeholders for credentials, such as for accessing a database.
+            When configuring a node that requires database access, the placeholder can be specified.
+            When the workflow is executed, the user will be asked to provide the credentials fill in the placeholder.
+      required:
+        - name
+        - login
+      properties:
+        name:
+          description: Identifies this placeholder. Must be unique in the scope of this workflow project.
+          type: string
+        login:
+          description: The login name that is passed to the secured system.
+          type: string
+
+    Cipher:
+      description: >-
+        Cipher for metanodes and components  
+      type: object
+      required:
+        - passwordDigest
+        - encryptionKey
+      properties:
+        passwordDigest:
+          description: TODO
+          type: string
+        encryptionKey:
+          description: TODO
+          type: string
+        passwordHint:
+          description: TODO
+          type: string
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Metadata - describes the workflow, does not affect its execution
+# ----------------------------------------------------------------------------------------------------------------------
+
+    TemplateMetadata:
+      description: >-
+        For metanodes and components that can be inserted into a workflow.
+        The info provides the current version that consumers can compare against to check for updates.
+      type: object
+      required:
+        - version
+      properties:
+        version:
+          description: When the template was last updated. If this date is newer than the updated date of the linked component or metanode, an update is available.
+          type: string
+          format: date-time
+
+    NodeAnnotation:
+      type: object
+      description: The small text below the note
+      required:
+        - annotationDefault
+      properties:
+        # naming the property default causes name clashes
+        annotationDefault:
+          description: True if this annotation was never changed/set to something user-defined
+          type: boolean
+        data:
+          $ref: "#/components/schemas/AnnotationData"
+
+    ComponentMetadata:
+      type: object
+      properties:
+        description:
+          type: string
+        inPortMetadata:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortMetadata"
+        outPortMetadata:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortMetadata"
+        # move to visual appearance section
+        icon:
+          type: string
+          format: binary
+        componentType:
+          description: >-
+            Summarizes the kind of functionality of the component.
+          type: string
+          enum: [LEARNER, MANIPULATOR, PREDICTOR, SINK, SOURCE, VISUALIZER, OTHER]
+
+    AuthorInformation:
+      type: object
+      required:
+        - authoredBy
+        - authoredWhen
+      properties:
+        authoredBy:
+          type: string
+        authoredWhen:
+          type: string
+          format: date-time
+        lastEditedBy:
+          type: string
+        lastEditedWhen:
+          type: string
+          format: date-time
+
+    PortMetadata:
+      description: Used for instance to describe the inputs and outputs of components.
+      type: object
+      properties:
+        name: 
+          type: string
+        description:
+          type: string
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Visual Appearance and Interaction - describes the appearance of the workflow, does not affect its execution
+# ----------------------------------------------------------------------------------------------------------------------
+
+    NodeLocks:
+      description: >-
+        Any kind of node (native, meta, component) can be locked to restrict the user's interactions with the node in
+        the workflow editor.
+      type: object
+      required:
+        - hasDeleteLock
+        - hasResetLock
+        - hasConfigureLock
+      properties:
+        hasDeleteLock:
+          description: Whether a user is allowed to delete the node in the workflow editor.    
+          type: boolean
+          default: false
+        hasResetLock:
+          description: Whether a user is allowed to reset the node in the workflow editor (the node might contain data).
+          type: boolean
+          default: false
+        hasConfigureLock:
+          description: Whether a user is allowed to configure the node in the workflow editor.
+          type: boolean
+          default: false
+
+    AnnotationData:
+      type: object
+      required:
+        - location
+        - width
+        - height
+      properties:
+        text:
+          type: string
+        location: 
+          $ref: "#/components/schemas/Coordinate"
+        textAlignment:
+          default: "LEFT"
+          type: string
+        borderSize:
+          type: integer
+        borderColor:
+          type: integer
+        bgcolor:
+          description: Background color
+          type: integer
+        width:
+          type: integer
+        annotationVersion:
+          type: integer
+        defaultFontSize:
+          type: integer
+        styles:
+          type: array
+          items:
+            $ref: "#/components/schemas/StyleRange"
+        height:
+          type: integer
+    
+    StyleRange:
+      type: object
+      description: Similar to a HTML span.
+      required:
+        - start
+        - length
+      properties:
+        fontSize:
+          type: integer
+        color:
+          type: integer
+        start:
+          type: integer
+        fontName:
+          type: string
+        fontStyle:
+          type: integer
+        length:
+          type: integer
+
+    ConnectionUISettings:
+      type: object
+      required: 
+        - bendPoints
+      properties:
+        bendPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/Coordinate"
+
+    WorkflowUISettings:
+      type: object
+      required:
+        - snapToGrid
+        - showGrid
+        - gridX
+        - gridY
+        - zoomLevel
+        - curvedConnections
+        - connectionLineWidth
+      properties:
+        snapToGrid:
+          description: Whether nodes moved in the editor are aligned to the nearest grid point. 
+          type: boolean
+          default: true
+        showGrid:
+          description: Whether to show a grid in the workflow editor background.
+          type: boolean
+          default: false
+        gridX:
+          description: Horizontal spacing of grid lines.
+          type: integer
+          default: 20
+        gridY:
+          description: Vertical spacing of grid lines.
+          type: integer
+          default: 20
+        zoomLevel:
+          description: The current magnification of the workflow in the workflow editor.
+          type: number
+          format: double
+          default: 1.25
+        curvedConnections:
+          description: Whether to use straight or curved segments to connect a connection's bend points. 
+          type: boolean
+          default: true
+        connectionLineWidth:
+          description: The width of the lines connecting a workflow's nodes in the workflow editor.
+          type: integer
+          default: 2
+          minimum: 1
+          maximum: 3
+
+    ComponentDialogSettings:
+      type: object
+      description: Properties relating to the display of a Component's node dialog.
+      required:
+        - hideInWizard
+      properties:
+        layoutJSON:
+          type: string
+        configurationLayoutJSON:
+          type: string
+        hideInWizard:
+          type: boolean
+          default: false
+        cssStyles:
+          type: string
+
+    Bounds:
+      type: object
+      required:
+        - location
+        - width
+        - height
+      properties:
+        location:
+          $ref: "#/components/schemas/Coordinate"
+        width:
+          description: Width of an object in pixels.
+          type: integer
+        height:
+          description: Height of an object in pixels.
+          type: integer
+
+    Coordinate:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          description: Horizontal offset of an object.
+          type: integer
+        y:
+          description: Vertical offset of an object.
+          type: integer
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Node Configuration - Settings of a node 
+# ----------------------------------------------------------------------------------------------------------------------
+
+    Config:
+      description: >-
+        A tree of configuration values as formed by org.knime.core.node.NodeSettings. Can be either a subtree
+        (ConfigMap) or a leaf (ConfigValueInt, ConfigValueIntArray, etc.). This is a marker interface.
+      discriminator:
+        propertyName: configType
+      required:
+        - configType
+      type: object
+      properties:
+        configType:
+          type: string
+          description: Discriminator for inheritance. Must be the base name of this type/schema.
+          example: ConfigValueCharArray
+      x-knime-marker-interface: true
+
+    ConfigMap:
+      allOf:
+        - $ref: "#/components/schemas/Config"
+        - type: object
+          required:
+            - key
+            - children
+          properties:
+            key:
+              type: string
+            children:
+              type: object
+              additionalProperties:
+                $ref: "#/components/schemas/Config"
+    
+    ConfigValueArray:
+      description: Base interface for array type configuration values, e.g., booleanArray, charArray, doubleArray
+      allOf:
+        - $ref: "#/components/schemas/Config"
+      x-knime-marker-interface: true
+    
+    ConfigValue:
+      description: Base interface for the configuration value classes, e.g., boolean, char, double
+      allOf:
+        - $ref: "#/components/schemas/Config"
+        - type: object
+      x-knime-marker-interface: true
+              
+    ConfigValueBoolean:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: boolean
+              
+    ConfigValueBooleanArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: boolean
+              
+    ConfigValueByte:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: integer
+              format: int32
+              minimum: -128
+              maximum: 127
+              
+    ConfigValueByteArray:
+      description: this is a special type because byte[] is natively supported for the string/binary type used below
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: string
+              format: binary
+    
+    ConfigValueChar:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: integer
+              format: int32
+              minimum: 0
+              maximum: 65535
+    
+    ConfigValueCharArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: integer
+                format: int32
+                minimum: 0
+                maximum: 65535
+    
+    ConfigValueDouble:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: number
+              format: double
+              
+    ConfigValueDoubleArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: number
+                format: double
+              
+    ConfigValueFloat:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: number
+              format: float
+              
+    ConfigValueFloatArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: number
+                format: float
+    
+    ConfigValueInt:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: integer
+              format: int32
+    
+    ConfigValueIntArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: integer
+                format: int32
+    
+    ConfigValueLong:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: integer
+              format: int64
+         
+    ConfigValueLongArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: integer
+                format: int64
+    
+    ConfigValuePassword:
+      description: A string that is either omitted from serialization or serialized in an encrypted form. 
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          properties:
+            value:
+              type: string
+
+    ConfigValueTransientString:
+      description: A string that is only kept in memory, never serialized. Used for passwords.
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          properties:
+            value:
+              type: string
+
+    ConfigValueShort:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: integer
+              format: int32
+              minimum: -32768
+              maximum: 32767
+    
+    ConfigValueShortArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: integer
+                format: int32
+                minimum: -32768
+                maximum: 32767
+    
+    ConfigValueString:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValue"
+        - type: object
+          properties:
+            value:
+              type: string
+    
+    ConfigValueStringArray:
+      allOf:
+        - $ref: "#/components/schemas/ConfigValueArray"
+        - type: object
+          properties:
+            array:
+              type: array
+              items:
+                type: string 

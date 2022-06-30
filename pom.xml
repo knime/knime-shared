@@ -61,6 +61,7 @@
 
 			<modules>
 				<module>org.knime.core.util</module>
+				<module>org.knime.shared.codegen/pom.xml</module>
 				<module>org.knime.shared.workflow.def</module>
 				<module>org.knime.shared.workflow.storage</module>
 			</modules>

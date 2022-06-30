@@ -1,0 +1,20 @@
+{{#discriminator.propertyName}}
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "{{discriminator.propertyName}}",
+    visible = true,
+    defaultImpl = Default{{name}}Def.class)
+@JsonSubTypes({
+    @Type(value = Default{{name}}Def.class, name="{{name}}")
+{{#discriminator.mapping}}
+{{#discriminator.mappedModels}},
+  @Type(value = Default{{modelName}}Def.class, name = "{{mappingName}}")
+{{/discriminator.mappedModels}}
+{{/discriminator.mapping}}
+{{^discriminator.mapping}}
+{{#children}}, @Type(value = Default{{name}}Def.class, name = "{{name}}")
+{{/children}}
+{{/discriminator.mapping}}
+})
+{{/discriminator.propertyName}}

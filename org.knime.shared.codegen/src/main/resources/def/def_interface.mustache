@@ -1,0 +1,84 @@
+{{>licenseInfo}}
+package {{package}};
+
+{{#imports}}
+import {{import}};
+{{/imports}}
+import java.util.Optional;
+
+import org.knime.shared.workflow.def.impl.Default{{classname}};
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+{{#models}}
+{{#model}}
+
+{{#discriminator.propertyName}}
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import {{modelImplPackage}}.Default{{name}}Def;
+{{#children}}
+import {{modelImplPackage}}.Default{{name}}Def;
+{{/children}}
+{{/discriminator.propertyName}}
+
+
+/**
+ * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
+ *
+ {{>core/def_authors}}
+ */
+{{>core/type_annotations}}@JsonDeserialize(as = Default{{classname}}.class)
+// {{>generatedAnnotation}}
+public interface {{classname}}{{#interfaceModels.0}} extends {{name}}Def{{/interfaceModels.0}} {
+
+	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
+    public enum Attribute implements DefAttribute {
+         {{#allVars}}
+         /** {{#description}} 
+          * {{description}}
+          *{{/description}}{{#required}}
+          * This is a required field.{{/required}}
+          * The type of this data attribute is {{^isContainer}}{@link {{/isContainer}}{{datatypeWithEnum}}{{^isContainer}}}{{/isContainer}}.
+          * Is is returned by {@link {{classname}}#{{getter}}} 
+          */
+         {{nameInSnakeCase}},
+{{/allVars}};
+    }
+    
+    {{#vars}}
+    {{#isEnum}}
+    {{^isContainer}}
+{{>enumClass}}
+    {{/isContainer}}
+    {{/isEnum}}
+    {{#items.isEnum}}
+      {{#items}}
+      {{^isContainer}}
+{{>enumClass}}
+      {{/isContainer}}
+      {{/items}}
+    {{/items.isEnum}}
+  {{/vars}}
+
+  {{#vars}}
+  /**
+  {{#minimum}}
+   * minimum: {{minimum}}
+  {{/minimum}}
+  {{#maximum}}
+   * maximum: {{maximum}}
+  {{/maximum}}
+  {{#example}}
+   * Example value: {{.}}
+  {{/example}}
+   * @return {{description}}{{#required}}, never <code>null</code>{{/required}}
+   **/
+  public {{^required}}Optional<{{/required}}{{{datatypeWithEnum}}}{{^required}}>{{/required}} {{getter}}();
+
+  {{/vars}}
+
+}
+{{/model}}
+{{/models}}

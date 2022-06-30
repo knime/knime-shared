@@ -1,0 +1,415 @@
+{{>licenseInfo}}
+package {{package}};
+
+import java.util.Map;
+import java.util.Optional;
+
+{{#imports}}
+import {{import}};
+{{/imports}}
+
+{{#models}}
+{{#model}}
+// for the Attribute enum and javadoc references
+import {{modelPropertyPackage}}.{{name}}Def;
+// for types that define enums
+import {{modelPropertyPackage}}.{{name}}Def.*;
+import org.knime.shared.workflow.def.BaseNodeDef.NodeTypeEnum;
+{{^vendorExtensions.x-knime-marker-interface}}
+import org.knime.shared.workflow.def.FallibleSupplier;
+import org.knime.shared.workflow.def.LoadException;
+import org.knime.shared.workflow.def.LoadExceptionTree;
+import org.knime.shared.workflow.def.LoadExceptionTreeProvider;
+
+{{/vendorExtensions.x-knime-marker-interface}}
+/**
+ * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
+ {{>core/def_authors}}
+ */
+// {{>generatedAnnotation}}
+public class {{classname}} {
+
+    /**
+     * @see #strict()
+     */
+    boolean m__failFast = false;
+
+    /**
+     * Enable fail-fast mode.
+     * In fail-fast mode, all load exceptions will be immediately thrown.
+     * This can be when invoking a setter with an illegal argument (e.g., null or out of range) or 
+     * when invoking {@link #build()} without previously having called the setter for a required field.
+     * By default, fail-fast mode is off and all exceptions will be caught instead of thrown and collected for later reference into a LoadExceptionTree.
+     * @return this builder for fluent API.
+     */
+    public {{classname}} strict(){
+        m__failFast = true;
+        return this;
+    }
+
+{{^vendorExtensions.x-knime-marker-interface}}
+    // -----------------------------------------------------------------------------------------------------------------
+    // LoadExceptionTree data
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * Contains the load exception or load exception tree for each attribute with load exceptions. Def-type objects
+     * provide both the data and the exceptions, so the instances referenced in this map are identical to the ones
+     * returned by the getters. Non-Def-type objects (that includes lists and maps of Def types) do not provide the
+     * {@link LoadException}s associated to their loading. Instead, separate {@link LoadExceptionTree} instances are
+     * referenced in this map.
+     */
+    Map<{{name}}Def.Attribute, LoadExceptionTree<?>> m_exceptionalChildren = new java.util.EnumMap<>({{name}}Def.Attribute.class);
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Def attributes
+    // -----------------------------------------------------------------------------------------------------------------
+{{#allVars}}
+    {{^isContainer}}
+    {{^required}}Optional<{{/required}}{{{datatypeWithEnum}}}{{^required}}>{{/required}} m_{{name}}{{#defaultValue}} = {{^required}}Optional.of({{/required}}{{{.}}}{{^required}}){{/required}}{{/defaultValue}}{{^defaultValue}}{{^required}} = Optional.empty(){{/required}}{{/defaultValue}};
+    {{/isContainer}}
+    {{#isContainer}}
+    /**
+     * Holds the final result of merging the bulk and individual elements in #build().
+     */
+    {{^required}}Optional<{{/required}}{{{datatypeWithEnum}}}{{^required}}>{{/required}} m_{{name}} = {{^required}}Optional.of({{/required}}{{{vendorExtensions.emptyContainer}}}{{^required}}){{/required}};
+    /** 
+     * Temporarily holds onto elements added with convenience methods to add individual elements. 
+     * Elements added individually go directly into this {{vendorExtensions.containerType}}{{#isListContainer}} so they are inserted at positions 0, 1, ... this is important for non-Def types since the accompanying {@code Map<Integer, LoadException>} uses the element's offset to correlate it to its LoadException{{/isListContainer}}.
+     * Setting elements individually is optional{{#required}}, but in case also no bulk elements have been set, {@link #build()} will record a problem{{/required}}.
+     */
+    Optional<{{{datatypeWithEnum}}}> m_{{name}}IndividualElements = Optional.empty();
+    /** 
+     * Temporarily holds onto elements set as a whole with {{setter}} these are added to m_{{name}} in build.
+     * Setting elements in bulk is optional{{#required}}, but in case also no invidual elements have been set, {@link #build()} will record a problem{{/required}}.
+     */
+    private Optional<{{{datatypeWithEnum}}}> m_{{name}}BulkElements = Optional.empty();
+    {{/isContainer}}
+    {{! marker interfaces don't implement error handling}}
+    {{^model.vendorExtensions.x-knime-marker-interface}}
+    {{#isContainer}}
+    /** This exception is merged with the exceptions of the elements of this {{vendorExtensions.containerType}} into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
+    private LoadException m_{{name}}ContainerSupplyException; 
+    {{/isContainer}}
+    {{^vendorExtensions.isDef}}{{!For non-Def types, store the load exceptions in a separate map. Defs hold the exceptions themselves, so no extra storage for Def-types needed. }}
+    {{#isListContainer}}
+    /** Associates an offset in {@link #m_{{name}}} to the supply exception that caused its addition to the list (i.e., it's a forced default value). Merged during {@link #build()} with {@link m_{{name}}ContainerSupplyException} into a single {@link LoadExceptionTree} */
+    private java.util.Map<Integer, LoadException> m_{{name}}ElementSupplyExceptions = new java.util.HashMap<>();
+    {{/isListContainer}}
+    {{#isMapContainer}}
+    /** Associates a key in {@link #m_{{name}}} to the supply exception that caused its addition to the map (i.e., it's a forced default value). Merged during {@link #build()} with {@link m_{{name}}ContainerSupplyException} into a single {@link LoadExceptionTree} */
+    private java.util.Map<String, LoadException> m_{{name}}ElementSupplyExceptions = new java.util.HashMap<>();
+    {{/isMapContainer}}
+    {{/vendorExtensions.isDef}}
+    {{/model.vendorExtensions.x-knime-marker-interface}}
+
+{{/allVars}}
+    /**
+     * Create a new builder.
+     */
+    public {{classname}}() {
+    }
+
+    /**
+     * Create a new builder from an existing instance.
+     */
+    public {{classname}}(final {{name}}Def toCopy) {
+    {{#allVars}}
+        {{setter}}(toCopy.{{getter}}(){{^required}}.orElse(null){{/required}});
+    {{/allVars}}
+    }
+
+{{#allVars}}
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for {{name}}
+    // -----------------------------------------------------------------------------------------------------------------
+{{! -------------------------------------------------------------------------------------------------------------------------------------------------------
+    Simple Setters
+    ------------------------------------------------------------------------------------------------------------------------------------------------------- }}
+    
+    {{#isContainer}}
+    /**
+     * Adds elements in bulk to the {{name}} {{vendorExtensions.containerType}}. 
+     * Calling this method again will undo the previous call (it is not additive).
+     {{#isListContainer}}
+     * Elements previously or subsequently added with {@link #addTo{{vendorExtensions.allCamel}}} will be inserted at the end of the list.
+     {{/isListContainer}}
+     {{#isMapContainer}}
+     * A mapping previously or subsequently set with {@link #putTo{{vendorExtensions.allCamel}}} will replace a mapping added with this method
+     * if they have the same key.
+     {{/isMapContainer}}
+     * @param {{name}} {{description}}
+     * @return this for fluent API
+     */
+    {{/isContainer}}
+    {{^isContainer}}
+    /**
+     * @param {{name}} {{description}} {{^required}}This is an optional field. Passing <code>null</code> will leave the field empty. {{/required}}
+     * @return this builder for fluent API.
+     */ 
+    {{/isContainer}}
+    public {{classname}} {{setter}}(final {{{datatypeWithEnum}}} {{name}}) {
+        {{#model.vendorExtensions.x-knime-marker-interface}}
+        m_{{name}} = {{name}};
+        {{/model.vendorExtensions.x-knime-marker-interface}}
+        {{^model.vendorExtensions.x-knime-marker-interface}}
+        {{setter}}(() -> {{name}}{{^isContainer}}, {{name}}{{/isContainer}});
+        {{/model.vendorExtensions.x-knime-marker-interface}}
+        return this;
+    }
+{{! -------------------------------------------------------------------------------------------------------------------------------------------------------
+    Fallible Setters
+    ------------------------------------------------------------------------------------------------------------------------------------------------------- }}
+{{^model.vendorExtensions.x-knime-marker-interface}} {{! Fallible setters are inherently connected to load exception management, which isn't implemented for marker interfaces }}
+    {{^required}}{{^isContainer}}
+    /**
+     * Sets the optional field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.{{#isContainer}}
+     * A thrown {@link LoadException} is associated to the {{name}} {{vendorExtensions.containerType}},
+     * whereas exceptions thrown in {{#isListContainer}}addTo{{/isListContainer}}{{#isMapContainer}}putTo{{/isMapContainer}} allows to register a {@link LoadException} 
+     * for an individual element of the {{name}} {{vendorExtensions.containerType}}). {{/isContainer}}
+     * {@code hasExceptions({{model.name}}Def.Attribute.{{nameInSnakeCase}})} will return true and and
+     * {@code getExceptionalChildren().get({{model.name}}Def.Attribute.{{nameInSnakeCase}})} will return the exception.
+     * 
+     * @param {{name}} see {@link {{model.name}}Def#{{getter}}}
+     * {{^isContainer}}@param defaultValue is set in case the supplier throws an exception.{{/isContainer}}
+     * @return this builder for fluent API.
+     * @see #{{setter}}({{{datatypeWithEnum}}})
+     */
+    public {{classname}} {{setter}}(final FallibleSupplier<{{{datatypeWithEnum}}}> {{name}}) {
+        {{setter}}({{name}}, null);
+        return this;
+    }
+    {{/isContainer}}{{/required}}
+    /**
+     * Sets the {{^required}}optional {{/required}}field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.{{#isContainer}}
+     * A thrown {@link LoadException} is associated to the {{name}} {{vendorExtensions.containerType}},
+     * whereas exceptions thrown in {{#isListContainer}}addTo{{/isListContainer}}{{#isMapContainer}}putTo{{/isMapContainer}} allows to register a {@link LoadException} 
+     * for an individual element of the {{name}} {{vendorExtensions.containerType}}). {{/isContainer}}
+     * {@code hasExceptions({{model.name}}Def.Attribute.{{nameInSnakeCase}})} will return true and and
+     * {@code getExceptionalChildren().get({{model.name}}Def.Attribute.{{nameInSnakeCase}})} will return the exception.
+     * 
+     * @param {{name}} see {@link {{model.name}}Def#{{getter}}}
+     * {{^isContainer}}@param defaultValue is set in case the supplier throws an exception.{{/isContainer}}
+     * @return this builder for fluent API.
+     * @see #{{setter}}({{{datatypeWithEnum}}})
+     */
+    public {{classname}} {{setter}}(final FallibleSupplier<{{{datatypeWithEnum}}}> {{name}}{{^isContainer}}, {{{datatypeWithEnum}}} defaultValue{{/isContainer}}) {
+        java.util.Objects.requireNonNull({{name}}, () -> "No supplier for {{name}} provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove({{model.name}}Def.Attribute.{{nameInSnakeCase}});
+        try {
+            var supplied = {{name}}.get();
+            m_{{name}} = {{^required}}Optional.ofNullable({{/required}}supplied{{^required}}){{/required}};
+            {{#isContainer}}
+            // we set m_{{name}} in addition to bulk elements because
+            // if null is passed the validation is triggered for required fields
+            // if non-null is passed, the bulk elements will be merged with the individual elements
+            m_{{name}}BulkElements = Optional.ofNullable(supplied);
+            {{/isContainer}}
+            {{! Validate the range of the final value. }}
+            {{#minimum}}
+            if(m_{{name}} != null && m_{{name}} < {{minimum}}) {
+                throw new IllegalArgumentException("{{name}} must not be smaller than {{minimum}}, but was given: " + m_{{name}});
+            }{{/minimum}}{{#maximum}}
+            if(m_{{name}} != null && m_{{name}} > {{maximum}}) {
+                throw new IllegalArgumentException("{{name}} must not be larger than {{maximum}}, but was given: " + m_{{name}});
+            }
+            {{/maximum}}{{#required}}
+            if(m_{{name}} == null) {
+                throw new IllegalArgumentException("{{name}} is required and must not be null.");
+            }
+            {{/required}}
+            {{#vendorExtensions.isSingleDef}}
+            if (m_{{name}}{{^required}}.orElse(null){{/required}} instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_{{name}}{{^required}}.get(){{/required}}).hasExceptions()) {
+                m_exceptionalChildren.put({{model.name}}Def.Attribute.{{nameInSnakeCase}}, (LoadExceptionTree<?>)m_{{name}}{{^required}}.get(){{/required}});
+            }
+            {{/vendorExtensions.isSingleDef}}
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+            {{#isContainer}} {{! recursive case: containers. Store supply exception separately. Load exceptions of the children will be processed on #build() }}
+            // merged together with {{vendorExtensions.containerType}} element exceptions into a single LoadExceptionTree in #build()
+            m_{{name}}ContainerSupplyException = supplyException;
+            {{/isContainer}}
+            {{^isContainer}}
+            {{#vendorExtensions.isSingleDef}} {{! recursive case: defs. Create a new LET by adding the supply exception to the current tree. }}
+            LoadExceptionTree<?> exceptionTree;
+            if(defaultValue instanceof LoadExceptionTreeProvider){
+                var childTree = LoadExceptionTreeProvider.getTree(defaultValue);
+                // if present, merge child tree with supply exception
+                exceptionTree = childTree.hasExceptions() ? supplyException : org.knime.shared.workflow.def.SimpleLoadExceptionTree.tree(childTree, supplyException);
+            } else {
+                exceptionTree = supplyException;
+            }
+            m_{{name}} = {{^required}}Optional.ofNullable({{/required}}defaultValue{{^required}}){{/required}};
+            m_exceptionalChildren.put({{model.name}}Def.Attribute.{{nameInSnakeCase}}, exceptionTree);
+            {{/vendorExtensions.isSingleDef}}
+            {{^vendorExtensions.isSingleDef}} {{! non-recursive case, put load exception directly to the m_exceptionalChildren map }}
+            m_{{name}} = {{^required}}Optional.ofNullable({{/required}}defaultValue{{^required}}){{/required}};
+            m_exceptionalChildren.put({{model.name}}Def.Attribute.{{nameInSnakeCase}}, supplyException);
+            {{/vendorExtensions.isSingleDef}}
+            {{/isContainer}}
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+	    }   
+        return this;
+    }
+{{! -------------------------------------------------------------------------------------------------------------------------------------------------------
+    Convenience put methods for maps
+    ------------------------------------------------------------------------------------------------------------------------------------------------------- }}
+{{#isMapContainer}}
+    /**
+     * @param key the key of the entry to add to the {{name}} map
+     * @param value the value of the entry to add to the {{name}} map
+     * @return this builder for fluent API
+     */
+    public {{classname}} putTo{{vendorExtensions.allCamel}}(String key, {{vendorExtensions.valueType}} value){
+    	putTo{{vendorExtensions.allCamel}}(key, () -> value, ({{vendorExtensions.valueType}})null);
+        return this;
+    }
+    
+    /**
+     * Adds the return value of the fallible supplier to the map returned by {@link {{model.name}}Def#{{getter}}}. If the 
+     * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the given key.
+     *
+     * @param key the key for the entry added value in the map returned by {@link {{model.name}}Def#{{getter}}}
+     * @param value the value of the entry to add to the {{name}} map
+     * @param defaultValue is added to the map as value for the key if an exception occurs during {@link FallibleSupplier#get}
+     * @return this builder for fluent API.
+     */
+    public {{classname}} putTo{{vendorExtensions.allCamel}}(String key, FallibleSupplier<{{vendorExtensions.valueType}}> value, {{vendorExtensions.valueType}} defaultValue) {
+        // we're always putting an element (to have something to link the exception to), so make sure the list is present
+        if(m_{{name}}IndividualElements.isEmpty()) m_{{name}}IndividualElements = Optional.of({{{vendorExtensions.newContainer}}});
+        {{vendorExtensions.valueType}} toPut = null;
+        try {
+            toPut = value.get();
+        } catch (Exception e) {
+            var supplyException = new LoadException(e);
+            {{^vendorExtensions.isDef}}
+            m_{{name}}ElementSupplyExceptions.put(key, supplyException);
+            {{/vendorExtensions.isDef}}
+            {{#vendorExtensions.isDef}}
+            {{#vendorExtensions.isAbstract}}
+            {{!abstract stuff needs to be copied using a concrete constructor }}
+            toPut = Default{{complexType}}.withException(defaultValue, supplyException);
+            {{/vendorExtensions.isAbstract}}
+            {{^vendorExtensions.isAbstract}} {{!concrete stuff can be copied directly}}
+            toPut = new Default{{complexType}}(defaultValue, supplyException);
+            {{/vendorExtensions.isAbstract}}
+            {{/vendorExtensions.isDef}}
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+        }
+        m_{{name}}IndividualElements.get().put(key, toPut);
+        return this;
+    }
+
+{{/isMapContainer}}
+{{! -------------------------------------------------------------------------------------------------------------------------------------------------------
+    Convenience add methods for lists
+    ------------------------------------------------------------------------------------------------------------------------------------------------------- }}
+{{#isListContainer}}
+    /**
+     * @param value the value to add to the {{name}} list
+     * @return this builder for fluent API
+     */
+    public {{classname}} addTo{{vendorExtensions.allCamel}}({{vendorExtensions.valueType}} value){
+    	addTo{{vendorExtensions.allCamel}}(() -> value, /* default value will not be used */ value);
+        return this;
+    }
+    
+    /**
+     * Adds the return value of the fallible supplier to the list returned by {@link {{model.name}}Def#{{getter}}}. If the 
+     * fallible supplier fails, adds the default value instead and registers a {@link LoadException} for the added element's index in the list.
+     *
+     * @param value the value of the entry to add to the {{name}} list
+     * @param defaultValue is added to the list as value for the key if an exception occurs during {@link FallibleSupplier#get}
+     * @return this builder for fluent API.
+     */
+    public {{classname}} addTo{{vendorExtensions.allCamel}}(FallibleSupplier<{{vendorExtensions.valueType}}> value, {{vendorExtensions.valueType}} defaultValue) {
+        // we're always adding an element (to have something to link the exception to), so make sure the list is present
+        if(m_{{name}}IndividualElements.isEmpty()) m_{{name}}IndividualElements = Optional.of({{{vendorExtensions.newContainer}}});
+        {{vendorExtensions.valueType}} toAdd = null;
+        try {
+            toAdd = value.get();
+        } catch (Exception e) {
+            var supplyException = new LoadException(e);
+            {{^vendorExtensions.isDef}}
+            m_{{name}}ElementSupplyExceptions.put(m_{{name}}IndividualElements.get().size(), supplyException);
+            {{/vendorExtensions.isDef}}
+            {{#vendorExtensions.isDef}}
+            toAdd = new Default{{complexType}}(defaultValue, supplyException);
+            {{/vendorExtensions.isDef}}
+            {{^vendorExtensions.isDef}}
+            toAdd = defaultValue;
+            {{/vendorExtensions.isDef}}
+            if(m__failFast){
+                throw new IllegalStateException(e);
+            }
+        }
+        m_{{name}}IndividualElements.get().add(toAdd);
+        return this;
+    } 
+{{/isListContainer}}
+{{/model.vendorExtensions.x-knime-marker-interface}}
+{{/allVars}}
+    // -----------------------------------------------------------------------------------------------------------------
+    // Build method
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+	 * @return the {@link {{name}}Def} created from the data passed to the setters. Implements 
+     *      {@link LoadExceptionTree} to provide access to any load exceptions that have occurred during evaluation
+     *      of the suppliers passed to the setters.
+	 */
+    public Default{{name}}Def build() {
+        {{#allVars}}{{#required}}
+        {{^isContainer}} {{! for the containers, we will validate after merging the bulk and individual elements}}
+        // in case the setter has never been called, the required field is still null, but no load exception was recorded. Do that now.
+        if(m_{{name}} == null) {{setter}}({{#isContainer}}() -> {{/isContainer}} null);
+        {{/isContainer}}
+        {{/required}}{{/allVars}}
+        {{! container vars}}
+    	{{#allVars}}{{#isContainer}}
+        // if bulk elements are present, add them to individual elements
+        if(m_{{name}}BulkElements.isPresent()){
+            if(m_{{name}}IndividualElements.isEmpty()) {
+                m_{{name}}IndividualElements = Optional.of({{{vendorExtensions.newContainer}}});
+            }
+            {{! merge bulk and individual}}
+            m_{{name}}IndividualElements.get().{{vendorExtensions.extend}}All(m_{{name}}BulkElements.get());    
+        }
+        {{^required}}
+        m_{{name}} = m_{{name}}IndividualElements;        
+        {{/required}}
+        {{#required}}
+        // collect error if we nothing was ever added (not even an empty container)
+        if(m_{{name}}IndividualElements.isEmpty()){
+            {{setter}}(() -> null);
+            m_{{name}} = {{{vendorExtensions.emptyContainer}}};
+        } else {
+            m_{{name}} = m_{{name}}IndividualElements.get();
+        } 
+        {{/required}}
+        
+        {{! load exception tree}}
+        {{^vendorExtensions.isDef}}{{! for non-def types use the separately maintained exception map - no exceptions from the bulk to expect just a bunch of primitives }}
+        var {{name}}LoadExceptionTree = org.knime.shared.workflow.def.SimpleLoadExceptionTree
+            .{{vendorExtensions.containerType}}(m_{{name}}ElementSupplyExceptions, m_{{name}}ContainerSupplyException);
+        {{/vendorExtensions.isDef}}
+        {{#vendorExtensions.isDef}}{{! for def types use the objects themselves as source for exceptions }}
+        var {{name}}LoadExceptionTree = org.knime.shared.workflow.def.SimpleLoadExceptionTree
+            .{{vendorExtensions.containerType}}(m_{{name}}{{^required}}.orElse({{{vendorExtensions.newContainer}}}){{/required}}, m_{{name}}ContainerSupplyException);
+        {{/vendorExtensions.isDef}}
+        if({{name}}LoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put({{model.name}}Def.Attribute.{{nameInSnakeCase}}, {{name}}LoadExceptionTree);
+        }
+        {{/isContainer}}{{/allVars}}
+        return new Default{{name}}Def(this);
+    }    
+{{/vendorExtensions.x-knime-marker-interface}}
+
+}
+{{/model}}
+{{/models}}

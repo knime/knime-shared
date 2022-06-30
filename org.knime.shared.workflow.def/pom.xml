@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -37,8 +38,64 @@
 			<artifactId>jsonschema2pojo-core</artifactId>
 			<version>1.1.1</version>
 		</dependency>
+		<!-- code generation -->
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>openapi-generator</artifactId>
+			<version>3.3.3</version>
+		</dependency>
 	</dependencies>
+
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<!-- RELEASE_VERSION -->
+				<version>6.0.1-SNAPSHOT</version>
+				<!-- /RELEASE_VERSION -->
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<!-- specify the swagger yaml -->
+							<inputSpec>${project.basedir}/def.yaml</inputSpec>
+							<!-- target to generate java client code -->
+							<generatorName>org.knime.shared.codegen.CoreCodegen</generatorName>
+							<templateDirectory>${project.basedir}/templates</templateDirectory>
+							<!-- TODO adding generated sources to Eclipse's build path https://stackoverflow.com/questions/48293364/eclipse-project-does-not-recognize-swagger-codegen-artefacts --> 
+							<!-- passing additional options like this doesn't work, e.g., not visible in GatewayCodegen#getName -->
+							<configOptions>
+								<additionalProperties>codegenName=default-impls</additionalProperties>
+							</configOptions>
+							<output>${project.build.directory}/generated-sources</output>
+							<apiPackage>org.knime.shared.workflow.def</apiPackage>
+							<modelPackage>org.knime.shared.workflow.def.impl</modelPackage>
+							<!-- hint: if you want to generate java server code, e.g. based on Spring Boot,
+                                 you can use the following target: <generatorName>spring</generatorName> -->
+
+							<!-- pass any necessary config options 
+							<configOptions>
+								<dateLibrary>joda</dateLibrary>
+							</configOptions> -->
+
+							<!-- override the default library to jersey2 
+							<library>jersey2</library> -->
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.knime</groupId>
+						<artifactId>shared.codegen</artifactId>
+						<version>4.16.0-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
 	</build>
 </project>

@@ -11,7 +11,7 @@
 	<groupId>org.knime</groupId>
 	<artifactId>shared.workflow.storage</artifactId>
 	<version>${revision}${changelist}</version>
-	<name>KNIME Shared Workflow Loader</name>
+	<name>KNIME Shared Workflow Storage</name>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.knime</groupId>
 			<artifactId>shared.workflow.def</artifactId>
-			<version>${project.version}</version>
+			<version>[4.7.0-alpha,5)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.knime</groupId>
