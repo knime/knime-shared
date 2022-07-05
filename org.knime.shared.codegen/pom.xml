@@ -35,19 +35,6 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- just for manual generation of the code generator jar using
-			java -jar modules/openapi-generator-cli/target/openapi-generator-cli.jar meta \
-  				-o out/generators/my-codegen -n my-codegen -p org.knime.shared.codegen
--->
-		<!-- https://mvnrepository.com/artifact/org.openapitools/openapi-generator-cli -->
-		<dependency>
-			<groupId>org.openapitools</groupId>
-			<artifactId>openapi-generator-cli</artifactId>
-			<version>6.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
