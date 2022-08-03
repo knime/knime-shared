@@ -35,7 +35,7 @@
     <entry key="factory" type="xstring" value="org.knime.workflowservices.knime.caller.CallWorkflowNodeFactory"/>
     <entry key="node-name" type="xstring" value="Call Workflow Service"/>
     <entry key="node-bundle-name" type="xstring" value="KNIME Nodes to build and use KNIME workflow services"/>
-    <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.workflowservices.labs"/>
+    <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.workflowservices"/>
     <entry key="node-bundle-vendor" type="xstring" value="KNIME AG, Zurich, Switzerland"/>
     <entry key="node-bundle-version" type="xstring" value="4.6.0.v202112231111"/>
     <entry key="node-feature-name" type="xstring" isnull="true" value=""/>
