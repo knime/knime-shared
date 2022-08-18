@@ -65,16 +65,25 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public abstract class AbstractNumericUiComponentConverter<T extends Number>
     extends AbstractPrimitiveUiComponentConverter<T> {
 
-    private T m_minimum = null;
+    private T m_minimum;
 
-    private T m_maximum = null;
+    private T m_maximum;
 
     @Override
     protected void initializeInternals(final JsonNode jsonNode) throws IOException {
-        String minField = isSlider() ? "customMin" : "min";
-        String maxField = isSlider() ? "customMax" : "max";
-        String useMinField = isSlider() ? "useCustomMin" : "usemin";
-        String useMaxField = isSlider() ? "useCustomMax" : "usemax";
+        String minField, maxField, useMinField, useMaxField;
+
+        if (isSlider()) {
+            minField = "customMin";
+            maxField = "customMax";
+            useMinField = "useCustomMin";
+            useMaxField = "useCustomMax";
+        } else {
+            minField = "min";
+            maxField = "max";
+            useMinField = "usemin";
+            useMaxField = "usemax";
+        }
 
         if (jsonNode.has(useMinField) && jsonNode.has(minField) && jsonNode.get(useMinField).asBoolean()) {
             m_minimum = convertValue(jsonNode.get(minField).asText());

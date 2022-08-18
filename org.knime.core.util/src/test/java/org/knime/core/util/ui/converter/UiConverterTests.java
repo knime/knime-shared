@@ -285,7 +285,7 @@ public class UiConverterTests {
 
         var converter = UiComponentConverterRegistry.getConverter(jsonWorkflowRepr, "param");
         var model = JSON_FACTORY.objectNode();
-        converter.insertModel(model);
+        converter.insertData(model);
         assertTrue(model.has("param"));
         // This gets the value from the "currentValue" field
         assertEquals(expectedValue, valueExtractor.apply(model.get("param")));
@@ -320,7 +320,7 @@ public class UiConverterTests {
     public void testBooleanConverterNoCurrentValue() throws IOException {
         var converter = UiComponentConverterRegistry.getConverter(BOOLEAN_WORKFLOW_REPR_NO_CURRENT_VALUE, "param");
         var model = JSON_FACTORY.objectNode();
-        converter.insertModel(model);
+        converter.insertData(model);
         assertTrue(model.has("param"));
         // This gets the value from the "defaultValue" field
         assertFalse(model.get("param").asBoolean());

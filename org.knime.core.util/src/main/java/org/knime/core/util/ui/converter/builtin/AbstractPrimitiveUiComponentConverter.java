@@ -64,9 +64,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class AbstractPrimitiveUiComponentConverter<T> implements UiComponentConverter {
 
-    private static String CURRENT_VALUE = "currentValue";
+    private static final String CURRENT_VALUE = "currentValue";
 
-    private static String DEFAULT_VALUE = "defaultValue";
+    private static final String DEFAULT_VALUE = "defaultValue";
 
     /**
      * The {@link JsonNodeFactory} to use when constructing this UI component's jsonforms representation
@@ -151,7 +151,8 @@ public abstract class AbstractPrimitiveUiComponentConverter<T> implements UiComp
     }
 
     @Override
-    public void initializeFromWorkflowRepresentationJson(final JsonNode workflowRepresentation, final String parameterName) throws IOException {
+    public void initializeFromWorkflowRepresentationJson(final JsonNode workflowRepresentation,
+        final String parameterName) throws IOException {
         m_label = workflowRepresentation.get("label").asText();
         m_description = workflowRepresentation.get("description").asText();
         m_parameterName = parameterName;
@@ -169,7 +170,7 @@ public abstract class AbstractPrimitiveUiComponentConverter<T> implements UiComp
     }
 
     @Override
-    public void insertModel(final ObjectNode jsonNode) {
+    public void insertData(final ObjectNode jsonNode) {
         jsonNode.putPOJO(m_parameterName, m_value);
     }
 

@@ -82,7 +82,7 @@ public class DateTimeUiComponentConverter implements UiComponentConverter {
     }
 
     @Override
-    public void insertModel(final ObjectNode jsonNode) {
+    public void insertData(final ObjectNode jsonNode) {
         jsonNode.putPOJO(m_parameterName, m_value);
     }
 

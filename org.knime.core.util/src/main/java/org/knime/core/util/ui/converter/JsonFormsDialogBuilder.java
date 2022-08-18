@@ -64,17 +64,18 @@ public class JsonFormsDialogBuilder {
     /**
      * Add a UI component to this jsonforms dialog based on a JSON encoded dialog node representation.
      *
-     * @param workflowRepresentationJson the JSON encoded dialog node representation
+     * @param dialogNodeRepresentation the JSON encoded dialog node representation
      * @param parameterName the parameter that this dialog node should have in the jsonforms dialog
      * @return this builder to continue building the dialog
      * @throws IOException
      */
-    public JsonFormsDialogBuilder addUiComponent(final String workflowRepresentationJson, final String parameterName)
+    public JsonFormsDialogBuilder addUiComponent(final String dialogNodeRepresentation, final String parameterName)
         throws IOException {
         try {
-            var converter = UiComponentConverterRegistry.getConverter(workflowRepresentationJson, parameterName);
-            converter.insertModel((ObjectNode)m_jsonFormsData.m_data.get("model"));
-            converter.insertSchema((ObjectNode)m_jsonFormsData.m_schema.get("properties").get("model").get("properties"));
+            var converter = UiComponentConverterRegistry.getConverter(dialogNodeRepresentation, parameterName);
+            converter.insertData((ObjectNode)m_jsonFormsData.m_data.get("model"));
+            converter
+                .insertSchema((ObjectNode)m_jsonFormsData.m_schema.get("properties").get("model").get("properties"));
             converter.insertUiSchema((ObjectNode)m_jsonFormsData.m_uiSchema.get("elements"));
         } catch (IOException | IllegalStateException e) {
             throw new IOException("Could not add UI component " + parameterName, e);

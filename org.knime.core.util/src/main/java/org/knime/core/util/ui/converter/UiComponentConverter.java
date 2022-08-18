@@ -60,22 +60,25 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * {@link UiComponentConverter} can be initialized from a JSON encoded workflow representation (aka.
  * DialogNodeRepresentation) and can insert itself into the specific sections of a jsonforms dialog definition.
  *
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noreference This class is not intended to be referenced by clients.
+ *
  * @author Carsten Haubold, KNIME GmbH, Konstanz, Germany
  */
-public interface UiComponentConverter extends Cloneable {
+public interface UiComponentConverter {
 
     /**
-     * @param workflowRepresentation The JSON string containing the workflow representation of the UI element
+     * @param dialogNodeRepresentation The JSON string containing the workflow representation of the UI element
      * @param parameterName The name that the parameter should have in the jsonforms representation
      * @throws IOException In case the input JSON could not be parsed
      */
-    void initializeFromWorkflowRepresentationJson(JsonNode workflowRepresentation, String parameterName)
+    void initializeFromWorkflowRepresentationJson(JsonNode dialogNodeRepresentation, String parameterName)
         throws IOException;
 
     /**
      * @param jsonNode The JSON node for the jsonforms model, where the model of the UI component will be inserted
      */
-    void insertModel(ObjectNode jsonNode);
+    void insertData(ObjectNode jsonNode);
 
     /**
      * @param jsonNode The JSON node for the jsonforms schema, where the schema of the UI component will be inserted
