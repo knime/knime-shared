@@ -74,12 +74,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public final class UiComponentConverterRegistry {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private static final UiComponentConverterRegistry INSTANCE = new UiComponentConverterRegistry();
-
-    private final Map<String, Class<? extends UiComponentConverter>> m_converters = new HashMap<>();
+    private static final Map<String, Class<? extends UiComponentConverter>> m_converters = new HashMap<>();
+    static {
+        registerBuiltinConverters();
+    }
 
     private UiComponentConverterRegistry() {
-        registerBuiltinConverters();
     }
 
     /**
@@ -116,7 +116,7 @@ public final class UiComponentConverterRegistry {
     }
 
     private static UiComponentConverter getConverterInstance(final String className) throws IOException {
-        var type = INSTANCE.m_converters.get(className);
+        var type = m_converters.get(className);
         if (type == null) {
             return null;
         }
@@ -129,7 +129,7 @@ public final class UiComponentConverterRegistry {
         }
     }
 
-    private void registerBuiltinConverters() {
+    private static void registerBuiltinConverters() {
         m_converters.put("org.knime.js.base.node.configuration.input.bool.BooleanDialogNodeRepresentation",
             BooleanUiComponentConverter.class);
         m_converters.put("org.knime.js.base.node.configuration.input.integer.IntegerDialogNodeRepresentation",
