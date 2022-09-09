@@ -205,4 +205,5 @@ public class DefClipboardContent {
     public WorkflowDef getPayload() {
         return m_payload;
     }
+
 }
