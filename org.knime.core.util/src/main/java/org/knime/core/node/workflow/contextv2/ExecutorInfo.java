@@ -48,6 +48,7 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
@@ -78,7 +79,7 @@ public class ExecutorInfo {
     }
 
     /**
-     * @return the userId of the user running the current workflow.
+     * @return the user ID of the user running the current workflow.
      */
     public String getUserId() {
         return m_userId;
@@ -121,7 +122,7 @@ public class ExecutorInfo {
         }
 
         protected void checkFields() {
-            CheckUtils.checkArgumentNotNull(m_userId, "User ID must not be null");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_userId), "User ID must not be null or blank");
         }
 
         public abstract I build();

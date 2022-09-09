@@ -49,18 +49,19 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.WorkflowContext;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
 import org.knime.core.util.auth.Authenticator;
 
 /**
- * Provides information about a REST endpoint that holds the current workflow. Examples of such an endpoint are the
- * KNIME Server repository, or the KNIME Hub catalog. Such an endpoint gives access to a whole tree of workflow groups,
- * workflows and files. The current workflow is part of this tree and can be addressed by path (see
- * {@link #getWorkflowPath()}).
+ * This class holds information about the repository, where the current workflow resides (see
+ * {@link #getRepositoryAddress()}. The endpoint gives access to a whole tree of workflow groups, workflows and files.
+ * The current workflow is part of this tree and can be addressed by path (see {@link #getWorkflowPath()}).
  *
  * @author Bjoern Lohrmann, KNIME GmbH
  * @noreference non-public API
@@ -69,15 +70,15 @@ import org.knime.core.util.auth.Authenticator;
 public abstract class RestLocationInfo extends LocationInfo {
 
     /**
-     * Base address of the REST endpoint where the current workflow resides. e.g.
+     * {@link URI} of the repository where the current workflow resides. e.g.
      * <code>https://server.mycompany.com/knime/rest/v4/repository</code>.
      *
      * Same as {@link WorkflowContext#getRemoteRepositoryAddress()}.
      */
-    private final URI m_restEndpointAddress;
+    private final URI m_repositoryAddress;
 
     /**
-     * Path of the workflow within the file tree of the REST endpoint, e.g.
+     * Path of the workflow within the file tree of the repository, e.g.
      * <code>/Users/bob/Public/segmentation_example</code>.
      *
      * Same as {@link WorkflowContext#getRelativeRemotePath()}.
@@ -85,14 +86,20 @@ public abstract class RestLocationInfo extends LocationInfo {
     private final String m_workflowPath;
 
     /**
-     * {@link Authenticator} for the REST endpoint where the current workflow resides.
+     * The full URI of the workflow in the repository, obtained by concatenating {@link #getRepositoryAddress()} and
+     * {@link #getWorkflowPath()}.
+     */
+    private URI m_workflowAddress;
+
+    /**
+     * {@link Authenticator} for the repository where the current workflow resides.
      *
      * Same as {@link WorkflowContext#getServerAuthenticator()}.
      */
-    private final Authenticator m_restAuthenticator;
+    private final Authenticator m_authenticator;
 
     /**
-     * Default mount ID declared by the REST endpoint, e.g. "My-KNIME-Hub".
+     * Default mount ID declared by the repository, e.g. "My-KNIME-Hub".
      *
      * Same as {@link WorkflowContext#getRemoteMountId()}.
      */
@@ -101,40 +108,52 @@ public abstract class RestLocationInfo extends LocationInfo {
     RestLocationInfo(final LocationType type, //
         final Path localWorkflowCopyPath, //
         final URI mountpointURI, //
-        final URI restEndpointAddress, //
-        final Authenticator restAuthenticator, //
-        final String remoteWorkflowPath, //
+        final URI repositoryAddress, //
+        final Authenticator authenticator, //
+        final String workflowPath, //
         final String defaultMountId) {
 
         super(type, localWorkflowCopyPath, null, mountpointURI);
-        m_restEndpointAddress = restEndpointAddress;
-        m_restAuthenticator = restAuthenticator;
-        m_workflowPath = remoteWorkflowPath;
+        m_repositoryAddress = repositoryAddress;
+        m_authenticator = authenticator;
+        m_workflowPath = workflowPath;
         m_defaultMountId = defaultMountId;
+
+        try {
+            m_workflowAddress = new URI(m_repositoryAddress.getScheme(), //
+                m_repositoryAddress.getHost(), //
+                m_repositoryAddress.getPath() + m_workflowPath, //
+                null).normalize();
+        } catch (URISyntaxException ex) {
+            throw new IllegalStateException("Failed to create workflow address URI", ex);
+        }
     }
 
     /**
-     * Provides the base address of the REST endpoint where the current workflow resides, e.g.
-     * <code>https://server.mycompany.com/knime/rest/v4/repository</code>. The URI does not point to the current
-     * workflow, only to the base address of the endpoint (see {@link #getWorkflowPath()}).
+     * Provides {@link URI} of the repository where the current workflow resides. e.g.
+     * <code>https://server.mycompany.com/knime/rest/v4/repository</code>. To get the {@link URI} of the workflow see
+     * {@link #getWorkflowAddress()}).
      *
-     * @return the base address of the REST endpoint where the current workflow resides.
+     * @return {@link URI} that holds the address of the repository, where the current workflow resides.
      * @see WorkflowContext#getRemoteRepositoryAddress()
      */
-    public URI getRestEndpointAddress() {
-        return m_restEndpointAddress;
+    public URI getRepositoryAddress() {
+        return m_repositoryAddress;
     }
 
     /**
-     * @return the {@link Authenticator} for the REST endpoint where the current workflow resides.
+     * @return the {@link Authenticator} for the repository where the current workflow resides.
      * @see WorkflowContext#getServerAuthenticator()
      */
-    public Authenticator getRestAuthenticator() {
-        return m_restAuthenticator;
+    public Authenticator getAuthenticator() {
+        return m_authenticator;
     }
 
     /**
-     * @return path of the current workflow within the file tree of the REST endpoint, e.g. /Users/bob/workflow
+     * Provides the path of the current workflow within the file tree of the repository, e.g. /Users/bob/workflow. To
+     * get the full {@link URI} of the workflow see {@link #getWorkflowAddress()}).
+     *
+     * @return path of the current workflow within the file tree of the repository.
      * @see WorkflowContext#getRelativeRemotePath()
      **/
     public String getWorkflowPath() {
@@ -142,7 +161,17 @@ public abstract class RestLocationInfo extends LocationInfo {
     }
 
     /**
-     * @return the default mount ID declared by the REST endpoint, e.g. "My-KNIME-Hub".
+     * Provides the full URI of the workflow in the repository, obtained by concatenating
+     * {@link #getRepositoryAddress()} and {@link #getWorkflowPath()}.
+     *
+     * @return the full {@link URI} of the workflow in the repository.
+     */
+    public URI getWorkflowAddress() {
+        return m_workflowAddress;
+    }
+
+    /**
+     * @return the default mount ID declared by the repository, e.g. "My-KNIME-Hub".
      * @see WorkflowContext#getRemoteMountId()
      */
     public String getDefaultMountId() {
@@ -161,9 +190,9 @@ public abstract class RestLocationInfo extends LocationInfo {
         extends LocationInfo.BaseBuilder<B, I> {
 
         /**
-         * See {@link RestLocationInfo#getRestEndpointAddress()}.
+         * See {@link RestLocationInfo#getRepositoryAddress()}.
          */
-        protected URI m_restEndpointAddress;
+        protected URI m_repositoryAddress;
 
         /**
          * See {@link RestLocationInfo#getWorkflowPath()}.
@@ -171,9 +200,9 @@ public abstract class RestLocationInfo extends LocationInfo {
         protected String m_workflowPath;
 
         /**
-         * See {@link RestLocationInfo#getRestAuthenticator()}.
+         * See {@link RestLocationInfo#getAuthenticator()}.
          */
-        protected Authenticator m_restAuthenticator;
+        protected Authenticator m_authenticator;
 
         /**
          * See {@link RestLocationInfo#getDefaultMountId()}.
@@ -190,23 +219,22 @@ public abstract class RestLocationInfo extends LocationInfo {
         }
 
         /**
-         * Sets the base address of the REST endpoint where the current workflow resides.
+         * Sets the {@link URI} of the repository where the current workflow resides. e.g.
+         * <code>https://server.mycompany.com/knime/rest/v4/repository</code>.
          *
-         * @param restEndpointAddress The REST endpoint base address, e.g.
-         *            <code>https://server.mycompany.com/knime/rest/v4/repository</code>.
+         * @param repositoryAddress {@link URI} of the repository where the current workflow resides.
          * @return this builder instance
          */
         @SuppressWarnings("unchecked")
-        public final B withRestEndpointAddress(final URI restEndpointAddress) {
-            m_restEndpointAddress = restEndpointAddress;
+        public final B withRepositoryAddress(final URI repositoryAddress) {
+            m_repositoryAddress = repositoryAddress;
             return (B)this;
         }
 
         /**
-         * Sets the path of the workflow within the file tree of the REST endpoint.
+         * Sets the path of the current workflow within the file tree of the repository, e.g. /Users/bob/workflow.
          *
-         * @param workflowPath Path of the workflow within the file tree, , e.g.
-         *            <code>/Users/bob/Public/segmentation_example</code>.
+         * @param workflowPath Pathof the current workflow within the file tree of the repository.
          * @return this builder instance
          */
         @SuppressWarnings("unchecked")
@@ -216,14 +244,14 @@ public abstract class RestLocationInfo extends LocationInfo {
         }
 
         /**
-         * Sets the {@link Authenticator} for the REST endpoint.
+         * Sets the {@link Authenticator} for the repository where the current workflow resides.
          *
-         * @param restAuthenticator The {@link Authenticator} for the REST endpoint where the current workflow resides.
+         * @param authenticator The {@link Authenticator} for the repository.
          * @return this builder instance
          */
         @SuppressWarnings("unchecked")
-        public final B withRestAuthenticator(final Authenticator restAuthenticator) {
-            m_restAuthenticator = restAuthenticator;
+        public final B withAuthenticator(final Authenticator authenticator) {
+            m_authenticator = authenticator;
             return (B)this;
         }
 
@@ -242,10 +270,12 @@ public abstract class RestLocationInfo extends LocationInfo {
         @Override
         protected final void checkFields() {
             super.checkFields();
-            CheckUtils.checkArgumentNotNull(m_restEndpointAddress, "REST endpoint address must not be null");
-            CheckUtils.checkArgumentNotNull(m_workflowPath, "Workflow path must not be null");
-            CheckUtils.checkArgumentNotNull(m_restAuthenticator, "REST authenticator must not be null");
-            CheckUtils.checkArgumentNotNull(m_defaultMountId, "Default mount id must not be null");
+            CheckUtils.checkArgumentNotNull(m_repositoryAddress, "Repository address must not be null");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_workflowPath), "Workflow path must not be null or blank");
+            CheckUtils.checkArgument(m_workflowPath.startsWith("/"), "Workflow path must have a leading forward slash");
+            CheckUtils.checkArgumentNotNull(m_authenticator, "Authenticator must not be null");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_defaultMountId),
+                "Default mount id must not be null or blank.");
         }
     }
 }

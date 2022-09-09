@@ -68,17 +68,17 @@ public class ServerLocationInfo extends RestLocationInfo {
 
     ServerLocationInfo(final Path localWorkflowCopyPath, //
         final URI mountpointURI, //
-        final URI restEndpointAddress, //
-        final Authenticator restAuthenticator, //
-        final String remoteWorkflowPath, //
+        final URI repositoryAddress, //
+        final Authenticator authenticator, //
+        final String workflowPath, //
         final String defaultMountId) {
 
         super(LocationType.SERVER_REPOSITORY, //
             localWorkflowCopyPath, //
             mountpointURI, //
-            restEndpointAddress, //
-            restAuthenticator, //
-            remoteWorkflowPath, //
+            repositoryAddress, //
+            authenticator, //
+            workflowPath, //
             defaultMountId);
     }
 
@@ -99,8 +99,8 @@ public class ServerLocationInfo extends RestLocationInfo {
             checkFields();
             return new ServerLocationInfo(m_localWorkflowPath, //
                 m_mountpointURI, //
-                m_restEndpointAddress, //
-                m_restAuthenticator, //
+                m_repositoryAddress, //
+                m_authenticator, //
                 m_workflowPath, //
                 m_defaultMountId);
         }

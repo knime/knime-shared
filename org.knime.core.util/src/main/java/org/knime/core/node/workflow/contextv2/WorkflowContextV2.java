@@ -199,8 +199,8 @@ public final class WorkflowContextV2 {
             locInfo = new ServerLocationInfo.Builder() //
                 .withLocalWorkflowPath(legacyContext.getCurrentLocation().toPath()) //
                 .withMountpointURI(mountpointURI)
-                .withRestEndpointAddress(legacyContext.getRemoteRepositoryAddress().get()) // NOSONAR
-                .withRestAuthenticator(legacyContext.getServerAuthenticator().get()) // NOSONAR
+                .withRepositoryAddress(legacyContext.getRemoteRepositoryAddress().get()) // NOSONAR
+                .withAuthenticator(legacyContext.getServerAuthenticator().get()) // NOSONAR
                 .withDefaultMountId(mountId) // NOSONAR
                 .withWorkflowPath(relativeRemotePath) // NOSONAR
                 .build();

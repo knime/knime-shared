@@ -96,9 +96,9 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
 
     HubSpaceLocationInfo(final Path localWorkflowCopyPath, // NOSONAR only invoked by builder class
         final URI mountpointURI, //
-        final URI restEndpointAddress, //
-        final Authenticator restAuthenticator, //
-        final String remoteWorkflowPath, //
+        final URI repositoryAddress, //
+        final Authenticator authenticator, //
+        final String workflowPath, //
         final String defaultMountId, //
         final String spacePath, //
         final String spaceItemId, //
@@ -108,9 +108,9 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
         super(LocationType.HUB_SPACE, //
             localWorkflowCopyPath, //
             mountpointURI, //
-            restEndpointAddress, //
-            restAuthenticator, //
-            remoteWorkflowPath, //
+            repositoryAddress, //
+            authenticator, //
+            workflowPath, //
             defaultMountId);
 
         m_spacePath = spacePath;
@@ -201,8 +201,16 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
         @Override
         public HubSpaceLocationInfo build() {
             super.checkFields();
-            CheckUtils.checkArgumentNotNull(m_spacePath, "Space path must not be null");
-            CheckUtils.checkArgumentNotNull(m_spaceItemId, "Space item id not be null");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_spacePath), "Space path must not be null or blank");
+            CheckUtils.checkArgument(m_spacePath.startsWith("/"), "Space path must start with a leading forward slash");
+
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_spaceItemId), "Space item id must not be null or blank");
+            CheckUtils.checkArgument(m_spaceItemId.startsWith("*"), "Space item id must start with a leading asterisk");
+
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_workflowItemId),
+                "Workflow item id must not be null or blank");
+            CheckUtils.checkArgument(m_workflowItemId.startsWith("*"),
+                "Workflow item id must start with a leading asterisk");
 
             if (m_spaceVersion != null) {
                 CheckUtils.checkArgument(StringUtils.isNotBlank(m_spaceItemId), "Space version must not be blank.");
@@ -210,8 +218,8 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
 
             return new HubSpaceLocationInfo(m_localWorkflowPath, //
                 m_mountpointURI, //
-                m_restEndpointAddress, //
-                m_restAuthenticator, //
+                m_repositoryAddress, //
+                m_authenticator, //
                 m_workflowPath, //
                 m_defaultMountId, //
                 m_spacePath, //
