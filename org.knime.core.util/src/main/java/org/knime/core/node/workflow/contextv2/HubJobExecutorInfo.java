@@ -64,22 +64,78 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 public class HubJobExecutorInfo extends JobExecutorInfo {
 
     /**
-     * The scope is the account ID of the account that owns the execution context in which the current workflow job is
-     * executed.
+     * The scope under which the current job has been created. The scope is the account (e.g. team) that owns the
+     * execution context in which the job runs. This field holds the technical account ID (unique, immutable).
      */
-    private final String m_scope;
+    private final String m_scopeId;
 
-    HubJobExecutorInfo(final String userId, final UUID jobId, final boolean isRemote, final String scope) {
-        super(ExecutorType.HUB_EXECUTOR, userId, jobId, isRemote);
-        m_scope = scope;
+    /**
+     * See {@link #m_scopeId}. This field holds the human-readable (unique but mutable) account name.
+     */
+    private final String m_scopeName;
+
+    /**
+     * The human-readable (unique but mutable) name of the account that created the current job. See
+     * {@link #getJobCreatorId()} for the technical account ID.
+     */
+    private final String m_jobCreatorName;
+
+    HubJobExecutorInfo(final UUID jobId, final boolean isRemote, final String scope, final String scopeName,
+        final String jobCreatorId, final String jobCreatorName) {
+        super(ExecutorType.HUB_EXECUTOR, jobCreatorId, jobId, isRemote);
+        m_scopeId = scope;
+        m_scopeName = scopeName;
+        m_jobCreatorName = jobCreatorName;
     }
 
     /**
-     * @return the scope, which is the account ID of the account that owns the execution context in which the current
-     *         workflow job is executed.
+     * Provides the scope under which the current job has been created. The scope is the account (e.g. team) that owns
+     * the execution context in which the job runs. This method returns the technical account ID (unique, immutable),
+     * for example "team:f202a301-5fda-4763-afa6-85a2c0bf8a37".
+     *
+     * @return the scope as a technical account ID.
      */
-    public String getScope() {
-        return m_scope;
+    public String getScopeId() {
+        return m_scopeId;
+    }
+
+    /**
+     * Provides the scope under which the current job has been created. The scope is the account (e.g. team) that owns
+     * the execution context in which the job runs. This method returns the human-readable account name (unique but
+     * mutable), for example "marketing".
+     *
+     * @return the scopeName
+     */
+    public String getScopeName() {
+        return m_scopeName;
+    }
+
+    /**
+     * Provides the technical account ID (unique and immutable) of the account that created the current job, e.g.
+     * "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1". Same as {@link #getUserId()}.
+     *
+     * @return the technical account ID of the account that created the current job
+     */
+    public String getJobCreatorId() {
+        return getUserId();
+    }
+
+    /**
+     * Provides the human-readable account name (unique but mutable) of the account that created the current job, e.g.
+     * "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1".
+     *
+     * @return the technical account ID of the account that created the current job.
+     */
+    public String getJobCreatorName() {
+        return m_jobCreatorName;
+    }
+
+    /**
+     * Please see {@link #getJobCreatorId()}.
+     */
+    @Override
+    public String getUserId() {
+        return getJobCreatorId();
     }
 
     /**
@@ -88,9 +144,19 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
     public static final class Builder extends JobExecutorInfo.Builder<Builder, HubJobExecutorInfo> {
 
         /**
-         * See {@link HubJobExecutorInfo#getScope()}.
+         * See {@link HubJobExecutorInfo#getScopeId()}.
          */
-        private String m_scope;
+        private String m_scopeId;
+
+        /**
+         * See {@link HubJobExecutorInfo#getScopeName()}.
+         */
+        private String m_scopeName;
+
+        /**
+         * See {@link HubJobExecutorInfo#getJobCreatorName()}.
+         */
+        private String m_jobCreatorName;
 
         /**
          * Constructor.
@@ -100,27 +166,49 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
         }
 
         /**
-         * Sets the scope, which is the account ID of the account that owns the execution context in which the current
-         * workflow job is executed
+         * Sets the scope, which is the account (e.g. team) that owns the execution context in which the job runs.
          *
-         * @param scope The account ID of the account that owns the execution context in which the current workflow job
-         *            is executed.
+         * @param scopeId The technical account ID, e.g.g "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1"
+         * @param scopeName The human-readable account name, e.g. "bob.miller"
+         *
          * @return this builder instance
+         * @see HubJobExecutorInfo#getScopeId()
          */
-        public Builder withScope(final String scope) {
-            m_scope = scope;
+        public Builder withScope(final String scopeId, final String scopeName) {
+            m_scopeId = scopeId;
+            m_scopeName = scopeName;
+            return this;
+        }
+
+        /**
+         * Sets the job creator, which is the account (e.g. user) that that created the current job.
+         *
+         * @param jobCreatorId The technical account ID, e.g. "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1".
+         * @param jobCreatorName The human-readable account name, e.g. "bob.miller".
+         *
+         * @return this builder instance
+         * @see HubJobExecutorInfo#getJobCreatorId()
+         */
+        public Builder withJobCreator(final String jobCreatorId, final String jobCreatorName) {
+            withUserId(jobCreatorId);
+            m_jobCreatorName = jobCreatorName;
             return this;
         }
 
         @Override
         public HubJobExecutorInfo build() {
             checkFields();
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_scope), "Scope must not be empty");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_scopeId), "Scope ID must not be null or blank");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_scopeName), "Scope name must not be null or blank");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_userId), "Job creator ID must not be null or blank");
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_jobCreatorName),
+                "Job creator name must not be null or blank");
 
-            return new HubJobExecutorInfo(m_userId, //
-                m_jobId, //
+            return new HubJobExecutorInfo(m_jobId, //
                 m_isRemote, //
-                m_scope);
+                m_scopeId, //
+                m_scopeName, //
+                m_userId, m_jobCreatorName);
         }
     }
 }
