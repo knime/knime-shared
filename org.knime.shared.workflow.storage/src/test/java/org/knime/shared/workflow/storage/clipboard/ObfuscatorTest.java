@@ -44,52 +44,41 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   15 May 2022 (carlwitt): created
+ *   9 Sep 2022 (carlwitt): created
  */
 package org.knime.shared.workflow.storage.clipboard;
 
-import org.knime.shared.workflow.storage.clipboard.DefClipboardContent.Version;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.knime.shared.workflow.storage.clipboard.SystemClipboardFormat.ObfuscatorException;
 
 /**
- * Indicates that the content of the clipboard looks like it should be paste-able but has an invalid {@link Version}.
- * This may occur if the content was copied from a workflow editor with a future version or if the version string was
- * altered.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-public class InvalidDefClipboardContentVersionException extends Exception {
-
-    private static final long serialVersionUID = 1L;
+class ObfuscatorTest {
 
     /**
-     * Indicates that the content of the clipboard looks like it should be paste-able but has an invalid
-     * {@link Version}. This may occur if the content was copied from a workflow editor with a future version or if the
-     * version string was altered.
+     * Test method for {@link org.knime.shared.workflow.storage.clipboard.Obfuscator#obfuscate(java.lang.String)}.
+     * @throws ObfuscatorException
      */
-    public InvalidDefClipboardContentVersionException() {
-
+    @Test
+    void testObfuscate() throws ObfuscatorException {
+        var obfuscated = Obfuscator.obfuscate("secret");
+        assertThat(obfuscated).as("Obfuscation failed. Plain text leaked.").doesNotContain("secret");
     }
 
     /**
-     * @param message should state the invalid version
+     * Test method for {@link org.knime.shared.workflow.storage.clipboard.Obfuscator#deobfuscate(java.lang.String)}.
+     * @throws ObfuscatorException
      */
-    public InvalidDefClipboardContentVersionException(final String message) {
-        super(message);
-    }
-
-    /**
-     * @param cause for instance a Jackson invalid format exception
-     */
-    public InvalidDefClipboardContentVersionException(final Throwable cause) {
-        super(cause);
-    }
-
-    /**
-     * @param message should state the invalid version
-     * @param cause for instance a Jackson invalid format exception
-     */
-    public InvalidDefClipboardContentVersionException(final String message, final Throwable cause) {
-        super(message, cause);
+    @Test
+    void testDeobfuscate() throws ObfuscatorException {
+        final String original = "🤑㋉";
+        var obfuscated = Obfuscator.obfuscate(original);
+        var deobfuscated  = Obfuscator.deobfuscate(obfuscated);
+        assertThat(deobfuscated).as("Deobfuscation failed. Original content was not restored.").isEqualTo(original);
     }
 
 }
