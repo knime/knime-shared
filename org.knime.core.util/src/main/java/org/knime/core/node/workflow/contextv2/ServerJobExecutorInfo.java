@@ -61,8 +61,8 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  */
 public class ServerJobExecutorInfo extends JobExecutorInfo {
 
-    ServerJobExecutorInfo(final String userId, final UUID jobId) {
-        super(ExecutorType.SERVER_EXECUTOR, userId, jobId);
+    ServerJobExecutorInfo(final String userId, final UUID jobId, final boolean isRemote) {
+        super(ExecutorType.SERVER_EXECUTOR, userId, jobId, isRemote);
     }
 
     /**
@@ -81,7 +81,8 @@ public class ServerJobExecutorInfo extends JobExecutorInfo {
         public ServerJobExecutorInfo build() {
             checkFields();
             return new ServerJobExecutorInfo(m_userId, //
-                m_jobId);
+                m_jobId, //
+                m_isRemote);
         }
     }
 }

@@ -109,12 +109,12 @@ public final class WorkflowContextV2 {
     private final LocationInfo m_locationInfo;
 
     /**
-     * @param executorType
-     * @param executorInfo
-     * @param locationType
-     * @param locationInfo
+     * Constructor.
+     *
+     * @param executorInfo Provides information about the process that runs the current workflow.
+     * @param locationInfo Provides information about where the current workflow currently resides (is stored).
      */
-    WorkflowContextV2(final ExecutorInfo executorInfo, //
+    public WorkflowContextV2(final ExecutorInfo executorInfo, //
         final LocationInfo locationInfo) {
 
         super();

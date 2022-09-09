@@ -50,6 +50,8 @@ package org.knime.core.node.workflow.contextv2;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
+import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
 /**
@@ -61,8 +63,23 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  */
 public class HubJobExecutorInfo extends JobExecutorInfo {
 
-    HubJobExecutorInfo(final String userId, final UUID jobId) {
-        super(ExecutorType.HUB_EXECUTOR, userId, jobId);
+    /**
+     * The scope is the account ID of the account that owns the execution context in which the current workflow job is
+     * executed.
+     */
+    private final String m_scope;
+
+    HubJobExecutorInfo(final String userId, final UUID jobId, final boolean isRemote, final String scope) {
+        super(ExecutorType.HUB_EXECUTOR, userId, jobId, isRemote);
+        m_scope = scope;
+    }
+
+    /**
+     * @return the scope, which is the account ID of the account that owns the execution context in which the current
+     *         workflow job is executed.
+     */
+    public String getScope() {
+        return m_scope;
     }
 
     /**
@@ -71,18 +88,39 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
     public static final class Builder extends JobExecutorInfo.Builder<Builder, HubJobExecutorInfo> {
 
         /**
+         * See {@link HubJobExecutorInfo#getScope()}.
+         */
+        private String m_scope;
+
+        /**
          * Constructor.
          */
         public Builder() {
             super(ExecutorType.HUB_EXECUTOR);
         }
 
+        /**
+         * Sets the scope, which is the account ID of the account that owns the execution context in which the current
+         * workflow job is executed
+         *
+         * @param scope The account ID of the account that owns the execution context in which the current workflow job
+         *            is executed.
+         * @return this builder instance
+         */
+        public Builder withScope(final String scope) {
+            m_scope = scope;
+            return this;
+        }
+
         @Override
         public HubJobExecutorInfo build() {
             checkFields();
+            CheckUtils.checkArgument(StringUtils.isNotBlank(m_scope), "Scope must not be empty");
+
             return new HubJobExecutorInfo(m_userId, //
-                m_jobId);
+                m_jobId, //
+                m_isRemote, //
+                m_scope);
         }
     }
-
 }

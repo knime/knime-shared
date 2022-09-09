@@ -64,9 +64,17 @@ public class JobExecutorInfo extends ExecutorInfo {
 
     private final UUID m_jobId;
 
-    JobExecutorInfo(final ExecutorType type, final String userId, final UUID jobId) {
+    /**
+     * The remote workflow editor allows to open a workflow job in AP, while the job is executed in a Server or Hub
+     * executor. For that workflow job, we then have two workflow contexts: One in AP where this field is true, and one
+     * in the Server/Hub executor, where this field is false.
+     */
+    private final boolean m_isRemote;
+
+    JobExecutorInfo(final ExecutorType type, final String userId, final UUID jobId, final boolean isRemote) {
         super(type, userId);
         m_jobId = jobId;
+        m_isRemote = isRemote;
     }
 
     /**
@@ -74,6 +82,18 @@ public class JobExecutorInfo extends ExecutorInfo {
      */
     public UUID getJobId() {
         return m_jobId;
+    }
+
+    /**
+     * The remote workflow editor allows to open a workflow in Analytics Platform, while the execution is in KNIME
+     * Server or Hub. For that workflow job, we then have two workflow contexts: One in Analytics Platform where this
+     * method returns true, and one in KNIME Server/Hub, where this method returns false.
+     *
+     * @return true, if the workflow job is running in a remote executor, false otherwise (i.e. the current JVM is the
+     *         executor).
+     */
+    public boolean isRemote() {
+        return m_isRemote;
     }
 
     /**
@@ -90,6 +110,11 @@ public class JobExecutorInfo extends ExecutorInfo {
          * See {@link JobExecutorInfo#getJobId()}.
          */
         protected UUID m_jobId;
+
+        /**
+         * See {@link JobExecutorInfo#isRemote()}.
+         */
+        protected boolean m_isRemote;
 
         /**
          * Constructor.
@@ -109,6 +134,20 @@ public class JobExecutorInfo extends ExecutorInfo {
         @SuppressWarnings("unchecked")
         public final B withJobId(final UUID jobId) {
             m_jobId = jobId;
+            return (B)this;
+        }
+
+        /**
+         * Sets whether the workflow job is running in a remote executor, or locally, i.e. the current JVM is the
+         * executor).
+         *
+         * @param isRemote Set to true, when the workflow job is running in a remote executor, otherwise set to false
+         *            (i.e. the current JVM is the executor).
+         * @return this builder instance
+         */
+        @SuppressWarnings("unchecked")
+        public final B withIsRemote(final boolean isRemote) {
+            m_isRemote = isRemote;
             return (B)this;
         }
 
