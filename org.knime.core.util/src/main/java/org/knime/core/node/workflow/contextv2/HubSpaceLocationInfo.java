@@ -95,6 +95,7 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
     private final String m_workflowItemId;
 
     HubSpaceLocationInfo(final Path localWorkflowCopyPath, // NOSONAR only invoked by builder class
+        final Path tempFolder, //
         final URI mountpointURI, //
         final URI repositoryAddress, //
         final Authenticator authenticator, //
@@ -107,6 +108,7 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
 
         super(LocationType.HUB_SPACE, //
             localWorkflowCopyPath, //
+            tempFolder, //
             mountpointURI, //
             repositoryAddress, //
             authenticator, //
@@ -217,6 +219,7 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
             }
 
             return new HubSpaceLocationInfo(m_localWorkflowPath, //
+                m_tempFolder, //
                 m_mountpointURI, //
                 m_repositoryAddress, //
                 m_authenticator, //

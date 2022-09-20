@@ -105,15 +105,16 @@ public abstract class RestLocationInfo extends LocationInfo {
      */
     private final String m_defaultMountId;
 
-    RestLocationInfo(final LocationType type, //
+    RestLocationInfo(final LocationType type, // NOSONAR invoked through builder only, number of arguments irrelevant
         final Path localWorkflowCopyPath, //
+        final Path tempFolder, //
         final URI mountpointURI, //
         final URI repositoryAddress, //
         final Authenticator authenticator, //
         final String workflowPath, //
         final String defaultMountId) {
 
-        super(type, localWorkflowCopyPath, null, mountpointURI);
+        super(type, localWorkflowCopyPath, null, tempFolder, mountpointURI);
         m_repositoryAddress = repositoryAddress;
         m_authenticator = authenticator;
         m_workflowPath = workflowPath;

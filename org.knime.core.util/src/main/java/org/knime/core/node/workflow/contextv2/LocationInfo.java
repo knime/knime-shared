@@ -48,7 +48,9 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -81,19 +83,28 @@ public class LocationInfo {
     private final Path m_originalLocalWorkflowPath;
 
     /**
+     * {@link Path} of a temporary folder in the local file system of the workflow executor. The folder can be used by
+     * the workflow to store temporary files.
+     */
+    private final Path m_tempFolder;
+
+    /**
      * A mountpoint-absolute knime:// URI that points to where the workflow resides from the perspective of the
      * executor's mount table, e.g. knime://LOCAL/Users/bob/myworkflow, or knime://devserver1/Users/bob/myworkflow.
      */
     private final URI m_mountpointURI;
 
+
     LocationInfo(final LocationType type, //
         final Path workflowPath, //
         final Path originalWorkflowPath, //
+        final Path tempFolder, //
         final URI mountpointURI) {
 
         m_type = type;
         m_localWorkflowPath = workflowPath;
         m_originalLocalWorkflowPath = originalWorkflowPath;
+        m_tempFolder = tempFolder;
         m_mountpointURI = mountpointURI;
     }
 
@@ -123,6 +134,16 @@ public class LocationInfo {
      */
     public Optional<Path> getOriginalLocalWorkflowPath() {
         return Optional.ofNullable(m_originalLocalWorkflowPath);
+    }
+
+    /**
+     * {@link Path} of a temporary folder in the local file system of the workflow executor. The folder can be used by
+     * the workflow to store temporary files.
+     *
+     * @return the {@link Path} of a temporary folder which can be used by the workflow to store temporary files.
+     */
+    public Path getTempFolder() {
+        return m_tempFolder;
     }
 
     /**
@@ -158,6 +179,11 @@ public class LocationInfo {
         protected Path m_originalLocalWorkflowPath;
 
         /**
+         * See {@link LocationInfo#getTempFolder()}.
+         */
+        protected Path m_tempFolder;
+
+        /**
          * See {@link LocationInfo#getMountpointURI()}.
          */
         protected URI m_mountpointURI;
@@ -179,6 +205,12 @@ public class LocationInfo {
         }
 
         @SuppressWarnings("unchecked")
+        public final B withTempFolder(final Path tempFolder) {
+            m_tempFolder = tempFolder;
+            return (B)this;
+        }
+
+        @SuppressWarnings("unchecked")
         public final B withMountpointURI(final URI mountpointURI) {
             m_mountpointURI = mountpointURI;
             return (B)this;
@@ -188,6 +220,16 @@ public class LocationInfo {
             CheckUtils.checkArgumentNotNull(m_type, "Location type must not be null");
             CheckUtils.checkArgumentNotNull(m_localWorkflowPath, "Local workflow path must not be null");
             CheckUtils.checkArgumentNotNull(m_mountpointURI, "Mountpoint URI must not be null");
+
+            if (m_tempFolder == null) {
+                try {
+                    // this creates a new temp folder under System.getProperty("java.io.tmpdir")
+                    // which will always be the KNIME temp folder, see KNIMEConstants
+                    m_tempFolder = Files.createTempDirectory("knime_").toRealPath();
+                } catch (IOException e) {
+                    throw new IllegalStateException("Can't create workflow temp folder", e);
+                }
+            }
         }
 
         public abstract I build();

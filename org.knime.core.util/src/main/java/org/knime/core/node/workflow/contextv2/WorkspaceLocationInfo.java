@@ -71,10 +71,11 @@ public class WorkspaceLocationInfo extends LocationInfo {
     WorkspaceLocationInfo(final LocationType type, //
         final Path localWorkflowCopyPath, //
         final Path originalWorkflowPath, //
+        final Path tempFolder, //
         final URI mountpointURI, //
         final Path workspacePath) {
 
-        super(type, localWorkflowCopyPath, originalWorkflowPath, mountpointURI);
+        super(type, localWorkflowCopyPath, originalWorkflowPath, tempFolder, mountpointURI);
         m_workspacePath = workspacePath;
     }
 
@@ -122,6 +123,7 @@ public class WorkspaceLocationInfo extends LocationInfo {
             return new WorkspaceLocationInfo(m_type, //
                 m_localWorkflowPath, //
                 m_originalLocalWorkflowPath, //
+                m_tempFolder,
                 m_mountpointURI, //
                 m_workspacePath);
         }

@@ -67,6 +67,7 @@ import org.knime.core.util.auth.Authenticator;
 public class ServerLocationInfo extends RestLocationInfo {
 
     ServerLocationInfo(final Path localWorkflowCopyPath, //
+        final Path tempFolder, //
         final URI mountpointURI, //
         final URI repositoryAddress, //
         final Authenticator authenticator, //
@@ -75,6 +76,7 @@ public class ServerLocationInfo extends RestLocationInfo {
 
         super(LocationType.SERVER_REPOSITORY, //
             localWorkflowCopyPath, //
+            tempFolder, //
             mountpointURI, //
             repositoryAddress, //
             authenticator, //
@@ -98,6 +100,7 @@ public class ServerLocationInfo extends RestLocationInfo {
         public ServerLocationInfo build() {
             checkFields();
             return new ServerLocationInfo(m_localWorkflowPath, //
+                m_tempFolder, //
                 m_mountpointURI, //
                 m_repositoryAddress, //
                 m_authenticator, //
