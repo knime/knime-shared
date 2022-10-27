@@ -44,70 +44,47 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Aug 26, 2022 (bjoern): created
+ *   Oct 27, 2022 (leonard.woerteler): created
  */
 package org.knime.core.node.workflow.contextv2;
 
-import java.net.URI;
-import java.util.Objects;
+import static org.junit.Assert.assertEquals;
 
-import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
-import org.knime.core.node.workflow.contextv2.ServerLocationInfoBuilderFactory.ServerLocationInfoBuilder;
-import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
-import org.knime.core.util.auth.Authenticator;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Optional;
+
+import org.junit.Test;
 
 /**
- * Provides information about a KNIME Server repository (a REST endpoint) that holds the current workflow. This class
- * exists only for typing purposes and provides no additional fields on top of its superclass {@link RestLocationInfo}.
- * Please see the Javadoc of {@link RestLocationInfo}.
+ * Tests for {@link WorkflowContextV2Test}.
  *
- * @author Bjoern Lohrmann, KNIME GmbH
- * @see RestLocationInfo
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  */
-public class ServerLocationInfo extends RestLocationInfo {
+public class WorkflowContextV2Test {
 
-    /**
-     * Creates a fluent builder for {@link ServerLocationInfo} instances.
-     *
-     * @return new builder
-     */
-    public static RestLocationInfoReqRABuilder<ServerLocationInfoBuilder> builder() {
-        return ServerLocationInfoBuilderFactory.create();
-    }
+    private static final Path ROOT = Path.of("/").toAbsolutePath();
 
-    ServerLocationInfo( //
-            final URI repositoryAddress, //
-            final Authenticator authenticator, //
-            final String workflowPath, //
-            final String defaultMountId) {
-        super(LocationType.SERVER_REPOSITORY, repositoryAddress, authenticator, workflowPath, defaultMountId);
-    }
+    private static final String MOUNTPOINT_ROOT = "/home/jenkins/workspace/ontext-v-2-in-analytics-platform/tmp/"
+        + "knime_temp/tempTestRootDirs13515/workflows";
 
-    @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
-        final ServerLocationInfo that = (ServerLocationInfo)other;
-        return Objects.equals(getType(), that.getType())
-                && Objects.equals(getRepositoryAddress(), that.getRepositoryAddress())
-                && Objects.equals(getAuthenticator(), that.getAuthenticator())
-                && Objects.equals(getWorkflowPath(), that.getWorkflowPath())
-                && Objects.equals(getDefaultMountId(), that.getDefaultMountId());
-    }
+    private static final String WORKFLOW_PATH = MOUNTPOINT_ROOT + "/Testflows (master)/knime-core/WorkflowManager/"
+            + "AP-19485_WorkflowContext_URL_Resolve_Streaming/AP-19485_WorkflowContext_inStreaming";
 
-    @Override
-    public int hashCode() {
-        return Objects.hash( //
-            getType(), //
-            getRepositoryAddress(), //
-            getAuthenticator(), //
-            getWorkflowPath(), //
-            getDefaultMountId());
+    private static final URI MOUNTPOINT_URI = URI.create("knime://LOCAL/Testflows%20(master)/knime-core/WorkflowManager"
+        + "/AP-19485_WorkflowContext_URL_Resolve_Streaming/AP-19485_WorkflowContext_inStreaming");
+
+    /** Creates a long mountpoint URI which includes spaces and parentheses. */
+    @Test
+    public void testMountpointUri() {
+        final var ctx = WorkflowContextV2.builder()
+                .withAnalyticsPlatformExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(ROOT.resolve(WORKFLOW_PATH))
+                    .withMountpoint("LOCAL", ROOT.resolve(MOUNTPOINT_ROOT)))
+                .withLocalLocation()
+                .build();
+
+        assertEquals("Mountpoint URI is not resolved correctly.", Optional.of(MOUNTPOINT_URI), ctx.getMountpointURI());
     }
 }

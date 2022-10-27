@@ -48,9 +48,10 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
-import org.apache.commons.lang3.StringUtils;
-import org.knime.core.node.util.CheckUtils;
+import java.nio.file.Path;
+
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
+import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
 
 /**
  * Provides information about the process that runs the current workflow.
@@ -59,16 +60,34 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  * @noreference non-public API
  * @noinstantiate non-public API
  */
-public class ExecutorInfo {
+public abstract class ExecutorInfo {
 
     private final ExecutorType m_type;
 
     private final String m_userId;
 
-    ExecutorInfo(final ExecutorType type, //
-        final String userId) {
+    /**
+     * The {@link Path} of the current workflow in the local file system of the workflow executor. If {@link #getType()}
+     * returns {@link LocationType#WORKSPACE}, then this path is the actual location where the workflow resides/stored.
+     * For other {@link LocationType}s, this path is only the path of a local job copy.
+     */
+    private final Path m_localWorkflowPath;
+
+    /**
+     * {@link Path} of a temporary folder in the local file system of the workflow executor. The folder can be used by
+     * the workflow to store temporary files.
+     */
+    private final Path m_tempFolder;
+
+    ExecutorInfo( //
+            final ExecutorType type, //
+            final String userId, //
+            final Path workflowPath, //
+            final Path tempFolder) {
         m_type = type;
         m_userId = userId;
+        m_localWorkflowPath = workflowPath;
+        m_tempFolder = tempFolder;
     }
 
     /**
@@ -93,38 +112,51 @@ public class ExecutorInfo {
     }
 
     /**
-     * Base class for {@link ExecutorInfo} builders.
+     * Provides the {@link Path} of the current workflow in the local file system of the workflow executor. If
+     * {@link LocationInfo#getType()} returns {@link LocationType#LOCAL}, then this path is the actual location
+     * where the workflow resides/stored. For other {@link LocationType}s, this path is only the path of a local job
+     * copy.
      *
-     * @param <B> The actual type of the builder.
-     * @param <I> The type of {@link ExecutorInfo} produced.
+     * @return path of workflow in local file system of the workflow executor.
      */
-    @SuppressWarnings("rawtypes")
-    abstract static class BaseBuilder<B extends BaseBuilder, I extends ExecutorInfo> {
+    public Path getLocalWorkflowPath() {
+        return m_localWorkflowPath;
+    }
 
-        /**
-         * See {@link ExecutorInfo#getType()}.
-         */
-        protected ExecutorType m_type;
+    /**
+     * {@link Path} of a temporary folder in the local file system of the workflow executor. The folder can be used by
+     * the workflow to store temporary files. The folder may or may not exist. If it does not exist, the workflow will
+     * create the folder denoted by this path and also delete it when closed. Otherwise it will not delete it.
+     *
+     * @return the {@link Path} of a temporary folder which can be used by the workflow to store temporary files (not
+     *         null).
+     */
+    public Path getTempFolder() {
+        return m_tempFolder;
+    }
 
-        /**
-         * See {@link ExecutorInfo#getUserId()}.
-         */
-        protected String  m_userId;
+    /**
+     * Adds a string representation of this executor info to the given string builder.
+     *
+     * @param sb string builder to add to
+     * @param indent indentation level
+     */
+    final StringBuilder toString(final StringBuilder sb, final int indent) {
+        sb.append("  ".repeat(indent)).append(getClass().getSimpleName()).append("[\n");
+        addFields(sb, indent + 1);
+        return sb.append("  ".repeat(indent)).append("]\n");
+    }
 
-        protected BaseBuilder(final ExecutorType type) {
-            m_type = type;
-        }
+    void addFields(final StringBuilder sb, final int indent) {
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("type=").append(m_type).append("\n");
+        sb.append(init).append("userId=").append(m_userId).append("\n");
+        sb.append(init).append("localWorkflowPath=").append(m_localWorkflowPath).append("\n");
+        sb.append(init).append("tempFolder=").append(m_tempFolder).append("\n");
+    }
 
-        @SuppressWarnings("unchecked")
-        public final B withUserId(final String userId) {
-            m_userId = userId;
-            return (B)this;
-        }
-
-        protected void checkFields() {
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_userId), "User ID must not be null or blank");
-        }
-
-        public abstract I build();
+    @Override
+    public String toString() {
+        return toString(new StringBuilder(), 0).toString();
     }
 }

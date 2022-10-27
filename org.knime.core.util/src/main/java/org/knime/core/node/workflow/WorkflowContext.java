@@ -46,42 +46,134 @@
  */
 package org.knime.core.node.workflow;
 
-import java.io.Externalizable;
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.knime.core.node.workflow.contextv2.WorkflowContextV2;
 import org.knime.core.util.User;
 import org.knime.core.util.auth.Authenticator;
-import org.knime.core.util.auth.SimpleTokenAuthenticator;
 
 /**
- * This class holds information about the context in which a workflows currently resides. It includes information such
- * as the current workflow directory or the ID of the user executing the workflow. Instances must be created via the
- * {@link Factory} since the workflow context is purely read-only.
+ * <p>
+ * This used to be a class, which has since AP 4.7.0 been replaced with {@link WorkflowContextV2}.
+ * </p>
+ *
+ * This interface provides information about the context in which a workflow currently resides. It includes information
+ * such as the current workflow directory or the ID of the user executing the workflow.
  *
  * <b>This class is not intended to be used by clients.</b>
  *
  * @author Thorsten Meinl, KNIME.com Zurich, Switzerland
  * @since 4.4
  * @noextend This class is not intended to be subclassed by clients.
+ * @deprecated since 4.7
  */
-public class WorkflowContext implements Externalizable {
+@Deprecated(since = "4.7.0")
+public interface WorkflowContext {
 
-    private static final long serialVersionUID = 67323L;
+    /**
+     * Returns the ID of the user which executes this workflow.
+     *
+     * @return a user id, never <code>null</code>
+     */
+    String getUserid();
+
+    /**
+     * Returns the current location of the workflow, which can be a temporary directory.
+     *
+     * @return a local directory, never <code>null</code>
+     */
+    File getCurrentLocation();
+
+    /**
+     * Returns the original location of the workflow, e.g. in the server repository. This has only meaning if the
+     * current directory is a copy and is <code>null</code> otherwise.
+     *
+     * @return a local directory or <code>null</code>
+     */
+    File getOriginalLocation();
+
+    /**
+     * Returns the location of the temporary directory for this workflow or <code>null</code> if no specific temporary
+     * directory for the workflow exists.
+     *
+     * @return a temporary directory or <code>null</code>
+     */
+    File getTempLocation();
+
+    /**
+     * Returns the root of the mountpoint the workflow is contained in or <code>null</code> if this information is not
+     * available.
+     *
+     * @return the mountpoint root or <code>null</code>
+     */
+    File getMountpointRoot();
+
+    /**
+     * Returns the URI of the workflow inside a mount point. If this information is not known an empty optional is
+     * returned.
+     *
+     * @return the workflow URI if known, an empty optional otherwise
+     * @since 5.4
+     */
+    Optional<URI> getMountpointURI();
+
+    /**
+     * Returns the base address of the server repository (the REST endpoint). This value is only set if the workflow is
+     * executed in a server executor.
+     *
+     * @return the repository base address or an empty optional if unknown
+     */
+    Optional<URI> getRemoteRepositoryAddress();
+
+    /**
+     * Returns the path of the workflow relative to the repository root (see {@link #getRemoteRepositoryAddress()}. This
+     * value is only set if the workflow is executed in a server executor.
+     *
+     * @return the relative path or an empty optional if unknown
+     */
+    Optional<String> getRelativeRemotePath();
+
+    /**
+     * Returns the authenticator that should be used when talking to the server specified by
+     * {@link #getRemoteRepositoryAddress()}. This value is only set if the workflow is executed in a server executor.
+     *
+     * @return the authenticator or an empty optional
+     * @since 5.19
+     */
+    Optional<Authenticator> getServerAuthenticator();
+
+    /**
+     * Returns the (default) mount id of the remote server. This value is only set if the workflow is executed in a
+     * server executor.
+     *
+     * @return a mount id or an empty optional
+     */
+    Optional<String> getRemoteMountId();
+
+    /**
+     * Returns the job id of the workflow. This value is only set if the workflow is executed in a server executor.
+     *
+     * @return a job id or an empty optional
+     * @since 5.11
+     */
+    Optional<UUID> getJobId();
+
+    /**
+     * Returns whether the workflow location is a temporary copy of a workflow living somewhere else. In this case the
+     * resolution of relative knime-URLs has to be done differently than for "real" workflows.
+     *
+     * @return <code>true</code> if the workflow is a temporary copy, <code>false</code> otherwise
+     * @since 5.9
+     */
+    boolean isTemporaryCopy();
 
     /**
      * Factory for workflow contexts. This class is not thread-safe!
      */
-    public static class Factory {
+    class Factory {
         String m_userid;
 
         File m_currentLocation;
@@ -97,8 +189,6 @@ public class WorkflowContext implements Externalizable {
         URI m_remoteRepositoryAddress;
 
         String m_relativeRemotePath;
-
-        String m_remoteAuthToken;
 
         String m_remoteMountId;
 
@@ -133,19 +223,18 @@ public class WorkflowContext implements Externalizable {
          * @param origContext To copy from - not null.
          * @since 5.3 */
         protected Factory(final WorkflowContext origContext) {
-            m_currentLocation = origContext.m_currentLocation;
-            m_userid = origContext.m_userid;
-            m_mountpointRoot = origContext.m_mountpointRoot;
-            m_originalLocation = origContext.m_originalLocation;
-            m_tempLocation = origContext.m_tempLocation;
-            m_mountpointUri = origContext.m_mountpointUri;
-            m_remoteRepositoryAddress = origContext.m_remoteRepositoryAddress;
-            m_remoteMountId = origContext.m_remoteMountId;
-            m_remoteAuthToken = origContext.m_remoteAuthToken;
-            m_relativeRemotePath = origContext.m_relativeRemotePath;
-            m_isTempCopy = origContext.m_isTempCopy;
-            m_jobId = origContext.m_jobId;
-            m_authenticator = origContext.m_authenticator;
+            m_currentLocation = origContext.getCurrentLocation();
+            m_userid = origContext.getUserid();
+            m_mountpointRoot = origContext.getMountpointRoot();
+            m_originalLocation = origContext.getOriginalLocation();
+            m_tempLocation = origContext.getTempLocation();
+            m_mountpointUri = origContext.getMountpointURI().orElse(null);
+            m_remoteRepositoryAddress = origContext.getRemoteRepositoryAddress().orElse(null);
+            m_remoteMountId = origContext.getRemoteMountId().orElse(null);
+            m_relativeRemotePath = origContext.getRelativeRemotePath().orElse(null);
+            m_isTempCopy = origContext.isTemporaryCopy();
+            m_jobId = origContext.getJobId().orElse(null);
+            m_authenticator = origContext.getServerAuthenticator().orElse(null);
         }
 
         /**
@@ -240,20 +329,6 @@ public class WorkflowContext implements Externalizable {
         }
 
         /**
-         * Sets the authentication token (JWT) that should be used when talking to the server specified via
-         * {@link #setRemoteAddress(URI, String)}.
-         *
-         * @param token a JWT, may be <code>null</code>
-         * @return the updated factory
-         * @deprecated use {@link #setRemoteAuthenticator(Authenticator)}
-         */
-        @Deprecated(since = "5.19")
-        public Factory setRemoteAuthToken(final String token) {
-            m_remoteAuthToken = token;
-            return this;
-        }
-
-        /**
          * Sets the authenticator that should be used when talking to the server specified via
          * {@link #setRemoteAddress(URI, String)}.
          *
@@ -308,379 +383,81 @@ public class WorkflowContext implements Externalizable {
          * @return a new workflow context
          */
         public WorkflowContext createContext() {
-            return new WorkflowContext(this);
-        }
-    }
+            final var userid = m_userid;
+            final var currentLocation = m_currentLocation;
+            final var originalLocation = m_originalLocation;
+            final var tempLocation = m_tempLocation;
+            final var mountpointRoot = m_mountpointRoot;
+            final var mountpointUri = m_mountpointUri;
+            final var remoteRepositoryAddress = m_remoteRepositoryAddress;
+            final var relativeRemotePath = m_relativeRemotePath;
+            final var remoteMountId = m_remoteMountId;
+            final var jobId = m_jobId;
+            final var isTempCopy = m_isTempCopy;
+            final var authenticator = m_authenticator;
 
-    private String m_userid;
+            return new WorkflowContext() { // NOSONAR this anonymous class is lengthy but very boring
 
-    private File m_currentLocation;
-
-    private File m_originalLocation;
-
-    private File m_tempLocation;
-
-    private File m_mountpointRoot;
-
-    private transient URI m_mountpointUri; // the URI is only meaningful within the same instance
-
-    private URI m_remoteRepositoryAddress;
-
-    private String m_relativeRemotePath;
-
-    private String m_remoteAuthToken;
-
-    private String m_remoteMountId;
-
-    private Authenticator m_authenticator;
-
-    /**
-     * Only used in the executor and therefore, it is is not included in
-     * {@link WorkflowContext#readExternal(ObjectInput)} and {@link WorkflowContext#writeExternal(ObjectInput)} .
-     */
-    private UUID m_jobId;
-
-    private boolean m_isTempCopy;
-
-    /**
-     * Constructor.
-     *
-     * @param factory the factory
-     *
-     * @noreference This constructor is not intended to be referenced by clients.
-     */
-    protected WorkflowContext(final Factory factory) {
-        assert factory.m_userid != null : "User is must not be null";
-        assert factory.m_currentLocation != null : "Current workflow location must not be null";
-        m_userid = factory.m_userid;
-        m_currentLocation = factory.m_currentLocation;
-        m_originalLocation = factory.m_originalLocation;
-        m_tempLocation = factory.m_tempLocation;
-        m_mountpointRoot = factory.m_mountpointRoot;
-        if (factory.m_mountpointUri != null) {
-            if (factory.m_mountpointUri.getPath().endsWith("/workflow.knime")) {
-                String path = factory.m_mountpointUri.getPath();
-                try {
-                    m_mountpointUri =
-                        new URI(factory.m_mountpointUri.getScheme(), factory.m_mountpointUri.getUserInfo(),
-                            factory.m_mountpointUri.getHost(), factory.m_mountpointUri.getPort(),
-                            path.substring(0, path.length() - "/workflow.knime".length()),
-                            factory.m_mountpointUri.getQuery(), factory.m_mountpointUri.getFragment());
-                } catch (URISyntaxException ex) {
-                    // shouldn't happen because we come from a valid URI
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                @Override
+                public String getUserid() {
+                    return userid;
                 }
-            } else {
-                m_mountpointUri = factory.m_mountpointUri;
-            }
+
+                @Override
+                public File getCurrentLocation() {
+                    return currentLocation;
+                }
+
+                @Override
+                public File getOriginalLocation() {
+                    return originalLocation;
+                }
+
+                @Override
+                public File getTempLocation() {
+                    return tempLocation;
+                }
+
+                @Override
+                public File getMountpointRoot() {
+                    return mountpointRoot;
+                }
+
+                @Override
+                public Optional<URI> getMountpointURI() {
+                    return Optional.ofNullable(mountpointUri);
+                }
+
+                @Override
+                public Optional<URI> getRemoteRepositoryAddress() {
+                    return Optional.ofNullable(remoteRepositoryAddress);
+                }
+
+                @Override
+                public Optional<String> getRelativeRemotePath() {
+                    return Optional.ofNullable(relativeRemotePath);
+                }
+
+                @Override
+                public Optional<Authenticator> getServerAuthenticator() {
+                    return Optional.ofNullable(authenticator);
+                }
+
+                @Override
+                public Optional<String> getRemoteMountId() {
+                    return Optional.ofNullable(remoteMountId);
+                }
+
+                @Override
+                public Optional<UUID> getJobId() {
+                    return Optional.ofNullable(jobId);
+                }
+
+                @Override
+                public boolean isTemporaryCopy() {
+                    return isTempCopy;
+                }
+            };
         }
-        m_remoteRepositoryAddress = factory.m_remoteRepositoryAddress;
-        m_relativeRemotePath = factory.m_relativeRemotePath;
-        m_remoteAuthToken = factory.m_remoteAuthToken;
-        m_remoteMountId = factory.m_remoteMountId;
-        m_jobId = factory.m_jobId;
-        m_isTempCopy = factory.m_isTempCopy;
-        m_authenticator = factory.m_authenticator == null && factory.m_remoteAuthToken != null
-            ? new SimpleTokenAuthenticator(m_remoteAuthToken) : factory.m_authenticator;
-    }
-
-    /**
-     * Returns the ID of the user which executes this workflow.
-     *
-     * @return a user id, never <code>null</code>
-     */
-    public String getUserid() {
-        return m_userid;
-    }
-
-    /**
-     * Returns the current location of the workflow, which can be a temporary directory.
-     *
-     * @return a local directory, never <code>null</code>
-     */
-    public File getCurrentLocation() {
-        return m_currentLocation;
-    }
-
-    /**
-     * Returns the original location of the workflow, e.g. in the server repository. This has only meaning if the
-     * current directory is a copy and is <code>null</code> otherwise.
-     *
-     * @return a local directory or <code>null</code>
-     */
-    public File getOriginalLocation() {
-        return m_originalLocation;
-    }
-
-    /**
-     * Returns the location of the temporary directory for this workflow or <code>null</code> if no specific temporary
-     * directory for the workflow exists.
-     *
-     * @return a temporary directory or <code>null</code>
-     */
-    public File getTempLocation() {
-        return m_tempLocation;
-    }
-
-    /**
-     * Returns the root of the mountpoint the workflow is contained in or <code>null</code> if this information is not
-     * available.
-     *
-     * @return the mountpoint root or <code>null</code>
-     */
-    public File getMountpointRoot() {
-        return m_mountpointRoot;
-    }
-
-    /**
-     * Returns the URI of the workflow inside a mount point. If this information is not known an empty optional is
-     * returned.
-     *
-     * @return the workflow URI if known, an empty optional otherwise
-     * @since 5.4
-     */
-    public Optional<URI> getMountpointURI() {
-        return Optional.ofNullable(m_mountpointUri);
-    }
-
-    /**
-     * Returns the base address of the server repository (the REST endpoint). This value is only set if the workflow is
-     * executed in a server executor.
-     *
-     * @return the repository base address or an empty optional if unknown
-     */
-    public Optional<URI> getRemoteRepositoryAddress() {
-        return Optional.ofNullable(m_remoteRepositoryAddress);
-    }
-
-    /**
-     * Returns the path of the workflow relative to the repository root (see {@link #getRemoteRepositoryAddress()}.
-     * This value is only set if the workflow is executed in a server executor.
-     *
-     * @return the relative path or an empty optional if unknown
-     */
-    public Optional<String> getRelativeRemotePath() {
-        return Optional.ofNullable(m_relativeRemotePath);
-    }
-
-    /**
-     * Returns the JWT that should be used when talking to the server specified by {@link #getRemoteRepositoryAddress()}
-     * . This value is only set if the workflow is executed in a server executor.
-     *
-     * @return an authentication token or an empty optional
-     * @deprecated use {@link #getServerAuthenticator()} instead
-     */
-    @Deprecated(since = "5.19")
-    public Optional<String> getServerAuthToken() {
-        return Optional.ofNullable(m_remoteAuthToken);
-    }
-
-    /**
-     * Returns the authenticator that should be used when talking to the server specified by
-     * {@link #getRemoteRepositoryAddress()}. This value is only set if the workflow is executed in a server executor.
-     *
-     * @return the authenticator or an empty optional
-     * @since 5.19
-     */
-    public Optional<Authenticator> getServerAuthenticator() {
-        return Optional.ofNullable(m_authenticator);
-    }
-
-    /**
-     * Returns the (default) mount id of the remote server. This value is only set if the workflow is executed in a
-     * server executor.
-     *
-     * @return a mount id or an empty optional
-     */
-    public Optional<String> getRemoteMountId() {
-        return Optional.ofNullable(m_remoteMountId);
-    }
-
-    /**
-     * Returns the job id of the workflow. This value is only set if the workflow is executed in a server executor.
-     *
-     * @return a job id or an empty optional
-     * @since 5.11
-     */
-    public Optional<UUID> getJobId() {
-        return Optional.ofNullable(m_jobId);
-    }
-
-    /**
-     * Returns whether the workflow location is a temporary copy of a workflow living somewhere else. In this case the
-     * resolution of relative knime-URLs has to be done differently than for "real" workflows.
-     *
-     * @return <code>true</code> if the workflow is a temporary copy, <code>false</code> otherwise
-     * @since 5.9
-     */
-    public boolean isTemporaryCopy() {
-        return m_isTempCopy;
-    }
-
-    /**
-     * Returns the factory to copy this instance.
-     *
-     * @return the factory
-     * @since 5.11
-     */
-    public Factory createCopy() {
-        return new Factory(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return m_currentLocation.getAbsolutePath() + ((m_mountpointRoot != null) ? (" @ " + m_mountpointRoot) : "");
-    }
-
-    /*----------------------------------------------------------------------------------*/
-    /* Externalizable stuff */
-    /* ---------------------------------------------------------------------------------*/
-    /**
-     * Serialisation constructor. Don't use!
-     */
-    public WorkflowContext() {
-        // Do not use.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeExternal(final ObjectOutput out) throws IOException {
-        out.writeUTF(m_currentLocation.getAbsolutePath()); /* not null */
-        writeFilePath(out, m_mountpointRoot);
-        writeFilePath(out, m_originalLocation);
-        writeFilePath(out, m_tempLocation);
-        out.writeUTF(m_userid); /* not null */
-
-        if (m_remoteRepositoryAddress != null) {
-            out.writeBoolean(true);
-            out.writeUTF(m_remoteRepositoryAddress.toString());
-            out.writeUTF(m_relativeRemotePath);
-        } else {
-            out.writeBoolean(false);
-        }
-        if (m_remoteAuthToken != null) {
-            out.writeBoolean(true);
-            out.writeUTF(m_remoteAuthToken);
-        } else {
-            out.writeBoolean(false);
-        }
-        if (m_remoteMountId != null) {
-            out.writeBoolean(true);
-            out.writeUTF(m_remoteMountId);
-        } else {
-            out.writeBoolean(false);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
-        m_currentLocation = new File(in.readUTF());
-        m_mountpointRoot = readFilePath(in);
-        m_originalLocation = readFilePath(in);
-        m_tempLocation = readFilePath(in);
-        m_userid = in.readUTF();
-
-        if (in.readBoolean()) {
-            m_remoteRepositoryAddress = URI.create(in.readUTF());
-            m_relativeRemotePath = in.readUTF();
-        }
-
-        if (in.readBoolean()) {
-            m_remoteAuthToken = in.readUTF();
-        }
-        if (in.readBoolean()) {
-            m_remoteMountId = in.readUTF();
-        }
-    }
-
-    private void writeFilePath(final ObjectOutput out, final File f) throws IOException {
-        out.writeBoolean(f != null);
-        if (f != null) {
-            out.writeUTF(f.getAbsolutePath());
-        }
-    }
-
-    private File readFilePath(final ObjectInput in) throws IOException, ClassNotFoundException {
-        if (in.readBoolean()) {
-            return new File(in.readUTF());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(m_currentLocation, m_mountpointRoot, m_originalLocation, m_tempLocation, m_userid,
-            m_mountpointUri, m_relativeRemotePath, m_remoteRepositoryAddress, m_remoteAuthToken, m_jobId, m_isTempCopy,
-            m_authenticator);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        WorkflowContext other = (WorkflowContext)obj;
-        if (m_currentLocation == null) {
-            if (other.m_currentLocation != null) {
-                return false;
-            }
-        } else if (!m_currentLocation.equals(other.m_currentLocation)) {
-            return false;
-        }
-        if (m_mountpointRoot == null) {
-            if (other.m_mountpointRoot != null) {
-                return false;
-            }
-        } else if (!m_mountpointRoot.equals(other.m_mountpointRoot)) {
-            return false;
-        }
-        if (m_originalLocation == null) {
-            if (other.m_originalLocation != null) {
-                return false;
-            }
-        } else if (!m_originalLocation.equals(other.m_originalLocation)) {
-            return false;
-        }
-        if (m_tempLocation == null) {
-            if (other.m_tempLocation != null) {
-                return false;
-            }
-        } else if (!m_tempLocation.equals(other.m_tempLocation)) {
-            return false;
-        }
-        if (m_userid == null) {
-            if (other.m_userid != null) {
-                return false;
-            }
-        } else if (!m_userid.equals(other.m_userid)) {
-            return false;
-        }
-
-        return Objects.equals(m_mountpointUri, other.m_mountpointUri)
-                && Objects.equals(m_remoteAuthToken, other.m_remoteAuthToken)
-                && Objects.equals(m_remoteRepositoryAddress, other.m_remoteRepositoryAddress)
-                && Objects.equals(m_relativeRemotePath, other.m_relativeRemotePath) && (m_isTempCopy == other.m_isTempCopy)
-                && Objects.equals(m_jobId, other.m_jobId) && Objects.equals(m_authenticator, other.m_authenticator);
     }
 }

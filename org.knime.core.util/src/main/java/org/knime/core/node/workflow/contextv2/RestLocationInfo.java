@@ -51,11 +51,12 @@ package org.knime.core.node.workflow.contextv2;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
-import org.knime.core.node.util.CheckUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.workflow.WorkflowContext;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
+import org.knime.core.util.Pair;
 import org.knime.core.util.auth.Authenticator;
 
 /**
@@ -67,6 +68,7 @@ import org.knime.core.util.auth.Authenticator;
  * @noreference non-public API
  * @noinstantiate non-public API
  */
+@SuppressWarnings("deprecation")
 public abstract class RestLocationInfo extends LocationInfo {
 
     /**
@@ -105,16 +107,13 @@ public abstract class RestLocationInfo extends LocationInfo {
      */
     private final String m_defaultMountId;
 
-    RestLocationInfo(final LocationType type, // NOSONAR invoked through builder only, number of arguments irrelevant
-        final Path localWorkflowCopyPath, //
-        final Path tempFolder, //
-        final URI mountpointURI, //
+    RestLocationInfo(final LocationType type, //
         final URI repositoryAddress, //
         final Authenticator authenticator, //
         final String workflowPath, //
         final String defaultMountId) {
 
-        super(type, localWorkflowCopyPath, null, tempFolder, mountpointURI);
+        super(type);
         m_repositoryAddress = repositoryAddress;
         m_authenticator = authenticator;
         m_workflowPath = workflowPath;
@@ -179,104 +178,23 @@ public abstract class RestLocationInfo extends LocationInfo {
         return m_defaultMountId;
     }
 
-    /**
-     * Abstract builder superclass for {@link RestLocationInfo} instances.
-     *
-     * @author Bjoern Lohrmann, KNIME GmbH
-     * @param <B> The actual type of the builder.
-     * @param <I> The type of {@link LocationInfo} produced.
-     */
-    @SuppressWarnings("rawtypes")
-    public abstract static class Builder<B extends Builder, I extends RestLocationInfo>
-        extends LocationInfo.BaseBuilder<B, I> {
-
-        /**
-         * See {@link RestLocationInfo#getRepositoryAddress()}.
-         */
-        protected URI m_repositoryAddress;
-
-        /**
-         * See {@link RestLocationInfo#getWorkflowPath()}.
-         */
-        protected String m_workflowPath;
-
-        /**
-         * See {@link RestLocationInfo#getAuthenticator()}.
-         */
-        protected Authenticator m_authenticator;
-
-        /**
-         * See {@link RestLocationInfo#getDefaultMountId()}.
-         */
-        protected String m_defaultMountId;
-
-        /**
-         * Constructor.
-         *
-         * @param type The type of location.
-         */
-        protected Builder(final LocationType type) {
-            super(type);
+    @Override
+    Optional<URI> mountpointURI(final Pair<URI, Path> mountpoint, final Path localWorkflowPath) {
+        try {
+            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath()).build());
+        } catch (final URISyntaxException ex) {
+            throw new IllegalArgumentException("Path not suitable for mountpoint URI: '" + getWorkflowPath() + "'", ex);
         }
+    }
 
-        /**
-         * Sets the {@link URI} of the repository where the current workflow resides. e.g.
-         * <code>https://server.mycompany.com/knime/rest/v4/repository</code>.
-         *
-         * @param repositoryAddress {@link URI} of the repository where the current workflow resides.
-         * @return this builder instance
-         */
-        @SuppressWarnings("unchecked")
-        public final B withRepositoryAddress(final URI repositoryAddress) {
-            m_repositoryAddress = repositoryAddress;
-            return (B)this;
-        }
-
-        /**
-         * Sets the path of the current workflow within the file tree of the repository, e.g. /Users/bob/workflow.
-         *
-         * @param workflowPath Pathof the current workflow within the file tree of the repository.
-         * @return this builder instance
-         */
-        @SuppressWarnings("unchecked")
-        public final B withWorkflowPath(final String workflowPath) {
-            m_workflowPath = workflowPath;
-            return (B)this;
-        }
-
-        /**
-         * Sets the {@link Authenticator} for the repository where the current workflow resides.
-         *
-         * @param authenticator The {@link Authenticator} for the repository.
-         * @return this builder instance
-         */
-        @SuppressWarnings("unchecked")
-        public final B withAuthenticator(final Authenticator authenticator) {
-            m_authenticator = authenticator;
-            return (B)this;
-        }
-
-        /**
-         * Sets the default mount ID declared by the REST endpoint, e.g. "My-KNIME-Hub".
-         *
-         * @param defaultMountId The default mount ID declared by the REST endpoint.
-         * @return this builder instance
-         */
-        @SuppressWarnings("unchecked")
-        public final B withDefaultMountId(final String defaultMountId) {
-            m_defaultMountId = defaultMountId;
-            return (B)this;
-        }
-
-        @Override
-        protected final void checkFields() {
-            super.checkFields();
-            CheckUtils.checkArgumentNotNull(m_repositoryAddress, "Repository address must not be null");
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_workflowPath), "Workflow path must not be null or blank");
-            CheckUtils.checkArgument(m_workflowPath.startsWith("/"), "Workflow path must have a leading forward slash");
-            CheckUtils.checkArgumentNotNull(m_authenticator, "Authenticator must not be null");
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_defaultMountId),
-                "Default mount id must not be null or blank.");
-        }
+    @Override
+    void addFields(final StringBuilder sb, final int indent) {
+        super.addFields(sb, indent);
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("repositoryAddress=").append(m_repositoryAddress).append("\n");
+        sb.append(init).append("workflowPath=").append(m_workflowPath).append("\n");
+        sb.append(init).append("workflowAddress=").append(m_workflowAddress).append("\n");
+        sb.append(init).append("authenticator=").append(m_authenticator.getClass().getSimpleName()).append("\n");
+        sb.append(init).append("defaultMountId=").append(m_defaultMountId).append("\n");
     }
 }

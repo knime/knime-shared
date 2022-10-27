@@ -49,9 +49,22 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.function.Function;
 
+import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.WorkflowContext;
+import org.knime.core.node.workflow.contextv2.AnalyticsPlatformExecutorInfoBuilderFactory.AnalyticsPlatformExecutorInfoBuilder;
+import org.knime.core.node.workflow.contextv2.ExecutorInfoBuilderFactory.ExecutorInfoUIBuilder;
+import org.knime.core.node.workflow.contextv2.HubJobExecutorInfoBuilderFactory.HubJobExecutorInfoBuilder;
+import org.knime.core.node.workflow.contextv2.HubJobExecutorInfoBuilderFactory.HubJobExecutorInfoSBuilder;
+import org.knime.core.node.workflow.contextv2.HubSpaceLocationInfoBuilderFactory.HubSpaceLocationInfoBuilder;
+import org.knime.core.node.workflow.contextv2.HubSpaceLocationInfoBuilderFactory.HubSpaceLocationInfoSpaceBuilder;
+import org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory.JobExecutorInfoJIBuilder;
+import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
+import org.knime.core.node.workflow.contextv2.ServerJobExecutorInfoBuilderFactory.ServerJobExecutorInfoBuilder;
+import org.knime.core.node.workflow.contextv2.ServerLocationInfoBuilderFactory.ServerLocationInfoBuilder;
 
 /**
  * Workflow context class that provides information about the KNIME process that executes the current workflow (see
@@ -59,49 +72,60 @@ import org.knime.core.node.workflow.WorkflowContext;
  * {@link #getLocationInfo()}).
  *
  * @author Bjoern Lohrmann, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH
  * @noreference non-public API
  * @noinstantiate non-public API
  */
+@SuppressWarnings("deprecation")
 public final class WorkflowContextV2 {
 
     /**
      * Enum that describes the type of executor running the current workflow.
      */
     public enum ExecutorType {
-            /**
-             * KNIME Analytics Platform (desktop application).
-             */
-            ANALYTICS_PLATFORM,
+        /**
+         * KNIME Analytics Platform (desktop application).
+         */
+        ANALYTICS_PLATFORM,
 
-            /**
-             * KNIME Server Executor.
-             */
-            SERVER_EXECUTOR,
+        /**
+         * KNIME Server Executor.
+         */
+        SERVER_EXECUTOR,
 
-            /**
-             * KNIME Hub Executor.
-             */
-            HUB_EXECUTOR
+        /**
+         * KNIME Hub Executor.
+         */
+        HUB_EXECUTOR
     }
 
     /**
      * Enum that describes the type of location where the current workflow resides/is stored.
      */
     public enum LocationType {
-            /**
-             * A workspace on the local disk of the executor.
-             */
-            WORKSPACE,
+        /**
+         * On the Analytics Platform's local file system.
+         */
+        LOCAL,
 
-            /**
-             * A KNIME Server repository (access through REST-based).
-             */
-            SERVER_REPOSITORY,
+        /**
+         * A KNIME Server repository (access through REST-based).
+         */
+        SERVER_REPOSITORY,
 
-            /**
-             * A Space in a KNIME Hub instance.
-             */
-            HUB_SPACE
+        /**
+         * A Space in a KNIME Hub instance.
+         */
+        HUB_SPACE
+    }
+
+    /**
+     * Creates a fluent builder for a {@link WorkflowContextV2} instance.
+     *
+     * @return the new builder instance
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 
     private final ExecutorInfo m_executorInfo;
@@ -114,9 +138,7 @@ public final class WorkflowContextV2 {
      * @param executorInfo Provides information about the process that runs the current workflow.
      * @param locationInfo Provides information about where the current workflow currently resides (is stored).
      */
-    public WorkflowContextV2(final ExecutorInfo executorInfo, //
-        final LocationInfo locationInfo) {
-
+    private WorkflowContextV2(final ExecutorInfo executorInfo, final LocationInfo locationInfo) {
         super();
         m_executorInfo = executorInfo;
         m_locationInfo = locationInfo;
@@ -157,6 +179,55 @@ public final class WorkflowContextV2 {
     }
 
     /**
+     * The "temporary workflow copy mode" (aka yellow bar editor) is active when the workflow is executed in AP but
+     * actually lives in a remote repository. In this case, AP is just executing a temporary copy of the workflow.
+     *
+     * @return true, if "temporary workflow copy mode" (aka yellow bar editor) is active, false otherwise.
+     */
+    public boolean isTemporyWorkflowCopyMode() {
+        return (getExecutorType() == ExecutorType.ANALYTICS_PLATFORM)
+            && (m_locationInfo instanceof RestLocationInfo
+                    || (m_locationInfo instanceof LocalLocationInfo
+                            && ((LocalLocationInfo) m_locationInfo).getSourceArchive().isPresent()));
+    }
+
+    /**
+     *
+     * A mountpoint-absolute knime:// URI that points to where the workflow resides from the perspective of the
+     * executor's mount table, e.g. knime://LOCAL/Users/bob/myworkflow, or knime://devserver1/Users/bob/myworkflow.
+     *
+     * @return a mountpoint-absolute knime:// URI that points to where the workflow resides from the perspective of the
+     *         executor's mount table.
+     */
+    public Optional<URI> getMountpointURI() {
+        return Optional.of(m_executorInfo)
+                .filter(AnalyticsPlatformExecutorInfo.class::isInstance)
+                .map(AnalyticsPlatformExecutorInfo.class::cast)
+                .flatMap(apInfo -> apInfo
+                    .getMountpoint()
+                    .flatMap(mountpoint -> m_locationInfo.mountpointURI(mountpoint, apInfo.getLocalWorkflowPath())));
+    }
+
+    /**
+     * Creates a context based on a temporary workflow run within a local KNIME AP. That is, execution type is
+     * {@link ExecutorType#ANALYTICS_PLATFORM} and location is {@link LocationType#LOCAL}.
+     *
+     * @param workflowFolderPath The non-null folder path where the workflow is (or will be) located
+     * @param sourceArchive path to the archive the workflow came from ({@code null} if not applicable).
+     *        Non-null only for "yellow bar" editors.
+     * @return A new context.
+     */
+    public static WorkflowContextV2 forTemporaryWorkflow(final Path workflowFolderPath,
+            final Path sourceArchive) {
+        return WorkflowContextV2.builder()
+                .withAnalyticsPlatformExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(workflowFolderPath))
+                .withArchiveLocation(sourceArchive)
+                .build();
+    }
+
+    /**
      * Temporary method to convert legacy {@link WorkflowContext} into a {@link WorkflowContextV2}. Only works for local
      * AP execution (not temp workflow copy) and Server execution.
      *
@@ -167,42 +238,33 @@ public final class WorkflowContextV2 {
 
         ExecutorInfo execInfo;
         if (legacyContext.getRemoteRepositoryAddress().isEmpty()) {
-            execInfo = new AnalyticsPlatformExecutorInfo.Builder() //
-                .withUserId(legacyContext.getUserid()) //
-                .build();
+            final var builder = AnalyticsPlatformExecutorInfo.builder()
+                .withUserId(legacyContext.getUserid())
+                .withLocalWorkflowPath(legacyContext.getCurrentLocation().toPath());
+            final var optURI = legacyContext.getMountpointURI();
+            if (optURI.isPresent()) {
+                builder.withMountpoint(optURI.get().getAuthority(), legacyContext.getMountpointRoot().toPath());
+            }
+            execInfo = builder.build();
         } else {
-            execInfo = new ServerJobExecutorInfo.Builder() //
-                .withUserId(legacyContext.getUserid()) //
-                .withJobId(legacyContext.getJobId().get()) // NOSONAR
+            execInfo = ServerJobExecutorInfo.builder()
+                .withUserId(legacyContext.getUserid())
+                .withLocalWorkflowPath(legacyContext.getCurrentLocation().toPath())
+                .withJobId(legacyContext.getJobId().orElseThrow())
                 .build();
         }
 
         LocationInfo locInfo;
         if (execInfo.getType() == ExecutorType.ANALYTICS_PLATFORM && !legacyContext.isTemporaryCopy()) {
-            locInfo = new WorkspaceLocationInfo.Builder() //
-                .withLocalWorkflowPath(legacyContext.getCurrentLocation().toPath()) //
-                .withOriginalWorkflowPath(
-                    legacyContext.getOriginalLocation() != null ? legacyContext.getOriginalLocation().toPath() : null) // NOSONAR
-                .withMountpointURI(legacyContext.getMountpointURI().get()) // NOSONAR
-                .withWorkspacePath(legacyContext.getMountpointRoot().toPath()) //
-                .build();
+            locInfo = LocalLocationInfo.getInstance(null);
         } else if (execInfo.getType() == ExecutorType.SERVER_EXECUTOR) {
-            var mountId = legacyContext.getRemoteMountId().get(); // NOSONAR
-            var relativeRemotePath = legacyContext.getRelativeRemotePath().get(); // NOSONAR
-            URI mountpointURI;
-            try {
-                mountpointURI = new URI("knime", mountId, relativeRemotePath, null);
-            } catch (URISyntaxException ex) {
-                throw new IllegalStateException(ex.getMessage(), ex);
-            }
-
-            locInfo = new ServerLocationInfo.Builder() //
-                .withLocalWorkflowPath(legacyContext.getCurrentLocation().toPath()) //
-                .withMountpointURI(mountpointURI)
-                .withRepositoryAddress(legacyContext.getRemoteRepositoryAddress().get()) // NOSONAR
-                .withAuthenticator(legacyContext.getServerAuthenticator().get()) // NOSONAR
-                .withDefaultMountId(mountId) // NOSONAR
-                .withWorkflowPath(relativeRemotePath) // NOSONAR
+            var mountId = legacyContext.getRemoteMountId().orElseThrow();
+            var relativeRemotePath = legacyContext.getRelativeRemotePath().orElseThrow();
+            locInfo = ServerLocationInfo.builder()
+                .withRepositoryAddress(legacyContext.getRemoteRepositoryAddress().orElseThrow())
+                .withWorkflowPath(relativeRemotePath)
+                .withAuthenticator(legacyContext.getServerAuthenticator().orElseThrow())
+                .withDefaultMountId(mountId)
                 .build();
         } else {
             throw new UnsupportedOperationException("WorkflowContextV2 is not yet supported for current combination "
@@ -210,5 +272,146 @@ public final class WorkflowContextV2 {
         }
 
         return new WorkflowContextV2(execInfo, locInfo);
+    }
+
+    /**
+     * @return a legacy {@link WorkflowContext} that is based on the values in this {@link WorkflowContextV2}.
+     */
+    public WorkflowContext toLegacyWorkflowContext() {
+        return new WorkflowContextAdapter(this);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append("[\n");
+        sb.append("  mountpointURI=").append(getMountpointURI().orElse(null)).append("\n");
+        m_executorInfo.toString(sb, 1);
+        m_locationInfo.toString(sb, 1);
+        return sb.append("]").toString();
+    }
+
+    /**
+     * Builder for {@link WorkflowContextV2} instances.
+     */
+    public static final class Builder {
+
+        private ExecutorInfo m_executorInfo;
+
+        private LocationInfo m_locationInfo;
+
+        /** Should only be called from {@link #builder()}. */
+        private Builder() {
+            // nothing to do
+        }
+
+        /**
+         * Sets the given {@link ExecutorInfo}.
+         *
+         * @param executorInfo executor info to use
+         * @return this builder
+         */
+        public Builder withExecutor(final ExecutorInfo executorInfo) {
+            m_executorInfo = executorInfo;
+            return this;
+        }
+
+        /**
+         * Provides a builder to configure a {@link AnalyticsPlatformExecutorInfo} to set in this builder.
+         *
+         * @param callee callback to configure the executor info (preferably with a lambda function)
+         * @return this builder
+         */
+        public Builder withAnalyticsPlatformExecutor(final Function<ExecutorInfoUIBuilder<
+                AnalyticsPlatformExecutorInfoBuilder>, AnalyticsPlatformExecutorInfoBuilder> callee) {
+            return withExecutor(callee.apply(AnalyticsPlatformExecutorInfo.builder()).build());
+        }
+
+        /**
+         * Provides a builder to configure a {@link ServerJobExecutorInfo} to set in this builder.
+         *
+         * @param callee callback to configure the executor info (preferably with a lambda function)
+         * @return this builder
+         */
+        public Builder withServerJobExecutor(final Function<ExecutorInfoUIBuilder<JobExecutorInfoJIBuilder<
+                ServerJobExecutorInfoBuilder>>, ServerJobExecutorInfoBuilder> callee) {
+            return withExecutor(callee.apply(ServerJobExecutorInfo.builder()).build());
+        }
+
+        /**
+         * Provides a builder to configure a {@link HubJobExecutorInfo} to set in this builder.
+         *
+         * @param callee callback to configure the executor info (preferably with a lambda function)
+         * @return this builder
+         */
+        public Builder withHubJobExecutor(final Function<ExecutorInfoUIBuilder<JobExecutorInfoJIBuilder<
+                HubJobExecutorInfoSBuilder>>, HubJobExecutorInfoBuilder> callee) {
+            return withExecutor(callee.apply(HubJobExecutorInfo.builder()).build());
+        }
+
+        /**
+         * Sets the given {@link LocationInfo}.
+         *
+         * @param locationInfo location info to use
+         * @return this builder
+         */
+        public Builder withLocation(final LocationInfo locationInfo) {
+            m_locationInfo = locationInfo;
+            return this;
+        }
+
+        /**
+         * Sets a {@link LocalLocationInfo} without source archive.
+         *
+         * @return this builder
+         */
+        public Builder withLocalLocation() {
+            return withLocation(LocalLocationInfo.getInstance(null));
+        }
+
+        /**
+         * Sets a {@link LocalLocationInfo} with a path to an archive the workflow came from.
+         *
+         * @param sourceLocation location info of the archive this workflow was extracted from
+         * @return this builder
+         */
+        public Builder withArchiveLocation(final Path sourceLocation) {
+            return withLocation(LocalLocationInfo.getInstance(sourceLocation));
+        }
+
+        /**
+         * Provides a builder to configure a {@link ServerLocationInfo} to set in this builder.
+         *
+         * @param callee callback to configure the executor info (preferably with a lambda function)
+         * @return this builder
+         */
+        public Builder withServerLocation(
+            final Function<RestLocationInfoReqRABuilder<ServerLocationInfoBuilder>, ServerLocationInfoBuilder> callee) {
+            return withLocation(callee.apply(ServerLocationInfo.builder()).build());
+        }
+
+        /**
+         * Provides a builder to configure a {@link AnalyticsPlatformExecutorInfo} to set in this builder.
+         *
+         * @param callee callback to configure the executor info (preferably with a lambda function)
+         * @return this builder
+         */
+        public Builder withHubSpaceLocation(
+                final Function<RestLocationInfoReqRABuilder<HubSpaceLocationInfoSpaceBuilder>,
+                        HubSpaceLocationInfoBuilder> callee) {
+            return withLocation(callee.apply(HubSpaceLocationInfo.builder()).build());
+        }
+
+        /**
+         * Builds a {@link WorkflowContextV2} from the executor info and location info configured in this builder.
+         * None of the two components may be {@code null}.
+         *
+         * @return new {@link WorkflowContextV2} instance
+         * @throws IllegalStateException if either one of the two infos is {@code null}
+         */
+        public WorkflowContextV2 build() {
+            CheckUtils.checkState(m_executorInfo != null, "Executor info can't be null.");
+            CheckUtils.checkState(m_locationInfo != null, "Location info can't be null.");
+            return new WorkflowContextV2(m_executorInfo, m_locationInfo);
+        }
     }
 }

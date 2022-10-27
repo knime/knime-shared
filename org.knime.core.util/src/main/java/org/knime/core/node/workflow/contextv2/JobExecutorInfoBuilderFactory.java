@@ -1,0 +1,144 @@
+/*
+ * ------------------------------------------------------------------------
+ *
+ *  Copyright by KNIME AG, Zurich, Switzerland
+ *  Website: http://www.knime.com; Email: contact@knime.com
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License, Version 3, as
+ *  published by the Free Software Foundation.
+ *
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, see <http://www.gnu.org/licenses>.
+ *
+ *  Additional permission under GNU GPL version 3 section 7:
+ *
+ *  KNIME interoperates with ECLIPSE solely via ECLIPSE's plug-in APIs.
+ *  Hence, KNIME and ECLIPSE are both independent programs and are not
+ *  derived from each other. Should, however, the interpretation of the
+ *  GNU GPL Version 3 ("License") under any applicable laws result in
+ *  KNIME and ECLIPSE being a combined program, KNIME AG herewith grants
+ *  you the additional permission to use and propagate KNIME together with
+ *  ECLIPSE with only the license terms in place for ECLIPSE applying to
+ *  ECLIPSE and the GNU GPL Version 3 applying for KNIME, provided the
+ *  license terms of ECLIPSE themselves allow for the respective use and
+ *  propagation of ECLIPSE together with KNIME.
+ *
+ *  Additional permission relating to nodes for KNIME that extend the Node
+ *  Extension (and in particular that are based on subclasses of NodeModel,
+ *  NodeDialog, and NodeView) and that only interoperate with KNIME through
+ *  standard APIs ("Nodes"):
+ *  Nodes are deemed to be separate and independent programs and to not be
+ *  covered works.  Notwithstanding anything to the contrary in the
+ *  License, the License does not apply to Nodes, you are not required to
+ *  license Nodes under the License, and you are granted a license to
+ *  prepare and propagate Nodes, in each case even if such Nodes are
+ *  propagated with or for interoperation with KNIME.  The owner of a Node
+ *  may freely choose the license terms applicable to such Node, including
+ *  when such Node is propagated with or for interoperation with KNIME.
+ * ---------------------------------------------------------------------
+ *
+ * History
+ *   Sep 27, 2022 (leonard.woerteler): created
+ */
+package org.knime.core.node.workflow.contextv2;
+
+import java.nio.file.Path;
+import java.util.UUID;
+import java.util.function.Function;
+
+import org.knime.core.node.util.CheckUtils;
+import org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory.JobExecutorInfoJIBuilder;
+import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
+
+/**
+ * Factory for fluent builders for {@link JobExecutorInfo}.
+ *
+ * @param <B> type of the rest of the builder chain for a specific executor type
+ * @author Leonard Wörteler, KNIME GmbH
+ */
+public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuilderFactory<JobExecutorInfoJIBuilder<B>> {
+
+    JobExecutorInfoBuilderFactory() {
+    }
+
+    @Override
+    JobExecutorInfoJIBuilder<B> createBuilder(final String userId, final Path localWorkflowPath) {
+        return new JobExecutorInfoJIBuilder<>(jobId -> createJobBuilder(userId, localWorkflowPath, jobId));
+    }
+
+    /**
+     * Builder accepting the job ID of the workflow.
+     *
+     * @param <B> type of the rest of the builder chain
+     */
+    public static final class JobExecutorInfoJIBuilder<B> {
+
+        final Function<UUID, B> m_continuation;
+
+        JobExecutorInfoJIBuilder(final Function<UUID, B> continuation) {
+            m_continuation = continuation;
+        }
+
+        /**
+         * Sets job ID of the current workflow job.
+         *
+         * @param jobId The job ID.
+         * @return this builder instance
+         */
+        public final B withJobId(final UUID jobId) {
+            return m_continuation.apply(CheckUtils.checkArgumentNotNull(jobId, "Job ID must not be null"));
+        }
+    }
+
+    abstract B createJobBuilder(String userId, Path localWorkflowPath, UUID jobId);
+
+    /**
+     * Finishing stage of the {@link JobExecutorInfo} builder.
+     *
+     * @param <I> The type of {@link JobExecutorInfo} produced.
+     * @param <B> The actual type of the builder.
+     */
+    @SuppressWarnings("unchecked")
+    public abstract static class
+    JobExecutorInfoBuilder<I extends JobExecutorInfo, B extends JobExecutorInfoBuilder<I, ?>>
+            extends ExecutorInfoBuilderFactory.ExecutorInfoBuilder<I, B> {
+
+        /**
+         * See {@link JobExecutorInfo#getJobId()}.
+         */
+        protected final UUID m_jobId;
+
+        /**
+         * See {@link JobExecutorInfo#isRemote()}.
+         */
+        protected boolean m_isRemote;
+
+        JobExecutorInfoBuilder( //
+                final ExecutorType type, //
+                final String userId, //
+                final Path localWorkflowPath, //
+                final UUID jobId) {
+            super(type, userId, localWorkflowPath);
+            m_jobId = jobId;
+        }
+
+        /**
+         * Sets whether the workflow job is running in a remote executor, or locally, i.e. the current JVM is the
+         * executor).
+         *
+         * @param isRemote Set to true, when the workflow job is running in a remote executor, otherwise set to false
+         *            (i.e. the current JVM is the executor).
+         * @return this builder instance
+         */
+        public final B withIsRemote(final boolean isRemote) {
+            m_isRemote = isRemote;
+            return (B)this;
+        }
+    }
+}

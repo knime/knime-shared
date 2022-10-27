@@ -48,10 +48,12 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
-import org.knime.core.node.util.CheckUtils;
+import org.knime.core.node.workflow.contextv2.ExecutorInfoBuilderFactory.ExecutorInfoUIBuilder;
+import org.knime.core.node.workflow.contextv2.HubJobExecutorInfoBuilderFactory.HubJobExecutorInfoSBuilder;
+import org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory.JobExecutorInfoJIBuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
 /**
@@ -80,9 +82,16 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
      */
     private final String m_jobCreatorName;
 
-    HubJobExecutorInfo(final UUID jobId, final boolean isRemote, final String scope, final String scopeName,
-        final String jobCreatorId, final String jobCreatorName) {
-        super(ExecutorType.HUB_EXECUTOR, jobCreatorId, jobId, isRemote);
+    HubJobExecutorInfo( // NOSONAR only called internally
+            final UUID jobId, //
+            final Path workflowPath, //
+            final Path tempFolder, //
+            final boolean isRemote, //
+            final String scope, //
+            final String scopeName, //
+            final String jobCreatorId, //
+            final String jobCreatorName) {
+        super(ExecutorType.HUB_EXECUTOR, jobCreatorId, workflowPath, tempFolder, jobId, isRemote);
         m_scopeId = scope;
         m_scopeName = scopeName;
         m_jobCreatorName = jobCreatorName;
@@ -131,84 +140,20 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
     }
 
     /**
-     * Please see {@link #getJobCreatorId()}.
+     * Creates a builder for {@link HubJobExecutorInfo} instances.
+     *
+     * @return new builder
      */
-    @Override
-    public String getUserId() {
-        return getJobCreatorId();
+    public static ExecutorInfoUIBuilder<JobExecutorInfoJIBuilder<HubJobExecutorInfoSBuilder>> builder() {
+        return HubJobExecutorInfoBuilderFactory.create();
     }
 
-    /**
-     * Builder class for {@link HubJobExecutorInfo}
-     */
-    public static final class Builder extends JobExecutorInfo.Builder<Builder, HubJobExecutorInfo> {
-
-        /**
-         * See {@link HubJobExecutorInfo#getScopeId()}.
-         */
-        private String m_scopeId;
-
-        /**
-         * See {@link HubJobExecutorInfo#getScopeName()}.
-         */
-        private String m_scopeName;
-
-        /**
-         * See {@link HubJobExecutorInfo#getJobCreatorName()}.
-         */
-        private String m_jobCreatorName;
-
-        /**
-         * Constructor.
-         */
-        public Builder() {
-            super(ExecutorType.HUB_EXECUTOR);
-        }
-
-        /**
-         * Sets the scope, which is the account (e.g. team) that owns the execution context in which the job runs.
-         *
-         * @param scopeId The technical account ID, e.g.g "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1"
-         * @param scopeName The human-readable account name, e.g. "bob.miller"
-         *
-         * @return this builder instance
-         * @see HubJobExecutorInfo#getScopeId()
-         */
-        public Builder withScope(final String scopeId, final String scopeName) {
-            m_scopeId = scopeId;
-            m_scopeName = scopeName;
-            return this;
-        }
-
-        /**
-         * Sets the job creator, which is the account (e.g. user) that that created the current job.
-         *
-         * @param jobCreatorId The technical account ID, e.g. "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1".
-         * @param jobCreatorName The human-readable account name, e.g. "bob.miller".
-         *
-         * @return this builder instance
-         * @see HubJobExecutorInfo#getJobCreatorId()
-         */
-        public Builder withJobCreator(final String jobCreatorId, final String jobCreatorName) {
-            withUserId(jobCreatorId);
-            m_jobCreatorName = jobCreatorName;
-            return this;
-        }
-
-        @Override
-        public HubJobExecutorInfo build() {
-            checkFields();
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_scopeId), "Scope ID must not be null or blank");
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_scopeName), "Scope name must not be null or blank");
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_userId), "Job creator ID must not be null or blank");
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_jobCreatorName),
-                "Job creator name must not be null or blank");
-
-            return new HubJobExecutorInfo(m_jobId, //
-                m_isRemote, //
-                m_scopeId, //
-                m_scopeName, //
-                m_userId, m_jobCreatorName);
-        }
+    @Override
+    void addFields(final StringBuilder sb, final int indent) {
+        super.addFields(sb, indent);
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("scopeId=").append(m_scopeId).append("\n");
+        sb.append(init).append("scopeName=").append(m_scopeName).append("\n");
+        sb.append(init).append("jobCreatorName=").append(m_jobCreatorName).append("\n");
     }
 }

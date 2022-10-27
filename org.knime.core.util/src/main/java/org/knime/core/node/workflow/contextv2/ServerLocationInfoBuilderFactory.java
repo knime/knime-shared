@@ -44,70 +44,72 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Aug 26, 2022 (bjoern): created
+ *   Sep 27, 2022 (leonard.woerteler): created
  */
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
-import java.util.Objects;
 
-import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
 import org.knime.core.node.workflow.contextv2.ServerLocationInfoBuilderFactory.ServerLocationInfoBuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
 import org.knime.core.util.auth.Authenticator;
 
 /**
- * Provides information about a KNIME Server repository (a REST endpoint) that holds the current workflow. This class
- * exists only for typing purposes and provides no additional fields on top of its superclass {@link RestLocationInfo}.
- * Please see the Javadoc of {@link RestLocationInfo}.
+ * Factory for fluent builders for {@link ServerLocationInfo}.
  *
- * @author Bjoern Lohrmann, KNIME GmbH
- * @see RestLocationInfo
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH
  */
-public class ServerLocationInfo extends RestLocationInfo {
+public final class ServerLocationInfoBuilderFactory extends RestLocationInfoBuilderFactory<ServerLocationInfoBuilder> {
+
+    /** Singleton factory instance. */
+    private static final ServerLocationInfoBuilderFactory FACTORY = new ServerLocationInfoBuilderFactory();
 
     /**
-     * Creates a fluent builder for {@link ServerLocationInfo} instances.
+     * Creates a new builder for {@link ServerLocationInfo} instances.
      *
      * @return new builder
      */
-    public static RestLocationInfoReqRABuilder<ServerLocationInfoBuilder> builder() {
-        return ServerLocationInfoBuilderFactory.create();
+    public static RestLocationInfoReqRABuilder<ServerLocationInfoBuilder> create() {
+        return FACTORY.newInstance();
     }
 
-    ServerLocationInfo( //
-            final URI repositoryAddress, //
-            final Authenticator authenticator, //
-            final String workflowPath, //
-            final String defaultMountId) {
-        super(LocationType.SERVER_REPOSITORY, repositoryAddress, authenticator, workflowPath, defaultMountId);
+    private ServerLocationInfoBuilderFactory() {
     }
 
     @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
-        final ServerLocationInfo that = (ServerLocationInfo)other;
-        return Objects.equals(getType(), that.getType())
-                && Objects.equals(getRepositoryAddress(), that.getRepositoryAddress())
-                && Objects.equals(getAuthenticator(), that.getAuthenticator())
-                && Objects.equals(getWorkflowPath(), that.getWorkflowPath())
-                && Objects.equals(getDefaultMountId(), that.getDefaultMountId());
+    ServerLocationInfoBuilder createRestBuilder(final URI repositoryAddress, final String workflowPath,
+            final Authenticator authenticator, final String defaultMountId) {
+        return new ServerLocationInfoBuilder(LocationType.SERVER_REPOSITORY, repositoryAddress, workflowPath,
+            authenticator, defaultMountId);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash( //
-            getType(), //
-            getRepositoryAddress(), //
-            getAuthenticator(), //
-            getWorkflowPath(), //
-            getDefaultMountId());
+    /**
+     * Finishing stage of the {@link ServerLocationInfo} builder.
+     */
+    public static class ServerLocationInfoBuilder
+        extends RestLocationInfoBuilderFactory.RestLocationInfoBuilder<ServerLocationInfo, ServerLocationInfoBuilder> {
+
+        ServerLocationInfoBuilder( //
+                final LocationType type, //
+                final URI repositoryAddress, //
+                final String workflowPath, //
+                final Authenticator authenticator, //
+                final String defaultMountId) {
+            super( //
+                type, //
+                repositoryAddress, //
+                workflowPath, //
+                authenticator, //
+                defaultMountId);
+        }
+
+        @Override
+        public ServerLocationInfo build() {
+            return new ServerLocationInfo( //
+                m_repositoryAddress, //
+                m_authenticator, //
+                m_workflowPath, //
+                m_defaultMountId);
+        }
     }
 }

@@ -48,8 +48,12 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
+import org.knime.core.node.workflow.contextv2.ExecutorInfoBuilderFactory.ExecutorInfoUIBuilder;
+import org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory.JobExecutorInfoJIBuilder;
+import org.knime.core.node.workflow.contextv2.ServerJobExecutorInfoBuilderFactory.ServerJobExecutorInfoBuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
 /**
@@ -61,28 +65,21 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  */
 public class ServerJobExecutorInfo extends JobExecutorInfo {
 
-    ServerJobExecutorInfo(final String userId, final UUID jobId, final boolean isRemote) {
-        super(ExecutorType.SERVER_EXECUTOR, userId, jobId, isRemote);
+    ServerJobExecutorInfo( //
+            final String userId, //
+            final Path workflowPath, //
+            final Path tempFolder, //
+            final UUID jobId, //
+            final boolean isRemote) {
+        super(ExecutorType.SERVER_EXECUTOR, userId, workflowPath, tempFolder, jobId, isRemote);
     }
 
     /**
-     * Builder class for {@link ServerJobExecutorInfo}
+     * Creates a builder for {@link ServerJobExecutorInfo} instances.
+     *
+     * @return new builder
      */
-    public static final class Builder extends JobExecutorInfo.Builder<Builder, ServerJobExecutorInfo> {
-
-        /**
-         * Constructor.
-         */
-        public Builder() {
-            super(ExecutorType.SERVER_EXECUTOR);
-        }
-
-        @Override
-        public ServerJobExecutorInfo build() {
-            checkFields();
-            return new ServerJobExecutorInfo(m_userId, //
-                m_jobId, //
-                m_isRemote);
-        }
+    public static ExecutorInfoUIBuilder<JobExecutorInfoJIBuilder<ServerJobExecutorInfoBuilder>> builder() {
+        return ServerJobExecutorInfoBuilderFactory.create();
     }
 }

@@ -48,9 +48,9 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
-import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
 /**
@@ -71,8 +71,14 @@ public class JobExecutorInfo extends ExecutorInfo {
      */
     private final boolean m_isRemote;
 
-    JobExecutorInfo(final ExecutorType type, final String userId, final UUID jobId, final boolean isRemote) {
-        super(type, userId);
+    JobExecutorInfo( //
+        final ExecutorType type, //
+        final String userId, //
+        final Path workflowPath, //
+        final Path tempFolder, //
+        final UUID jobId, //
+        final boolean isRemote) {
+        super(type, userId, workflowPath, tempFolder);
         m_jobId = jobId;
         m_isRemote = isRemote;
     }
@@ -96,65 +102,10 @@ public class JobExecutorInfo extends ExecutorInfo {
         return m_isRemote;
     }
 
-    /**
-     * Abstract builder superclass for {@link JobExecutorInfo} instances.
-     *
-     * @author Bjoern Lohrmann, KNIME GmbH
-     * @param <B> The actual type of the builder.
-     * @param <I> The type of {@link JobExecutorInfo} produced.
-     */
-    @SuppressWarnings("rawtypes")
-    public abstract static class Builder<B extends Builder, I extends JobExecutorInfo> extends BaseBuilder<B, I> {
-
-        /**
-         * See {@link JobExecutorInfo#getJobId()}.
-         */
-        protected UUID m_jobId;
-
-        /**
-         * See {@link JobExecutorInfo#isRemote()}.
-         */
-        protected boolean m_isRemote;
-
-        /**
-         * Constructor.
-         *
-         * @param type The type of location.
-         */
-        protected Builder(final ExecutorType type) {
-            super(type);
-        }
-
-        /**
-         * Sets job ID of the current workflow job.
-         *
-         * @param jobId The job ID.
-         * @return this builder instance
-         */
-        @SuppressWarnings("unchecked")
-        public final B withJobId(final UUID jobId) {
-            m_jobId = jobId;
-            return (B)this;
-        }
-
-        /**
-         * Sets whether the workflow job is running in a remote executor, or locally, i.e. the current JVM is the
-         * executor).
-         *
-         * @param isRemote Set to true, when the workflow job is running in a remote executor, otherwise set to false
-         *            (i.e. the current JVM is the executor).
-         * @return this builder instance
-         */
-        @SuppressWarnings("unchecked")
-        public final B withIsRemote(final boolean isRemote) {
-            m_isRemote = isRemote;
-            return (B)this;
-        }
-
-        @Override
-        protected final void checkFields() {
-            super.checkFields();
-            CheckUtils.checkArgumentNotNull(m_jobId, "Job ID must not be null");
-        }
+    @Override
+    void addFields(final StringBuilder sb, final int indent) {
+        super.addFields(sb, indent);
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("jobId=").append(m_jobId).append("\n");
     }
 }

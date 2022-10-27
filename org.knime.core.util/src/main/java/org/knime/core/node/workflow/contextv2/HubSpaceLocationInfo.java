@@ -49,11 +49,11 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
-import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
-import org.knime.core.node.util.CheckUtils;
+import org.knime.core.node.workflow.contextv2.HubSpaceLocationInfoBuilderFactory.HubSpaceLocationInfoSpaceBuilder;
+import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
 import org.knime.core.util.auth.Authenticator;
 
@@ -94,22 +94,17 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
      */
     private final String m_workflowItemId;
 
-    HubSpaceLocationInfo(final Path localWorkflowCopyPath, // NOSONAR only invoked by builder class
-        final Path tempFolder, //
-        final URI mountpointURI, //
-        final URI repositoryAddress, //
-        final Authenticator authenticator, //
-        final String workflowPath, //
-        final String defaultMountId, //
-        final String spacePath, //
-        final String spaceItemId, //
-        final String spaceVersion, //
-        final String workflowItemId) {
+    HubSpaceLocationInfo( // NOSONAR only invoked by builder class
+            final URI repositoryAddress, //
+            final Authenticator authenticator, //
+            final String workflowPath, //
+            final String defaultMountId, //
+            final String spacePath, //
+            final String spaceItemId, //
+            final String spaceVersion, //
+            final String workflowItemId) {
 
         super(LocationType.HUB_SPACE, //
-            localWorkflowCopyPath, //
-            tempFolder, //
-            mountpointURI, //
             repositoryAddress, //
             authenticator, //
             workflowPath, //
@@ -151,84 +146,51 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
         return m_workflowItemId;
     }
 
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        final HubSpaceLocationInfo that = (HubSpaceLocationInfo)other;
+        return Objects.equals(getRepositoryAddress(), that.getRepositoryAddress())
+                && Objects.equals(getAuthenticator(), that.getAuthenticator())
+                && Objects.equals(getWorkflowPath(), that.getWorkflowPath())
+                && Objects.equals(getDefaultMountId(), that.getDefaultMountId())
+                && Objects.equals(getSpacePath(), that.getSpacePath())
+                && Objects.equals(getSpaceItemId(), that.getSpaceItemId())
+                && Objects.equals(getSpaceVersion(), that.getSpaceVersion())
+                && Objects.equals(getWorkflowItemId(), that.getWorkflowItemId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash( //
+            getType(), //
+            getRepositoryAddress(), //
+            getAuthenticator(), //
+            getWorkflowPath(), //
+            getDefaultMountId());
+    }
+
     /**
-     * Builder for {@link HubSpaceLocationInfo} instances.
+     * Creates a fluent builder for {@link HubSpaceLocationInfo} instances.
+     *
+     * @return new builder
      */
-    public static class Builder extends RestLocationInfo.Builder<Builder, HubSpaceLocationInfo> {
+    public static RestLocationInfoReqRABuilder<HubSpaceLocationInfoSpaceBuilder> builder() {
+        return HubSpaceLocationInfoBuilderFactory.create();
+    }
 
-        private String m_spacePath;
-
-        private String m_spaceItemId;
-
-        private String m_spaceVersion;
-
-        private String m_workflowItemId;
-
-        /**
-         * Constructor.
-         */
-        public Builder() {
-            super(LocationType.HUB_SPACE);
-        }
-
-        /**
-         * Sets information related to the Hub Space where the current workflow is stored.
-         *
-         * @param spacePath The path of the Hub Space, e.g. /Users/bob/Private.
-         * @param spaceItemId The item ID of the Hub Space where the current workflow is stored, e.g. *3hjkfsd7zdsgf
-         *            (including leading asterisk).
-         * @param spaceVersion The version of the Hub Space where the current workflow is stored. May be null to
-         *            indicate the staging version (latest version plus unversioned changes on top).
-         * @return this builder instance.
-         */
-        public Builder withSpace(final String spacePath, final String spaceItemId, final String spaceVersion) {
-            m_spacePath = spacePath;
-            m_spaceItemId = spaceItemId;
-            m_spaceVersion = spaceVersion;
-            return this;
-        }
-
-        /**
-         * Sets the item ID of the current workflow.
-         *
-         * @param workflowItemId The item ID of the current workflow, e.g. *2zwDuYFgpLVveXfX (including leading
-         *            asterisk).
-         * @return this builder instance.
-         */
-        public Builder withWorkflowItemId(final String workflowItemId) {
-            m_workflowItemId = workflowItemId;
-            return this;
-        }
-
-        @Override
-        public HubSpaceLocationInfo build() {
-            super.checkFields();
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_spacePath), "Space path must not be null or blank");
-            CheckUtils.checkArgument(m_spacePath.startsWith("/"), "Space path must start with a leading forward slash");
-
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_spaceItemId), "Space item id must not be null or blank");
-            CheckUtils.checkArgument(m_spaceItemId.startsWith("*"), "Space item id must start with a leading asterisk");
-
-            CheckUtils.checkArgument(StringUtils.isNotBlank(m_workflowItemId),
-                "Workflow item id must not be null or blank");
-            CheckUtils.checkArgument(m_workflowItemId.startsWith("*"),
-                "Workflow item id must start with a leading asterisk");
-
-            if (m_spaceVersion != null) {
-                CheckUtils.checkArgument(StringUtils.isNotBlank(m_spaceItemId), "Space version must not be blank.");
-            }
-
-            return new HubSpaceLocationInfo(m_localWorkflowPath, //
-                m_tempFolder, //
-                m_mountpointURI, //
-                m_repositoryAddress, //
-                m_authenticator, //
-                m_workflowPath, //
-                m_defaultMountId, //
-                m_spacePath, //
-                m_spaceItemId, //
-                m_spaceVersion, //
-                m_workflowItemId);
-        }
+    @Override
+    void addFields(final StringBuilder sb, final int indent) {
+        super.addFields(sb, indent);
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("spacePath=").append(m_spacePath).append("\n");
+        sb.append(init).append("spaceItemId=").append(m_spaceItemId).append("\n");
+        sb.append(init).append("spaceVersion=").append(m_spaceVersion).append("\n");
+        sb.append(init).append("workflowItemId=").append(m_workflowItemId).append("\n");
     }
 }

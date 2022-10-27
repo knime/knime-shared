@@ -44,88 +44,62 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Aug 29, 2022 (bjoern): created
+ *   Sep 27, 2022 (leonard.woerteler): created
  */
 package org.knime.core.node.workflow.contextv2;
 
-import java.net.URI;
 import java.nio.file.Path;
+import java.util.UUID;
 
-import org.knime.core.node.util.CheckUtils;
-import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
+import org.knime.core.node.workflow.contextv2.ServerJobExecutorInfoBuilderFactory.ServerJobExecutorInfoBuilder;
+import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
 /**
- * Provides information about an Eclipse workspace in the local file system, which holds the current workflow.
+ * Factory for fluent builders for {@link ServerJobExecutorInfo}.
  *
- * @author Bjoern Lohrmann, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH
  */
-public class WorkspaceLocationInfo extends LocationInfo {
+public final class ServerJobExecutorInfoBuilderFactory
+        extends JobExecutorInfoBuilderFactory<ServerJobExecutorInfoBuilder> {
+
+    /** Singleton factory instance. */
+    private static final ServerJobExecutorInfoBuilderFactory FACTORY =
+            new ServerJobExecutorInfoBuilderFactory();
 
     /**
-     * The path of the Eclipse workspace in the local file system, which holds the current workflow.
+     * Creates a new builder for {@link ServerJobExecutorInfo} instances.
+     *
+     * @return new builder
      */
-    private final Path m_workspacePath;
+    public static ExecutorInfoUIBuilder<JobExecutorInfoJIBuilder<ServerJobExecutorInfoBuilder>> create() {
+        return FACTORY.newInstance();
+    }
 
-    WorkspaceLocationInfo(final LocationType type, //
-        final Path localWorkflowCopyPath, //
-        final Path originalWorkflowPath, //
-        final Path tempFolder, //
-        final URI mountpointURI, //
-        final Path workspacePath) {
+    private ServerJobExecutorInfoBuilderFactory() {
+    }
 
-        super(type, localWorkflowCopyPath, originalWorkflowPath, tempFolder, mountpointURI);
-        m_workspacePath = workspacePath;
+    @Override
+    ServerJobExecutorInfoBuilder createJobBuilder(final String userId, final Path localWorkflowPath, final UUID jobId) {
+        return new ServerJobExecutorInfoBuilder(userId, localWorkflowPath, jobId);
     }
 
     /**
-     * @return the path of the Eclipse workspace in the local file system, which holds the current workflow.
+     * Finishing stage of the {@link ServerJobExecutorInfo} builder.
      */
-    public Path getWorkspacePath() {
-        return m_workspacePath;
-    }
+    public static class ServerJobExecutorInfoBuilder
+            extends JobExecutorInfoBuilderFactory.JobExecutorInfoBuilder<ServerJobExecutorInfo,
+                    ServerJobExecutorInfoBuilder> {
 
-    /**
-     * Builder class for {@link WorkspaceLocationInfo}
-     */
-    public static final class Builder extends BaseBuilder<Builder, WorkspaceLocationInfo> {
-
-        private Path m_workspacePath;
-
-        /**
-         * Constructor.
-         */
-        public Builder() {
-            super(LocationType.WORKSPACE);
-        }
-
-        /**
-         * Sets the local path of the Eclipse workspace where the current workflow resides.s
-         *
-         * @param workspacePath The local path of the Eclipse workspace.
-         * @return this builder instance.
-         */
-        public Builder withWorkspacePath(final Path workspacePath) {
-            m_workspacePath = workspacePath;
-            return this;
+        ServerJobExecutorInfoBuilder( //
+                final String userId, //
+                final Path localWorkflowPath,//
+                final UUID jobId) {
+            super(ExecutorType.SERVER_EXECUTOR, userId, localWorkflowPath, jobId);
         }
 
         @Override
-        protected void checkFields() {
-            super.checkFields();
-            CheckUtils.checkArgumentNotNull(m_workspacePath, "Workspace path must not be null");
-        }
-
-        @Override
-        public WorkspaceLocationInfo build() {
-            checkFields();
-            return new WorkspaceLocationInfo(m_type, //
-                m_localWorkflowPath, //
-                m_originalLocalWorkflowPath, //
-                m_tempFolder,
-                m_mountpointURI, //
-                m_workspacePath);
+        public ServerJobExecutorInfo build() {
+            return new ServerJobExecutorInfo(m_userId, m_localWorkflowPath, ensureTempFolder(), m_jobId, m_isRemote);
         }
     }
 }

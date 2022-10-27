@@ -48,14 +48,12 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
-import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
+import org.knime.core.util.Pair;
 
 /**
  * Base class of {@link LocationInfo}s. A {@link LocationInfo} provides information about where the current
@@ -65,47 +63,13 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
  * @noreference non-public API
  * @noinstantiate non-public API
  */
-public class LocationInfo {
+public abstract class LocationInfo {
 
     private final LocationType m_type;
 
-    /**
-     * The {@link Path} of the current workflow in the local file system of the workflow executor. If {@link #getType()}
-     * returns {@link LocationType#WORKSPACE}, then this path is the actual location where the workflow resides/stored.
-     * For other {@link LocationType}s, this path is only the path of a local job copy.
-     */
-    private final Path m_localWorkflowPath;
 
-    /**
-     * Sometimes a workflow is an ad-hoc copy of another one, e.g. during cluster/streamed execution. This field holds
-     * the path of the original workflow in local file system of the workflow executor. May be null.
-     */
-    private final Path m_originalLocalWorkflowPath;
-
-    /**
-     * {@link Path} of a temporary folder in the local file system of the workflow executor. The folder can be used by
-     * the workflow to store temporary files.
-     */
-    private final Path m_tempFolder;
-
-    /**
-     * A mountpoint-absolute knime:// URI that points to where the workflow resides from the perspective of the
-     * executor's mount table, e.g. knime://LOCAL/Users/bob/myworkflow, or knime://devserver1/Users/bob/myworkflow.
-     */
-    private final URI m_mountpointURI;
-
-
-    LocationInfo(final LocationType type, //
-        final Path workflowPath, //
-        final Path originalWorkflowPath, //
-        final Path tempFolder, //
-        final URI mountpointURI) {
-
+    LocationInfo(final LocationType type) {
         m_type = type;
-        m_localWorkflowPath = workflowPath;
-        m_originalLocalWorkflowPath = originalWorkflowPath;
-        m_tempFolder = tempFolder;
-        m_mountpointURI = mountpointURI;
     }
 
     /**
@@ -116,123 +80,34 @@ public class LocationInfo {
         return m_type;
     }
 
-    /**
-     * Provides the {@link Path} of the current workflow in the local file system of the workflow executor. If
-     * {@link #getType()} returns {@link LocationType#WORKSPACE}, then this path is the actual location where the
-     * workflow resides/stored. For other {@link LocationType}s, this path is only the path of a local job copy.
-     *
-     * @return path of workflow in local file system of the workflow executor.
-     */
-    public Path getLocalWorkflowPath() {
-        return m_localWorkflowPath;
+    abstract Optional<URI> mountpointURI(Pair<URI, Path> mountpoint, Path localWorkflowPath);
+
+    @Override
+    public abstract boolean equals(Object other);
+
+    @Override
+    public abstract int hashCode();
+
+    @Override
+    public String toString() {
+        return toString(new StringBuilder(), 0).toString();
     }
 
     /**
-     * Sometimes a workflow is an ad-hoc copy of another one, e.g. during cluster/streamed execution.
+     * Adds a string representation of this location info to the given string builder.
      *
-     * @return path of the original workflow in local file system of the workflow executor.
+     * @param sb string builder to add to
+     * @param indent indentation level
      */
-    public Optional<Path> getOriginalLocalWorkflowPath() {
-        return Optional.ofNullable(m_originalLocalWorkflowPath);
+    final StringBuilder toString(final StringBuilder sb, final int indent) {
+        final var init = "  ".repeat(indent);
+        sb.append(init).append(getClass().getSimpleName()).append("[\n");
+        addFields(sb, indent + 1);
+        return sb.append(init).append("]\n");
     }
 
-    /**
-     * {@link Path} of a temporary folder in the local file system of the workflow executor. The folder can be used by
-     * the workflow to store temporary files.
-     *
-     * @return the {@link Path} of a temporary folder which can be used by the workflow to store temporary files.
-     */
-    public Path getTempFolder() {
-        return m_tempFolder;
-    }
-
-    /**
-     * @return a mountpoint-absolute knime:// URI that points to where the workflow resides from the perspective of the
-     *         executor's mount table.
-     */
-    public URI getMountpointURI() {
-        return m_mountpointURI;
-    }
-
-    /**
-     * Base class for {@link LocationInfo} builders.
-     *
-     * @param <B> The actual type of the builder.
-     * @param <I> The type of {@link LocationInfo} produced.
-     */
-    @SuppressWarnings("rawtypes")
-    abstract static class BaseBuilder<B extends BaseBuilder, I extends LocationInfo> {
-
-        /**
-         * See {@link LocationInfo#getType()}.
-         */
-        protected LocationType m_type;
-
-        /**
-         * See {@link LocationInfo#getLocalWorkflowPath()}.
-         */
-        protected Path m_localWorkflowPath;
-
-        /**
-         * See {@link LocationInfo#getOriginalLocalWorkflowPath()}.
-         */
-        protected Path m_originalLocalWorkflowPath;
-
-        /**
-         * See {@link LocationInfo#getTempFolder()}.
-         */
-        protected Path m_tempFolder;
-
-        /**
-         * See {@link LocationInfo#getMountpointURI()}.
-         */
-        protected URI m_mountpointURI;
-
-        protected BaseBuilder(final LocationType type) {
-            m_type = type;
-        }
-
-        @SuppressWarnings("unchecked")
-        public final B withLocalWorkflowPath(final Path localWorkflowPath) {
-            m_localWorkflowPath = localWorkflowPath;
-            return (B)this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public final B withOriginalWorkflowPath(final Path originalLocalWorkflowPath) {
-            m_originalLocalWorkflowPath = originalLocalWorkflowPath;
-            return (B)this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public final B withTempFolder(final Path tempFolder) {
-            m_tempFolder = tempFolder;
-            return (B)this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public final B withMountpointURI(final URI mountpointURI) {
-            m_mountpointURI = mountpointURI;
-            return (B)this;
-        }
-
-        protected void checkFields() {
-            CheckUtils.checkArgumentNotNull(m_type, "Location type must not be null");
-            CheckUtils.checkArgumentNotNull(m_localWorkflowPath, "Local workflow path must not be null");
-            CheckUtils.checkArgumentNotNull(m_mountpointURI, "Mountpoint URI must not be null");
-
-            if (m_tempFolder == null) {
-                try {
-                    // this creates a new temp folder under System.getProperty("java.io.tmpdir")
-                    // which will always be the KNIME temp folder, see KNIMEConstants
-                    m_tempFolder = Files.createTempDirectory("knime_").toRealPath();
-                } catch (IOException e) {
-                    throw new IllegalStateException("Can't create workflow temp folder", e);
-                }
-            }
-        }
-
-        public abstract I build();
-
+    void addFields(final StringBuilder sb, final int indent) {
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("type=").append(m_type).append("\n");
     }
 }

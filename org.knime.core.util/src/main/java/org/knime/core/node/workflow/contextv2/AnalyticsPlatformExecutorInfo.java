@@ -48,7 +48,14 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Optional;
+
+import org.knime.core.node.workflow.contextv2.AnalyticsPlatformExecutorInfoBuilderFactory.AnalyticsPlatformExecutorInfoBuilder;
+import org.knime.core.node.workflow.contextv2.ExecutorInfoBuilderFactory.ExecutorInfoUIBuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
+import org.knime.core.util.Pair;
 
 /**
  * Provides information about an Analytics Platform executor.
@@ -59,11 +66,39 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  */
 public class AnalyticsPlatformExecutorInfo extends ExecutorInfo {
 
+    /**
+     * Mount point under which the workflow is located in the executor, {@code null} for workflows that were loaded
+     * directly from another disk location (e.g., batch execution mode).
+     *
+     * The first entry identifies the mount point. The mount point id is the authority of the URI. For example
+     * {@code knime://LOCAL} or {@code knime://Teamspace}.
+     *
+     * The second entry is an absolute path that locates the mount point root within the host machines file system.
+     */
+    private final Pair<URI, Path> m_mountpoint;
+
     private final boolean m_isBatchMode;
 
-    AnalyticsPlatformExecutorInfo(final String userId, final boolean isBatchMode) {
-        super(ExecutorType.ANALYTICS_PLATFORM, userId);
+    AnalyticsPlatformExecutorInfo( //
+            final String userId, //
+            final Path workflowPath, //
+            final Path tempFolder, //
+            final Pair<URI, Path> mountpoint, //
+            final boolean isBatchMode) {
+        super(ExecutorType.ANALYTICS_PLATFORM, userId, workflowPath, tempFolder);
+        m_mountpoint = mountpoint;
         m_isBatchMode = isBatchMode;
+    }
+
+    /**
+     * The mountpoint under which the workflow is mounted in the AP, represented as a pair of the absolute KNIME URI
+     * referencing the root of the mountpoint (e.g. {@code knime://My-Mountpoint}) and the root path of the content
+     * provider under which the workflow is mounted in the AP.
+     *
+     * @return the mountpoint if present, {@link Optional#empty()} otherwise
+     */
+    public Optional<Pair<URI, Path>> getMountpoint() {
+        return Optional.ofNullable(m_mountpoint);
     }
 
     /**
@@ -78,37 +113,20 @@ public class AnalyticsPlatformExecutorInfo extends ExecutorInfo {
         return isBatchMode();
     }
 
+    @Override
+    void addFields(final StringBuilder sb, final int indent) {
+        super.addFields(sb, indent);
+        final var init = "  ".repeat(indent);
+        sb.append(init).append("mountpoint=").append(m_mountpoint).append("\n");
+        sb.append(init).append("isBatchMode=").append(m_isBatchMode).append("\n");
+    }
+
     /**
-     * Builder class for {@link AnalyticsPlatformExecutorInfo}
+     * Creates a builder for {@link AnalyticsPlatformExecutorInfo} instances.
+     *
+     * @return new builder
      */
-    public static final class Builder extends BaseBuilder<Builder, AnalyticsPlatformExecutorInfo> {
-
-        private boolean m_isBatchMode;
-
-        /**
-         * Constructor.
-         */
-        public Builder() {
-            super(ExecutorType.ANALYTICS_PLATFORM);
-            m_isBatchMode = false;
-        }
-
-        /**
-         * Sets the batch mode flag (defaults to false otherwise).
-         *
-         * @param isBatchMode Whether Analytics Platform has been started in batch mode or not.
-         * @return this builder instance.
-         */
-        public Builder withBatchMode(final boolean isBatchMode) {
-            m_isBatchMode = isBatchMode;
-            return this;
-        }
-
-        @Override
-        public AnalyticsPlatformExecutorInfo build() {
-            checkFields();
-            return new AnalyticsPlatformExecutorInfo(m_userId, //
-                m_isBatchMode);
-        }
+    public static ExecutorInfoUIBuilder<AnalyticsPlatformExecutorInfoBuilder> builder() {
+        return AnalyticsPlatformExecutorInfoBuilderFactory.create();
     }
 }
