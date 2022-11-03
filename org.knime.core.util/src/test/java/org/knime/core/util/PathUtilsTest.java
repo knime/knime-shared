@@ -48,15 +48,19 @@
  */
 package org.knime.core.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -103,5 +107,38 @@ public class PathUtilsTest {
         assertThat("Unexpected permission for text file",
             PosixFilePermissions.toString(Files.getPosixFilePermissions(destDir.resolve("sub").resolve("text.txt"))),
             is("rw-rw----"));
+    }
+
+    /**
+     * Checks that absolute paths in ZIP archives are turned into relative paths when unzipping. See AP-19699.
+     *
+     * @throws Exception if an error occurs
+     */
+    @Test
+    public void testUnzipWithAbsolutePathsInEntries() throws Exception {
+        assumeThat("Only possible under Linux or macOS", System.getProperty("os.name"), is(not(startsWith("Windows"))));
+
+        Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
+        try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+            zout.putNextEntry(new ZipEntry("/tmp/foo.txt"));
+            zout.write("Test".getBytes(StandardCharsets.UTF_8));
+            zout.closeEntry();
+        }
+
+        Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
+        try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(zipFile))) {
+            PathUtils.unzip(zin, destDir);
+        }
+
+        Path expectedFile = destDir.resolve("tmp/foo.txt");
+        assertThat("Zip stream extracted into wrong location", Files.exists(expectedFile), is(true));
+
+        destDir = PathUtils.createTempDir(getClass().getSimpleName());
+        try (ZipFile zif = new ZipFile(zipFile.toFile())) {
+            PathUtils.unzip(zif, destDir);
+        }
+
+        expectedFile = destDir.resolve("tmp/foo.txt");
+        assertThat("Zip file extracted into wrong location", Files.exists(expectedFile), is(true));
     }
 }
