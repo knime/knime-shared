@@ -76,6 +76,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility function based around the new Path API in Java 7.
@@ -648,7 +649,8 @@ public final class PathUtils {
     public static void unzip(final ZipInputStream zipStream, final Path dir) throws IOException {
         ZipEntry e;
         while ((e = zipStream.getNextEntry()) != null) {
-            String name = e.getName().replace('\\', '/');
+            // remove leading slashes so that absolute paths in the archive are turned into relative paths
+            var name = StringUtils.removeStart(e.getName().replace('\\', '/'), "/");
 
             if (e.isDirectory()) {
                 if (!name.isEmpty() && !name.equals("/")) {
@@ -796,7 +798,8 @@ public final class PathUtils {
         Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
         while (entries.hasMoreElements()) {
             ZipArchiveEntry entry = entries.nextElement();
-            String name = entry.getName().replace('\\', '/');
+            // remove leading slashes so that absolute paths in the archive are turned into relative paths
+            var name = StringUtils.removeStart(entry.getName().replace('\\', '/'), "/");
 
             if (entry.isDirectory()) {
                 if (!name.isEmpty() && !name.equals("/")) {
