@@ -89,6 +89,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
     private static Path workspaceDir;
     private static Path workflowDir;
+    private static Path workflowDirWithAuthorNull;
     private static Path nodeDir;
     private static Path templateDir;
     private static Path templateDirWithTimezone;
@@ -97,6 +98,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static Path componentTemplateDir;
 
     private static List<String> readWorkflowLines;
+    private static List<String> readWorkflowLinesWithAuthorNull;
     private static List<String> readNodeLines;
     private static List<String> readTemplateWorkflowKnime;
     private static List<String> readTemplateTemplateKnime;
@@ -123,7 +125,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             unzip(is, workspaceDir.toFile());
         }
         workflowDir = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_Workflowalizer_360Pre").toPath();
+        workflowDirWithAuthorNull = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_author_null").toPath();
         readWorkflowLines = Files.readAllLines(new File(workflowDir.toFile(), "workflow.knime").toPath());
+        readWorkflowLinesWithAuthorNull = Files.readAllLines(new File(workflowDirWithAuthorNull.toFile(), "workflow.knime").toPath());
 
         nodeDir = new File(workflowDir.toFile(), "Column Splitter (#10)").toPath();
         readNodeLines = Files.readAllLines(new File(nodeDir.toFile(), "settings.xml").toPath());
@@ -363,6 +367,18 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertUOEThrown(wkfMd::getNodes);
         assertUOEThrown(wkfMd::getUnexpectedFileNames);
         assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+    /**
+     * Tests that {@link AuthorInformation} is read correctly if author is null.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingWorkflowWithAuthorNullFromZip() throws Exception {
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDirWithAuthorNull);
+
+        testAuthorInformation(readWorkflowLinesWithAuthorNull, wm);
     }
 
     /**
@@ -997,8 +1013,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     public void testReadingTemplateFromZip() throws Exception {
-        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
-        final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
+        final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir);
 
         assertEquals("Hierarchical Cluster Assignment", tm.getName());
         assertTrue(tm.getUnexpectedFileNames().isEmpty());

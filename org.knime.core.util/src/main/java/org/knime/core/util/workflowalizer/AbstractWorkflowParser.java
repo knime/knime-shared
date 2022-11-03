@@ -285,9 +285,12 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public String getAuthorName(final ConfigBase config) throws InvalidSettingsException {
-        if (!config.containsKey("authorInformation")) {
+        if (!config.containsKey("authorInformation") ||
+                !config.getConfigBase("authorInformation").containsKey("authored-by") ||
+                config.getConfigBase("authorInformation").getString("authored-by") == null) {
             return "<unknown>";
         }
+
         return config.getConfigBase("authorInformation").getString("authored-by");
     }
 
@@ -296,7 +299,9 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public OffsetDateTime getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        if (!config.containsKey("authorInformation")) {
+        if (!config.containsKey("authorInformation") ||
+                !config.getConfigBase("authorInformation").containsKey("authored-when") ||
+                config.getConfigBase("authorInformation").getString("authored-when") == null) {
             // 1970-01-01 00:00:00 +00:00 -> previously we used new Date(0) for unknown dates, so we use the same value
             return OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
         }
