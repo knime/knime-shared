@@ -82,6 +82,7 @@ import org.knime.core.util.report.ReportingConstants;
  */
 abstract class AbstractWorkflowParser implements WorkflowParser {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[ Z]");
+    private static final String AUTHOR_INFORMATION_KEY = "authorInformation";
 
     // -- Workflow --
 
@@ -285,13 +286,13 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public String getAuthorName(final ConfigBase config) throws InvalidSettingsException {
-        if (!config.containsKey("authorInformation") ||
-                !config.getConfigBase("authorInformation").containsKey("authored-by") ||
-                config.getConfigBase("authorInformation").getString("authored-by") == null) {
+        if (!config.containsKey(AUTHOR_INFORMATION_KEY) ||
+                !config.getConfigBase(AUTHOR_INFORMATION_KEY).containsKey("authored-by") ||
+                config.getConfigBase(AUTHOR_INFORMATION_KEY).getString("authored-by") == null) {
             return "<unknown>";
         }
 
-        return config.getConfigBase("authorInformation").getString("authored-by");
+        return config.getConfigBase(AUTHOR_INFORMATION_KEY).getString("authored-by");
     }
 
     /**
@@ -299,13 +300,13 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public OffsetDateTime getAuthoredDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        if (!config.containsKey("authorInformation") ||
-                !config.getConfigBase("authorInformation").containsKey("authored-when") ||
-                config.getConfigBase("authorInformation").getString("authored-when") == null) {
+        if (!config.containsKey(AUTHOR_INFORMATION_KEY) ||
+                !config.getConfigBase(AUTHOR_INFORMATION_KEY).containsKey("authored-when") ||
+                config.getConfigBase(AUTHOR_INFORMATION_KEY).getString("authored-when") == null) {
             // 1970-01-01 00:00:00 +00:00 -> previously we used new Date(0) for unknown dates, so we use the same value
             return OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
         }
-        final String s = config.getConfigBase("authorInformation").getString("authored-when");
+        final String s = config.getConfigBase(AUTHOR_INFORMATION_KEY).getString("authored-when");
 
         return OffsetDateTime.from(DATE_FORMAT.parse(s));
     }
@@ -315,10 +316,10 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public Optional<String> getEditorName(final ConfigBase config) throws InvalidSettingsException {
-        if (!config.containsKey("authorInformation")) {
+        if (!config.containsKey(AUTHOR_INFORMATION_KEY)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(config.getConfigBase("authorInformation").getString("lastEdited-by"));
+        return Optional.ofNullable(config.getConfigBase(AUTHOR_INFORMATION_KEY).getString("lastEdited-by"));
     }
 
     /**
@@ -326,10 +327,10 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public Optional<OffsetDateTime> getEditedDate(final ConfigBase config) throws InvalidSettingsException, ParseException {
-        if (!config.containsKey("authorInformation")) {
+        if (!config.containsKey(AUTHOR_INFORMATION_KEY)) {
             return Optional.empty();
         }
-        final String s = config.getConfigBase("authorInformation").getString("lastEdited-when");
+        final String s = config.getConfigBase(AUTHOR_INFORMATION_KEY).getString("lastEdited-when");
         return s == null || s.isEmpty() ? Optional.empty() : Optional.of(OffsetDateTime.from(DATE_FORMAT.parse(s)));
     }
 
