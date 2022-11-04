@@ -54,6 +54,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assume.assumeThat;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,6 +65,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -115,9 +117,7 @@ public class PathUtilsTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testUnzipWithAbsolutePathsInEntries() throws Exception {
-        assumeThat("Only possible under Linux or macOS", System.getProperty("os.name"), is(not(startsWith("Windows"))));
-
+    public void testZipSlipAbsolutePath() throws Exception {
         Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
         try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             zout.putNextEntry(new ZipEntry("/tmp/foo.txt"));
@@ -131,7 +131,7 @@ public class PathUtilsTest {
         }
 
         Path expectedFile = destDir.resolve("tmp/foo.txt");
-        assertThat("Zip stream extracted into wrong location", Files.exists(expectedFile), is(true));
+        assertThat("Zip slip not detected when unzipping stream", Files.exists(expectedFile), is(true));
 
         destDir = PathUtils.createTempDir(getClass().getSimpleName());
         try (ZipFile zif = new ZipFile(zipFile.toFile())) {
@@ -139,6 +139,35 @@ public class PathUtilsTest {
         }
 
         expectedFile = destDir.resolve("tmp/foo.txt");
-        assertThat("Zip file extracted into wrong location", Files.exists(expectedFile), is(true));
+        assertThat("Zip slip not detected when unzipping file", Files.exists(expectedFile), is(true));
+    }
+
+    /**
+     * Checks that directory traversals in ZIP archives are prevented. See AP-19699.
+     *
+     * @throws Exception if an error occurs
+     */
+    @Test
+    public void testZipSlipDirectoryTraversal() throws Exception {
+        Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
+        try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+            zout.putNextEntry(new ZipEntry("../foo.txt"));
+            zout.write("Test".getBytes(StandardCharsets.UTF_8));
+            zout.closeEntry();
+        }
+
+        Assert.assertThrows("Zip slip not detected when unzipping stream", IOException.class, () -> {
+            Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
+            try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(zipFile))) {
+                PathUtils.unzip(zin, destDir);
+            }
+        });
+
+        Assert.assertThrows("Zip slip not detected when unzipping file", IOException.class, () -> {
+            Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
+            try (ZipFile zif = new ZipFile(zipFile.toFile())) {
+                PathUtils.unzip(zif, destDir);
+            }
+        });
     }
 }
