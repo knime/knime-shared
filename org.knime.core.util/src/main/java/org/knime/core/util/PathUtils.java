@@ -654,11 +654,19 @@ public final class PathUtils {
 
             if (e.isDirectory()) {
                 if (!name.isEmpty() && !name.equals("/")) {
-                    Path d = dir.resolve(name);
+                    Path d = dir.resolve(name).normalize();
+                    if (!d.startsWith(dir)) {
+                        throw new IOException(
+                            "Path traversal attack detected, entry " + name + " will leave the destination directory");
+                    }
                     Files.createDirectories(d);
                 }
             } else {
-                Path f = dir.resolve(name);
+                Path f = dir.resolve(name).normalize();
+                if (!f.startsWith(dir)) {
+                    throw new IOException(
+                        "Path traversal attack detected, entry " + name + " will leave the destination directory");
+                }
                 Files.createDirectories(f.getParent());
 
                 try (OutputStream out = Files.newOutputStream(f)) {
@@ -803,12 +811,20 @@ public final class PathUtils {
 
             if (entry.isDirectory()) {
                 if (!name.isEmpty() && !name.equals("/")) {
-                    Path d = dir.resolve(name);
+                    Path d = dir.resolve(name).normalize();
+                    if (!d.startsWith(dir)) {
+                        throw new IOException(
+                            "Path traversal attack detected, entry " + name + " will leave the destination directory");
+                    }
                     Files.createDirectories(d);
                     PERM_HANDLER.setFileMode(entry, d);
                 }
             } else {
-                Path f = dir.resolve(name);
+                Path f = dir.resolve(name).normalize();
+                if (!f.startsWith(dir)) {
+                    throw new IOException(
+                        "Path traversal attack detected, entry " + name + " will leave the destination directory");
+                }
                 Files.createDirectories(f.getParent());
 
                 try (OutputStream out = Files.newOutputStream(f); InputStream in = zipFile.getInputStream(entry)) {
