@@ -65,6 +65,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +103,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static List<String> readNodeLines;
     private static List<String> readTemplateWorkflowKnime;
     private static List<String> readTemplateTemplateKnime;
+    private static List<String> readTemplateWorkflowKnimeWithTimezone;
     private static List<String> readTemplateTemplateKnimeWithTimezone;
     private static List<String> readWorkflowSetLines;
     private static List<String> readWorkflowGroupLines;
@@ -127,7 +129,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         workflowDir = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_Workflowalizer_360Pre").toPath();
         workflowDirWithAuthorNull = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_author_null").toPath();
         readWorkflowLines = Files.readAllLines(new File(workflowDir.toFile(), "workflow.knime").toPath());
-        readWorkflowLinesWithAuthorNull = Files.readAllLines(new File(workflowDirWithAuthorNull.toFile(), "workflow.knime").toPath());
+        readWorkflowLinesWithAuthorNull =
+            Files.readAllLines(new File(workflowDirWithAuthorNull.toFile(), "workflow.knime").toPath());
 
         nodeDir = new File(workflowDir.toFile(), "Column Splitter (#10)").toPath();
         readNodeLines = Files.readAllLines(new File(nodeDir.toFile(), "settings.xml").toPath());
@@ -140,6 +143,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
         templateDirWithTimezone =
             workspaceDir.resolve("workflowalizer-test/Hierarchical Cluster Assignment with timezone");
+        readTemplateWorkflowKnimeWithTimezone = Files.readAllLines(templateDirWithTimezone.resolve("workflow.knime"));
         readTemplateTemplateKnimeWithTimezone = Files.readAllLines(templateDirWithTimezone.resolve("template.knime"));
 
         componentTemplateDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
@@ -158,7 +162,6 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
         readWorkflowGroupLines = Files.readAllLines(workflowGroupFile);
         readWorkflowGroupLinesLongTitle = Files.readAllLines(workflowGroupFileLongTitle);
-
     }
 
     // -- Test reading workflow --
@@ -1013,19 +1016,24 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     public void testReadingTemplateFromZip() throws Exception {
-        final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir);
+        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
 
-        assertEquals("Hierarchical Cluster Assignment", tm.getName());
+        assertEquals("Hierarchical Cluster Assignment with timezone", tm.getName());
         assertTrue(tm.getUnexpectedFileNames().isEmpty());
 
-        testAnnotations(readTemplateWorkflowKnime, tm);
-        testAuthorInformation(readTemplateWorkflowKnime, tm);
-        testConnections(readTemplateWorkflowKnime, tm);
-        testCreatedBy(readTemplateTemplateKnime, tm);
-        testCustomDescription(readTemplateWorkflowKnime, tm);
-        testNodeIds(readTemplateWorkflowKnime, tm, null);
-        testTemplateInformation(readTemplateTemplateKnime, tm);
-        testVersion(readTemplateTemplateKnime, tm);
+        List<String> templateAndWorkflowDotKnimeFileLines = new ArrayList<>();
+        templateAndWorkflowDotKnimeFileLines.addAll(readTemplateTemplateKnimeWithTimezone);
+        templateAndWorkflowDotKnimeFileLines.addAll(readTemplateWorkflowKnimeWithTimezone);
+
+        testAnnotations(templateAndWorkflowDotKnimeFileLines, tm);
+        testAuthorInformation(templateAndWorkflowDotKnimeFileLines, tm);
+        testConnections(templateAndWorkflowDotKnimeFileLines, tm);
+        testCreatedBy(templateAndWorkflowDotKnimeFileLines, tm);
+        testCustomDescription(templateAndWorkflowDotKnimeFileLines, tm);
+        testNodeIds(templateAndWorkflowDotKnimeFileLines, tm, null);
+        testTemplateInformation(templateAndWorkflowDotKnimeFileLines, tm);
+        testVersion(templateAndWorkflowDotKnimeFileLines, tm);
     }
 
     /**

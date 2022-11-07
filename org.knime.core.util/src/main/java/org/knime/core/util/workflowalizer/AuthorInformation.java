@@ -48,10 +48,9 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -179,7 +178,7 @@ public final class AuthorInformation {
 
     @Override
     public String toString() {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[ Z]");
         final String ed = m_lastEditDate.isPresent() ? df.format(m_lastEditDate.get()) : null;
         return "author: " + m_author +
         ", authored_date: " + df.format(m_authoredDate) +
