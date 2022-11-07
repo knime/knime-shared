@@ -65,8 +65,8 @@ import org.knime.core.util.auth.Authenticator;
  * The current workflow is part of this tree and can be addressed by path (see {@link #getWorkflowPath()}).
  *
  * @author Bjoern Lohrmann, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 @SuppressWarnings("deprecation")
 public abstract class RestLocationInfo extends LocationInfo {
@@ -181,7 +181,7 @@ public abstract class RestLocationInfo extends LocationInfo {
     @Override
     Optional<URI> mountpointURI(final Pair<URI, Path> mountpoint, final Path localWorkflowPath) {
         try {
-            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath()).build());
+            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath()).build().normalize());
         } catch (final URISyntaxException ex) {
             throw new IllegalArgumentException("Path not suitable for mountpoint URI: '" + getWorkflowPath() + "'", ex);
         }

@@ -61,7 +61,8 @@ import org.knime.core.util.auth.Authenticator;
 /**
  * Factory for fluent builders for {@link HubSpaceLocationInfo}.
  *
- * @author Leonard Wörteler, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public final class HubSpaceLocationInfoBuilderFactory
         extends RestLocationInfoBuilderFactory<HubSpaceLocationInfoSpaceBuilder> {

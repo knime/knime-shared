@@ -63,7 +63,7 @@ import org.junit.Test;
  */
 public class WorkflowContextV2Test {
 
-    private static final Path ROOT = Path.of("/").toAbsolutePath();
+    private static final Path ROOT = Path.of("/root/").toAbsolutePath();
 
     private static final String MOUNTPOINT_ROOT = "/home/jenkins/workspace/ontext-v-2-in-analytics-platform/tmp/"
         + "knime_temp/tempTestRootDirs13515/workflows";
@@ -86,5 +86,35 @@ public class WorkflowContextV2Test {
                 .build();
 
         assertEquals("Mountpoint URI is not resolved correctly.", Optional.of(MOUNTPOINT_URI), ctx.getMountpointURI());
+    }
+
+    /** Checks that mountpoint URIs containing non-ASCII characters are encoded correctly. */
+    @Test
+    public void testMountpointURIEncoded() {
+        assertEncoded("/path/file.txt", "/path/file.txt");
+        assertEncoded("/pa+th/file@.txt", "/pa+th/file@.txt");
+        assertEncoded("/ä/Ä.txt", "/%C3%A4/%C3%84.txt");
+        assertEncoded("/hornm/space/Component3 sdguh4r & f -   ff äöü+ß=)(}{[]$§!",
+            "/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
+            + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!");
+    }
+
+    /**
+     * Checks that the given local path is encoded according to the given URI path.
+     * @param localPath local path
+     * @param uriPath URI path
+     */
+    private static void assertEncoded(final String localPath, final String uriPath) {
+        final var ctx = WorkflowContextV2.builder()
+                .withAnalyticsPlatformExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(ROOT.resolve("mp_root" + localPath))
+                    .withMountpoint("LOCAL", ROOT.resolve("mp_root")))
+                .withLocalLocation()
+                .build();
+
+        assertEquals("Mountpoint URI is not resolved correctly.",
+            Optional.of(URI.create("knime://LOCAL" + uriPath)),
+            ctx.getMountpointURI());
     }
 }

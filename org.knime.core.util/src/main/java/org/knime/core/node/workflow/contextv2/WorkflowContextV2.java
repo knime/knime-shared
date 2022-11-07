@@ -54,6 +54,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import org.knime.core.node.util.CheckUtils;
+import org.knime.core.node.util.ClassUtils;
 import org.knime.core.node.workflow.WorkflowContext;
 import org.knime.core.node.workflow.contextv2.AnalyticsPlatformExecutorInfoBuilderFactory.AnalyticsPlatformExecutorInfoBuilder;
 import org.knime.core.node.workflow.contextv2.ExecutorInfoBuilderFactory.ExecutorInfoUIBuilder;
@@ -65,6 +66,7 @@ import org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory.JobE
 import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
 import org.knime.core.node.workflow.contextv2.ServerJobExecutorInfoBuilderFactory.ServerJobExecutorInfoBuilder;
 import org.knime.core.node.workflow.contextv2.ServerLocationInfoBuilderFactory.ServerLocationInfoBuilder;
+import org.knime.core.util.URIPathEncoder;
 
 /**
  * Workflow context class that provides information about the KNIME process that executes the current workflow (see
@@ -72,11 +74,9 @@ import org.knime.core.node.workflow.contextv2.ServerLocationInfoBuilderFactory.S
  * {@link #getLocationInfo()}).
  *
  * @author Bjoern Lohrmann, KNIME GmbH
- * @author Leonard Wörteler, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
-@SuppressWarnings("deprecation")
 public final class WorkflowContextV2 {
 
     /**
@@ -128,6 +128,8 @@ public final class WorkflowContextV2 {
         return new Builder();
     }
 
+    private final URI m_mountpointURI;
+
     private final ExecutorInfo m_executorInfo;
 
     private final LocationInfo m_locationInfo;
@@ -140,6 +142,11 @@ public final class WorkflowContextV2 {
      */
     private WorkflowContextV2(final ExecutorInfo executorInfo, final LocationInfo locationInfo) {
         super();
+        m_mountpointURI = ClassUtils.castOptional(AnalyticsPlatformExecutorInfo.class, executorInfo)
+            .flatMap(apInfo -> apInfo
+                .getMountpoint()
+                .flatMap(mountpoint -> locationInfo.mountpointURI(mountpoint, apInfo.getLocalWorkflowPath())))
+            .orElse(null);
         m_executorInfo = executorInfo;
         m_locationInfo = locationInfo;
     }
@@ -180,15 +187,13 @@ public final class WorkflowContextV2 {
 
     /**
      * The "temporary workflow copy mode" (aka yellow bar editor) is active when the workflow is executed in AP but
-     * actually lives in a remote repository. In this case, AP is just executing a temporary copy of the workflow.
+     * actually lives in a remote repository or a compressed archive.
+     * In this case, AP is just executing a temporary copy of the workflow.
      *
      * @return true, if "temporary workflow copy mode" (aka yellow bar editor) is active, false otherwise.
      */
     public boolean isTemporyWorkflowCopyMode() {
-        return (getExecutorType() == ExecutorType.ANALYTICS_PLATFORM)
-            && (m_locationInfo instanceof RestLocationInfo
-                    || (m_locationInfo instanceof LocalLocationInfo
-                            && ((LocalLocationInfo) m_locationInfo).getSourceArchive().isPresent()));
+        return getTempSourceLocation().isPresent();
     }
 
     /**
@@ -200,12 +205,30 @@ public final class WorkflowContextV2 {
      *         executor's mount table.
      */
     public Optional<URI> getMountpointURI() {
-        return Optional.of(m_executorInfo)
-                .filter(AnalyticsPlatformExecutorInfo.class::isInstance)
-                .map(AnalyticsPlatformExecutorInfo.class::cast)
-                .flatMap(apInfo -> apInfo
-                    .getMountpoint()
-                    .flatMap(mountpoint -> m_locationInfo.mountpointURI(mountpoint, apInfo.getLocalWorkflowPath())));
+        return Optional.ofNullable(m_mountpointURI);
+    }
+
+    /**
+     * Returns the source URI (either {@code file://} or {@code knime://}) of the workflow if it is being opened in
+     * "temporary workflow copy mode" (aka yellow bar editor), and {@link Optional#empty()} otherwise.
+     * This is the case when the workflow originates either from a server repository or from a compressed archive
+     * ({@code .knwf}) and  temporary copy is opened in the Analytics platform.
+     *
+     * @return original location URI if opened in temp-copy mode, {@link Optional#empty()} otherwise
+     */
+    public Optional<URI> getTempSourceLocation() {
+        if (getExecutorType() != ExecutorType.ANALYTICS_PLATFORM) {
+            // temporary copies only exist in the AP
+            return Optional.empty();
+        }
+        if (m_locationInfo instanceof RestLocationInfo) {
+            // return the mountpoint URI (which must exist) for REST sources
+            return Optional.of(m_mountpointURI);
+        }
+        return ((LocalLocationInfo) m_locationInfo)
+                .getSourceArchive()
+                .map(Path::toUri)
+                .map(URIPathEncoder.UTF_8::encodePathSegments);
     }
 
     /**
@@ -233,8 +256,15 @@ public final class WorkflowContextV2 {
      *
      * @param legacyContext
      * @return a {@link WorkflowContextV2} instance.
+     * @deprecated The old workflow context should not be used any more.
      */
+    @Deprecated(since = "4.7.0")
     public static WorkflowContextV2 fromLegacyWorkflowContext(final WorkflowContext legacyContext) {
+
+        if (legacyContext instanceof WorkflowContextAdapter) {
+            // transition logic
+            return ((WorkflowContextAdapter) legacyContext).unwrap();
+        }
 
         ExecutorInfo execInfo;
         if (legacyContext.getRemoteRepositoryAddress().isEmpty()) {
@@ -275,8 +305,12 @@ public final class WorkflowContextV2 {
     }
 
     /**
+     * Only intended for the transition period from {@link WorkflowContext} to {@link WorkflowContextV2}!
+     *
      * @return a legacy {@link WorkflowContext} that is based on the values in this {@link WorkflowContextV2}.
+     * @deprecated The old workflow context should not be used any more.
      */
+    @Deprecated(since = "4.7.0")
     public WorkflowContext toLegacyWorkflowContext() {
         return new WorkflowContextAdapter(this);
     }
@@ -284,7 +318,7 @@ public final class WorkflowContextV2 {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append("[\n");
-        sb.append("  mountpointURI=").append(getMountpointURI().orElse(null)).append("\n");
+        sb.append("  mountpointURI=").append(m_mountpointURI).append("\n");
         m_executorInfo.toString(sb, 1);
         m_locationInfo.toString(sb, 1);
         return sb.append("]").toString();

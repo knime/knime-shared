@@ -60,8 +60,8 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  * Provides information about a KNIME Hub executor.
  *
  * @author Bjoern Lohrmann, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public class HubJobExecutorInfo extends JobExecutorInfo {
 

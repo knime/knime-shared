@@ -66,7 +66,8 @@ import org.knime.core.util.User;
  * Factory of fluent builders for all {@link ExecutorInfo} types.
  *
  * @param <B> type of the rest of the builder chain for a specific location type
- * @author Leonard Wörteler, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public abstract class ExecutorInfoBuilderFactory<B> {
 

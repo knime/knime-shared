@@ -68,8 +68,8 @@ import org.knime.core.util.auth.Authenticator;
  *
  * @author Bjoern Lohrmann, KNIME GmbH
  * @see RestLocationInfo
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public class HubSpaceLocationInfo extends RestLocationInfo {
 

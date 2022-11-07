@@ -57,7 +57,8 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 /**
  * Factory for fluent builders for {@link ServerJobExecutorInfo}.
  *
- * @author Leonard Wörteler, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public final class ServerJobExecutorInfoBuilderFactory
         extends JobExecutorInfoBuilderFactory<ServerJobExecutorInfoBuilder> {

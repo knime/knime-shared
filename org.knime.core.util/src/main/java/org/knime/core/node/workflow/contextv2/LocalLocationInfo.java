@@ -59,13 +59,13 @@ import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
 import org.knime.core.util.Pair;
+import org.knime.core.util.URIPathEncoder;
 
 /**
  * Provides information about a workflow from the local file system, which does not have a remote location.
  *
- * @author Leonard Wörteler, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public final class LocalLocationInfo extends LocationInfo {
 
@@ -114,7 +114,8 @@ public final class LocalLocationInfo extends LocationInfo {
             "Workflow path %s is not located under mountpoint root %s.", mountpointRootUri, workflowUri);
 
         // divide the relative path into segments
-        final var pathSegments = new ArrayList<>(new URIBuilder(relPath).getPathSegments());
+        final var encodedURI = URIPathEncoder.UTF_8.encodePathSegments(relPath);
+        final var pathSegments = new ArrayList<>(new URIBuilder(encodedURI).getPathSegments());
 
         // if the path is to the `workflow.knime` instead of the directory, go one level up
         final int last = pathSegments.size() - 1;

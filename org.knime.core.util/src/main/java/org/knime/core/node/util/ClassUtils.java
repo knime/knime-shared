@@ -44,70 +44,34 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Aug 26, 2022 (bjoern): created
+ *   Nov 9, 2022 (leonard.woerteler): created
  */
-package org.knime.core.node.workflow.contextv2;
+package org.knime.core.node.util;
 
-import java.net.URI;
-import java.nio.file.Path;
 import java.util.Optional;
 
-import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
-import org.knime.core.util.Pair;
-
 /**
- * Base class of {@link LocationInfo}s. A {@link LocationInfo} provides information about where the current
- * workflow currently resides (is stored).
+ * Utility methods for casting objects.
  *
- * @author Bjoern Lohrmann, KNIME GmbH
- * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @author Leonard Wörteler, Knime GmbH, Konstanz, Germany
  * @since 4.7
  */
-public abstract class LocationInfo {
+public final class ClassUtils {
 
-    private final LocationType m_type;
-
-
-    LocationInfo(final LocationType type) {
-        m_type = type;
+    private ClassUtils() {
+        // utility class
     }
 
     /**
+     * Tries to cast an object to a given subtype.
      *
-     * @return the {@link LocationType} where the current workflow resides/is stored.
+     * @param <T> type to which to try to cast the object
+     * @param clazz class object of the type to cast to
+     * @param obj object to try to cast to {@code T}
+     * @return cast object if it is an instance of {@code T}, {@link Optional#empty()} otherwise
+     * @since 4.7
      */
-    public LocationType getType() {
-        return m_type;
-    }
-
-    abstract Optional<URI> mountpointURI(Pair<URI, Path> mountpoint, Path localWorkflowPath);
-
-    @Override
-    public abstract boolean equals(Object other);
-
-    @Override
-    public abstract int hashCode();
-
-    @Override
-    public String toString() {
-        return toString(new StringBuilder(), 0).toString();
-    }
-
-    /**
-     * Adds a string representation of this location info to the given string builder.
-     *
-     * @param sb string builder to add to
-     * @param indent indentation level
-     */
-    final StringBuilder toString(final StringBuilder sb, final int indent) {
-        final var init = "  ".repeat(indent);
-        sb.append(init).append(getClass().getSimpleName()).append("[\n");
-        addFields(sb, indent + 1);
-        return sb.append(init).append("]\n");
-    }
-
-    void addFields(final StringBuilder sb, final int indent) {
-        final var init = "  ".repeat(indent);
-        sb.append(init).append("type=").append(m_type).append("\n");
+    public static <T> Optional<T> castOptional(final Class<T> clazz, final Object obj) {
+        return clazz.isInstance(obj) ? Optional.of(clazz.cast(obj)) : Optional.empty();
     }
 }

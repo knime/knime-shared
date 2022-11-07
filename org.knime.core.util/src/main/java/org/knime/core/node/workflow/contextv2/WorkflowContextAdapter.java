@@ -63,14 +63,19 @@ import org.knime.core.util.auth.Authenticator;
  * Adapter class that wraps a {@link WorkflowContextV2} using the deprecated {@link WorkflowContext} interface.
  *
  * @author Bjoern Lohrmann, KNIME GmbH
+ * @deprecated Use {@link WorkflowContextV2} instead.
  */
-@SuppressWarnings("deprecation")
+@Deprecated(since = "4.7.0")
 class WorkflowContextAdapter implements WorkflowContext {
 
     private final WorkflowContextV2 m_context;
 
     WorkflowContextAdapter(final WorkflowContextV2 context) {
         m_context = context;
+    }
+
+    WorkflowContextV2 unwrap() {
+        return m_context;
     }
 
     @Override
@@ -83,13 +88,7 @@ class WorkflowContextAdapter implements WorkflowContext {
         return m_context.getExecutorInfo().getLocalWorkflowPath().toFile();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated The original location is not supported any more, and this method always returns {@code null}.
-     */
     @Override
-    @Deprecated(since = "4.7.0")
     public File getOriginalLocation() {
         return null;
     }

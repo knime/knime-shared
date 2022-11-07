@@ -62,9 +62,9 @@ import org.knime.core.util.auth.Authenticator;
  * Please see the Javadoc of {@link RestLocationInfo}.
  *
  * @author Bjoern Lohrmann, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  * @see RestLocationInfo
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @since 4.7
  */
 public class ServerLocationInfo extends RestLocationInfo {
 

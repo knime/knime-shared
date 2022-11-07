@@ -57,8 +57,8 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  * Provides information about a multi-tenant executor that executes workflows as jobs.
  *
  * @author Bjoern Lohrmann, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public class JobExecutorInfo extends ExecutorInfo {
 
@@ -72,12 +72,12 @@ public class JobExecutorInfo extends ExecutorInfo {
     private final boolean m_isRemote;
 
     JobExecutorInfo( //
-        final ExecutorType type, //
-        final String userId, //
-        final Path workflowPath, //
-        final Path tempFolder, //
-        final UUID jobId, //
-        final boolean isRemote) {
+            final ExecutorType type, //
+            final String userId, //
+            final Path workflowPath, //
+            final Path tempFolder, //
+            final UUID jobId, //
+            final boolean isRemote) {
         super(type, userId, workflowPath, tempFolder);
         m_jobId = jobId;
         m_isRemote = isRemote;

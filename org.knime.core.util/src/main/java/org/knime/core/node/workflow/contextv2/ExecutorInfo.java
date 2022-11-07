@@ -57,8 +57,8 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
  * Provides information about the process that runs the current workflow.
  *
  * @author Bjoern Lohrmann, KNIME GmbH
- * @noreference non-public API
- * @noinstantiate non-public API
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public abstract class ExecutorInfo {
 

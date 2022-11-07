@@ -60,7 +60,8 @@ import org.knime.core.util.Pair;
 /**
  * Factory for fluent builders for {@link AnalyticsPlatformExecutorInfo}.
  *
- * @author Leonard Wörteler, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public final class AnalyticsPlatformExecutorInfoBuilderFactory
         extends ExecutorInfoBuilderFactory<AnalyticsPlatformExecutorInfoBuilder> {

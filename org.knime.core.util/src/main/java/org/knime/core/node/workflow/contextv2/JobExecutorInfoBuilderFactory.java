@@ -60,7 +60,8 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  * Factory for fluent builders for {@link JobExecutorInfo}.
  *
  * @param <B> type of the rest of the builder chain for a specific executor type
- * @author Leonard Wörteler, KNIME GmbH
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @since 4.7
  */
 public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuilderFactory<JobExecutorInfoJIBuilder<B>> {
 
