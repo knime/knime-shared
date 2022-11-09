@@ -470,6 +470,22 @@ public final class Workflowalizer {
             builder.setWorkflowConfigurationRepresentation(
                 readFileIntoString(artifatsDir.resolve(parser.getWorkflowConfigurationRepresentation()), zip));
         }
+        if (wc.parseOpenapiInputParameters()) {
+            builder.setOpenapiInputParameters(
+                readFileIntoString(artifatsDir.resolve(parser.getOpenapiInputParameters()), zip));
+        }
+        if (wc.parseOpenapiInputResources()) {
+            builder.setOpenapiInputResources(
+                readFileIntoString(artifatsDir.resolve(parser.getOpenapiInputResources()), zip));
+        }
+        if (wc.parseOpenapiOutputParameters()) {
+            builder.setOpenapiOutputParameters(
+                readFileIntoString(artifatsDir.resolve(parser.getOpenapiOutputParameters()), zip));
+        }
+        if (wc.parseOpenapiOutputResources()) {
+            builder.setOpenapiOutputResources(
+                readFileIntoString(artifatsDir.resolve(parser.getOpenapiOutputResources()), zip));
+        }
 
         if (zip == null) {
             svgFile(parser, Paths.get(path), builder);

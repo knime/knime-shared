@@ -270,6 +270,34 @@ interface WorkflowParser {
      */
     String getWorkflowConfigurationRepresentation();
 
+    /**
+     * Returns the openapi input parameters file name.
+     *
+     * @return the openapi input parameters file name
+     */
+    String getOpenapiInputParameters();
+
+    /**
+     * Returns the openapi input resources file name.
+     *
+     * @return the openapi input resources file name
+     */
+    String getOpenapiInputResources();
+
+    /**
+     * Returns the openapi output parameters file name.
+     *
+     * @return the openapi output parameters file name
+     */
+    String getOpenapiOutputParameters();
+
+    /**
+     * Returns the openapi output resources file name.
+     *
+     * @return the openapi output resources file name
+     */
+    String getOpenapiOutputResources();
+
     // -- Template --
 
     /**

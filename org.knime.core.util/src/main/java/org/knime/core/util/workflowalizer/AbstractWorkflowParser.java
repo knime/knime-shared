@@ -395,6 +395,38 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return "workflow-configuration-representation.json";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getOpenapiInputParameters() {
+        return "openapi-input-parameters.json";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getOpenapiInputResources() {
+        return "openapi-input-resources.json";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getOpenapiOutputParameters() {
+        return "openapi-output-parameters.json";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getOpenapiOutputResources() {
+        return "openapi-output-resources.json";
+    }
+
     // -- Templates --
 
     /**

@@ -206,17 +206,39 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
         assertTrue("Expected artifacts file",
             wkfMd.getArtifacts().get()
-                .contains(workflowDir
-                    .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
-                    .toString()));
+                .containsAll(List.of(
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
+                                .toString(),
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-resources.json").toPath())
+                                .toString(),
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-output-parameters.json").toPath())
+                                .toString(),
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/openapi-output-resources.json").toPath())
+                                .toString(),
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/workflow-configuration.json").toPath())
+                                .toString(),
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/workflow-configuration-representation.json").toPath())
+                                .toString()
+                )));
 
-        String testFile = "{\n"
-                + "  \"test\": \"value\",\n"
-                + "  \"test\": \"two\"\n"
-                + "}\n";
-        assertEquals("Unexpected workflow configuration", testFile, wkfMd.getWorkflowConfiguration().get());
-        assertEquals("Unexpected workflow configuration representation", testFile,
-            wkfMd.getWorkflowConfigurationRepresentation().get());
+        assertEquals("Unexpected workflow configuration",
+                WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION.value(), wkfMd.getWorkflowConfiguration().get());
+        assertEquals("Unexpected workflow configuration representation",
+                WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION_REPRESENTATION.value(), wkfMd.getWorkflowConfigurationRepresentation().get());
+        assertEquals("Unexpected openapi input parameters",
+                WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value(), wkfMd.getOpenapiInputParameters().get());
+        assertEquals("Unexpected openapi input resources",
+                WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value(), wkfMd.getOpenapiInputResources().get());
+        assertEquals("Unexpected openapi output parameters",
+                WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(), wkfMd.getOpenapiOutputParameters().get());
+        assertEquals("Unexpected openapi output resources",
+                WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(), wkfMd.getOpenapiOutputResources().get());
     }
 
     /**
@@ -230,6 +252,21 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
         assertUOEThrown(wm::getWorkflowConfiguration);
         assertUOEThrown(wm::getWorkflowConfigurationRepresentation);
+    }
+
+    /**
+     * Tests that reading the openapi fields without setting them in the
+     * {@link WorkflowalizerConfiguration} results in a {@link UnsupportedOperationException}
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    public void testReadingOpenapi() throws Exception {
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
+        assertUOEThrown(wm::getOpenapiInputParameters);
+        assertUOEThrown(wm::getOpenapiInputResources);
+        assertUOEThrown(wm::getOpenapiOutputParameters);
+        assertUOEThrown(wm::getOpenapiOutputResources);
     }
 
     // -- Test reading individual workflow fields --
@@ -273,7 +310,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
-        assertEquals(3, wkfMd.getArtifacts().get().size());
+        assertEquals( "Unexpected artifacts size", 6, wkfMd.getArtifacts().get().size());
         assertTrue("Expected artifacts file",wkfMd.getArtifacts().get().contains(workflowDir.relativize(test.toPath()).toString()));
 
         assertUOEThrown(wkfMd::getConnections);
@@ -513,6 +550,35 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue(wkfMd.getWorkflowConfiguration().isPresent());
         assertTrue(wkfMd.getWorkflowConfigurationRepresentation().isPresent());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+    /**
+     * Test reading openapi files for a workflow
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingOpenapiFiles() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readOpenapiFiles().build();;
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertTrue("Expected openapi input parameters file is present", wkfMd.getOpenapiInputParameters().isPresent());
+        assertTrue("Expected openapi input resources file is present", wkfMd.getOpenapiInputResources().isPresent());
+        assertTrue("Expected openapi output parameters file is present", wkfMd.getOpenapiOutputParameters().isPresent());
+        assertTrue("Expected openapi output resources file is present", wkfMd.getOpenapiOutputResources().isPresent());
+
+        assertEquals("Unexpected openapi input parameters",
+                WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value(), wkfMd.getOpenapiInputParameters().get());
+        assertEquals("Unexpected openapi input resources",
+                WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value(), wkfMd.getOpenapiInputResources().get());
+        assertEquals("Unexpected openapi output parameters",
+                WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(), wkfMd.getOpenapiOutputParameters().get());
+        assertEquals("Unexpected openapi output resources",
+                WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(), wkfMd.getOpenapiOutputResources().get());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -875,12 +941,18 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testNodeIds(readSubNodeWorkflowLines, sm, 6, 0, 0);
 
         // Configuration files
-        String testFile = "{\n"
-                + "  \"test\": \"value\",\n"
-                + "  \"test\": \"two\"\n"
-                + "}\n";
-        assertEquals("Unexpected workflow configuration", testFile, twm.getWorkflowConfiguration().get());
-        assertEquals("Unexpected workflow configuration representation", testFile, twm.getWorkflowConfigurationRepresentation().get());
+        assertEquals("Unexpected workflow configuration",
+                WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION.value(), twm.getWorkflowConfiguration().get());
+        assertEquals("Unexpected workflow configuration representation",
+                WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION_REPRESENTATION.value(), twm.getWorkflowConfigurationRepresentation().get());
+        assertEquals("Unexpected openapi input parameters",
+                WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value(), twm.getOpenapiInputParameters().get());
+        assertEquals("Unexpected openapi input resources",
+                WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value(), twm.getOpenapiInputResources().get());
+        assertEquals("Unexpected openapi output parameters",
+                WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(), twm.getOpenapiOutputParameters().get());
+        assertEquals("Unexpected openapi output resources",
+                WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(), twm.getOpenapiOutputResources().get());
     }
 
     /**

@@ -99,6 +99,18 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     @JsonProperty("workflowConfigurationRepresentation")
     private final Optional<String> m_workflowConfigurationRepresentation;
 
+    @JsonProperty("openapiInputParameters")
+    private final Optional<String> m_openapiInputParameters;
+
+    @JsonProperty("openapiInputResources")
+    private final Optional<String> m_openapiInputResources;
+
+    @JsonProperty("openapiOutputParameters")
+    private final Optional<String> m_openapiOutputParameters;
+
+    @JsonProperty("openapiOutputResources")
+    private final Optional<String> m_openapiOutputResources;
+
     @JsonProperty("workflowMeta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
@@ -127,6 +139,10 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_artifacts = builder.getArtifactsFileNames();
         m_workflowConfiguration = builder.getWorkflowConfiguration();
         m_workflowConfigurationRepresentation = builder.getWorkflowConfigurationRepresentation();
+        m_openapiInputParameters = builder.getOpenapiInputParameters();
+        m_openapiInputResources = builder.getOpenapiInputResources();
+        m_openapiOutputParameters = builder.getOpenapiOutputParameters();
+        m_openapiOutputResources = builder.getOpenapiOutputResources();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
         m_variables = builder.getWorkflowVariables();
@@ -149,6 +165,10 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_artifacts = workflow.m_artifacts;
         m_workflowConfiguration = workflow.m_workflowConfiguration;
         m_workflowConfigurationRepresentation = workflow.m_workflowConfigurationRepresentation;
+        m_openapiInputParameters = workflow.m_openapiInputParameters;
+        m_openapiInputResources = workflow.m_openapiInputResources;
+        m_openapiOutputParameters = workflow.m_openapiOutputParameters;
+        m_openapiOutputResources = workflow.m_openapiOutputResources;
         m_workflowSetMeta = workflow.m_workflowSetMeta;
         m_credentials = workflow.m_credentials;
         m_variables = workflow.m_variables;
@@ -196,6 +216,62 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
                 "getWorkflowConfigurationRepresentation() is unsupported, field was not read");
         }
         return m_workflowConfigurationRepresentation;
+    }
+
+    /**
+     * Returns the openapi input parameters from the artifacts folder, if it exists.
+     *
+     * @return the openapi input parameters from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getOpenapiInputParameters() {
+        if (m_openapiInputParameters == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                    "getOpenapiInputParameters() is unsupported, field was not read");
+        }
+        return m_openapiInputParameters;
+    }
+
+    /**
+     * Returns the openapi input resources from the artifacts folder, if it exists.
+     *
+     * @return the openapi input resources from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getOpenapiInputResources() {
+        if (m_openapiInputResources == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                    "getOpenapiInputResources() is unsupported, field was not read");
+        }
+        return m_openapiInputResources;
+    }
+
+    /**
+     * Returns the openapi output parameters from the artifacts folder, if it exists.
+     *
+     * @return the openapi output parameters from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getOpenapiOutputParameters() {
+        if (m_openapiOutputParameters == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                    "getOpenapiOutputParameters() is unsupported, field was not read");
+        }
+        return m_openapiOutputParameters;
+    }
+
+    /**
+     * Returns the openapi output resources from the artifacts folder, if it exists.
+     *
+     * @return the openapi output resources from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getOpenapiOutputResources() {
+        if (m_openapiOutputResources == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                    "getOpenapiOutputResources() is unsupported, field was not read");
+        }
+        return m_openapiOutputResources;
     }
 
     /**
@@ -257,7 +333,10 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
 
         return super.toString() + ", workflow_svg: " + m_svg.toString() + ", artifacts_files: " + artifacts
             + ", workflowConfiguration: " + m_workflowConfiguration + ", workflowConfigurationRepresentation: "
-            + m_workflowConfigurationRepresentation + ", workflow_meta: " + wsm + ", workflow_credentials: ["
+            + m_workflowConfigurationRepresentation + ", openapiInputParameters: "  + m_openapiInputParameters
+            + ", openapiInputResources: " + m_openapiInputResources + ", openapiOutputParameters: "
+            + m_openapiOutputParameters + ", openapiOutputResources: " + m_openapiOutputResources
+            + ", workflow_meta: " + wsm + ", workflow_credentials: ["
             + String.join(", ", m_credentials) + "]" + ", workflow_variables: [" + String.join(", ", m_variables) + "]";
     }
 

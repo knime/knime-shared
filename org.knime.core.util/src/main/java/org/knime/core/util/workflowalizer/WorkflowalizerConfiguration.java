@@ -65,6 +65,10 @@ public class WorkflowalizerConfiguration {
     private boolean m_readWorkflowMeta;
     private boolean m_readWorkflowConfiguration;
     private boolean m_readWorkflowConfigurationRepresentation;
+    private boolean m_readOpenapiInputParameters;
+    private boolean m_readOpenapiInputResources;
+    private boolean m_readOpenapiOutputParameters;
+    private boolean m_readOpenapiOutputResources;
 
     private WorkflowalizerConfiguration() {
         // Do nothing
@@ -98,6 +102,22 @@ public class WorkflowalizerConfiguration {
         return m_readWorkflowConfigurationRepresentation;
     }
 
+    boolean parseOpenapiInputParameters() {
+        return m_readOpenapiInputParameters;
+    }
+
+    boolean parseOpenapiInputResources() {
+        return m_readOpenapiInputResources;
+    }
+
+    boolean parseOpenapiOutputParameters() {
+        return m_readOpenapiOutputParameters;
+    }
+
+    boolean parseOpenapiOutputResources() {
+        return m_readOpenapiOutputResources;
+    }
+
     WorkflowFields createWorkflowFields() {
         return new WorkflowFields(m_readConnections, m_readNodes, m_readUnexpectedFiles);
     }
@@ -128,6 +148,10 @@ public class WorkflowalizerConfiguration {
         private boolean m_workflowMeta;
         private boolean m_workflowConfiguration;
         private boolean m_workflowConfigurationRepresentation;
+        private boolean m_openapiInputParameters;
+        private boolean m_openapiInputResources;
+        private boolean m_openapiOutputParameters;
+        private boolean m_openapiOutputResources;
 
         /**
          * Sets the configuration to read the nodes.
@@ -218,6 +242,23 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
+         * Sets the configuration to read the openapi files.
+         *
+         * <p>
+         * This field will be read for: workflows
+         * </p>
+         *
+         * @return the builder
+         */
+        public Builder readOpenapiFiles() {
+            m_openapiInputParameters = true;
+            m_openapiInputResources = true;
+            m_openapiOutputParameters = true;
+            m_openapiOutputResources = true;
+            return this;
+        }
+
+        /**
          * Sets the configuration to read all the fields.
          *
          * @return the builder
@@ -230,6 +271,10 @@ public class WorkflowalizerConfiguration {
             m_workflowMeta = true;
             m_workflowConfiguration = true;
             m_workflowConfigurationRepresentation = true;
+            m_openapiInputParameters = true;
+            m_openapiInputResources = true;
+            m_openapiOutputParameters = true;
+            m_openapiOutputResources = true;
             return this;
         }
 
@@ -247,6 +292,10 @@ public class WorkflowalizerConfiguration {
             config.m_readWorkflowMeta = m_workflowMeta;
             config.m_readWorkflowConfiguration = m_workflowConfiguration;
             config.m_readWorkflowConfigurationRepresentation = m_workflowConfigurationRepresentation;
+            config.m_readOpenapiInputParameters = m_openapiInputParameters;
+            config.m_readOpenapiInputResources = m_openapiInputResources;
+            config.m_readOpenapiOutputParameters = m_openapiOutputParameters;
+            config.m_readOpenapiOutputResources = m_openapiOutputResources;
             return config;
         }
     }

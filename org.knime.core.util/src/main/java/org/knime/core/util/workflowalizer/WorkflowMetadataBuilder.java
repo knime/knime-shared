@@ -71,6 +71,10 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
     private Optional<Collection<String>> m_artifacts;
     private Optional<String> m_workflowConfiguration;
     private Optional<String> m_workflowConfigurationRepresentation;
+    private Optional<String> m_openapiInputParameters;
+    private Optional<String> m_openapiInputResources;
+    private Optional<String> m_openapiOutputParameters;
+    private Optional<String> m_openapiOutputResources;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
     private List<String> m_credentials;
     private List<String> m_variables;
@@ -103,6 +107,38 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
             m_workflowConfigurationRepresentation = Optional.empty();
         } else {
             m_workflowConfigurationRepresentation = Optional.of(workflowConfigurationRepresentation);
+        }
+    }
+
+    void setOpenapiInputParameters(final String openapiInputParameters) {
+        if (StringUtils.isEmpty(openapiInputParameters)) {
+            m_openapiInputParameters = Optional.empty();
+        } else {
+            m_openapiInputParameters = Optional.of(openapiInputParameters);
+        }
+    }
+
+    void setOpenapiInputResources(final String openapiInputResources) {
+        if (StringUtils.isEmpty(openapiInputResources)) {
+            m_openapiInputResources = Optional.empty();
+        } else {
+            m_openapiInputResources = Optional.of(openapiInputResources);
+        }
+    }
+
+    void setOpenapiOutputParameters(final String openapiOutputParameters) {
+        if (StringUtils.isEmpty(openapiOutputParameters)) {
+            m_openapiOutputParameters = Optional.empty();
+        } else {
+            m_openapiOutputParameters = Optional.of(openapiOutputParameters);
+        }
+    }
+
+    void setOpenapiOutputResources(final String openapiOutputResources) {
+        if (StringUtils.isEmpty(openapiOutputResources)) {
+            m_openapiOutputResources = Optional.empty();
+        } else {
+            m_openapiOutputResources = Optional.of(openapiOutputResources);
         }
     }
 
@@ -150,6 +186,22 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         return m_workflowConfigurationRepresentation;
     }
 
+    Optional<String> getOpenapiInputParameters() {
+        return m_openapiInputParameters;
+    }
+
+    Optional<String> getOpenapiInputResources() {
+        return m_openapiInputResources;
+    }
+
+    Optional<String> getOpenapiOutputParameters() {
+        return m_openapiOutputParameters;
+    }
+
+    Optional<String> getOpenapiOutputResources() {
+        return m_openapiOutputResources;
+    }
+
     Optional<WorkflowSetMeta> getWorkflowSetMeta() {
         return m_workflowSetMeta;
     }
@@ -195,6 +247,18 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         }
         if (wc.parseWorkflowConfigurationRepresentation()) {
             checkPopulated(getWorkflowConfigurationRepresentation(), "workflow configuration representation");
+        }
+        if (wc.parseOpenapiInputParameters()) {
+            checkPopulated(getOpenapiInputParameters(), "openapi input parameters");
+        }
+        if (wc.parseOpenapiInputResources()) {
+            checkPopulated(getOpenapiInputResources(), "openapi input resources");
+        }
+        if (wc.parseOpenapiOutputParameters()) {
+            checkPopulated(getOpenapiOutputParameters(), "openapi output parameters");
+        }
+        if (wc.parseOpenapiOutputResources()) {
+            checkPopulated(getOpenapiOutputResources(), "openapi output resources");
         }
         if (m_svgWidth == null || m_svgHeight == null) {
             LOGGER.warn("Could not extract SVG width/height for workflow: " + getWorkflowFields().getName());
