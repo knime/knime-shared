@@ -17,7 +17,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<revision>5.20.0</revision>
+		<revision>5.20.1</revision>
 		<changelist>-LOCAL</changelist>
 	</properties>
 
