@@ -162,6 +162,41 @@ public final class CheckUtils {
     }
 
     /**
+     * Checks the given object to be of the given class and returns it cast.
+     * @param <T> type to return given object of if successful
+     * @param toCheck object to check
+     * @param clazz class of type to check for
+     * @param template string template which determines exception message
+     * @param templateArgs arguments for the message template
+     * @throws IllegalStateException if given object is not instance of given class
+     * @return the object cast to the given type if possible
+     */
+    public static <T> T checkStateType(final Object toCheck, final Class<T> clazz, final String template,
+        final Object... templateArgs) throws IllegalStateException {
+        return checkStateType(toCheck, clazz, stringFormatSupplier(template, templateArgs));
+    }
+
+    /**
+     * Checks the given object to be of the given class and returns it cast.
+     * @param <T> type to return given object of if successful
+     * @param toCheck object to check
+     * @param clazz class of type to check for
+     * @param message exception message
+     * @throws IllegalStateException if given object is not instance of given class
+     * @return the object cast to the given type if possible
+     */
+    public static <T> T checkStateType(final Object toCheck, final Class<T> clazz, final String message)
+            throws IllegalStateException {
+        return checkStateType(toCheck, clazz, stringSupplier(message));
+    }
+
+    private static <T> T checkStateType(final Object toCheck, final Class<T> clazz,
+        final Supplier<String> supplier) throws IllegalStateException {
+        checkState(clazz.isInstance(toCheck), supplier);
+        return clazz.cast(toCheck);
+    }
+
+    /**
      * Checks the given object to be not <code>null</code>.
      *
      * @param toCheck the object which may not be <code>null</code>
