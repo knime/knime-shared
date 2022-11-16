@@ -49,9 +49,13 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.function.BiFunction;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
 import org.knime.core.util.auth.Authenticator;
@@ -203,10 +207,8 @@ public abstract class RestLocationInfoBuilderFactory<B> {
      * Base class for the finishing (optional argument) stage of {@link RestLocationInfo} builders.
      *
      * @param <I> The type of {@link RestLocationInfo} produced.
-     * @param <B> The actual type of the builder.
      */
-    public abstract static class RestLocationInfoBuilder<I extends RestLocationInfo,
-            B extends RestLocationInfoBuilder<I, ?>> {
+    public abstract static class RestLocationInfoBuilder<I extends RestLocationInfo> {
 
         final LocationType m_type;
         final URI m_repositoryAddress;
@@ -225,6 +227,22 @@ public abstract class RestLocationInfoBuilderFactory<B> {
             m_workflowPath = workflowPath;
             m_authenticator = authenticator;
             m_defaultMountId = defaultMountId;
+        }
+
+        /**
+         * Creates the workflow's address in the REST repository by adding its path segments to the repository address.
+         *
+         * @return address of the workflow in the repository
+         */
+        URI createWorkflowAddress() {
+            try {
+                final var uriBuilder = new URIBuilder(m_repositoryAddress, StandardCharsets.UTF_8);
+                final var pathSegments = new ArrayList<>(uriBuilder.getPathSegments());
+                pathSegments.addAll(new URIBuilder().setPath(m_workflowPath).getPathSegments());
+                return uriBuilder.setPathSegments(pathSegments).build().normalize();
+            } catch (URISyntaxException ex) {
+                throw new IllegalStateException("Failed to create workflow address URI", ex);
+            }
         }
 
         /**

@@ -49,14 +49,9 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.workflow.WorkflowContext;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
-import org.knime.core.util.Pair;
 import org.knime.core.util.auth.Authenticator;
 
 /**
@@ -111,22 +106,15 @@ public abstract class RestLocationInfo extends LocationInfo {
         final URI repositoryAddress, //
         final Authenticator authenticator, //
         final String workflowPath, //
-        final String defaultMountId) {
+        final String defaultMountId, //
+        final URI workflowAddress) {
 
         super(type);
         m_repositoryAddress = repositoryAddress;
         m_authenticator = authenticator;
         m_workflowPath = workflowPath;
         m_defaultMountId = defaultMountId;
-
-        try {
-            m_workflowAddress = new URI(m_repositoryAddress.getScheme(), //
-                m_repositoryAddress.getHost(), //
-                m_repositoryAddress.getPath() + m_workflowPath, //
-                null).normalize();
-        } catch (URISyntaxException ex) {
-            throw new IllegalStateException("Failed to create workflow address URI", ex);
-        }
+        m_workflowAddress = workflowAddress;
     }
 
     /**
@@ -176,15 +164,6 @@ public abstract class RestLocationInfo extends LocationInfo {
      */
     public String getDefaultMountId() {
         return m_defaultMountId;
-    }
-
-    @Override
-    Optional<URI> mountpointURI(final Pair<URI, Path> mountpoint, final Path localWorkflowPath) {
-        try {
-            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath()).build().normalize());
-        } catch (final URISyntaxException ex) {
-            throw new IllegalArgumentException("Path not suitable for mountpoint URI: '" + getWorkflowPath() + "'", ex);
-        }
     }
 
     @Override

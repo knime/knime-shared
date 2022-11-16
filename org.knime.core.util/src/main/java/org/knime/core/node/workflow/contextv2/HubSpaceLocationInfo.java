@@ -49,12 +49,16 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.workflow.contextv2.HubSpaceLocationInfoBuilderFactory.HubSpaceLocationInfoSpaceBuilder;
 import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
+import org.knime.core.util.Pair;
 import org.knime.core.util.auth.Authenticator;
 
 /**
@@ -99,6 +103,7 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
             final Authenticator authenticator, //
             final String workflowPath, //
             final String defaultMountId, //
+            final URI workflowAddress, //
             final String spacePath, //
             final String spaceItemId, //
             final String spaceVersion, //
@@ -108,7 +113,8 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
             repositoryAddress, //
             authenticator, //
             workflowPath, //
-            defaultMountId);
+            defaultMountId, //
+            workflowAddress);
 
         m_spacePath = spacePath;
         m_spaceItemId = spaceItemId;
@@ -144,6 +150,19 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
      */
     public String getWorkflowItemId() {
         return m_workflowItemId;
+    }
+
+    @Override
+    Optional<URI> mountpointURI(final Pair<URI, Path> mountpoint, final Path localWorkflowPath) {
+        try {
+            final var builder = new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath());
+            if (m_spaceVersion != null) {
+                builder.addParameter("spaceVersion", m_spaceVersion);
+            }
+            return Optional.of(builder.build().normalize());
+        } catch (final URISyntaxException ex) {
+            throw new IllegalArgumentException("Path not suitable for mountpoint URI: '" + getWorkflowPath() + "'", ex);
+        }
     }
 
     @Override

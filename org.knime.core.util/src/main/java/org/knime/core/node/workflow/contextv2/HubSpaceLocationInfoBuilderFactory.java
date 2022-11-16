@@ -158,8 +158,8 @@ public final class HubSpaceLocationInfoBuilderFactory
     /**
      * Finishing stage of the {@link ServerLocationInfo} builder.
      */
-    public static class HubSpaceLocationInfoBuilder extends RestLocationInfoBuilderFactory.RestLocationInfoBuilder<
-            HubSpaceLocationInfo, HubSpaceLocationInfoBuilder> {
+    public static class HubSpaceLocationInfoBuilder
+            extends RestLocationInfoBuilderFactory.RestLocationInfoBuilder<HubSpaceLocationInfo> {
 
         private final String m_spacePath;
         private final String m_spaceItemId;
@@ -185,13 +185,14 @@ public final class HubSpaceLocationInfoBuilderFactory
         @Override
         public HubSpaceLocationInfo build() {
             return new HubSpaceLocationInfo(
-                m_repositoryAddress,
-                m_authenticator,
-                m_workflowPath,
-                m_defaultMountId,
-                m_spacePath,
-                m_spaceItemId,
-                m_spaceVersion,
+                m_repositoryAddress, //
+                m_authenticator, //
+                m_workflowPath, //
+                m_defaultMountId, //
+                createWorkflowAddress(), //
+                m_spacePath, //
+                m_spaceItemId, //
+                m_spaceVersion, //
                 m_workflowItemId);
         }
     }

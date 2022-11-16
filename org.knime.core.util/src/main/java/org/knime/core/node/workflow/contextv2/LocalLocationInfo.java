@@ -125,7 +125,7 @@ public final class LocalLocationInfo extends LocationInfo {
 
         try {
             // append workflow path (e.g., /SomeWorkflow) to mount point URI (e.g., knime://LOCAL)
-            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPathSegments(pathSegments).build());
+            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPathSegments(pathSegments).build().normalize());
         } catch (URISyntaxException ex) {
             throw new IllegalArgumentException("Invalid knime URI, cannot determine mountpoint URI for " +
                     mountpoint.getFirst() + " and path " + relPath, ex);

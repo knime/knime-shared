@@ -55,6 +55,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.knime.core.util.auth.SimpleTokenAuthenticator;
 
 /**
  * Tests for {@link WorkflowContextV2Test}.
@@ -97,6 +98,27 @@ public class WorkflowContextV2Test {
         assertEncoded("/hornm/space/Component3 sdguh4r & f -   ff äöü+ß=)(}{[]$§!",
             "/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
             + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!");
+    }
+
+    /** Checks that repository address URIs containing non-ASCII characters are encoded correctly. */
+    @Test
+    public void testRepoAddressEncoded() {
+        final var ctx = WorkflowContextV2.builder()
+                .withAnalyticsPlatformExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(ROOT.resolve("mp_root/path"))
+                    .withMountpoint("LOCAL", ROOT.resolve("mp_root")))
+                .withServerLocation(loc -> loc
+                    .withRepositoryAddress(URI.create("https://user@localhost:1234/rest%20path"))
+                    .withWorkflowPath("/hornm/space/Component3 sdguh4r & f -   ff äöü+ß=)(}{[]$§!")
+                    .withAuthenticator(new SimpleTokenAuthenticator("token"))
+                    .withDefaultMountId("My-Server"))
+                .build();
+
+        assertEquals("Workflow address URI is not resolved correctly.",
+            URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
+                    + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"),
+            ((RestLocationInfo) ctx.getLocationInfo()).getWorkflowAddress());
     }
 
     /**

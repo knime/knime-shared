@@ -199,7 +199,7 @@ public final class URIPathEncoder {
      */
     private URI encodeURI(final URI uri) {
         try {
-            return new URIBuilder(uri).setCharset(m_encoding).setPath(uri.getPath()).build();
+            return new URIBuilder(uri, m_encoding).setPath(uri.getPath()).build();
         } catch (URISyntaxException e) {
             LOGGER.log(Level.INFO, e, () -> "Could not encode path segments in URI '" + uri + "'.");
             return uri;

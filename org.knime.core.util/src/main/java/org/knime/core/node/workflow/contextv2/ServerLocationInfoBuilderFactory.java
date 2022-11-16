@@ -88,7 +88,7 @@ public final class ServerLocationInfoBuilderFactory extends RestLocationInfoBuil
      * Finishing stage of the {@link ServerLocationInfo} builder.
      */
     public static class ServerLocationInfoBuilder
-        extends RestLocationInfoBuilderFactory.RestLocationInfoBuilder<ServerLocationInfo, ServerLocationInfoBuilder> {
+        extends RestLocationInfoBuilderFactory.RestLocationInfoBuilder<ServerLocationInfo> {
 
         ServerLocationInfoBuilder( //
                 final LocationType type, //
@@ -110,7 +110,8 @@ public final class ServerLocationInfoBuilderFactory extends RestLocationInfoBuil
                 m_repositoryAddress, //
                 m_authenticator, //
                 m_workflowPath, //
-                m_defaultMountId);
+                m_defaultMountId, //
+                createWorkflowAddress());
         }
     }
 }

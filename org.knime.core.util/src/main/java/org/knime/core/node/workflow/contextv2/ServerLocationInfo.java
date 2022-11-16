@@ -49,11 +49,16 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.workflow.contextv2.RestLocationInfoBuilderFactory.RestLocationInfoReqRABuilder;
 import org.knime.core.node.workflow.contextv2.ServerLocationInfoBuilderFactory.ServerLocationInfoBuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.LocationType;
+import org.knime.core.util.Pair;
 import org.knime.core.util.auth.Authenticator;
 
 /**
@@ -81,8 +86,19 @@ public class ServerLocationInfo extends RestLocationInfo {
             final URI repositoryAddress, //
             final Authenticator authenticator, //
             final String workflowPath, //
-            final String defaultMountId) {
-        super(LocationType.SERVER_REPOSITORY, repositoryAddress, authenticator, workflowPath, defaultMountId);
+            final String defaultMountId, //
+            final URI workflowAddress) {
+        super(LocationType.SERVER_REPOSITORY, repositoryAddress, authenticator, workflowPath, defaultMountId,
+            workflowAddress);
+    }
+
+    @Override
+    Optional<URI> mountpointURI(final Pair<URI, Path> mountpoint, final Path localWorkflowPath) {
+        try {
+            return Optional.of(new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath()).build().normalize());
+        } catch (final URISyntaxException ex) {
+            throw new IllegalArgumentException("Path not suitable for mountpoint URI: '" + getWorkflowPath() + "'", ex);
+        }
     }
 
     @Override
