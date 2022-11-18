@@ -100,6 +100,7 @@ import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * Reader for workflow metadata.
@@ -377,9 +378,7 @@ public final class Workflowalizer {
 
     private static WorkflowSetMeta readWorkflowSetMeta(final InputStream is)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        final DocumentBuilder builder = factory.newDocumentBuilder();
-        final Document doc = builder.parse(is);
+        final Document doc = parseXMLDocument(is, "workflowset.meta");
         final XPathFactory xPathfactory = XPathFactory.newInstance();
         final XPath xpath = xPathfactory.newXPath();
 
@@ -1107,11 +1106,7 @@ public final class Workflowalizer {
         builder.setSvgFile(svg);
 
         try {
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
-            factory.setIgnoringElementContentWhitespace(true);
-            final DocumentBuilder docBuilder = factory.newDocumentBuilder();
-            final Document doc = docBuilder.parse(svg.toFile());
+            final Document doc = parseXMLDocument(svg);
 
             final Node svgItem = doc.getElementsByTagName("svg").item(0);
             if (svgItem != null) {
@@ -1124,7 +1119,7 @@ public final class Workflowalizer {
                     builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
                 }
             }
-        } catch (ParserConfigurationException | SAXException ex) {
+        } catch (SAXException ex) {
             throw new IOException(ex);
         }
     }
@@ -1138,12 +1133,7 @@ public final class Workflowalizer {
         builder.setSvgFile(Paths.get(zip.getName()));
         builder.setSvgZipEntry(path + parser.getWorkflowSVGFileName());
         try (final InputStream stream = zip.getInputStream(svg)) {
-
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
-            factory.setIgnoringElementContentWhitespace(true);
-            final DocumentBuilder docBuilder = factory.newDocumentBuilder();
-            final Document doc = docBuilder.parse(stream);
+            final Document doc = parseXMLDocument(stream, parser.getWorkflowSVGFileName());
             final Node svgItem = doc.getElementsByTagName("svg").item(0);
             if (svgItem != null) {
                 final Node widthNode = svgItem.getAttributes().getNamedItem("width");
@@ -1155,7 +1145,7 @@ public final class Workflowalizer {
                     builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
                 }
             }
-        } catch (ParserConfigurationException | SAXException ex) {
+        } catch (SAXException ex) {
             throw new IOException(ex);
         }
     }
@@ -1319,5 +1309,66 @@ public final class Workflowalizer {
             contents = IOUtils.toString(is, StandardCharsets.UTF_8);
         }
         return contents;
+    }
+
+    private static Document parseXMLDocument(final InputStream is, final String filename)
+        throws IOException, SAXException {
+        try {
+            DocumentBuilder docBuilder = getConfiguredDocumentBuilder();
+            return docBuilder.parse(is);
+        } catch (SAXParseException ex) {
+            if (ex.getMessage().contains("is disallowed when the feature")) {
+                throw new IllegalArgumentException(
+                    String.format("Cannot parse the given file '%s', as it contains XML elements which are not allowed",
+                        filename),
+                    ex);
+            }
+            throw ex;
+        }
+    }
+
+    private static Document parseXMLDocument(final Path pathToFile) throws IOException, SAXException {
+        DocumentBuilder docBuilder = getConfiguredDocumentBuilder();
+        try {
+            return docBuilder.parse(pathToFile.toFile());
+        } catch (SAXParseException ex) {
+            if (ex.getMessage().contains("is disallowed when the feature")) {
+                throw new IllegalArgumentException(
+                    String.format("Cannot parse the given file '%s', as it contains XML elements which are not allowed",
+                        pathToFile.getFileName()),
+                    ex);
+            }
+            throw ex;
+        }
+    }
+
+    private static DocumentBuilder getConfiguredDocumentBuilder() throws IOException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // Configure DocumentBuilderFactory to prevent XXE
+            // https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#java
+            // https://knime-com.atlassian.net/browse/HUB-3756
+            String feature = "http://apache.org/xml/features/disallow-doctype-decl";
+            factory.setFeature(feature, true);
+
+            feature = "http://xml.org/sax/features/external-general-entities";
+            factory.setFeature(feature, false);
+
+            feature = "http://xml.org/sax/features/external-parameter-entities";
+            factory.setFeature(feature, false);
+
+            feature = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            factory.setFeature(feature, false);
+
+            factory.setXIncludeAware(false);
+            factory.setExpandEntityReferences(false);
+
+            // additional configuration
+            factory.setValidating(true);
+            factory.setIgnoringElementContentWhitespace(true);
+            return factory.newDocumentBuilder();
+        } catch (ParserConfigurationException ex) {
+            throw new IOException("Unable to create XML parser", ex);
+        }
     }
 }
