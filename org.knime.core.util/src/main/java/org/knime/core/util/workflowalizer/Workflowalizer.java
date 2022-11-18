@@ -1364,7 +1364,6 @@ public final class Workflowalizer {
             factory.setExpandEntityReferences(false);
 
             // additional configuration
-            factory.setValidating(true);
             factory.setIgnoringElementContentWhitespace(true);
             return factory.newDocumentBuilder();
         } catch (ParserConfigurationException ex) {
