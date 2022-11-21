@@ -75,7 +75,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      */
     @Test
     public void testXxeInSvg() throws Exception {
-        Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        Path workspace = PathUtils.createTempDir(WorkflowalizerXXETest.class.getName());
         try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/xxe/XXE_SVG.knwf")) {
             unzip(is, workspace.toFile());
         }
@@ -123,8 +123,8 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
     // -- Helper methods --
 
     private static void testXxeExceptionThrown(final Path path, final String fileName) {
-        IllegalArgumentException ex =
-            assertThrows(IllegalArgumentException.class, () -> Workflowalizer.readRepositoryItem(path));
+        IllegalArgumentException ex = assertThrows("Unexpected exception when parsing XML with external references",
+            IllegalArgumentException.class, () -> Workflowalizer.readRepositoryItem(path));
         assertThat("Unexpected error message when preventing XXE", ex.getMessage(), startsWith(String
             .format("Cannot parse the given file '%s', as it contains XML elements which are not allowed", fileName)));
     }

@@ -57,9 +57,11 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1679,5 +1681,33 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertEquals("Unexpected name for outport", outport.getName(), Optional.empty());
         assertEquals("Unexpected object class for outport", outport.getObjectClass(),
             "org.knime.core.node.BufferedDataTable");
+    }
+
+    /**
+     * Tests that the parsing fails when parsing invalid workflowset.meta XML from a workflow directory.
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    public void testWorkflowWithBrokenXML() throws Exception {
+        Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/Workflow_BrokenMetaXML.knwf")) {
+            unzip(is, workspace.toFile());
+        }
+        Path directory = new File(workspace.toFile(), "Workflow_BrokenMetaXML").toPath();
+        assertThrows("Unexpected response code when parsing a workflow with invalid XML", IOException.class,
+            () -> Workflowalizer.readRepositoryItem(directory));
+    }
+
+    /**
+     * Tests that the parsing fails when parsing invalid workflowset.meta XML from a zip archive.
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    public void testWorkflowWithBrokenXMLZip() throws Exception {
+        Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/Workflow_BrokenMetaXML.knwf").toURI());
+        assertThrows("Unexpected response code when parsing a workflow with invalid XML", IOException.class,
+            () -> Workflowalizer.readRepositoryItem(workflowPath));
     }
 }

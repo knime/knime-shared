@@ -125,8 +125,7 @@ public class JSONTest {
                     writer.write(json);
                     count++;
                 }
-            } catch (IOException | URISyntaxException | InvalidSettingsException | ParseException
-                    | XPathExpressionException | ParserConfigurationException | SAXException e) {
+            } catch (IOException | InvalidSettingsException | ParseException | XPathExpressionException e) {
                 System.out.println("Error reading template: " + templateDir);
                 System.out.println(e);
                 e.printStackTrace();
@@ -152,8 +151,7 @@ public class JSONTest {
                     writer.write(json);
                     count++;
                 }
-            } catch (IOException | URISyntaxException | InvalidSettingsException | ParseException
-                    | XPathExpressionException | ParserConfigurationException | SAXException e) {
+            } catch (IOException | InvalidSettingsException | ParseException | XPathExpressionException e) {
                 System.out.println("Error reading workflow: " + workflowDir);
                 System.out.println(e);
                 e.printStackTrace();
