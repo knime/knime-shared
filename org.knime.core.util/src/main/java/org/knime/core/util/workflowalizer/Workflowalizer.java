@@ -124,9 +124,10 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static RepositoryItemMetadata readRepositoryItem(final Path repoItem)
-        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException, SAXException {
         return readRepositoryItem(repoItem, WorkflowalizerConfiguration.builder().readAll().build());
     }
 
@@ -143,10 +144,11 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static RepositoryItemMetadata readRepositoryItem(final Path repoItem,
         final WorkflowalizerConfiguration config) throws IOException, InvalidSettingsException,
-        ParseException, XPathExpressionException {
+        ParseException, XPathExpressionException, SAXException {
         if (isZip(repoItem)) {
             try (final ZipFile zip = new ZipFile(repoItem.toAbsolutePath().toString())) {
                 final String workflowGroupPath = findFirstWorkflowGroup(zip);
@@ -199,9 +201,10 @@ public final class Workflowalizer {
      * @return the metadata contained within the file as {@link WorkflowSetMeta}
      * @throws IOException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static WorkflowGroupMetadata readWorkflowGroup(final Path workflowsetmeta)
-        throws IOException, XPathExpressionException {
+        throws IOException, XPathExpressionException, SAXException {
         if (isZip(workflowsetmeta)) {
             try (final ZipFile zip = new ZipFile(workflowsetmeta.toAbsolutePath().toString())) {
                 final String workflowPath = findFirstWorkflowGroup(zip);
@@ -235,9 +238,10 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static WorkflowMetadata readWorkflow(final Path path)
-        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException, SAXException {
         return readWorkflow(path, WorkflowalizerConfiguration.builder().readAll().build());
     }
 
@@ -252,9 +256,10 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static WorkflowMetadata readWorkflow(final Path path, final WorkflowalizerConfiguration config)
-        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException, SAXException {
         CheckUtils.checkArgumentNotNull(config, "Configuration cannot be null");
         CheckUtils.checkArgument(Files.exists(path), "File does not exist at path " + path);
         if (isZip(path)) {
@@ -286,9 +291,10 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static TemplateMetadata readTemplate(final Path path)
-        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException, SAXException {
         return readTemplate(path, WorkflowalizerConfiguration.builder().readAll().build());
     }
 
@@ -303,9 +309,10 @@ public final class Workflowalizer {
      * @throws InvalidSettingsException
      * @throws ParseException
      * @throws XPathExpressionException
+     * @throws SAXException
      */
     public static TemplateMetadata readTemplate(final Path path, final WorkflowalizerConfiguration config)
-        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException, SAXException {
         CheckUtils.checkArgumentNotNull(config, "Configuration cannot be null");
         CheckUtils.checkArgument(Files.exists(path), "File does not exist at path " + path);
         if (isZip(path)) {
@@ -330,7 +337,7 @@ public final class Workflowalizer {
 
     private static Optional<WorkflowSetMeta> readWorkflowSetMeta(final String path, final ZipFile zip,
         final WorkflowParser parser)
-        throws IOException, XPathExpressionException {
+        throws IOException, XPathExpressionException, SAXException {
         if (zip == null) {
             final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
             if (!Files.exists(workflowsetPath)) {
@@ -353,7 +360,7 @@ public final class Workflowalizer {
     }
 
     private static WorkflowSetMeta readWorkflowSetMeta(final InputStream is)
-        throws IOException, XPathExpressionException {
+        throws IOException, XPathExpressionException, SAXException {
         final var doc = parseXMLDocument(is, "workflowset.meta");
         final var xPathfactory = XPathFactory.newInstance();
         final var xpath = xPathfactory.newXPath();
@@ -394,7 +401,7 @@ public final class Workflowalizer {
 
     private static WorkflowMetadata readTopLevelWorkflow(final String path, final ZipFile zip,
         final WorkflowalizerConfiguration wc)
-        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, ParseException, XPathExpressionException, SAXException {
         // Reading workflow.knime
         MetadataConfig workflowKnime = null;
         if (zip == null) {
@@ -489,7 +496,7 @@ public final class Workflowalizer {
 
     private static TemplateMetadata readTemplateMetadata(final String path, final ZipFile zip,
         final WorkflowalizerConfiguration wc)
-        throws InvalidSettingsException, ParseException, IOException, XPathExpressionException {
+        throws InvalidSettingsException, ParseException, IOException, XPathExpressionException, SAXException {
         // Reading files
         // TODO: Is the template file always template.knime?
         MetadataConfig workflowKnime = null;
@@ -818,7 +825,7 @@ public final class Workflowalizer {
 
     private static void populateComponentFields(final String path, final ZipFile zip, final WorkflowParser parser,
         final ComponentMetadataBuilder builder, final WorkflowFields wf, final WorkflowalizerConfiguration config)
-        throws IOException, InvalidSettingsException, XPathExpressionException {
+        throws IOException, InvalidSettingsException, XPathExpressionException, SAXException {
         // workflowset.meta
         if (config.parseWorkflowMeta()) {
             final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser);
@@ -1071,7 +1078,7 @@ public final class Workflowalizer {
     }
 
     private static void svgFile(final WorkflowParser parser, final Path workflowDirectory,
-        final WorkflowMetadataBuilder builder) throws IOException {
+        final WorkflowMetadataBuilder builder) throws IOException, SAXException {
         final Path svg = workflowDirectory.resolve(parser.getWorkflowSVGFileName());
         if (!Files.exists(svg, LinkOption.NOFOLLOW_LINKS)) {
             return;
@@ -1096,7 +1103,7 @@ public final class Workflowalizer {
     }
 
     private static void svgFile(final WorkflowParser parser, final String path, final ZipFile zip,
-        final WorkflowMetadataBuilder builder) throws IOException {
+        final WorkflowMetadataBuilder builder) throws IOException, SAXException {
         final ZipEntry svg = zip.getEntry(path + parser.getWorkflowSVGFileName());
         if (svg == null) {
             return;
@@ -1281,7 +1288,7 @@ public final class Workflowalizer {
     }
 
     private static Document parseXMLDocument(final InputStream is, final String filename)
-        throws IOException {
+        throws IOException, SAXException {
         try {
             var docBuilder = getConfiguredDocumentBuilder();
             return docBuilder.parse(is);
@@ -1290,7 +1297,7 @@ public final class Workflowalizer {
         }
     }
 
-    private static Document parseXMLDocument(final Path pathToFile) throws IOException {
+    private static Document parseXMLDocument(final Path pathToFile) throws SAXException, IOException {
         var docBuilder = getConfiguredDocumentBuilder();
         try {
             return docBuilder.parse(pathToFile.toFile());
@@ -1299,12 +1306,12 @@ public final class Workflowalizer {
         }
     }
 
-    private static IOException handleSAXException(final SAXException ex, final String filename) {
+    private static SAXException handleSAXException(final SAXException ex, final String filename) {
         if (ex instanceof SAXParseException && ex.getMessage().contains("is disallowed when the feature")) {
             throw new IllegalArgumentException(String.format(
                 "Cannot parse the given file '%s', as it contains XML elements which are not allowed", filename), ex);
         }
-        return new IOException(ex);
+        return ex;
     }
 
     private static DocumentBuilder getConfiguredDocumentBuilder() throws IOException {

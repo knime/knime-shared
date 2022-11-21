@@ -61,7 +61,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -81,6 +80,7 @@ import org.junit.rules.ExpectedException;
 import org.knime.core.util.PathUtils;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
+import org.xml.sax.SAXParseException;
 
 /**
  * Tests for {@link Workflowalizer}.
@@ -1695,7 +1695,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             unzip(is, workspace.toFile());
         }
         Path directory = new File(workspace.toFile(), "Workflow_BrokenMetaXML").toPath();
-        assertThrows("Unexpected response code when parsing a workflow with invalid XML", IOException.class,
+        assertThrows("Unexpected response code when parsing a workflow with invalid XML", SAXParseException.class,
             () -> Workflowalizer.readRepositoryItem(directory));
     }
 
@@ -1707,7 +1707,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     public void testWorkflowWithBrokenXMLZip() throws Exception {
         Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/Workflow_BrokenMetaXML.knwf").toURI());
-        assertThrows("Unexpected response code when parsing a workflow with invalid XML", IOException.class,
+        assertThrows("Unexpected response code when parsing a workflow with invalid XML", SAXParseException.class,
             () -> Workflowalizer.readRepositoryItem(workflowPath));
     }
 }
