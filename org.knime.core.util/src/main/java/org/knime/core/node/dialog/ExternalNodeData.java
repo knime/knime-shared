@@ -58,7 +58,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
@@ -101,7 +100,7 @@ public class ExternalNodeData {
     /**
      * Indicator that a JSON value can be provided but is not available yet.
      */
-    public static final JsonObject NO_JSON_VALUE_YET = Json.createObjectBuilder().build();
+    public static final JsonObject NO_JSON_VALUE_YET = JsonValue.EMPTY_JSON_OBJECT;
 
     /**
      * Indicator that a URL value can be provided but is not available yet.
