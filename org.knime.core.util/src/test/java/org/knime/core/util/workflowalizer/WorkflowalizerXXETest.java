@@ -49,6 +49,8 @@
 package org.knime.core.util.workflowalizer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThrows;
 
@@ -67,6 +69,8 @@ import org.knime.core.util.PathUtils;
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
 public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
+
+    private static final String SECRET_STRING = "Exposed secret info!!!";
 
     /**
      * Tests for XXE in a workflow SVG from a workflow which has been extracted to the filesystem (i.e. unzipped).
@@ -127,5 +131,13 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
             IllegalArgumentException.class, () -> Workflowalizer.readRepositoryItem(path));
         assertThat("Unexpected error message when preventing XXE", ex.getMessage(), startsWith(String
             .format("Cannot parse the given file '%s', as it contains XML elements which are not allowed", fileName)));
+        checkForSecret(ex);
+    }
+
+    private static void checkForSecret(final Throwable ex) {
+        assertThat("Secret message found in error message", ex.getMessage(), not(containsString(SECRET_STRING)));
+        if (ex.getCause() != null) {
+            checkForSecret(ex.getCause());
+        }
     }
 }
