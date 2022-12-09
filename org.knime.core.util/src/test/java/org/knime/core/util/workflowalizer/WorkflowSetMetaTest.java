@@ -452,6 +452,134 @@ public class WorkflowSetMetaTest {
         assertTags(wsm, Optional.of(tags));
     }
 
+    /**
+     * Tests reading a workflowset.meta file whose description contains colons.
+     *
+     * @throws IOException if I/O error occurs
+     * @throws SAXException if SAX error occurs
+     * @throws ParserConfigurationException if parser configuration error occurs
+     * @throws XPathExpressionException if xpath expression error occurs
+     */
+    @Test
+    public void testDescriptionWithColons()
+        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-desc-with-colon");
+
+        var author = "awalter";
+        var title = "Description With Colon";
+        var description = "Here is my description.\n\nList:\n* Foo\n* Bar\n* Baz\n\nAnd another : just for fun :)\n";
+        List<Link> links = List.of(new Link("https://knime.com", "KNIME"));
+        List<String> tags = List.of("Tag_One", "Tag_Two");
+        assertAuthor(wsm, author);
+        assertTitle(wsm, Optional.of(title));
+        assertDescription(wsm, Optional.of(description));
+        assertLinks(wsm, Optional.of(links));
+        assertTags(wsm, Optional.of(tags));
+    }
+
+    /**
+     * Tests reading a workflowset.meta file whose description contains colons preceded by a reserved word.
+     *
+     * @throws IOException if I/O error occurs
+     * @throws SAXException if SAX error occurs
+     * @throws ParserConfigurationException if parser configuration error occurs
+     * @throws XPathExpressionException if xpath expression error occurs
+     */
+    @Test
+    public void testDescriptionWithColonsAndReservedWord()
+        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon");
+
+        var author = "awalter";
+        var title = "reserved words with colon";
+        var description = "Here is my description.\n"; // checked in AP 4.7 this earlier stopping is reflected there as well
+        List<Link> links = List.of(new Link("https://knime.com", "KNIME"));
+        List<String> tags = List.of("fizz", "bab", "Tag_One", "Tag_Two");
+        assertAuthor(wsm, author);
+        assertTitle(wsm, Optional.of(title));
+        assertDescription(wsm, Optional.of(description));
+        assertLinks(wsm, Optional.of(links));
+        assertTags(wsm, Optional.of(tags));
+    }
+
+    /**
+     * Tests reading a workflowset.meta file whose description containing a colon preceded by a reserved word but with
+     * no text afterwards.
+     *
+     * @throws IOException if I/O error occurs
+     * @throws SAXException if SAX error occurs
+     * @throws ParserConfigurationException if parser configuration error occurs
+     * @throws XPathExpressionException if xpath expression error occurs
+     */
+    @Test
+    public void testDescriptionWithColonsAndReservedWordThenNewline()
+        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon-newline");
+
+        var author = "awalter";
+        var title = "reserved words with colon";
+        var description = "Here is my description.\n\ntags:\n\nMore description here.\n"; // checked against AP 4.7
+        List<Link> links = List.of(new Link("https://knime.com", "KNIME"));
+        List<String> tags = List.of("Tag_One", "Tag_Two");
+        assertAuthor(wsm, author);
+        assertTitle(wsm, Optional.of(title));
+        assertDescription(wsm, Optional.of(description));
+        assertLinks(wsm, Optional.of(links));
+        assertTags(wsm, Optional.of(tags));
+    }
+
+    /**
+     * Tests reading a workflowset.meta file whose description containing a colon preceded by a reserved word and
+     * followed by a single whitespace character.
+     *
+     * @throws IOException if I/O error occurs
+     * @throws SAXException if SAX error occurs
+     * @throws ParserConfigurationException if parser configuration error occurs
+     * @throws XPathExpressionException if xpath expression error occurs
+     */
+    @Test
+    public void testDescriptionWithColonsAndReservedWordThenSpace()
+        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon-empty-space");
+
+        var author = "awalter";
+        var title = "reserved words with colon";
+        var description = "Here is my description.\n\ntags: \n\nMore description here.\n"; // checked against AP 4.7
+        List<Link> links = List.of(new Link("https://knime.com", "KNIME"));
+        List<String> tags = List.of("Tag_One", "Tag_Two");
+        assertAuthor(wsm, author);
+        assertTitle(wsm, Optional.of(title));
+        assertDescription(wsm, Optional.of(description));
+        assertLinks(wsm, Optional.of(links));
+        assertTags(wsm, Optional.of(tags));
+    }
+
+    /**
+     * Tests reading a workflowset.meta file whose description containing a colon preceded by a reserved word and
+     * followed by two whitespace characters.
+     *
+     * @throws IOException if I/O error occurs
+     * @throws SAXException if SAX error occurs
+     * @throws ParserConfigurationException if parser configuration error occurs
+     * @throws XPathExpressionException if xpath expression error occurs
+     */
+    @Test
+    public void testDescriptionWithColonsAndReservedWordThenTwoSpaces()
+        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon-two-empty-spaces");
+
+        var author = "awalter";
+        var title = "reserved words with colon";
+        var description = "Here is my description.\n"; // checked against AP 4.7
+        List<Link> links = List.of(new Link("https://knime.com", "KNIME"));
+        List<String> tags = List.of("", "Tag_One", "Tag_Two");
+        assertAuthor(wsm, author);
+        assertTitle(wsm, Optional.of(title));
+        assertDescription(wsm, Optional.of(description));
+        assertLinks(wsm, Optional.of(links));
+        assertTags(wsm, Optional.of(tags));
+    }
+
     // -- Helper Methods -
 
     @SuppressWarnings("static-method") // Cannot read in resources if the method is static

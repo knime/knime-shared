@@ -307,8 +307,11 @@ public class WorkflowSetMeta {
             String line = lines[lineIndex];
             int index = line.indexOf(':');
             if ((index != -1) && (index < (line.length() - 2))) {
-                // This line is probably a tag, so it is the end of the description
-                break;
+                var beforeColon = line.substring(0, index).toUpperCase(Locale.US);
+                // check if line is a tag or link, if so stop parsing description
+                if (isTextTag(beforeColon) || isLinkTag(beforeColon)) {
+                    break;
+                }
             }
             actualDescription.append('\n').append(line);
             lineIndex++;
