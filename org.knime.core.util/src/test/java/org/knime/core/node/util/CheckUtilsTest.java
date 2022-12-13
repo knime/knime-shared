@@ -54,32 +54,40 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 
 /**
- * Tests {@link CheckUtils} methods.
- * @author "Manuel Hotz &lt;manuel.hotz@knime.com&gt;"
+ * Tests new {@link CheckUtils} methods.
+ *
+ * @author Manuel Hotz, KNIME GmbH, Konstanz, Germany
  */
 public class CheckUtilsTest {
 
     /**
-     * Tests the {@code CheckUtils#checkStateType} methods.
+     * Tests the {@code CheckUtils#checkIsInstance} method.
      */
     @Test
-    public final void testCheckStateType() {
-        final Object obj = "test";
-        final String ret1 = CheckUtils.checkStateType(obj, String.class, "Given object is not a string.");
+    public final void testCheckCast() {
+        final Object obj = "testIsInstance";
+        final String ret1 = CheckUtils.checkCast(obj, String.class,
+            IllegalArgumentException::new,
+            "Given object '%s' is not a string.", obj);
         assertEquals("Should result in equal objects", ret1, obj);
-        final String ret2 = CheckUtils.checkStateType(obj, String.class, "Object %s is not a string.", obj);
-        assertEquals("Should result in equal objects", ret2, obj);
+
+        final Object notAString = 42L;
+        assertThrows("Expected to not be a string",
+            Exception.class,
+            () -> CheckUtils.checkCast(notAString, String.class, Exception::new,
+                "Object %s is not a string.", notAString));
     }
 
     /**
-     * Tests that the {@code CheckUtils#checkStateType} methods throw {@link IllegalStateException}s.
+     * Tests the {@code CheckUtils#check} method.
      */
     @Test
-    public final void testCheckStateTypeThrows() {
-        final String obj = "test";
-        assertThrows("Should throw ISE", IllegalStateException.class,
-            () -> CheckUtils.checkStateType(obj, Number.class, "Given object is not a number."));
-        assertThrows("Should throw ISE", IllegalStateException.class,
-            () -> CheckUtils.checkStateType(obj, Number.class, "Object %s is not a number.", obj));
+    public final void testCheck() {
+        final Object obj = "testCheck";
+        CheckUtils.check(obj instanceof String, IllegalArgumentException::new,
+            () -> String.format("Object %s is not a string.", obj));
+
+        assertThrows("Expected to throw", Exception.class,
+            () -> CheckUtils.check(false, Exception::new, () -> "Should throw this"));
     }
 }
