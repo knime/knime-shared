@@ -1273,7 +1273,7 @@ public final class Workflowalizer {
      * @throws IllegalArgumentException
      */
     private static String readZipFileIntoString(final Path path, final ZipFile zip) throws IOException {
-        final String entryName = path.toString();
+        final String entryName = FilenameUtils.separatorsToUnix(path.toString());
         final ZipEntry entry = zip.getEntry(entryName);
         if (entry == null) {
             return null;
