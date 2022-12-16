@@ -7,6 +7,7 @@
         <entry key="role" type="xstring" value="Link"/>
         <entry key="timestamp" type="xstring" value="2022-03-25 13:27:04 +0100"/>
         <entry key="sourceURI" type="xstring" value="knime://knime.mountpoint/MetanodeTest"/>
+        <entry key="eTag" type="xstring" value="&quot;d5276a8f059254a22892ada49b752a9c&quot;"/>
     </config>
     <entry key="name" type="xstring" value="MetanodeTest"/>
     <config key="nodeAnnotation">

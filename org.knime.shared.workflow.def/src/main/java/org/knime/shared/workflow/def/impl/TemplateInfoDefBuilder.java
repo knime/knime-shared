@@ -86,6 +86,9 @@ public class TemplateInfoDefBuilder {
     OffsetDateTime m_updatedAt;
     
 
+    String m_eTag;
+    
+
     /**
      * Create a new builder.
      */
@@ -98,6 +101,7 @@ public class TemplateInfoDefBuilder {
     public TemplateInfoDefBuilder(final TemplateInfoDef toCopy) {
         m_uri = toCopy.getUri();
         m_updatedAt = toCopy.getUpdatedAt();
+        m_eTag = toCopy.getETag();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -173,6 +177,44 @@ public class TemplateInfoDefBuilder {
                                      
             m_updatedAt = defaultValue;
             m_exceptionalChildren.put(TemplateInfoDef.Attribute.UPDATED_AT, supplyException);
+	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for eTag
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param eTag Entity Tag from the repository, supercedes &#x60;updatedAt&#x60; if available.
+     * @return this builder for fluent API.
+     */ 
+    public TemplateInfoDefBuilder setETag(final String eTag) {
+        setETag(() -> eTag, eTag);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(TemplateInfoDef.Attribute.E_TAG)} will return true and and
+     * {@code getExceptionalChildren().get(TemplateInfoDef.Attribute.E_TAG)} will return the exception.
+     * 
+     * @param eTag see {@link TemplateInfoDef#getETag}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setETag(String)
+     */
+    public TemplateInfoDefBuilder setETag(final FallibleSupplier<String> eTag, String defaultValue) {
+        java.util.Objects.requireNonNull(eTag, () -> "No supplier for eTag provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(TemplateInfoDef.Attribute.E_TAG);
+        try {
+            m_eTag = eTag.get();
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                                     
+            m_eTag = defaultValue;
+            m_exceptionalChildren.put(TemplateInfoDef.Attribute.E_TAG, supplyException);
 	    }   
         return this;
     }

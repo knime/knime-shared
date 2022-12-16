@@ -102,6 +102,7 @@ public enum IOConst {
         WORKFLOW_TEMPLATE_TYPE_KEY("templateType"),
         SOURCE_URI_KEY("sourceURI"), //
         TIMESTAMP("timestamp"),
+        E_TAG("eTag"),
         VIRTUAL_IN_ID_KEY("virtual-in-ID"),
         VIRTUAL_OUT_ID_KEY("virtual-out-ID"),
         ICON_KEY("icon"),

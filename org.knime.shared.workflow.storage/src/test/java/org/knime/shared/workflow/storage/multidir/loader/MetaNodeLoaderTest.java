@@ -149,6 +149,7 @@ class MetaNodeLoaderTest {
         assertThat(metanodeDef.getOutPortsBarUIInfo()).isInstanceOf(NodeUIInfoDef.class);
         assertThat(metanodeDef.getLink().getUpdatedAt().getYear()).isEqualTo(2022);
         assertThat(metanodeDef.getLink().getUri()).isEqualTo("knime://knime.mountpoint/MetanodeTest");
+        assertThat(metanodeDef.getLink().getETag()).isEqualTo("\"d5276a8f059254a22892ada49b752a9c\"");
         assertThat(metanodeDef.getWorkflow().getNodes()).hasSize(4);
 
         // Assert NodeLoader

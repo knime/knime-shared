@@ -50,6 +50,7 @@ package org.knime.shared.workflow.storage.multidir.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -313,7 +314,7 @@ public final class LoaderUtils {
      * MetaNodes as NativeNodes, have the template information in their settings.xml and workflow.knime accordingly.
      *
      * @param templateSettings a read only representation either of template.knime, settings.xml or workflow.knime.
-     * @return a {@link TemplateLinkDef}.
+     * @return a {@link TemplateInfoDef}.
      * @throws InvalidSettingsException
      */
     public static TemplateInfoDef loadTemplateLink(final ConfigBaseRO templateSettings) throws InvalidSettingsException {
@@ -325,7 +326,8 @@ public final class LoaderUtils {
         return new TemplateInfoDefBuilder()
             .setUri(templateInformationSettings.getString(IOConst.SOURCE_URI_KEY.get(), DEFAULT_EMPTY_STRING)) //
             .setUpdatedAt(() -> parseDate(templateInformationSettings.getString(IOConst.TIMESTAMP.get())),
-                OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)) //
+                Instant.ofEpochMilli(0).atOffset(ZoneOffset.UTC)) //
+            .setETag(templateInformationSettings.getString(IOConst.E_TAG.get(), null))
             .build();
     }
 

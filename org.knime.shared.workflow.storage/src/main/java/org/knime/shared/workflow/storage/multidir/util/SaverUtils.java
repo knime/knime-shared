@@ -256,6 +256,7 @@ public final class SaverUtils {
         templateSettings.addString(IOConst.TIMESTAMP.get(),
             templateInfo.getUpdatedAt().format(LoaderUtils.DATE_FORMAT));
         templateSettings.addString(IOConst.SOURCE_URI_KEY.get(), templateInfo.getUri());
+        templateSettings.addString(IOConst.E_TAG.get(), templateInfo.getETag());
         if (role == IOConst.WORKFLOW_TEMPLATE_ROLE_TEMPLATE) {
             templateSettings.addString(IOConst.WORKFLOW_TEMPLATE_TYPE_KEY.get(), nodeTypeString.get(nodeType));
         }

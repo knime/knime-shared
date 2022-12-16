@@ -389,7 +389,7 @@ public abstract class ConfigBase extends AbstractConfigEntry
      * null.
      *
      * @param key The key.
-     * @param value The boolean to add.
+     * @param value The string to add.
      */
     @Override
     public void addString(final String key, final String value) {

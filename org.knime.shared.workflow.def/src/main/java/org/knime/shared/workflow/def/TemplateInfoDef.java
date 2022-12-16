@@ -80,6 +80,13 @@ public interface TemplateInfoDef {
           * Is is returned by {@link TemplateInfoDef#getUpdatedAt} 
           */
          UPDATED_AT,
+         /**  
+          * Entity Tag from the repository, supercedes &#x60;updatedAt&#x60; if available.
+          *
+          * The type of this data attribute is {@link String}.
+          * Is is returned by {@link TemplateInfoDef#getETag} 
+          */
+         E_TAG,
 ;
     }
     
@@ -94,6 +101,12 @@ public interface TemplateInfoDef {
    * @return When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available.
    **/
   public OffsetDateTime getUpdatedAt();
+
+  /**
+   * Example value: 33a64df551425fcc55e4d42a148795d9f25f89d4
+   * @return Entity Tag from the repository, supercedes &#x60;updatedAt&#x60; if available.
+   **/
+  public String getETag();
 
 
 }

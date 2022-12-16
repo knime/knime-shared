@@ -95,6 +95,14 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     @JsonProperty("updatedAt")
     protected OffsetDateTime m_updatedAt;
 
+    /** 
+     * Entity Tag from the repository, supercedes &#x60;updatedAt&#x60; if available. 
+     * 
+     * Example value: 33a64df551425fcc55e4d42a148795d9f25f89d4
+     */
+    @JsonProperty("eTag")
+    protected String m_eTag;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
@@ -116,6 +124,7 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
             
         m_uri = builder.m_uri;
         m_updatedAt = builder.m_updatedAt;
+        m_eTag = builder.m_eTag;
 
         m_exceptionTree = Optional.empty();
     }
@@ -133,6 +142,7 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
         
         m_uri = toCopy.getUri();
         m_updatedAt = toCopy.getUpdatedAt();
+        m_eTag = toCopy.getETag();
         if(toCopy instanceof DefaultTemplateInfoDef){
             var childTree = ((DefaultTemplateInfoDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -152,6 +162,7 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     public DefaultTemplateInfoDef(TemplateInfoDef toCopy) {
         m_uri = toCopy.getUri();
         m_updatedAt = toCopy.getUpdatedAt();
+        m_eTag = toCopy.getETag();
         
         m_exceptionTree = Optional.empty();
     }
@@ -207,6 +218,10 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     public OffsetDateTime getUpdatedAt() {
         return m_updatedAt;
     }
+    @Override
+    public String getETag() {
+        return m_eTag;
+    }
     
     // -------------------------------------------------------------------------------------------------------------------
     // Load Exception Convenience Getters: Cast LoadExceptionTree<?> to more specific type where possible
@@ -232,6 +247,16 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
     
  
      
+    /**
+     * @return The supply exception associated to eTag.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getETagSupplyException(){
+    	return getLoadExceptionTree(TemplateInfoDef.Attribute.E_TAG).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+ 
+     
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -253,6 +278,7 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
         equalsBuilder.append(m_uri, other.m_uri);
         equalsBuilder.append(m_updatedAt, other.m_updatedAt);
+        equalsBuilder.append(m_eTag, other.m_eTag);
         return equalsBuilder.isEquals();
     }
 
@@ -261,6 +287,7 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
         return new HashCodeBuilder()
                 .append(m_uri)
                 .append(m_updatedAt)
+                .append(m_eTag)
                 .toHashCode();
     }
 
