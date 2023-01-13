@@ -47,6 +47,13 @@
  */
 package org.knime.core.node.workflow;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -72,6 +79,10 @@ public final class NodeMessage {
 
     private final String m_message;
 
+    private final String m_issue;
+
+    private final List<String> m_resolutions;
+
     private final Type m_type;
 
     /**
@@ -80,11 +91,28 @@ public final class NodeMessage {
      * @param messageType the message type (error or warning)
      * @param message the message
      */
+    public NodeMessage(final Type messageType, final String message) {
+        this(messageType, message, null, null);
+    }
+
+    /**
+     * Creates a message with all details.
+     *
+     * @param messageType the message type (error or warning)
+     * @param message the message
+     * @param issue The issue as per {@link #getIssue()} (can be null).
+     * @param resolutions Possible resolutions as per {@link #getResolutions()}. Null is valid.
+     */
     @JsonCreator
-    public NodeMessage(@JsonProperty("messageType") final Type messageType,
-        @JsonProperty("message") final String message) {
+    public NodeMessage( //
+        @JsonProperty("messageType") final Type messageType, //
+        @JsonProperty("message") final String message,
+        @JsonProperty("issue") final String issue, //
+        @JsonProperty("resolutions") final List<String> resolutions) {
         m_message = message;
         m_type = messageType;
+        m_issue = issue;
+        m_resolutions = resolutions == null ? Collections.emptyList() : resolutions;
     }
 
     /** Convenience short cut for <code>new NodeMessage(Type.WARNING, message)</code>.
@@ -101,6 +129,26 @@ public final class NodeMessage {
      * @since 2.12 */
     public static final NodeMessage newError(final String message) {
         return new NodeMessage(Type.ERROR, message);
+    }
+
+    /**
+     * The issue, e.g. problematic table rows in preformatted text, in the ui shown in fixed font.
+     *
+     * @return that issue or empty
+     * @since 4.8
+     */
+    @JsonProperty("issue")
+    public Optional<String> getIssue() {
+        return Optional.ofNullable(m_issue);
+    }
+
+    /**
+     * Resolutions are an enumeration of possible hints/solutions (e.g. "Use a 'String Manipulation' node upstream")
+     * @return the resolutions, often empty, not null.
+     */
+    @JsonProperty("resolutions")
+    public List<String> getResolutions() {
+        return m_resolutions;
     }
 
     /**
@@ -127,13 +175,16 @@ public final class NodeMessage {
         return getMessageType() + ": " + getMessage();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return m_type.hashCode() ^ getMessage().hashCode();
+        return new HashCodeBuilder() //
+            .append(m_type) //
+            .append(m_message) //
+            .append(m_issue) //
+            .append(m_resolutions) //
+            .toHashCode();
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(final Object obj) {
         if (obj == this) {
@@ -143,19 +194,23 @@ public final class NodeMessage {
             return false;
         }
         NodeMessage other = (NodeMessage)obj;
-        return m_type.equals(other.m_type) && m_message.equals(other.m_message);
+        return new EqualsBuilder() //
+            .append(m_type, other.m_type) //
+            .append(m_message, other.m_message) //
+            .append(m_issue, other.m_issue) //
+            .append(m_resolutions, other.m_resolutions) //
+            .isEquals();
     }
 
     /**
      * Merges two messages. The result message will have the most severe type
      * (e.g. if m1 is WARNING and m2 is ERROR the output is ERROR) and a
-     * concatenated message string, delimited by a line break.
+     * concatenated message string, delimited by a line break. Issue and resolutions are ignored.
      * @param m1 Message 1
      * @param m2 Message 2
      * @return A merged message
      */
-    public static final NodeMessage merge(
-            final NodeMessage m1, final NodeMessage m2) {
+    public static final NodeMessage merge(final NodeMessage m1, final NodeMessage m2) {
         if (m1.equals(m2)) {
             return m1;
         }
