@@ -91,7 +91,7 @@ public class ConfigMapDefBuilder {
      * Holds the final result of merging the bulk and individual elements in #build().
      * Elements added individually go directly into this map.
      */
-    java.util.Map<String, ConfigDef> m_children = new java.util.HashMap<>();
+    java.util.Map<String, ConfigDef> m_children = new java.util.LinkedHashMap<>();
     /** Temporarily holds onto elements set as a whole with setChildren these are added to m_children in build */
     private java.util.Map<String, ConfigDef> m_childrenBulkElements = new java.util.HashMap<>();
     /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
@@ -286,7 +286,7 @@ public class ConfigMapDefBuilder {
     	
         // contains the elements set with #setChildren (those added with #addToChildren have already been inserted into m_children)
         m_childrenBulkElements = java.util.Objects.requireNonNullElse(m_childrenBulkElements, java.util.Map.of());
-        final java.util.Map<String, ConfigDef> childrenMerged = new java.util.HashMap<>();
+        final java.util.Map<String, ConfigDef> childrenMerged = new java.util.LinkedHashMap<>();
         // in rough analogy to list containers, the bulk elements go first and then the individual elements are added
         childrenMerged.putAll(m_childrenBulkElements);
         childrenMerged.putAll(m_children);
