@@ -98,7 +98,7 @@ public class RootWorkflowDefBuilder {
      * Holds the final result of merging the bulk and individual elements in #build().
      * Elements added individually go directly into this map.
      */
-    java.util.Map<String, BaseNodeDef> m_nodes = new java.util.HashMap<>();
+    java.util.Map<String, BaseNodeDef> m_nodes = new java.util.LinkedHashMap<>();
     /** Temporarily holds onto elements set as a whole with setNodes these are added to m_nodes in build */
     private java.util.Map<String, BaseNodeDef> m_nodesBulkElements = new java.util.HashMap<>();
     /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
@@ -118,7 +118,7 @@ public class RootWorkflowDefBuilder {
      * Holds the final result of merging the bulk and individual elements in #build().
      * Elements added individually go directly into this map.
      */
-    java.util.Map<String, AnnotationDataDef> m_annotations = new java.util.HashMap<>();
+    java.util.Map<String, AnnotationDataDef> m_annotations = new java.util.LinkedHashMap<>();
     /** Temporarily holds onto elements set as a whole with setAnnotations these are added to m_annotations in build */
     private java.util.Map<String, AnnotationDataDef> m_annotationsBulkElements = new java.util.HashMap<>();
     /** This exception is merged with the exceptions of the elements of this map into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
