@@ -6,6 +6,7 @@
 		<groupId>com.knime.maven</groupId>
 		<artifactId>server.parent</artifactId>
 		<version>4.17.0</version>
+		<relativePath/>
 	</parent>
 
 	<groupId>org.knime</groupId>
