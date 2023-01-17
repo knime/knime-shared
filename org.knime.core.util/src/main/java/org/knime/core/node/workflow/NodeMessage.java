@@ -135,7 +135,7 @@ public final class NodeMessage {
      * The issue, e.g. problematic table rows in preformatted text, in the ui shown in fixed font.
      *
      * @return that issue or empty
-     * @since 4.8
+     * @since 5.23
      */
     @JsonProperty("issue")
     public Optional<String> getIssue() {
@@ -144,7 +144,9 @@ public final class NodeMessage {
 
     /**
      * Resolutions are an enumeration of possible hints/solutions (e.g. "Use a 'String Manipulation' node upstream")
+     *
      * @return the resolutions, often empty, not null.
+     * @since 5.23
      */
     @JsonProperty("resolutions")
     public List<String> getResolutions() {
