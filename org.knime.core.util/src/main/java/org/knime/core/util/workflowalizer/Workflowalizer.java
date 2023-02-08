@@ -1094,10 +1094,10 @@ public final class Workflowalizer {
             final Node widthNode = svgItem.getAttributes().getNamedItem("width");
             final Node heightNode = svgItem.getAttributes().getNamedItem("height");
             if (widthNode != null) {
-                builder.setSvgWidth(Integer.parseInt(widthNode.getNodeValue()));
+                builder.setSvgWidth((int)Math.round(Double.parseDouble(widthNode.getNodeValue())));
             }
             if (heightNode != null) {
-                builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
+                builder.setSvgHeight((int)Math.round(Double.parseDouble(heightNode.getNodeValue())));
             }
         }
     }
