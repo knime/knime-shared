@@ -1086,20 +1086,7 @@ public final class Workflowalizer {
         CheckUtils.checkArgument(Files.probeContentType(svg).toLowerCase().contains("svg"),
             parser.getWorkflowSVGFileName() + " is not an SVG");
         builder.setSvgFile(svg);
-
-        final var doc = parseXMLDocument(svg);
-
-        final Node svgItem = doc.getElementsByTagName("svg").item(0);
-        if (svgItem != null) {
-            final Node widthNode = svgItem.getAttributes().getNamedItem("width");
-            final Node heightNode = svgItem.getAttributes().getNamedItem("height");
-            if (widthNode != null) {
-                builder.setSvgWidth((int)Math.round(Double.parseDouble(widthNode.getNodeValue())));
-            }
-            if (heightNode != null) {
-                builder.setSvgHeight((int)Math.round(Double.parseDouble(heightNode.getNodeValue())));
-            }
-        }
+        readSvgDimensions(builder, parseXMLDocument(svg));
     }
 
     private static void svgFile(final WorkflowParser parser, final String path, final ZipFile zip,
@@ -1111,18 +1098,17 @@ public final class Workflowalizer {
         builder.setSvgFile(Paths.get(zip.getName()));
         builder.setSvgZipEntry(path + parser.getWorkflowSVGFileName());
         try (final InputStream stream = zip.getInputStream(svg)) {
-            final var doc = parseXMLDocument(stream, parser.getWorkflowSVGFileName());
-            final Node svgItem = doc.getElementsByTagName("svg").item(0);
-            if (svgItem != null) {
-                final Node widthNode = svgItem.getAttributes().getNamedItem("width");
-                final Node heightNode = svgItem.getAttributes().getNamedItem("height");
-                if (widthNode != null) {
-                    builder.setSvgWidth(Integer.parseInt(widthNode.getNodeValue()));
-                }
-                if (heightNode != null) {
-                    builder.setSvgHeight(Integer.parseInt(heightNode.getNodeValue()));
-                }
-            }
+            readSvgDimensions(builder, parseXMLDocument(stream, parser.getWorkflowSVGFileName()));
+        }
+    }
+
+    private static void readSvgDimensions(final WorkflowMetadataBuilder builder, final Document doc) {
+        final Node svgItem = doc.getElementsByTagName("svg").item(0);
+        if (svgItem != null) {
+            Optional.ofNullable(svgItem.getAttributes().getNamedItem("width")) //
+                .ifPresent(width -> builder.setSvgWidth((int)Math.round(Double.parseDouble(width.getNodeValue()))));
+            Optional.ofNullable(svgItem.getAttributes().getNamedItem("height")) //
+                .ifPresent(height -> builder.setSvgHeight((int)Math.round(Double.parseDouble(height.getNodeValue()))));
         }
     }
 
