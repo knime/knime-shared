@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -95,7 +94,7 @@ public class ExternalNodeData {
     /**
      * Indicator that a string value can be provided but is not available yet.
      */
-    public static final String NO_STRING_VALUE_YET = new String("");
+    public static final String NO_STRING_VALUE_YET = "";
 
     /**
      * Indicator that a JSON value can be provided but is not available yet.
@@ -153,6 +152,8 @@ public class ExternalNodeData {
 
     /**
      * The content type.
+     *
+     * @see ContentType
      * @since 5.18
      */
     @Nullable
@@ -274,6 +275,8 @@ public class ExternalNodeData {
 
     /**
      * Returns an optional content type for this external node data.
+     *
+     * @see ContentType
      *
      * @return the content type or an empty optional
      * @since 5.18
@@ -405,8 +408,8 @@ public class ExternalNodeData {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + m_id.hashCode();
         result = prime * result + ((m_jsonValue == null) ? 0 : m_jsonValue.hashCode());
         result = prime * result + ((m_stringValue == null) ? 0 : m_stringValue.hashCode());
@@ -488,14 +491,16 @@ public class ExternalNodeData {
         }
     }
 
-    /** If the argument is fully qualified (such as "foo-bar-17:3") it will return the simple name ("foo-bar"). Otherwise
+    /**
+     * If the argument is fully qualified (such as "foo-bar-17:3") it will return the simple name ("foo-bar"). Otherwise
      * it returns the argument.
+     *
      * @param idPossiblyFullyQualified The parameter ID, must not be null.
      * @return the simple parameter name or the argument if already "simple".
      * @since 5.7
      */
     public static String getSimpleIDFrom(final String idPossiblyFullyQualified) {
-        Matcher nameMacher = PARAMETER_NAME_PATTERN.matcher(CheckUtils.checkArgumentNotNull(idPossiblyFullyQualified));
+        var nameMacher = PARAMETER_NAME_PATTERN.matcher(CheckUtils.checkArgumentNotNull(idPossiblyFullyQualified));
         return (nameMacher.matches() && (nameMacher.group(1) != null)) ? nameMacher.group(1) : idPossiblyFullyQualified;
     }
 
@@ -505,7 +510,7 @@ public class ExternalNodeData {
      */
     @Override
     public ExternalNodeData clone() {
-        ExternalNodeData clone = new ExternalNodeData();
+        var clone = new ExternalNodeData();
         clone.m_description = this.m_description;
         clone.m_id = this.m_id;
         clone.m_jsonValue = this.m_jsonValue;
