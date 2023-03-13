@@ -53,7 +53,7 @@ import org.knime.core.hub.events.HubTriggerEventType;
 /**
  * {@link ExternalNodeData} has a content type field, the supported content types are listed here.
  *
- * @since 5.23 on AP 5.0 releases; in AP 5.1 releases onwards the version has been bumped to 5.24
+ * @since 5.24 on AP 5.0 releases; in AP 5.1 releases onwards the version has been bumped to 5.24
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
