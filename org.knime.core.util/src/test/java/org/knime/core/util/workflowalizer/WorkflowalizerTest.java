@@ -226,6 +226,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                                 .toString(),
                         workflowDir
                                 .relativize(new File(workflowDir.toFile(), ".artifacts/workflow-configuration-representation.json").toPath())
+                                .toString(),
+                        workflowDir
+                                .relativize(new File(workflowDir.toFile(), ".artifacts/hub-event-input-parameters.json").toPath())
                                 .toString()
                 )));
 
@@ -241,6 +244,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(), wkfMd.getOpenapiOutputParameters().get());
         assertEquals("Unexpected openapi output resources",
                 WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(), wkfMd.getOpenapiOutputResources().get());
+        assertEquals("Unexpected hub event input resources",
+                WorkflowalizerArtifactContent.HUB_EVENT_INPUT_RESOURCES.value(), wkfMd.getHubEventInputParameters().get());
     }
 
     /**
@@ -269,6 +274,18 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertUOEThrown(wm::getOpenapiInputResources);
         assertUOEThrown(wm::getOpenapiOutputParameters);
         assertUOEThrown(wm::getOpenapiOutputResources);
+    }
+
+    /**
+     * Tests that reading the openapi fields without setting them in the
+     * {@link WorkflowalizerConfiguration} results in a {@link UnsupportedOperationException}
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    public void testReadingHubEvents() throws Exception {
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
+        assertUOEThrown(wm::getHubEventInputParameters);
     }
 
     // -- Test reading individual workflow fields --
@@ -312,7 +329,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
-        assertEquals( "Unexpected artifacts size", 6, wkfMd.getArtifacts().get().size());
+        assertEquals( "Unexpected artifacts size", 7, wkfMd.getArtifacts().get().size());
         assertTrue("Expected artifacts file",wkfMd.getArtifacts().get().contains(workflowDir.relativize(test.toPath()).toString()));
 
         assertUOEThrown(wkfMd::getConnections);
@@ -581,6 +598,27 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(), wkfMd.getOpenapiOutputParameters().get());
         assertEquals("Unexpected openapi output resources",
                 WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(), wkfMd.getOpenapiOutputResources().get());
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+
+    /**
+     * Test reading hub event files for a workflow
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testReadingHubEventFiles() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readHubEventFiles().build();
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertTrue("Expected hub event input parameters file is present", wkfMd.getHubEventInputParameters().isPresent());
+
+        assertEquals("Unexpected hub event input parameters",
+                WorkflowalizerArtifactContent.HUB_EVENT_INPUT_RESOURCES.value(), wkfMd.getHubEventInputParameters().get());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -955,6 +993,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(), twm.getOpenapiOutputParameters().get());
         assertEquals("Unexpected openapi output resources",
                 WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(), twm.getOpenapiOutputResources().get());
+        assertEquals("Unexpected hub event input resources",
+                WorkflowalizerArtifactContent.HUB_EVENT_INPUT_RESOURCES.value(), twm.getHubEventInputParameters().get());
     }
 
     /**

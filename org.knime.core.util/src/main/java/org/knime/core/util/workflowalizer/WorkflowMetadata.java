@@ -111,6 +111,9 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     @JsonProperty("openapiOutputResources")
     private final Optional<String> m_openapiOutputResources;
 
+    @JsonProperty("hubEventInputParameters")
+    private final Optional<String> m_hubEventInputParameters;
+
     @JsonProperty("workflowMeta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
@@ -143,6 +146,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_openapiInputResources = builder.getOpenapiInputResources();
         m_openapiOutputParameters = builder.getOpenapiOutputParameters();
         m_openapiOutputResources = builder.getOpenapiOutputResources();
+        m_hubEventInputParameters = builder.getHubEventInputParameters();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
         m_variables = builder.getWorkflowVariables();
@@ -169,6 +173,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_openapiInputResources = workflow.m_openapiInputResources;
         m_openapiOutputParameters = workflow.m_openapiOutputParameters;
         m_openapiOutputResources = workflow.m_openapiOutputResources;
+        m_hubEventInputParameters = workflow.m_hubEventInputParameters;
         m_workflowSetMeta = workflow.m_workflowSetMeta;
         m_credentials = workflow.m_credentials;
         m_variables = workflow.m_variables;
@@ -275,6 +280,20 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     }
 
     /**
+     * Returns the hub event input parameters from the artifacts folder, if it exists.
+     *
+     * @return the hub event input parameters from the artifacts folder, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<String> getHubEventInputParameters() {
+        if (m_hubEventInputParameters == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                    "getHubEventInputParameters() is unsupported, field was not read");
+        }
+        return m_hubEventInputParameters;
+    }
+
+    /**
      * @return {@link WorkflowSetMeta} containing fields from workflowset file, if the file existed
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
@@ -336,6 +355,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
             + m_workflowConfigurationRepresentation + ", openapiInputParameters: "  + m_openapiInputParameters
             + ", openapiInputResources: " + m_openapiInputResources + ", openapiOutputParameters: "
             + m_openapiOutputParameters + ", openapiOutputResources: " + m_openapiOutputResources
+            + ", hubEventInputParameters: " + m_hubEventInputParameters
             + ", workflow_meta: " + wsm + ", workflow_credentials: ["
             + String.join(", ", m_credentials) + "]" + ", workflow_variables: [" + String.join(", ", m_variables) + "]";
     }

@@ -75,6 +75,7 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
     private Optional<String> m_openapiInputResources;
     private Optional<String> m_openapiOutputParameters;
     private Optional<String> m_openapiOutputResources;
+    private Optional<String> m_hubEventInputParameters;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
     private List<String> m_credentials;
     private List<String> m_variables;
@@ -142,6 +143,14 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         }
     }
 
+    void setHubEventInputParameters(final String hubEventInputParameters) {
+        if (StringUtils.isEmpty(hubEventInputParameters)) {
+            m_hubEventInputParameters = Optional.empty();
+        } else {
+            m_hubEventInputParameters = Optional.of(hubEventInputParameters);
+        }
+    }
+
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
         m_workflowSetMeta = workflowSetMeta;
     }
@@ -202,6 +211,10 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         return m_openapiOutputResources;
     }
 
+    Optional<String> getHubEventInputParameters() {
+        return m_hubEventInputParameters;
+    }
+
     Optional<WorkflowSetMeta> getWorkflowSetMeta() {
         return m_workflowSetMeta;
     }
@@ -230,7 +243,7 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
      * {@inheritDoc}
      */
     @Override
-    WorkflowMetadata buildExtraFields(final WorkflowalizerConfiguration wc) {
+    WorkflowMetadata buildExtraFields(final WorkflowalizerConfiguration wc) { // NOSONAR not very complex
         checkPopulated(getAuthor(), "author");
         checkPopulated(getAuthorDate(), "authored date");
         checkPopulated(getLastEditDate(), "last edited date");
@@ -259,6 +272,9 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         }
         if (wc.parseOpenapiOutputResources()) {
             checkPopulated(getOpenapiOutputResources(), "openapi output resources");
+        }
+        if (wc.parseHubEventInputParameters()) {
+            checkPopulated(getHubEventInputParameters(), "hub event input parameters");
         }
         if (m_svgWidth == null || m_svgHeight == null) {
             LOGGER.warn("Could not extract SVG width/height for workflow: " + getWorkflowFields().getName());

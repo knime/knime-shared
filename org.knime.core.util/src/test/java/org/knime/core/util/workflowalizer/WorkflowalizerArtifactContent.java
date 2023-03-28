@@ -139,6 +139,15 @@ public enum WorkflowalizerArtifactContent {
             "        }\n" +
             "    }\n" +
             "}"),
+    /**
+     * This constant is needed to check the contents
+     * of the workflowalizer-test.zip/Testing_Workflowalizer_360Pre/.artifacts/hub-event-input-parameters.json file
+     */
+    HUB_EVENT_INPUT_RESOURCES("{\n" +
+            "    \"types\": [\n" +
+            "        \"repository\"\n" +
+            "    ]\n" +
+            "}"),
     ;
 
     private final String value;

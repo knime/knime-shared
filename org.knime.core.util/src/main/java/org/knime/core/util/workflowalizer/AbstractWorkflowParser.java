@@ -427,6 +427,14 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return "openapi-output-resources.json";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getHubEventInputParameters() {
+        return "hub-event-input-parameters.json";
+    }
+
     // -- Templates --
 
     /**

@@ -298,6 +298,13 @@ interface WorkflowParser {
      */
     String getOpenapiOutputResources();
 
+    /**
+     * Returns the hub event input parameters file name.
+     *
+     * @return the hub event input parameters file name
+     */
+    String getHubEventInputParameters();
+
     // -- Template --
 
     /**
