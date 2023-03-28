@@ -468,6 +468,10 @@ public final class Workflowalizer {
             builder.setOpenapiOutputResources(
                 readFileIntoString(artifatsDir.resolve(parser.getOpenapiOutputResources()), zip));
         }
+        if (wc.parseHubEventInputParameters()) {
+            builder.setHubEventInputParameters(
+                readFileIntoString(artifatsDir.resolve(parser.getHubEventInputParameters()), zip));
+        }
 
         if (zip == null) {
             svgFile(parser, Paths.get(path), builder);

@@ -69,6 +69,7 @@ public class WorkflowalizerConfiguration {
     private boolean m_readOpenapiInputResources;
     private boolean m_readOpenapiOutputParameters;
     private boolean m_readOpenapiOutputResources;
+    private boolean m_readHubEventInputParameters;
 
     private WorkflowalizerConfiguration() {
         // Do nothing
@@ -118,6 +119,10 @@ public class WorkflowalizerConfiguration {
         return m_readOpenapiOutputResources;
     }
 
+    boolean parseHubEventInputParameters() {
+        return m_readHubEventInputParameters;
+    }
+
     WorkflowFields createWorkflowFields() {
         return new WorkflowFields(m_readConnections, m_readNodes, m_readUnexpectedFiles);
     }
@@ -152,6 +157,7 @@ public class WorkflowalizerConfiguration {
         private boolean m_openapiInputResources;
         private boolean m_openapiOutputParameters;
         private boolean m_openapiOutputResources;
+        private boolean m_hubEventInputParameters;
 
         /**
          * Sets the configuration to read the nodes.
@@ -259,6 +265,20 @@ public class WorkflowalizerConfiguration {
         }
 
         /**
+         * Sets the configuration to read the hub event files.
+         *
+         * <p>
+         * This field will be read for: workflows
+         * </p>
+         *
+         * @return the builder
+         * @since 5.24
+         */
+        public Builder readHubEventFiles() {
+            m_hubEventInputParameters = true;
+            return this;
+        }
+        /**
          * Sets the configuration to read all the fields.
          *
          * @return the builder
@@ -275,6 +295,7 @@ public class WorkflowalizerConfiguration {
             m_openapiInputResources = true;
             m_openapiOutputParameters = true;
             m_openapiOutputResources = true;
+            m_hubEventInputParameters = true;
             return this;
         }
 
@@ -296,6 +317,7 @@ public class WorkflowalizerConfiguration {
             config.m_readOpenapiInputResources = m_openapiInputResources;
             config.m_readOpenapiOutputParameters = m_openapiOutputParameters;
             config.m_readOpenapiOutputResources = m_openapiOutputResources;
+            config.m_readHubEventInputParameters = m_hubEventInputParameters;
             return config;
         }
     }
