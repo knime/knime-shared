@@ -73,10 +73,8 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.hamcrest.Matchers;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.knime.core.util.PathUtils;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
@@ -113,16 +111,12 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     private static List<String> readComponentTemplateWorkflowKnime;
     private static List<String> readComponentTemplateTemplateKnime;
 
-    /** Exception for testing */
-    @Rule
-    public ExpectedException m_exception = ExpectedException.none();
-
     /**
      * Readers zip archive, and creates temporary directory for workflow files.
      *
      * @throws Exception
      */
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception {
         workspaceDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (InputStream is = WorkflowalizerTest.class.getResourceAsStream("/workflowalizer-test.zip")) {
@@ -175,7 +169,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testStructure() throws Exception {
+    void testStructure() throws Exception {
         final IWorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final Path workflowPath = new File(workflowDir.toFile(), "workflow.knime").toPath();
 
@@ -188,7 +182,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testTopLevelWorkflowMetadata() throws Exception {
+    void testTopLevelWorkflowMetadata() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         assertEquals(RepositoryItemType.WORKFLOW, wkfMd.getType());
 
@@ -255,7 +249,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingWorkflowConfigurations() throws Exception {
+    void testReadingWorkflowConfigurations() throws Exception {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
         assertUOEThrown(wm::getWorkflowConfiguration);
         assertUOEThrown(wm::getWorkflowConfigurationRepresentation);
@@ -268,7 +262,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingOpenapi() throws Exception {
+    void testReadingOpenapi() throws Exception {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
         assertUOEThrown(wm::getOpenapiInputParameters);
         assertUOEThrown(wm::getOpenapiInputResources);
@@ -283,7 +277,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingHubEvents() throws Exception {
+    void testReadingHubEvents() throws Exception {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
         assertUOEThrown(wm::getHubEventInputParameters);
     }
@@ -296,7 +290,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingSVG() throws Exception {
+    void testReadingSVG() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testSvg(1301, 501, wkfMd);
@@ -324,7 +318,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingArtifactsDirectory() throws Exception {
+    void testReadingArtifactsDirectory() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
@@ -344,7 +338,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingUnexpectedFilePaths() throws Exception {
+    void testReadingUnexpectedFilePaths() throws Exception {
         File dataDir = null;
         File dataFile = null;
         File subDataDir = null;
@@ -400,7 +394,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingAnnotations() throws Exception {
+    void testReadingAnnotations() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testAnnotations(readWorkflowLines, wkfMd);
@@ -417,7 +411,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingAuthorInformation() throws Exception {
+    void testReadingAuthorInformation() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testAuthorInformation(readWorkflowLines, wkfMd);
@@ -434,7 +428,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowWithAuthorNullFromZip() throws Exception {
+    void testReadingWorkflowWithAuthorNullFromZip() throws Exception {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDirWithAuthorNull);
 
         testAuthorInformation(readWorkflowLinesWithAuthorNull, wm);
@@ -447,7 +441,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingNodesAndConnections() throws Exception {
+    void testReadingNodesAndConnections() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodesAndConnections().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testConnections(readWorkflowLines, wkfMd);
@@ -462,7 +456,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingCreatedBy() throws Exception {
+    void testReadingCreatedBy() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testCreatedBy(readWorkflowLines, wkfMd);
@@ -479,7 +473,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingCustomDescription() throws Exception {
+    void testReadingCustomDescription() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testCustomDescription(readWorkflowLines, wkfMd);
@@ -496,7 +490,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingName() throws Exception {
+    void testReadingName() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testWorkflowName(workflowDir, wkfMd);
@@ -514,7 +508,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingNodes() throws Exception {
+    void testReadingNodes() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testNodeIds(readWorkflowLines, wkfMd, null);
@@ -530,7 +524,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingVersion() throws Exception {
+    void testReadingVersion() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         testVersion(readWorkflowLines, wkfMd);
@@ -547,7 +541,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowWorkflowSetMeta() throws Exception {
+    void testReadingWorkflowWorkflowSetMeta() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
@@ -564,7 +558,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowConfigurationFiles() throws Exception {
+    void testReadingWorkflowConfigurationFiles() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowConfigurationFiles().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue(wkfMd.getWorkflowConfiguration().isPresent());
@@ -582,7 +576,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingOpenapiFiles() throws Exception {
+    void testReadingOpenapiFiles() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readOpenapiFiles().build();;
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue("Expected openapi input parameters file is present", wkfMd.getOpenapiInputParameters().isPresent());
@@ -612,7 +606,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingHubEventFiles() throws Exception {
+    void testReadingHubEventFiles() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readHubEventFiles().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertTrue("Expected hub event input parameters file is present", wkfMd.getHubEventInputParameters().isPresent());
@@ -632,7 +626,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowCredentials() throws Exception {
+    void testReadingWorkflowCredentials() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<String> cred = wkfMd.getWorkflowCredentialsNames();
@@ -651,7 +645,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowVariables() throws Exception {
+    void testReadingWorkflowVariables() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<String> vars = wkfMd.getWorkflowVariables();
@@ -673,7 +667,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingHasReport() throws Exception {
+    void testReadingHasReport() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         assertFalse(wkfMd.hasReport());
@@ -690,7 +684,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowSetNotPresent() throws Exception {
+    void testReadingWorkflowSetNotPresent() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final Path workflowPath = workspaceDir.resolve("workflowalizer-test/test_group/test1");
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowPath, wc);
@@ -710,7 +704,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingNodeInWorkflow() throws Exception {
+    void testReadingNodeInWorkflow() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
@@ -730,7 +724,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingNodeInMetanode() throws Exception {
+    void testReadingNodeInMetanode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final MetanodeMetadata mtnMd = (MetanodeMetadata)wkfMd.getNodes().stream()
             .filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
@@ -756,7 +750,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingAnnotationText() throws Exception {
+    void testReadingAnnotationText() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
@@ -774,7 +768,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingCustomNodeDescription() throws Exception {
+    void testReadingCustomNodeDescription() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
@@ -793,7 +787,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingNodeConfiguration() throws Exception {
+    void testReadingNodeConfiguration() throws Exception {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readNodes().readNodeConfiguration().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
@@ -810,7 +804,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingNodeAndBundleInformation() throws Exception {
+    void testReadingNodeAndBundleInformation() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
@@ -828,7 +822,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingNodeId() throws Exception {
+    void testReadingNodeId() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
 
@@ -851,7 +845,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingType() throws Exception {
+    void testReadingType() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
@@ -871,7 +865,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingMetaNode() throws Exception {
+    void testReadingMetaNode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final MetanodeMetadata mtnMtd = (MetanodeMetadata)wkfMd.getNodes().stream()
             .filter(n -> n.getType().equals(NodeType.METANODE)).findFirst().get();
@@ -902,7 +896,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWrappedMetaNode() throws Exception {
+    void testReadingWrappedMetaNode() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final SubnodeMetadata mtnMtd = (SubnodeMetadata)wkfMd.getNodes().stream()
             .filter(n -> n.getType().equals(NodeType.SUBNODE)).findFirst().get();
@@ -939,7 +933,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingZipWorkflow() throws Exception {
+    void testReadingZipWorkflow() throws Exception {
         // This zip contains multiple workflows, but only the first should be read
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAll().build();
@@ -954,8 +948,16 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testVersion(readWorkflowLines, twm);
         testSvg(1301, 501, twm);
 
-        assertEquals(".artifacts/openapi-input-parameters.json", twm.getArtifacts().get().iterator().next());
-        assertTrue(twm.getUnexpectedFileNames().isEmpty());
+        assertTrue("Expected artifacts file", twm.getArtifacts().get().containsAll(List.of( //
+            ".artifacts/openapi-input-parameters.json", //
+            ".artifacts/openapi-input-resources.json", //
+            ".artifacts/openapi-output-parameters.json", //
+            ".artifacts/openapi-output-resources.json", //
+            ".artifacts/workflow-configuration.json", //
+            ".artifacts/workflow-configuration-representation.json", //
+            ".artifacts/hub-event-input-parameters.json" //
+        )));
+        assertTrue("List of unexpected artifacts is empty", twm.getUnexpectedFileNames().isEmpty());
 
         // Top-level workflow nodes
         testNodeIds(readWorkflowLines, twm, 7, 1, 1);
@@ -1004,7 +1006,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingSVGFromZip() throws Exception {
+    void testReadingSVGFromZip() throws Exception {
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
@@ -1035,7 +1037,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testTemplateStructure() throws Exception {
+    void testTemplateStructure() throws Exception {
         final TemplateMetadata template = Workflowalizer.readTemplate(templateDir);
         final Path t = Paths.get(templateDir.toAbsolutePath().toString(), "workflow.knime");
         testStructure(template, t);
@@ -1047,7 +1049,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testTemplateMetadata() throws Exception {
+    void testTemplateMetadata() throws Exception {
         final TemplateMetadata template = Workflowalizer.readTemplate(templateDir);
 
         assertEquals(RepositoryItemType.TEMPLATE, template.getType());
@@ -1073,7 +1075,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingTemplateMetadataAuthorInformation() throws Exception {
+    void testReadingTemplateMetadataAuthorInformation() throws Exception {
         final WorkflowalizerConfiguration config = WorkflowalizerConfiguration.builder().build();
         final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir, config);
 
@@ -1090,7 +1092,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingTemplateMetadataTemplateInformation() throws Exception {
+    void testReadingTemplateMetadataTemplateInformation() throws Exception {
         final WorkflowalizerConfiguration config = WorkflowalizerConfiguration.builder().build();
         final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir, config);
 
@@ -1108,7 +1110,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testLineSeparatorMetadata() throws Exception {
+    void testLineSeparatorMetadata() throws Exception {
         var lineSeparatorKey = "line.separator";
         var lineSeparator = System.getProperty(lineSeparatorKey);
         System.setProperty(lineSeparatorKey, "nonesense");
@@ -1129,7 +1131,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingTemplateFromZip() throws Exception {
+    void testReadingTemplateFromZip() throws Exception {
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
 
@@ -1156,10 +1158,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingTemplateAsWorkflow() throws Exception {
-        m_exception.expect(IllegalArgumentException.class);
-        m_exception.expectMessage(templateDir + " is a template, not a workflow");
-        Workflowalizer.readWorkflow(templateDir);
+    void testReadingTemplateAsWorkflow() throws Exception {
+        final var exception = assertThrows("read a template as a workflow", //
+            IllegalArgumentException.class, () -> Workflowalizer.readWorkflow(templateDir));
+        assertEquals("Exception message", templateDir + " is a template, not a workflow", exception.getMessage());
     }
 
     /**
@@ -1168,10 +1170,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowAsTemplate() throws Exception {
-        m_exception.expect(IllegalArgumentException.class);
-        m_exception.expectMessage(workflowDir + " is a workflow, not a template");
-        Workflowalizer.readTemplate(workflowDir);
+    void testReadingWorkflowAsTemplate() throws Exception {
+        final var exception = assertThrows("read a workflow as a template", //
+            IllegalArgumentException.class, () -> Workflowalizer.readTemplate(workflowDir));
+        assertEquals("Exception message", workflowDir + " is a workflow, not a template", exception.getMessage());
     }
 
     // -- Component Template --
@@ -1183,7 +1185,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testComponentTemplateStructure() throws Exception {
+    void testComponentTemplateStructure() throws Exception {
         final TemplateMetadata template = Workflowalizer.readTemplate(componentTemplateDir);
         final Path t = Paths.get(componentTemplateDir.toAbsolutePath().toString(), "workflow.knime");
         assertTrue(template instanceof ComponentMetadata);
@@ -1197,7 +1199,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateWorkflowFields() throws Exception {
+    void testReadingComponentTemplateWorkflowFields() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         assertEquals("Simple-Component", tm.getName());
@@ -1220,7 +1222,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplatePorts() throws Exception {
+    void testReadingComponentTemplatePorts() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -1260,7 +1262,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateViewNodes() throws Exception {
+    void testReadingComponentTemplateViewNodes() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -1282,7 +1284,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateDescription() throws Exception {
+    void testReadingComponentTemplateDescription() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -1297,7 +1299,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateDialog() throws Exception {
+    void testReadingComponentTemplateDialog() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -1320,7 +1322,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentType() throws Exception {
+    void testReadingComponentType() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -1334,7 +1336,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentIcon() throws Exception {
+    void testReadingComponentIcon() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -1348,7 +1350,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateNested() throws Exception {
+    void testReadingComponentTemplateNested() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-nested.zip")) {
             unzip(is, componentPath.toFile());
@@ -1411,7 +1413,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateNoPorts() throws Exception {
+    void testReadingComponentTemplateNoPorts() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-no-ports.zip")) {
             unzip(is, componentPath.toFile());
@@ -1449,7 +1451,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentNoPortDescriptions() throws Exception {
+    void testReadingComponentNoPortDescriptions() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (final InputStream is =
             WorkflowalizerTest.class.getResourceAsStream("/component-no-port-descriptions.zip")) {
@@ -1477,7 +1479,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingComponentTemplateMissingConnections() throws Exception {
+    void testReadingComponentTemplateMissingConnections() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (final InputStream is =
             WorkflowalizerTest.class.getResourceAsStream("/component-template-missing-connection.zip")) {
@@ -1534,7 +1536,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowGroup() throws Exception {
+    void testReadingWorkflowGroup() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
 
@@ -1547,7 +1549,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testReadingWorkflowGroupWithLongTitle() throws Exception {
+    void testReadingWorkflowGroupWithLongTitle() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFileLongTitle);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
 
@@ -1561,7 +1563,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingWorkflowGroupDir() throws Exception {
+    void testReadingWorkflowGroupDir() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile.getParent());
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
 
@@ -1575,7 +1577,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingWorkflowGroupZip() throws Exception {
+    void testReadingWorkflowGroupZip() throws Exception {
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowGroupMetadata wgm = Workflowalizer.readWorkflowGroup(zipFile);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wgm.getType());
@@ -1595,7 +1597,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingRepositoryItem() throws Exception {
+    void testReadingRepositoryItem() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(workflowDir, wc);
         assertEquals(RepositoryItemType.WORKFLOW, rip.getType());
@@ -1624,7 +1626,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.11
      */
     @Test
-    public void testReadingRepositoryItemZip() throws Exception {
+    void testReadingRepositoryItemZip() throws Exception {
         // Test reading group
         final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
@@ -1674,7 +1676,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @since 5.13
      */
     @Test
-    public void testReadingWorkflowWithTestNodes() throws Exception {
+    void testReadingWorkflowWithTestNodes() throws Exception {
         final Path zipFile = Paths.get(WorkflowalizerTest.class.getResource("/Testing_nodes_wkfl.knwf").toURI());
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
@@ -1699,7 +1701,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception
      */
     @Test
-    public void testComponentPortsWithoutText() throws Exception {
+    void testComponentPortsWithoutText() throws Exception {
         Path zipFile = Paths.get(Workflowalizer.class.getResource("/Component-No-Port-Text.knwf").toURI());
         WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         TemplateMetadata tm = Workflowalizer.readTemplate(zipFile, wc);
@@ -1729,7 +1731,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testWorkflowWithBrokenXML() throws Exception {
+    void testWorkflowWithBrokenXML() throws Exception {
         Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/Workflow_BrokenMetaXML.knwf")) {
             unzip(is, workspace.toFile());
@@ -1745,7 +1747,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testWorkflowWithBrokenXMLZip() throws Exception {
+    void testWorkflowWithBrokenXMLZip() throws Exception {
         Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/Workflow_BrokenMetaXML.knwf").toURI());
         assertThrows("Unexpected response code when parsing a workflow with invalid XML", SAXParseException.class,
             () -> Workflowalizer.readRepositoryItem(workflowPath));
