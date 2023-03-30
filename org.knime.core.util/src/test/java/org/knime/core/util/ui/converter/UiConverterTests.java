@@ -48,17 +48,17 @@
  */
 package org.knime.core.util.ui.converter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.function.Function;
 
 import javax.json.JsonObject;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.knime.core.util.ui.converter.builtin.BooleanUiComponentConverter;
 import org.knime.core.util.ui.converter.builtin.DateTimeUiComponentConverter;
 import org.knime.core.util.ui.converter.builtin.DoubleUiComponentConverter;
@@ -225,7 +225,7 @@ public class UiConverterTests {
         + "}";
 
     @Test
-    public void testConverterRegistry() throws IOException {
+    void testConverterRegistry() throws IOException {
         assertTrue(UiComponentConverterRegistry.getConverter(BOOLEAN_WORKFLOW_REPR,
             "param") instanceof BooleanUiComponentConverter);
         assertTrue(UiComponentConverterRegistry.getConverter(INT_WORKFLOW_REPR,
@@ -247,34 +247,34 @@ public class UiConverterTests {
     }
 
     @Test
-    public void testBooleanConverter() throws IOException {
+    void testBooleanConverter() throws IOException {
         testConverter(BOOLEAN_WORKFLOW_REPR, "boolean", v -> v.asBoolean(), true, v -> v.getBoolean("boolean"), false);
     }
 
     @Test
-    public void testIntegerConverter() throws IOException {
+    void testIntegerConverter() throws IOException {
         testConverter(INT_WORKFLOW_REPR, "integer", v -> v.asInt(), 42, v -> v.getInt("integer"), true);
     }
 
     @Test
-    public void testDoubleConverter() throws IOException {
+    void testDoubleConverter() throws IOException {
         testConverter(DOUBLE_WORKFLOW_REPR, "number", v -> v.asDouble(), 0.0,
             v -> v.getJsonNumber("double").doubleValue(), false);
     }
 
     @Test
-    public void testStringConverter() throws IOException {
+    void testStringConverter() throws IOException {
         testConverter(STRING_WORKFLOW_REPR, "string", v -> v.asText(), "foobar", v -> v.getString("string"), false);
     }
 
     @Test
-    public void testDateConverter() throws IOException {
+    void testDateConverter() throws IOException {
         testConverter(DATE_WORKFLOW_REPR, "string", v -> v.asText(), "2022-08-18T09:03:18+02:00[Europe/Berlin]",
             v -> v.getString("date&time"), false);
     }
 
     @Test
-    public void testIntSliderConverter() throws IOException {
+    void testIntSliderConverter() throws IOException {
         testConverter(INT_SLIDER_WORKFLOW_REPR, "number", v -> v.asDouble(), 29.0,
             v -> v.getJsonNumber("integer").doubleValue(), true);
     }
@@ -317,7 +317,7 @@ public class UiConverterTests {
     }
 
     @Test
-    public void testBooleanConverterNoCurrentValue() throws IOException {
+    void testBooleanConverterNoCurrentValue() throws IOException {
         var converter = UiComponentConverterRegistry.getConverter(BOOLEAN_WORKFLOW_REPR_NO_CURRENT_VALUE, "param");
         var model = JSON_FACTORY.objectNode();
         converter.insertData(model);
@@ -327,7 +327,7 @@ public class UiConverterTests {
     }
 
     @Test
-    public void testJsonFormsDialogBuilder() throws IOException {
+    void testJsonFormsDialogBuilder() throws IOException {
         var builder = new JsonFormsDialogBuilder();
         builder.addUiComponent(INT_WORKFLOW_REPR, "int");
         builder.addUiComponent(BOOLEAN_WORKFLOW_REPR, "bool");

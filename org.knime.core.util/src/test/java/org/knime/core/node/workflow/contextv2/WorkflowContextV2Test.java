@@ -48,13 +48,13 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.knime.core.util.auth.SimpleTokenAuthenticator;
 
 /**
@@ -77,7 +77,7 @@ public class WorkflowContextV2Test {
 
     /** Creates a long mountpoint URI which includes spaces and parentheses. */
     @Test
-    public void testMountpointUri() {
+    void testMountpointUri() {
         final var ctx = WorkflowContextV2.builder()
                 .withAnalyticsPlatformExecutor(exec -> exec
                     .withCurrentUserAsUserId()
@@ -86,12 +86,12 @@ public class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
 
-        assertEquals("Mountpoint URI is not resolved correctly.", Optional.of(MOUNTPOINT_URI), ctx.getMountpointURI());
+        assertEquals(Optional.of(MOUNTPOINT_URI), ctx.getMountpointURI(), "Mountpoint URI is not resolved correctly.");
     }
 
     /** Checks that mountpoint URIs containing non-ASCII characters are encoded correctly. */
     @Test
-    public void testMountpointURIEncoded() {
+    void testMountpointURIEncoded() {
         assertEncoded("/path/file.txt", "/path/file.txt");
         assertEncoded("/pa+th/file@.txt", "/pa+th/file@.txt");
         assertEncoded("/ä/Ä.txt", "/%C3%A4/%C3%84.txt");
@@ -102,7 +102,7 @@ public class WorkflowContextV2Test {
 
     /** Checks that repository address URIs containing non-ASCII characters are encoded correctly. */
     @Test
-    public void testRepoAddressEncoded() {
+    void testRepoAddressEncoded() {
         final var ctx = WorkflowContextV2.builder()
                 .withAnalyticsPlatformExecutor(exec -> exec
                     .withCurrentUserAsUserId()
@@ -115,10 +115,10 @@ public class WorkflowContextV2Test {
                     .withDefaultMountId("My-Server"))
                 .build();
 
-        assertEquals("Workflow address URI is not resolved correctly.",
-            URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
+        assertEquals(URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
                     + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"),
-            ((RestLocationInfo) ctx.getLocationInfo()).getWorkflowAddress());
+            ((RestLocationInfo) ctx.getLocationInfo()).getWorkflowAddress(),
+            "Workflow address URI is not resolved correctly.");
     }
 
     /**
@@ -135,8 +135,8 @@ public class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
 
-        assertEquals("Mountpoint URI is not resolved correctly.",
-            Optional.of(URI.create("knime://LOCAL" + uriPath)),
-            ctx.getMountpointURI());
+        assertEquals(Optional.of(URI.create("knime://LOCAL" + uriPath)),
+            ctx.getMountpointURI(),
+            "Mountpoint URI is not resolved correctly.");
     }
 }

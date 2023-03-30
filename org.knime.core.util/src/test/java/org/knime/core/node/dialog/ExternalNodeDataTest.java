@@ -49,9 +49,10 @@
 package org.knime.core.node.dialog;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests (a very part of) {@link ExternalNodeData}.
@@ -64,18 +65,20 @@ public class ExternalNodeDataTest {
      * Test method for {@link org.knime.core.node.dialog.ExternalNodeData#getSimpleIDFrom(java.lang.String)}.
      */
     @Test
-    public void testGetSimpleIDFromPositive() {
-        Assert.assertThat("Simple name incorrect", ExternalNodeData.getSimpleIDFrom("foo-bar"), is("foo-bar"));
-        Assert.assertThat("Simple name incorrect", ExternalNodeData.getSimpleIDFrom("foo-bar-3"), is("foo-bar"));
-        Assert.assertThat("Simple name incorrect", ExternalNodeData.getSimpleIDFrom("foo-bar-3:2"), is("foo-bar"));
+    void testGetSimpleIDFromPositive() {
+        assertThat("Simple name incorrect", ExternalNodeData.getSimpleIDFrom("foo-bar"), is("foo-bar"));
+        assertThat("Simple name incorrect", ExternalNodeData.getSimpleIDFrom("foo-bar-3"), is("foo-bar"));
+        assertThat("Simple name incorrect", ExternalNodeData.getSimpleIDFrom("foo-bar-3:2"), is("foo-bar"));
     }
 
     /**
      * Test method for {@link org.knime.core.node.dialog.ExternalNodeData#getSimpleIDFrom(java.lang.String)}.
      */
-    @Test(expected=IllegalArgumentException.class)
-    public void testGetSimpleIDFromNullCheck() {
-        ExternalNodeData.getSimpleIDFrom(null);
+    @Test
+    void testGetSimpleIDFromNullCheck() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            ExternalNodeData.getSimpleIDFrom(null);
+        });
     }
 
 }

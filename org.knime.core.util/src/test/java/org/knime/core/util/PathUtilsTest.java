@@ -50,9 +50,7 @@ package org.knime.core.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.junit.Assume.assumeThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -65,44 +63,42 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.commons.lang3.SystemUtils;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Testcases for {@link PathUtils}.
  *
  * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  */
-public class PathUtilsTest {
+class PathUtilsTest {
+
     /**
      * Checks storing and restoring Unix permissions in zip files.
      *
      * @throws Exception if an error occurs
      */
     @Test
-    public void testZipWithPermissions() throws Exception {
-        assumeThat("Only possible under Linux or macOS", System.getProperty("os.name"), is(not(startsWith("Windows"))));
+    void testZipWithPermissions() throws Exception {
+        Assumptions.assumeFalse(SystemUtils.IS_OS_WINDOWS, "Only possible under Linux or macOS");
 
-        Path sourceDir = PathUtils.createTempDir(getClass().getSimpleName());
-        Path executable = sourceDir.resolve("script.sh");
+        final Path sourceDir = PathUtils.createTempDir(getClass().getSimpleName());
+        final Path executable = sourceDir.resolve("script.sh");
         Files.createFile(executable);
         Files.setPosixFilePermissions(executable, PosixFilePermissions.fromString("rwxr-xr--"));
 
-        Path nonExecutable = sourceDir.resolve("sub").resolve("text.txt");
+        final Path nonExecutable = sourceDir.resolve("sub").resolve("text.txt");
         Files.createDirectories(nonExecutable.getParent());
         Files.createFile(nonExecutable);
         Files.setPosixFilePermissions(nonExecutable, PosixFilePermissions.fromString("rw-rw----"));
 
-        Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
+        final Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
         try (ZipArchiveOutputStream zout = new ZipArchiveOutputStream(Files.newOutputStream(zipFile))) {
             PathUtils.zip(sourceDir, zout, false);
         }
 
-        Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
-        try (ZipFile zf = new ZipFile(zipFile.toFile())) {
-            PathUtils.unzip(zf, destDir);
-        }
-
+        final Path destDir = unzipZF(zipFile);
         assertThat("Unexpected permission for executable file",
             PosixFilePermissions.toString(Files.getPosixFilePermissions(destDir.resolve("script.sh"))),
             is("rwxr-xr--"));
@@ -117,28 +113,18 @@ public class PathUtilsTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testZipSlipAbsolutePath() throws Exception {
-        Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
+    void testZipSlipAbsolutePath() throws Exception {
+        final Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
         try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             zout.putNextEntry(new ZipEntry("/tmp/foo.txt"));
             zout.write("Test".getBytes(StandardCharsets.UTF_8));
             zout.closeEntry();
         }
 
-        Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
-        try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(zipFile))) {
-            PathUtils.unzip(zin, destDir);
-        }
-
-        Path expectedFile = destDir.resolve("tmp/foo.txt");
+        Path expectedFile = unzipZIS(zipFile).resolve("tmp/foo.txt");
         assertThat("Zip slip not detected when unzipping stream", Files.exists(expectedFile), is(true));
 
-        destDir = PathUtils.createTempDir(getClass().getSimpleName());
-        try (ZipFile zif = new ZipFile(zipFile.toFile())) {
-            PathUtils.unzip(zif, destDir);
-        }
-
-        expectedFile = destDir.resolve("tmp/foo.txt");
+        expectedFile = unzipZF(zipFile).resolve("tmp/foo.txt");
         assertThat("Zip slip not detected when unzipping file", Files.exists(expectedFile), is(true));
     }
 
@@ -148,26 +134,31 @@ public class PathUtilsTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testZipSlipDirectoryTraversal() throws Exception {
-        Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
+    void testZipSlipDirectoryTraversal() throws Exception {
+        final Path zipFile = PathUtils.createTempFile(getClass().getSimpleName(), ".zip");
         try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             zout.putNextEntry(new ZipEntry("../foo.txt"));
             zout.write("Test".getBytes(StandardCharsets.UTF_8));
             zout.closeEntry();
         }
 
-        Assert.assertThrows("Zip slip not detected when unzipping stream", IOException.class, () -> {
-            Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
-            try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(zipFile))) {
-                PathUtils.unzip(zin, destDir);
-            }
-        });
+        assertThrows(IOException.class, () -> unzipZIS(zipFile), "Zip slip not detected when unzipping stream");
+        assertThrows(IOException.class, () -> unzipZF(zipFile), "Zip slip not detected when unzipping file");
+    }
 
-        Assert.assertThrows("Zip slip not detected when unzipping file", IOException.class, () -> {
-            Path destDir = PathUtils.createTempDir(getClass().getSimpleName());
-            try (ZipFile zif = new ZipFile(zipFile.toFile())) {
-                PathUtils.unzip(zif, destDir);
-            }
-        });
+    private Path unzipZF(final Path zipFile) throws IOException {
+        final var destDir = PathUtils.createTempDir(getClass().getSimpleName());
+        try (ZipFile zif = new ZipFile(zipFile.toFile())) {
+            PathUtils.unzip(zif, destDir);
+        }
+        return destDir;
+    }
+
+    private Path unzipZIS(final Path zipFile) throws IOException {
+        final var destDir = PathUtils.createTempDir(getClass().getSimpleName());
+        try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(zipFile))) {
+            PathUtils.unzip(zin, destDir);
+        }
+        return destDir;
     }
 }

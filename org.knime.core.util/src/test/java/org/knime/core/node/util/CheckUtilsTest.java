@@ -48,46 +48,47 @@
  */
 package org.knime.core.node.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests new {@link CheckUtils} methods.
  *
  * @author Manuel Hotz, KNIME GmbH, Konstanz, Germany
  */
-public class CheckUtilsTest {
+class CheckUtilsTest {
 
     /**
      * Tests the {@code CheckUtils#checkIsInstance} method.
      */
     @Test
-    public final void testCheckCast() {
+    final void testCheckCast() {
         final Object obj = "testIsInstance";
         final String ret1 = CheckUtils.checkCast(obj, String.class,
             IllegalArgumentException::new,
             "Given object '%s' is not a string.", obj);
-        assertEquals("Should result in equal objects", ret1, obj);
+        assertEquals(ret1, obj, "Should result in equal objects");
 
         final Object notAString = 42L;
-        assertThrows("Expected to not be a string",
-            Exception.class,
+        assertThrows(Exception.class,
             () -> CheckUtils.checkCast(notAString, String.class, Exception::new,
-                "Object %s is not a string.", notAString));
+                "Object %s is not a string.", notAString),
+            "Expected to not be a string");
     }
 
     /**
      * Tests the {@code CheckUtils#check} method.
      */
     @Test
-    public final void testCheck() {
+    final void testCheck() {
         final Object obj = "testCheck";
         CheckUtils.check(obj instanceof String, IllegalArgumentException::new,
             () -> String.format("Object %s is not a string.", obj));
 
-        assertThrows("Expected to throw", Exception.class,
-            () -> CheckUtils.check(false, Exception::new, () -> "Should throw this"));
+        assertThrows(Exception.class,
+            () -> CheckUtils.check(false, Exception::new, () -> "Should throw this"),
+            "Expected to throw");
     }
 }

@@ -49,7 +49,7 @@
 package org.knime.core.util.crypto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -58,7 +58,8 @@ import java.util.UUID;
 import javax.crypto.IllegalBlockSizeException;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Testcases for {@link Encrypter}.
@@ -72,7 +73,7 @@ public class EncrypterTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testRoundTripping() throws Exception {
+    void testRoundTripping() throws Exception {
         var encrypter = new Encrypter("some random password");
 
         String plain;
@@ -92,7 +93,7 @@ public class EncrypterTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testNull() throws Exception {
+    void testNull() throws Exception {
         var encrypter = new Encrypter("some random password");
 
         assertThat(encrypter.encrypt(null)).as("Null not encrypted correctly").isNull();
@@ -110,7 +111,7 @@ public class EncrypterTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testSalt() throws Exception {
+    void testSalt() throws Exception {
         var encrypter = new Encrypter("some random password");
 
         var plain = UUID.randomUUID().toString();
@@ -128,7 +129,7 @@ public class EncrypterTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testWrongKey() throws Exception {
+    void testWrongKey() throws Exception {
         var encrypter = new Encrypter("some random password");
 
         var plain = UUID.randomUUID().toString();
@@ -144,8 +145,9 @@ public class EncrypterTest {
      *
      * @throws Exception if an error occurs
      */
-    @Test(timeout = 1000)
-    public void testSpeedyWeakEncryption() throws Exception { // NOSONAR timeout is checked in method annotation
+    @Test
+    @Timeout(1000)
+    void testSpeedyWeakEncryption() throws Exception { // NOSONAR timeout is checked in method annotation
         for (int i = 0; i < 1000; i++) {
             var encrypter = new Encrypter("key " + i, 100);
             encrypter.encrypt("some string", 42);
@@ -158,7 +160,7 @@ public class EncrypterTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testOldVersions() throws Exception {
+    void testOldVersions() throws Exception {
         var encrypter = new Encrypter("some random password");
 
         String plain;
@@ -181,7 +183,7 @@ public class EncrypterTest {
      * @throws Exception
      */
     @Test
-    public void invalidDecryptionInput() throws Exception {
+    void invalidDecryptionInput() throws Exception {
         IEncrypter enc = new Encrypter("AKeyForTestingTheEncrypter");
         assertThrows(IllegalArgumentException.class, () -> enc.decrypt("z"));
         assertThrows(IllegalArgumentException.class, () -> enc.decrypt("something"));
@@ -195,7 +197,7 @@ public class EncrypterTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testFixSalt_Bug5813() throws Exception {
+    void testFixSalt_Bug5813() throws Exception {
         IEncrypter enc = new Encrypter("AKeyForTestingTheEncrypter");
 
         String text = null;

@@ -48,13 +48,14 @@
  */
 package org.knime.core.node.config.base;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 /**
@@ -73,14 +74,14 @@ public class XMLConfigTest {
      * @throws ParserConfigurationException
      */
     @Test
-    public void testDisallowedDoctypeEntityDeclaration()
-        throws SAXException, IOException, ParserConfigurationException {
+    void testDisallowedDoctypeEntityDeclaration()
+            throws SAXException, IOException, ParserConfigurationException {
         try (InputStream is =
             XMLConfig.class.getResourceAsStream("/XMLConfigTest/workflow.knime_with_entity_declaration")) {
             TestConfig config = new TestConfig("");
             XMLContentHandler.charactersConsumer = ch -> {
                 if (new String(ch).contains("sensitive information")) {
-                    Assert.fail(
+                    fail(
                         "DOCTYPE declaration has been interpreted. It makes it susceptible to XML External Entity (XXE) attacks.");
                 }
             };

@@ -67,7 +67,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.knime.core.util.workflowalizer.WorkflowSetMeta.Link;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -88,8 +88,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testAllFields()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testAllFields()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-all-fields");
         String title = "Custom Title";
         String description = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,"
@@ -120,8 +120,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testEmptyComments()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testEmptyComments()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-empty-comments");
         assertAuthor(wsm, "awalter");
         assertTitle(wsm, Optional.empty());
@@ -139,8 +139,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testSingleLine()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testSingleLine()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-single-line");
         String description = "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat,"
             + " vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui"
@@ -163,7 +163,7 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testNoTags() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testNoTags() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-title-desc-no-tags");
         String description = "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat,"
             + " vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui"
@@ -187,8 +187,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionStartsWithWhiteSpace()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionStartsWithWhiteSpace()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm =
             readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-title-description-starts-with-newlines");
         String description = "\n\n\nLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod"
@@ -215,8 +215,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testTextAfterTags()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testTextAfterTags()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-text-after-tags");
         String title = "Custom Title";
         String description = "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat,"
@@ -251,8 +251,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testLineBreaksIndDescription()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testLineBreaksIndDescription()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm =
             readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-title-description-contains-newlines");
         String title = "Custom Title";
@@ -295,8 +295,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testUnknownTags()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testUnknownTags()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-unknown-tag");
         String title = "Custom Title";
         String description = "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat,"
@@ -331,8 +331,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testOnlyTags()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testOnlyTags()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-only-tags");
         List<Link> links = List.of(new Link("https://knime.com", "KNIME"));
         List<String> tags = List.of("Foo", "Bar");
@@ -352,8 +352,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testOnlyTitle()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testOnlyTitle()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-only-title");
         String title = "Custom Title";
         assertAuthor(wsm, "awalter");
@@ -372,8 +372,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionEndsWithNewlines()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionEndsWithNewlines()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm =
             readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-title-description-ends-with-newlines");
         String title = "Custom Title";
@@ -400,8 +400,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testOnlyDescription()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testOnlyDescription()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-only-description");
         String description = "Custom Description";
         assertAuthor(wsm, "awalter");
@@ -420,8 +420,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDefaultTitleAndDescriptionIgnored()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDefaultTitleAndDescriptionIgnored()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-default-fields");
         assertAuthor(wsm, "awalter");
         assertTitle(wsm, Optional.empty());
@@ -439,8 +439,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testFirstLineEmpty()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testFirstLineEmpty()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-comments-start-with-newlines");
         assertAuthor(wsm, "dim");
         String description = "\nFoo - title\n\n\nWibble wobble wubble flob. - description\n\n";
@@ -461,8 +461,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionWithColons()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionWithColons()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-desc-with-colon");
 
         var author = "awalter";
@@ -486,8 +486,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionWithColonsAndReservedWord()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionWithColonsAndReservedWord()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon");
 
         var author = "awalter";
@@ -512,8 +512,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionWithColonsAndReservedWordThenNewline()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionWithColonsAndReservedWordThenNewline()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon-newline");
 
         var author = "awalter";
@@ -538,8 +538,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionWithColonsAndReservedWordThenSpace()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionWithColonsAndReservedWordThenSpace()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon-empty-space");
 
         var author = "awalter";
@@ -564,8 +564,8 @@ public class WorkflowSetMetaTest {
      * @throws XPathExpressionException if xpath expression error occurs
      */
     @Test
-    public void testDescriptionWithColonsAndReservedWordThenTwoSpaces()
-        throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+    void testDescriptionWithColonsAndReservedWordThenTwoSpaces()
+            throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         WorkflowSetMeta wsm = readWorkflowSetMeta("/workflowSetMeta/workflowset.meta-reserved-word-with-colon-two-empty-spaces");
 
         var author = "awalter";
