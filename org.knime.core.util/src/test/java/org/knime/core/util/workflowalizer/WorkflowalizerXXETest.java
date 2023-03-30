@@ -52,7 +52,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.InputStream;
@@ -60,7 +60,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.knime.core.util.PathUtils;
 
 /**
@@ -78,7 +78,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testXxeInSvg() throws Exception {
+    void testXxeInSvg() throws Exception {
         Path workspace = PathUtils.createTempDir(WorkflowalizerXXETest.class.getName());
         try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/xxe/XXE_SVG.knwf")) {
             unzip(is, workspace.toFile());
@@ -93,7 +93,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      * @throws URISyntaxException if URI syntax error occurs
      */
     @Test
-    public void testXxeInSvgZip() throws URISyntaxException {
+    void testXxeInSvgZip() throws URISyntaxException {
         Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/xxe/XXE_SVG.knwf").toURI());
         testXxeExceptionThrown(workflowPath, "workflow.svg");
     }
@@ -104,7 +104,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testXxeInWorkflowSetMeta() throws Exception {
+    void testXxeInWorkflowSetMeta() throws Exception {
         Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
         try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/xxe/XXE_WorkflowSetMeta.knwf")) {
             unzip(is, workspace.toFile());
@@ -119,7 +119,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      * @throws URISyntaxException
      */
     @Test
-    public void testXxeInWorkflowSetMetaInZip() throws URISyntaxException {
+    void testXxeInWorkflowSetMetaInZip() throws URISyntaxException {
         Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/xxe/XXE_WorkflowSetMeta.knwf").toURI());
         testXxeExceptionThrown(workflowPath, "workflowset.meta");
     }
@@ -127,8 +127,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
     // -- Helper methods --
 
     private static void testXxeExceptionThrown(final Path path, final String fileName) {
-        IllegalArgumentException ex = assertThrows("Unexpected exception when parsing XML with external references",
-            IllegalArgumentException.class, () -> Workflowalizer.readRepositoryItem(path));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Workflowalizer.readRepositoryItem(path), "Unexpected exception when parsing XML with external references");
         assertThat("Unexpected error message when preventing XXE", ex.getMessage(), startsWith(String
             .format("Cannot parse the given file '%s', as it contains XML elements which are not allowed", fileName)));
         checkForSecret(ex);

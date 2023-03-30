@@ -48,9 +48,9 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -58,8 +58,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.knime.core.util.LoadVersion;
 import org.knime.core.util.PathUtils;
 import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
@@ -87,7 +87,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      *
      * @throws Exception
      */
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception {
         workspaceDir = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
         try (InputStream is = Workflowalizer410Test.class.getResourceAsStream("/workflowalizer-test-410.zip")) {
@@ -108,7 +108,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingWorkflow() throws Exception {
+    void testReadingWorkflow() throws Exception {
         final Path workflowDir = workspaceDir.resolve("workflowalizer-test/Testing_Workflowalizer_360Pre");
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir);
         assertEquals("4.1.0", wm.getVersion().toString());
@@ -121,7 +121,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingWorkflowGroup() throws Exception {
+    void testReadingWorkflowGroup() throws Exception {
         final Path workflowGroup = workspaceDir.resolve("workflowalizer-test/test_group");
         final List<String> rawLines = Files.readAllLines(
             workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta"), StandardCharsets.UTF_8);
@@ -137,7 +137,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingTemplate() throws Exception {
+    void testReadingTemplate() throws Exception {
         final Path templateDir = workspaceDir.resolve("workflowalizer-test/Hierarchical Cluster Assignment");
         final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir);
         assertEquals("4.1.0", tm.getVersion().toString());
@@ -150,7 +150,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testReadingComponent() throws Exception {
+    void testReadingComponent() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
         assertTrue(tm instanceof ComponentMetadata);
         assertEquals("4.1.0", tm.getVersion().toString());
@@ -163,7 +163,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentFields() throws Exception {
+    void testComponentFields() throws Exception {
         final List<String> componentWorkflowKnime = Files.readAllLines(componentDir.resolve("workflow.knime"));
         final List<String> componentTemplateKnime = Files.readAllLines(componentDir.resolve("template.knime"));
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
@@ -208,7 +208,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentPorts() throws Exception {
+    void testComponentPorts() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -221,7 +221,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentDescription() throws Exception {
+    void testComponentDescription() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -234,7 +234,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentType() throws Exception {
+    void testComponentType() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -247,7 +247,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentIcon() throws Exception {
+    void testComponentIcon() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
         assertTrue(tm instanceof ComponentMetadata);
         final ComponentMetadata cm = (ComponentMetadata)tm;
@@ -264,7 +264,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentNoMetadata() throws Exception {
+    void testComponentNoMetadata() throws Exception {
         final Path tempNoMetaDir = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
         try (final InputStream is = Workflowalizer410Test.class.getResourceAsStream("/Component-410-No-Meta.zip")) {
             unzip(is, tempNoMetaDir.toFile());
@@ -292,7 +292,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
      * @throws Exception if error occurs
      */
     @Test
-    public void testComponentNoPorts() throws Exception {
+    void testComponentNoPorts() throws Exception {
         final Path tempNoPortsDir = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
         try (final InputStream is = Workflowalizer410Test.class.getResourceAsStream("/Component-410-No-Ports.zip")) {
             unzip(is, tempNoPortsDir.toFile());

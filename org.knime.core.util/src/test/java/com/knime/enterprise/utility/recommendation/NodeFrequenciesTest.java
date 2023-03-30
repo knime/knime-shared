@@ -49,17 +49,16 @@ package com.knime.enterprise.utility.recommendation;
  */
 
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.knime.core.node.NodeFrequencies;
 import org.knime.core.node.recommendation.WorkspaceAnalyzer;
 import org.knime.core.util.PathUtils;
@@ -77,7 +76,7 @@ public class NodeFrequenciesTest {
      *
      * @throws Exception if an error occurs
      */
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         m_workspaceDir = PathUtils.createTempDir(WorkspaceAnalyzerTest.class.getName());
         try (InputStream is = WorkspaceAnalyzerTest.class.getResourceAsStream("/simple-workflow.zip")) {
@@ -90,7 +89,7 @@ public class NodeFrequenciesTest {
      *
      * @throws Exception if an error occurs
      */
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         PathUtils.deleteDirectoryIfExists(m_workspaceDir);
     }
@@ -101,7 +100,7 @@ public class NodeFrequenciesTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testRoundtripping() throws Exception {
+    void testRoundtripping() throws Exception {
         WorkspaceAnalyzer analyzer = new WorkspaceAnalyzer(m_workspaceDir);
         analyzer.analyze();
 

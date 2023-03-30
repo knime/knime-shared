@@ -52,7 +52,7 @@ import static org.hamcrest.core.IsSame.sameInstance;
 
 import javax.json.JsonObject;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Testcases for {@link JsonUtil}.
@@ -64,7 +64,7 @@ public class JsonUtilTest {
      * Checks whether the static Json provider works correctly.
      */
     @Test
-    public void testStaticProvider() {
+    void testStaticProvider() {
         var provider1 = JsonUtil.getProvider();
         assertThat("Provider doesn't work properly", provider1.createObjectBuilder().build(), is(instanceOf(JsonObject.class)));
 

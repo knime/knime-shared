@@ -48,9 +48,10 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -104,7 +105,7 @@ public class AbstractWorkflowalizerTest {
     protected static void assertUOEThrown(final Callable<?> c) throws Exception {
         try {
             c.call();
-            assertTrue("Expected UnsupportedOperationException was not thrown", false);
+            fail("UnsupportedOperationException was not thrown");
         } catch (final UnsupportedOperationException ex) {
             // Do nothing, this is expected
         }
@@ -221,8 +222,8 @@ public class AbstractWorkflowalizerTest {
         final String comments = parseWorkflowSetMeta("Comments", rawFileLines);
         assertFalse(workflowSetMeta.getTitle().isPresent());
         assertEquals(comments, workflowSetMeta.getDescription().orElse(null));
-        assertTrue(workflowSetMeta.getLinks().get().size() == 0);
-        assertTrue(workflowSetMeta.getTags().get().size() == 0);
+        assertEquals(0, workflowSetMeta.getLinks().get().size());
+        assertEquals(0, workflowSetMeta.getTags().get().size());
     }
 
     /**
@@ -248,8 +249,8 @@ public class AbstractWorkflowalizerTest {
         assertTrue(workflowSetMeta.getTitle().isPresent());
         assertEquals(lines[0], workflowSetMeta.getTitle().orElse(null));
         assertEquals(lines[2], workflowSetMeta.getDescription().orElse(null));
-        assertTrue(workflowSetMeta.getLinks().get().size() == 0);
-        assertTrue(workflowSetMeta.getTags().get().size() == 0);
+        assertEquals(0,workflowSetMeta.getLinks().get().size());
+        assertEquals(0, workflowSetMeta.getTags().get().size());
     }
 
     // -- Workflow Tests --

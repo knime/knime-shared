@@ -48,14 +48,15 @@
  */
 package org.knime.core.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for URIPathEncoder.
@@ -64,14 +65,14 @@ import org.junit.Test;
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  */
 @SuppressWarnings("static-method")
-public final class URIPathEncoderTest {
+final class URIPathEncoderTest {
 
     private static void assertEncoded(final URI expected, final URI uri) {
-        Assert.assertEquals("Unexpected encoded URI", expected, URIPathEncoder.UTF_8.encodePathSegments(uri));
+        assertEquals(expected, URIPathEncoder.UTF_8.encodePathSegments(uri), "Unexpected encoded URI");
     }
 
     private static void assertEncoded(final URL expected, final URL url) {
-        Assert.assertEquals("Unexpected encoded URI", expected, URIPathEncoder.UTF_8.encodePathSegments(url));
+        assertEquals(expected, URIPathEncoder.UTF_8.encodePathSegments(url), "Unexpected encoded URI");
     }
 
     /**
@@ -80,7 +81,7 @@ public final class URIPathEncoderTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testEncodingURIWithoutSpecialCharactersLeavesItUnchanged() throws Exception {
+    void testEncodingURIWithoutSpecialCharactersLeavesItUnchanged() throws Exception {
         URI uri = new URI("file://knime.mountpoint/path/file.txt");
         assertEncoded(uri, uri);
     }
@@ -91,7 +92,7 @@ public final class URIPathEncoderTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testURIReservedCharactersAreNotEncoded() throws Exception {
+    void testURIReservedCharactersAreNotEncoded() throws Exception {
         URI uri = new URI("file://knime.mountpoint/pa+th/file@.txt");
         assertEncoded(uri, uri);
     }
@@ -102,7 +103,7 @@ public final class URIPathEncoderTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testUmlautsAreEncoded() throws Exception {
+    void testUmlautsAreEncoded() throws Exception {
         URI umlautURI = new URI("file://knime.mountpoint/ä/Ä.txt");
         URI encodedURI = new URI("file://knime.mountpoint/%C3%A4/%C3%84.txt");
         assertEncoded(encodedURI, umlautURI);
@@ -114,8 +115,8 @@ public final class URIPathEncoderTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testUNCPathHasFourLeadingSlashes() throws Exception {
-        Assume.assumeTrue("Only makes sense under Windows", SystemUtils.IS_OS_WINDOWS);
+    void testUNCPathHasFourLeadingSlashes() throws Exception {
+        Assumptions.assumeTrue(SystemUtils.IS_OS_WINDOWS, "Only makes sense under Windows");
 
         URI uncURI = new File("\\\\HOST\\path\\file.txt").toURI();
         URI expectedUNC = new URI("file:////HOST/path/file.txt");
@@ -128,8 +129,8 @@ public final class URIPathEncoderTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testWindowsLocalPath() throws Exception {
-        Assume.assumeTrue("Only makes sense under Windows", SystemUtils.IS_OS_WINDOWS);
+    void testWindowsLocalPath() throws Exception {
+        Assumptions.assumeTrue(SystemUtils.IS_OS_WINDOWS, "Only makes sense under Windows");
 
         URI windowsURI = new File("C:\\path\\fileÄ.txt").toURI();
         URI expectedWindowsURI = new URI("file:/C:/path/file%C3%84.txt");
@@ -142,7 +143,7 @@ public final class URIPathEncoderTest {
      * @throws Exception if an error occurs
      */
     @Test
-    public void testURLIsEncoded() throws Exception {
+    void testURLIsEncoded() throws Exception {
         URL url = new URI("file://knime.mountpoint/path/fileÄ.txt").toURL();
         URL expectedEncodedURL = new URI("file://knime.mountpoint/path/file%C3%84.txt").toURL();
         assertEncoded(expectedEncodedURL, url);
@@ -154,8 +155,8 @@ public final class URIPathEncoderTest {
      * @throws Exception
      */
     @Test
-    public void testWhitespaceInUncPathIsEncodedToPercentTwenty() throws Exception {
-        Assume.assumeTrue("Only makes sense under Windows", SystemUtils.IS_OS_WINDOWS);
+    void testWhitespaceInUncPathIsEncodedToPercentTwenty() throws Exception {
+        Assumptions.assumeTrue(SystemUtils.IS_OS_WINDOWS, "Only makes sense under Windows");
 
         URI uncURI = new File("\\\\HOST\\path\\file with whitespace.txt").toURI();
         URI expectedUNC = new URI("file:////HOST/path/file%20with%20whitespace.txt");

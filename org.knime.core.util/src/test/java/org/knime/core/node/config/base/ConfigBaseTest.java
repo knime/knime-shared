@@ -49,7 +49,7 @@
 package org.knime.core.node.config.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,7 +62,7 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 
 /**
@@ -82,7 +82,7 @@ public class ConfigBaseTest {
      * @throws InvalidSettingsException
      */
     @Test
-    public void testObjectStreamSerialization() throws IOException, ClassNotFoundException, InvalidSettingsException {
+    void testObjectStreamSerialization() throws IOException, ClassNotFoundException, InvalidSettingsException {
         SimpleConfig config;
 
         var is = ConfigBaseTest.class.getResourceAsStream("/ConfigBaseTest/configBase");
@@ -98,7 +98,7 @@ public class ConfigBaseTest {
      * to change the serialVersionUID of {@link ConfigBase}.
      */
     @Test
-    public void testSchemaUnchanged() {
+    void testSchemaUnchanged() {
         var expFields = new String[]{"ARROW", "ARROW_NULL", "CFG_ARRAY_SIZE", "COMMA_TYPEEQ", "DOT_LINE_BREAK", "KEYEQ",
             "LINE_BREAK", "SPACE", "TAB_SIZE", "m_map", "serialVersionUID"};
 
