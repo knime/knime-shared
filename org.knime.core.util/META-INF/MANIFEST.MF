@@ -52,8 +52,8 @@ Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  stax2-api;bundle-version="[4.2.0,5.0.0)",
  org.eclipse.jdt.annotation;bundle-version="[2.2.0,3.0.0)",
  org.apache.httpcomponents.httpcore;bundle-version="[4.4.12,5.0.0)",
- org.junit.jupiter.api;bundle-version="[5.8.1,6.0.0)";resolution:=optional,
- org.junit.jupiter.engine;bundle-version="[5.8.1,6.0.0)";resolution:=optional,
+ junit-jupiter-api;bundle-version="[5.9.2,6.0.0)";resolution:=optional,
+ junit-jupiter-engine;bundle-version="[5.9.2,6.0.0)";resolution:=optional,
  assertj-core;bundle-version="[3.22.0,4.0.0)";resolution:=optional,
  org.opentest4j;bundle-version="[1.2.0,2.0.0)";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-11
