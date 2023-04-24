@@ -108,14 +108,25 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseEncryptedComponent47() throws Exception {
-        var componentMetadata = Workflowalizer.readTemplate(Path.of(WorkflowalizerEncryptedComponentTest.class
+        var templateMetadata = Workflowalizer.readTemplate(Path.of(WorkflowalizerEncryptedComponentTest.class
             .getResource("/encrypted-components/Encrypted-Component-4.7.knwf").toURI()));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
-            componentMetadata.containsEncrypted(), is(true));
-        assertThat("Unexpected encryption value", componentMetadata.getEncryption(), is(Encryption.WEAK));
+            templateMetadata.containsEncrypted(), is(true));
+        assertThat("Unexpected encryption value", templateMetadata.getEncryption(), is(Encryption.WEAK));
         // 0 nodes, since this is an encrypted component we can't read any of the nodes in the component
-        assertThat("Unexpected number of nodes", componentMetadata.flatten().getNodes().size(), is(0));
+        assertThat("Unexpected number of nodes", templateMetadata.flatten().getNodes().size(), is(0));
+
+        var componentMetadata = (ComponentMetadata)templateMetadata;
+        testComponentFields(componentMetadata,
+            List.of(new ComponentPortInfo(Optional.of("This should be a table input"), Optional.of("In 1"),
+                "org.knime.core.node.BufferedDataTable")),
+            List.of(
+                new ComponentPortInfo(Optional.of("This should be an image output"), Optional.of("Out 1"),
+                    "org.knime.core.node.port.image.ImagePortObject"),
+                new ComponentPortInfo(Optional.of("This should be a table output"), Optional.of("Out 2"),
+                    "org.knime.core.node.BufferedDataTable")),
+            Optional.of("Encrypted component description"), Optional.of(COMPONENT_ICON_BASE64), Optional.of("OTHER"));
     }
 
     /**
@@ -176,15 +187,15 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
 
     private static void testPortFields(final List<ComponentPortInfo> ports, final List<ComponentPortInfo> expectedPorts,
         final String portType) {
-        assertThat("Unexpected %s size".formatted(portType), ports.size(), is(expectedPorts.size()));
+        assertThat(String.format("Unexpected %s size", portType), ports.size(), is(expectedPorts.size()));
 
         for (int i = 0; i < ports.size(); i++) {
             var port = ports.get(i);
             var expectedPort = expectedPorts.get(i);
-            assertThat("Unexpected %s name".formatted(portType), port.getName(), is(expectedPort.getName()));
-            assertThat("Unexpected %s description".formatted(portType), port.getDescription(),
+            assertThat(String.format("Unexpected %s name", portType), port.getName(), is(expectedPort.getName()));
+            assertThat(String.format("Unexpected %s description", portType), port.getDescription(),
                 is(expectedPort.getDescription()));
-            assertThat("Unexpected %s object class".formatted(portType), port.getObjectClass(),
+            assertThat(String.format("Unexpected %s object class", portType), port.getObjectClass(),
                 is(expectedPort.getObjectClass()));
         }
     }

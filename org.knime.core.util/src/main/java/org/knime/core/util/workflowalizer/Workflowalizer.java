@@ -864,11 +864,8 @@ public final class Workflowalizer {
 
         final List<ComponentDialogSection.Field> fields = new ArrayList<>();
         final List<String> viewNodes = new ArrayList<>();
-        Optional<String> description = Optional.empty();
-        List<Optional<String>> inportNames = Collections.emptyList();
-        List<Optional<String>> inportDescriptions = Collections.emptyList();
-        List<Optional<String>> outportNames = Collections.emptyList();
-        List<Optional<String>> outportDescriptions = Collections.emptyList();
+        ConfigBase inputNodeConfig = null;
+        ConfigBase outputNodeConfig = null;
 
         for (final NodeMetadata n : wf.getNodes()) {
             if (n instanceof NativeNodeMetadata) {
@@ -876,12 +873,9 @@ public final class Workflowalizer {
                 if (nn.getNodeConfiguration().isPresent()) {
                     final ConfigBase nodeConfig = nn.getNodeConfiguration().get();
                     if (n.getNodeId().equals(inputId + "")) {
-                        description = parser.getComponentTemplateDescription(nodeConfig, settingsXml);
-                        inportNames = parser.getPortNames(nodeConfig, settingsXml, true);
-                        inportDescriptions = parser.getPortDescriptions(nodeConfig, settingsXml, true);
+                        inputNodeConfig = nodeConfig;
                     } else if (n.getNodeId().equals(outputId + "")) {
-                        outportNames = parser.getPortNames(nodeConfig, settingsXml, false);
-                        outportDescriptions = parser.getPortDescriptions(nodeConfig, settingsXml, false);
+                        outputNodeConfig = nodeConfig;
                     } else {
                         if (parser.isDialogNode(nodeConfig)) {
                             final Optional<String> fieldName = parser.getDialogFieldName(nodeConfig);
@@ -900,6 +894,13 @@ public final class Workflowalizer {
                 throw new IllegalArgumentException("Unrecognized node type: " + n.getType());
             }
         }
+
+        var description = parser.getComponentTemplateDescription(inputNodeConfig, settingsXml);
+        var inportNames = parser.getPortNames(inputNodeConfig, settingsXml, true);
+        var inportDescriptions = parser.getPortDescriptions(inputNodeConfig, settingsXml, true);
+        var outportNames = parser.getPortNames(outputNodeConfig, settingsXml, false);
+        var outportDescriptions = parser.getPortDescriptions(outputNodeConfig, settingsXml, false);
+
         builder.setViewNodes(viewNodes);
         builder.setDialog(
             Collections.singletonList(new ComponentDialogSection(Optional.empty(), Optional.empty(), fields)));
