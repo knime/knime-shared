@@ -44,69 +44,25 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   May 20, 2019 (awalter): created
+ *   Apr 24, 2023 (awalter): created
  */
 package org.knime.core.util.workflowalizer;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
- * Superclass for {@link IWorkflowMetadata} which contain {@link AuthorInformation}.
+ * The type of encryption used for a repository item.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
- * @param <R> {@link RepositoryItemMetadata} returned by the builder
- * @param <B>  type of builder
- * @since 5.11
+ * @since 5.24
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
-    setterVisibility = Visibility.NONE)
-public abstract class AbstractRepositoryItemMetadata<R extends RepositoryItemMetadata, B extends AbstractRepositoryItemBuilder<R>>
-    extends AbstractWorkflowMetadata<B> {
-
-    @JsonProperty("authorInformation")
-    private final AuthorInformation m_authorInfo;
+public enum Encryption {
 
     /**
-     * Creates a new AbstractRepositoryItemMetadata using the metadata set in the AbstractRepositoryItemBuilder.
-     *
-     * @param builder the populated AbstractRepositoryItemBuilder
+     * The repository item is not encrypted.
      */
-    public AbstractRepositoryItemMetadata(final B builder) {
-        super(builder);
-        m_authorInfo = new AuthorInformation(builder.getAuthor(), builder.getAuthorDate(), builder.getLastEditor(),
-            builder.getLastEditDate());
-    }
+    NONE,
 
     /**
-     * For internal use only! If the given {@code AbstractRepositoryItemMetadata<?>} is not a {@code NodeMetadata} then
-     * the node list will be flattened, otherwise the node list will be set to {@code null}. Connections will always be
-     * set to {@code null}.
-     *
-     * @param item the AbstractRepositoryItemMetadata to copy
-     * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
+     * The repository item is weakly encrypted.
      */
-    protected AbstractRepositoryItemMetadata(final AbstractRepositoryItemMetadata<R, B> item,
-        final List<String> excludedFactories) {
-        super(item, excludedFactories);
-        m_authorInfo = item.m_authorInfo;
-    }
-
-
-    /**
-     * Returns the {@link AuthorInformation} for this repository item.
-     *
-     * @return the {@link AuthorInformation} associated with this item
-     */
-    public AuthorInformation getAuthorInformation() {
-        return m_authorInfo;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + ", " + m_authorInfo;
-    }
+    WEAK;
 }

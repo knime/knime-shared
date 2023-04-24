@@ -78,10 +78,14 @@ public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMet
     @JsonProperty("templateInformation")
     private final TemplateInformation m_templateInfo;
 
+    @JsonProperty("encryption")
+    private final Encryption m_encryption;
+
     TemplateMetadata(final TemplateMetadataBuilder builder) {
         super(builder);
         m_templateInfo = new TemplateInformation(builder.getRole(), builder.getTimeStamp(), builder.getSourceURI(),
             builder.getType());
+        m_encryption = builder.getWorkflowFields().getEncryption();
     }
 
     /**
@@ -94,6 +98,7 @@ public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMet
     protected TemplateMetadata(final TemplateMetadata template, final List<String> excludedFactories) {
         super(template, excludedFactories);
         m_templateInfo = template.m_templateInfo;
+        m_encryption = template.getEncryption();
     }
 
     /**
@@ -101,6 +106,13 @@ public class TemplateMetadata extends AbstractRepositoryItemMetadata<TemplateMet
      */
     public TemplateInformation getTemplateInformation() {
         return m_templateInfo;
+    }
+
+    /**
+     * @return the type of encryption used to encrypt this item, if any
+     */
+    public Encryption getEncryption() {
+        return m_encryption;
     }
 
     /**

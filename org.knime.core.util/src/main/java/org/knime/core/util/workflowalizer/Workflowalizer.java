@@ -757,7 +757,7 @@ public final class Workflowalizer {
     private static void populateWorkflowFields(final WorkflowFields wf, final WorkflowalizerConfiguration wc,
         final WorkflowParser parser, final ConfigBase workflowKnime, final ConfigBase templateKnime, final String path,
         final ZipFile zip, final String nodeId)
-        throws InvalidSettingsException, ParseException, FileNotFoundException, IOException {
+        throws InvalidSettingsException, ParseException, IOException {
         final Version version = parser.getVersion(workflowKnime, templateKnime);
         wf.setVersion(version);
 
@@ -773,13 +773,7 @@ public final class Workflowalizer {
         final Optional<List<String>> annotations = parser.getAnnotations(workflowKnime);
         wf.setAnnotations(annotations);
         if (wc.parseNodes() && wf.getNodes() == null) {
-            final Map<Integer, NodeMetadata> nodes =
-                readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser, nodeId);
-            wf.setNodes(new ArrayList<>(nodes.values()));
-            if (wc.parseConnections() && wf.getConnections() == null) {
-                final List<NodeConnection> connections = parser.getConnections(workflowKnime, nodes);
-                wf.setConnections(connections);
-            }
+            handleNodesAndConnections(wf, wc, parser, workflowKnime, path, zip, nodeId);
         }
         if (wc.parseUnexpectedFiles()) {
             Collection<String> files = null;
@@ -789,6 +783,27 @@ public final class Workflowalizer {
                 files = findUnexpectedFiles(parser.getExpectedFileNames(workflowKnime), path, zip);
             }
             wf.setUnexpectedFileNames(files);
+        }
+    }
+
+    private static void handleNodesAndConnections(final WorkflowFields wf, final WorkflowalizerConfiguration wc,
+        final WorkflowParser parser, final ConfigBase workflowKnime, final String path, final ZipFile zip,
+        final String nodeId) throws InvalidSettingsException, IOException, ParseException {
+        // this component or metanode is encrypted, so it is not possible to read the nodes
+        if (parser.isEncrypted(workflowKnime)) {
+            wf.setEncryption(Encryption.WEAK);
+            wf.setNodes(List.of());
+            if (wc.parseConnections() && wf.getConnections() == null) {
+                wf.setConnections(List.of());
+            }
+        } else {
+            final Map<Integer, NodeMetadata> nodes =
+                readNodes(path, zip, parser.getNodeConfigs(workflowKnime), wc, parser, nodeId);
+            wf.setNodes(new ArrayList<>(nodes.values()));
+            if (wc.parseConnections() && wf.getConnections() == null) {
+                final List<NodeConnection> connections = parser.getConnections(workflowKnime, nodes);
+                wf.setConnections(connections);
+            }
         }
     }
 

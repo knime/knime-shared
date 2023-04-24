@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.knime.core.util.Version;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
@@ -65,7 +66,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+    setterVisibility = Visibility.NONE)
 abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> implements IWorkflowMetadata {
 
     @JsonProperty("version")
@@ -92,6 +94,9 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
     @JsonProperty("unexpectedFiles")
     private final Collection<String> m_unexpectedFiles;
 
+    @JsonProperty("containsEncrypted")
+    private final Boolean m_containsEncrypted;
+
     /**
      * @param builder
      */
@@ -104,6 +109,24 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         m_name = builder.getWorkflowFields().getName();
         m_customDescription = builder.getWorkflowFields().getCustomDescription();
         m_unexpectedFiles = builder.getWorkflowFields().getUnexpectedFileNames();
+
+        if (m_nodes != null) {
+            boolean containsEncrypted = m_nodes.stream().anyMatch(n -> {
+                if (n instanceof SubnodeMetadata) {
+                    return isEncrypted(((SubnodeMetadata)n)::getEncryption);
+                } else if (n instanceof MetanodeMetadata) {
+                    return isEncrypted(((MetanodeMetadata)n)::getEncryption);
+                }
+                return false;
+            });
+            m_containsEncrypted = containsEncrypted || isEncrypted(() -> builder.getWorkflowFields().getEncryption());
+        } else {
+            m_containsEncrypted = null;
+        }
+    }
+
+    private static boolean isEncrypted(final Supplier<Encryption> getEncryption) {
+        return getEncryption.get() != Encryption.NONE;
     }
 
     /**
@@ -114,7 +137,8 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
      * @param workflow {@code AbstractWorkflowMetadata} to copy
      * @param excludedFactories list of factoryNames to exclude from the flattened node list, supports regex matching
      */
-    protected AbstractWorkflowMetadata(final AbstractWorkflowMetadata<?> workflow, final List<String> excludedFactories) {
+    protected AbstractWorkflowMetadata(final AbstractWorkflowMetadata<?> workflow,
+        final List<String> excludedFactories) {
         m_version = workflow.m_version;
         m_createdBy = workflow.m_createdBy;
         m_annotations = workflow.m_annotations;
@@ -132,6 +156,7 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
             }
         }
         m_nodes = nodes;
+        m_containsEncrypted = workflow.containsEncrypted();
     }
 
     /**
@@ -205,6 +230,14 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
             throw new UnsupportedOperationException("getUnexpectedFileNames() is unsupported, field was not read");
         }
         return m_unexpectedFiles;
+    }
+
+    @Override
+    public boolean containsEncrypted() {
+        if (m_nodes == null) {
+            throw new UnsupportedOperationException("containsEncrypted() is unsupported, the nodes were not read");
+        }
+        return m_containsEncrypted;
     }
 
     @Override

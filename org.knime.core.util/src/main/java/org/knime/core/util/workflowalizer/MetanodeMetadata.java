@@ -79,12 +79,16 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
     @JsonProperty("templateLink")
     private final Optional<String> m_template;
 
+    @JsonProperty("encryption")
+    private final Encryption m_encryption;
+
     MetanodeMetadata(final MetanodeMetadataBuilder builder) {
         super(builder);
         m_nodeId = builder.getNodeFields().getId();
         m_type = builder.getNodeFields().getType();
         m_annotationText = builder.getNodeFields().getAnnotationText();
         m_template = builder.getTemplateLink();
+        m_encryption = builder.getWorkflowFields().getEncryption();
     }
 
     /**
@@ -100,6 +104,7 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
         m_type = metanode.m_type;
         m_annotationText = metanode.m_annotationText;
         m_template = metanode.m_template;
+        m_encryption = metanode.getEncryption();
     }
 
     /**
@@ -132,6 +137,13 @@ public final class MetanodeMetadata extends AbstractWorkflowMetadata<MetanodeMet
      */
     public Optional<String> getTemplateLink() {
         return m_template;
+    }
+
+    /**
+     * @return the type of encryption used to encrypt this item, if any
+     */
+    public Encryption getEncryption() {
+        return m_encryption;
     }
 
     @Override

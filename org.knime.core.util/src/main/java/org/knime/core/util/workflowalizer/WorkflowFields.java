@@ -69,6 +69,7 @@ final class WorkflowFields {
     private List<NodeConnection> m_connections;
     private List<NodeMetadata> m_nodes;
     private Collection<String> m_unexpectedFileNames;
+    private Encryption m_encryption;
 
     private final boolean m_readConnections;
     private final boolean m_readNodes;
@@ -78,6 +79,7 @@ final class WorkflowFields {
         m_readConnections = readConnections;
         m_readNodes = readNodes;
         m_readUnexpectedFileNames = readUnexpectedFileNames;
+        m_encryption = Encryption.NONE;
     }
 
     // -- Getters --
@@ -114,6 +116,10 @@ final class WorkflowFields {
         return m_unexpectedFileNames;
     }
 
+    Encryption getEncryption() {
+        return m_encryption;
+    }
+
     // -- Setters --
 
     void setVersion(final Version version) {
@@ -148,6 +154,10 @@ final class WorkflowFields {
         m_unexpectedFileNames = unexpectedFileNames;
     }
 
+    void setEncryption(final Encryption encryption) {
+        m_encryption = encryption;
+    }
+
     // -- Other --
 
     void validate() {
@@ -156,6 +166,7 @@ final class WorkflowFields {
         checkPopulated(m_name, "workflow name");
         checkPopulated(m_customDescription, "workflow custom description");
         checkPopulated(m_annotations, "annotations");
+        checkPopulated(m_encryption, "encryption");
         if (m_readNodes) {
             checkPopulated(m_nodes, "nodes");
         }

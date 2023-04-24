@@ -106,4 +106,13 @@ public interface IWorkflowMetadata {
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
     Collection<String> getUnexpectedFileNames();
+
+    /**
+     * @return {@code true} if this item contains one or more components / metanodes which are encrypted
+     * @throws UnsupportedOperationException if the nodes were not read
+     * @since 5.24
+     */
+    default boolean containsEncrypted() {
+        return false;
+    }
 }

@@ -597,4 +597,12 @@ interface WorkflowParser {
      * @return true if the workflow has a report, false otherwise
      */
     <T> boolean getHasReport(final Stream<T> files);
+
+    /**
+     * Returns {@code true} if the workflow.knime is for an encrypted item.
+     *
+     * @param workflowKnime the item's workflow.knime read into a {@link ConfigBase}
+     * @return {@code true} if this is encrypted
+     */
+    boolean isEncrypted(final ConfigBase workflowKnime);
 }
