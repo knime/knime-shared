@@ -705,6 +705,11 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return files.anyMatch(predicate);
     }
 
+    @Override
+    public boolean isEncrypted(final ConfigBase workflowKnime) {
+        return workflowKnime.containsKey("cipher");
+    }
+
     // -- protected helper methods --
 
     /**

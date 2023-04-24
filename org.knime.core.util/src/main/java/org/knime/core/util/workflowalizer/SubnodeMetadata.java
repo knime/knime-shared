@@ -88,6 +88,9 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
     @JsonProperty("templateLink")
     private final Optional<String> m_template;
 
+    @JsonProperty("encryption")
+    private final Encryption m_encryption;
+
     @JsonIgnore
     private final int m_virtualInputId;
 
@@ -104,6 +107,7 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
         m_template = builder.getTemplateLink();
         m_virtualInputId = builder.getInputId();
         m_virtualOutputId = builder.getOutputId();
+        m_encryption = builder.getWorkflowFields().getEncryption();
 
     }
 
@@ -124,6 +128,7 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
         m_template = subnode.m_template;
         m_virtualInputId = subnode.m_virtualInputId;
         m_virtualOutputId = subnode.m_virtualOutputId;
+        m_encryption = subnode.getEncryption();
     }
 
     /**
@@ -174,6 +179,13 @@ public final class SubnodeMetadata extends AbstractWorkflowMetadata<SubnodeMetad
      */
     public Optional<String> getTemplateLink() {
         return m_template;
+    }
+
+    /**
+     * @return the type of encryption used to encrypt this item, if any
+     */
+    public Encryption getEncryption() {
+        return m_encryption;
     }
 
     /**
