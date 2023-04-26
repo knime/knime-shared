@@ -721,7 +721,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     protected List<Optional<String>> getPortNamesFromVirtualNodes(final ConfigBase nodeConfiguration)
         throws InvalidSettingsException {
-        if (nodeConfiguration.containsKey("port-names")) {
+        if (nodeConfiguration != null && nodeConfiguration.containsKey("port-names")) {
             final String[] pns = nodeConfiguration.getStringArray("port-names");
             if (ArrayUtils.isEmpty(pns)) {
                 return Collections.emptyList();
@@ -761,7 +761,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     protected List<Optional<String>> getPortDescriptionsFromVirtualNodes(final ConfigBase nodeConfiguration)
         throws InvalidSettingsException {
-        if (nodeConfiguration.containsKey("port-descriptions")) {
+        if (nodeConfiguration != null && nodeConfiguration.containsKey("port-descriptions")) {
             final String[] pds = nodeConfiguration.getStringArray("port-descriptions");
             if (ArrayUtils.isEmpty(pds)) {
                 return Collections.emptyList();
@@ -801,7 +801,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     protected Optional<String> getComponentDescriptionFromVirtualInputNode(final ConfigBase virtualInputXml)
         throws InvalidSettingsException {
-        if (virtualInputXml.containsKey("sub-node-description")) {
+        if (virtualInputXml != null && virtualInputXml.containsKey("sub-node-description")) {
             final String desc = virtualInputXml.getString("sub-node-description");
             return StringUtils.isEmpty(desc) ? Optional.empty() : Optional.of(desc);
         }
@@ -817,7 +817,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     protected Optional<String> getComponentDescriptionFromSettingsXml(final ConfigBase settingsXml)
         throws InvalidSettingsException {
-        if (settingsXml.containsKey("metadata")) {
+        if (settingsXml != null && settingsXml.containsKey("metadata")) {
             final ConfigBase metadata = settingsXml.getConfigBase("metadata");
             final String desc = metadata.getString("description", "");
             if (!desc.isEmpty()) {
@@ -832,7 +832,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     private static List<Optional<String>> getPortInfoFromSettingsXml(final ConfigBase settingsXml,
         final boolean readInport, final String entityField) throws InvalidSettingsException {
         List<Optional<String>> fieldValues = Collections.emptyList();
-        if (settingsXml.containsKey("metadata")) {
+        if (settingsXml != null && settingsXml.containsKey("metadata")) {
             final ConfigBase metadata = settingsXml.getConfigBase("metadata");
             final String key = readInport ? "inports" : "outports";
             if (metadata.containsKey(key)) {
