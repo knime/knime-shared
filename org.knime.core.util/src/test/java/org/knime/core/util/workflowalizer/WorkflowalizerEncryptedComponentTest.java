@@ -60,6 +60,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Test parsing encrypted components and items which contain encrypted components.
  *
+ * <p>
+ * The password for all encrypted components / metanodes used in these tests is "test".
+ * </p>
+ *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */
 class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
@@ -171,6 +175,55 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
         assertThat("Unexpected value when check if component contains an encrypted component",
             componentMetadata.containsEncrypted(), is(false));
         assertThat("Unexpected encryption value", componentMetadata.getEncryption(), is(Encryption.NONE));
+    }
+
+    /**
+     * Tests parsing a workflow which contains an encrypted metanode.
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    void testParseWorkflowContainingEncryptedMetanode() throws Exception {
+        var workflowMetadata = Workflowalizer.readWorkflow(Path.of(WorkflowalizerEncryptedComponentTest.class
+            .getResource("/encrypted-components/Workflow-with-Encrypted-Metanode.knwf").toURI()));
+
+        assertThat("Unexpected value when checking if workflow contains an encrypted component",
+            workflowMetadata.containsEncrypted(), is(true));
+        // 2 native nodes, and 1 encrypted component
+        // the encrypted component contains an additional two native nodes which cannot be read
+        assertThat("Unexpected number of nodes in workflow", workflowMetadata.flatten().getNodes().size(), is(3));
+    }
+
+    /**
+     * Tests parsing encrypted components made in KNIME AP 3.7.
+     *
+     * <p>
+     * Prior to version {@code 4.1.0} the component description, port descriptions, and port names were stored in the
+     * {@code settings.xml} files of the virtual in and output nodes of a component. Since everything below the
+     * top-level directory of a component is encrypted when a component is "locked", it is not possible to parse those
+     * fields for components made with versions &lt; {@code 4.1.0}.
+     * </p>
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    void testParseEncryptedComponent37() throws Exception {
+        var templateMetadata = Workflowalizer.readTemplate(Path.of(WorkflowalizerEncryptedComponentTest.class
+            .getResource("/encrypted-components/Encrypt-component-37.knwf").toURI()));
+
+        assertThat("Unexpected value when check if component contains an encrypted component",
+            templateMetadata.containsEncrypted(), is(true));
+        assertThat("Unexpected encryption value", templateMetadata.getEncryption(), is(Encryption.WEAK));
+        // 0 nodes, since this is an encrypted component we can't read any of the nodes in the component
+        assertThat("Unexpected number of nodes", templateMetadata.flatten().getNodes().size(), is(0));
+
+        var componentMetadata = (ComponentMetadata)templateMetadata;
+        // Technically this component does contain a description, as well as port names and descriptions. However,
+        // due to the 3.7 xml format, we cannot parse these fields when the component is encrypted.
+        testComponentFields(componentMetadata,
+            List.of(new ComponentPortInfo(Optional.empty(), Optional.empty(), "org.knime.core.node.BufferedDataTable")),
+            List.of(new ComponentPortInfo(Optional.empty(), Optional.empty(), "org.knime.core.node.BufferedDataTable")),
+            Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     // -- Helper methods --
