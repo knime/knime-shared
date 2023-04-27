@@ -116,7 +116,7 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
             .getResource("/encrypted-components/Encrypted-Component-4.7.knwf").toURI()));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
-            templateMetadata.containsEncrypted(), is(true));
+            templateMetadata.containsEncrypted(), is(false));
         assertThat("Unexpected encryption value", templateMetadata.getEncryption(), is(Encryption.WEAK));
         // 0 nodes, since this is an encrypted component we can't read any of the nodes in the component
         assertThat("Unexpected number of nodes", templateMetadata.flatten().getNodes().size(), is(0));
@@ -212,7 +212,7 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
             .getResource("/encrypted-components/Encrypt-component-37.knwf").toURI()));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
-            templateMetadata.containsEncrypted(), is(true));
+            templateMetadata.containsEncrypted(), is(false));
         assertThat("Unexpected encryption value", templateMetadata.getEncryption(), is(Encryption.WEAK));
         // 0 nodes, since this is an encrypted component we can't read any of the nodes in the component
         assertThat("Unexpected number of nodes", templateMetadata.flatten().getNodes().size(), is(0));

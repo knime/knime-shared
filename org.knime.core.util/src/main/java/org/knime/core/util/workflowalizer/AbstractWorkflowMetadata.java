@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.knime.core.util.Version;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
@@ -113,20 +112,20 @@ abstract class AbstractWorkflowMetadata<B extends AbstractWorkflowBuilder<?>> im
         if (m_nodes != null) {
             boolean containsEncrypted = m_nodes.stream().anyMatch(n -> {
                 if (n instanceof SubnodeMetadata) {
-                    return isEncrypted(((SubnodeMetadata)n)::getEncryption);
+                    return isEncrypted(((SubnodeMetadata)n).getEncryption());
                 } else if (n instanceof MetanodeMetadata) {
-                    return isEncrypted(((MetanodeMetadata)n)::getEncryption);
+                    return isEncrypted(((MetanodeMetadata)n).getEncryption());
                 }
                 return false;
             });
-            m_containsEncrypted = containsEncrypted || isEncrypted(() -> builder.getWorkflowFields().getEncryption());
+            m_containsEncrypted = containsEncrypted;
         } else {
             m_containsEncrypted = null;
         }
     }
 
-    private static boolean isEncrypted(final Supplier<Encryption> getEncryption) {
-        return getEncryption.get() != Encryption.NONE;
+    private static boolean isEncrypted(final Encryption encryption) {
+        return encryption != Encryption.NONE;
     }
 
     /**
