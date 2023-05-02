@@ -84,6 +84,9 @@ public class AnnotationDataDefBuilder {
     String m_text;
     
 
+    ContentTypeEnum m_contentType;
+    
+
     CoordinateDef m_location;
     
     String m_textAlignment = "LEFT";
@@ -131,6 +134,7 @@ public class AnnotationDataDefBuilder {
      */
     public AnnotationDataDefBuilder(final AnnotationDataDef toCopy) {
         m_text = toCopy.getText();
+        m_contentType = toCopy.getContentType();
         m_location = toCopy.getLocation();
         m_textAlignment = toCopy.getTextAlignment();
         m_borderSize = toCopy.getBorderSize();
@@ -178,6 +182,44 @@ public class AnnotationDataDefBuilder {
                                      
             m_text = defaultValue;
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.TEXT, supplyException);
+	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for contentType
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param contentType 
+     * @return this builder for fluent API.
+     */ 
+    public AnnotationDataDefBuilder setContentType(final ContentTypeEnum contentType) {
+        setContentType(() -> contentType, contentType);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.CONTENT_TYPE)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.CONTENT_TYPE)} will return the exception.
+     * 
+     * @param contentType see {@link AnnotationDataDef#getContentType}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setContentType(ContentTypeEnum)
+     */
+    public AnnotationDataDefBuilder setContentType(final FallibleSupplier<ContentTypeEnum> contentType, ContentTypeEnum defaultValue) {
+        java.util.Objects.requireNonNull(contentType, () -> "No supplier for contentType provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(AnnotationDataDef.Attribute.CONTENT_TYPE);
+        try {
+            m_contentType = contentType.get();
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                                     
+            m_contentType = defaultValue;
+            m_exceptionalChildren.put(AnnotationDataDef.Attribute.CONTENT_TYPE, supplyException);
 	    }   
         return this;
     }

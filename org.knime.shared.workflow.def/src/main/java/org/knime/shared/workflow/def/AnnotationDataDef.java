@@ -73,6 +73,11 @@ public interface AnnotationDataDef {
           */
          TEXT,
          /** 
+          * The type of this data attribute is {@link ContentTypeEnum}.
+          * Is is returned by {@link AnnotationDataDef#getContentType} 
+          */
+         CONTENT_TYPE,
+         /** 
           * The type of this data attribute is {@link CoordinateDef}.
           * Is is returned by {@link AnnotationDataDef#getLocation} 
           */
@@ -127,11 +132,37 @@ public interface AnnotationDataDef {
 ;
     }
     
+  /**
+   * Gets or Sets contentType
+   */
+  public enum ContentTypeEnum {
+    PLAIN("text/plain"),
+    
+    HTML("text/html");
+
+    private String value;
+
+    ContentTypeEnum(String value) {
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+  }
+
 
   /**
    * @return 
    **/
   public String getText();
+
+  /**
+   * @return 
+   **/
+  public ContentTypeEnum getContentType();
 
   /**
    * @return 

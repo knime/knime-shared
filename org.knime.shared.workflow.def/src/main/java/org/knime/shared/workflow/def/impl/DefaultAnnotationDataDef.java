@@ -85,6 +85,9 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     @JsonProperty("text")
     protected String m_text;
 
+    @JsonProperty("contentType")
+    protected ContentTypeEnum m_contentType;
+
     @JsonProperty("location")
     protected CoordinateDef m_location;
 
@@ -138,6 +141,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         
             
         m_text = builder.m_text;
+        m_contentType = builder.m_contentType;
         m_location = builder.m_location;
         m_textAlignment = builder.m_textAlignment;
         m_borderSize = builder.m_borderSize;
@@ -164,6 +168,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         toCopy = Objects.requireNonNullElse(toCopy, new AnnotationDataDefBuilder().build());
         
         m_text = toCopy.getText();
+        m_contentType = toCopy.getContentType();
         m_location = toCopy.getLocation();
         m_textAlignment = toCopy.getTextAlignment();
         m_borderSize = toCopy.getBorderSize();
@@ -192,6 +197,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
      */
     public DefaultAnnotationDataDef(AnnotationDataDef toCopy) {
         m_text = toCopy.getText();
+        m_contentType = toCopy.getContentType();
         m_location = toCopy.getLocation();
         m_textAlignment = toCopy.getTextAlignment();
         m_borderSize = toCopy.getBorderSize();
@@ -254,6 +260,10 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         return m_text;
     }
     @Override
+    public ContentTypeEnum getContentType() {
+        return m_contentType;
+    }
+    @Override
     public CoordinateDef getLocation() {
         return m_location;
     }
@@ -304,6 +314,16 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     @JsonIgnore
     public Optional<LoadException> getTextSupplyException(){
     	return getLoadExceptionTree(AnnotationDataDef.Attribute.TEXT).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+ 
+     
+    /**
+     * @return The supply exception associated to contentType.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getContentTypeSupplyException(){
+    	return getLoadExceptionTree(AnnotationDataDef.Attribute.CONTENT_TYPE).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
@@ -452,6 +472,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         DefaultAnnotationDataDef other = (DefaultAnnotationDataDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
         equalsBuilder.append(m_text, other.m_text);
+        equalsBuilder.append(m_contentType, other.m_contentType);
         equalsBuilder.append(m_location, other.m_location);
         equalsBuilder.append(m_textAlignment, other.m_textAlignment);
         equalsBuilder.append(m_borderSize, other.m_borderSize);
@@ -469,6 +490,7 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     public int hashCode() {
         return new HashCodeBuilder()
                 .append(m_text)
+                .append(m_contentType)
                 .append(m_location)
                 .append(m_textAlignment)
                 .append(m_borderSize)
