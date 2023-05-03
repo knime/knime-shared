@@ -55,7 +55,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
- * AnnotationDataDef
+ * The general object containing the data of an annotation.
  *
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
@@ -67,12 +67,16 @@ public interface AnnotationDataDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
-         /** 
+         /**  
+          * The annotations textual content.
+          *
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AnnotationDataDef#getText} 
           */
          TEXT,
-         /** 
+         /**  
+          * The annotations content type.
+          *
           * The type of this data attribute is {@link ContentTypeEnum}.
           * Is is returned by {@link AnnotationDataDef#getContentType} 
           */
@@ -82,6 +86,16 @@ public interface AnnotationDataDef {
           * Is is returned by {@link AnnotationDataDef#getLocation} 
           */
          LOCATION,
+         /** 
+          * The type of this data attribute is {@link Integer}.
+          * Is is returned by {@link AnnotationDataDef#getWidth} 
+          */
+         WIDTH,
+         /** 
+          * The type of this data attribute is {@link Integer}.
+          * Is is returned by {@link AnnotationDataDef#getHeight} 
+          */
+         HEIGHT,
          /** 
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link AnnotationDataDef#getTextAlignment} 
@@ -106,11 +120,6 @@ public interface AnnotationDataDef {
          BGCOLOR,
          /** 
           * The type of this data attribute is {@link Integer}.
-          * Is is returned by {@link AnnotationDataDef#getWidth} 
-          */
-         WIDTH,
-         /** 
-          * The type of this data attribute is {@link Integer}.
           * Is is returned by {@link AnnotationDataDef#getAnnotationVersion} 
           */
          ANNOTATION_VERSION,
@@ -124,16 +133,11 @@ public interface AnnotationDataDef {
           * Is is returned by {@link AnnotationDataDef#getStyles} 
           */
          STYLES,
-         /** 
-          * The type of this data attribute is {@link Integer}.
-          * Is is returned by {@link AnnotationDataDef#getHeight} 
-          */
-         HEIGHT,
 ;
     }
     
   /**
-   * Gets or Sets contentType
+   * The annotations content type.
    */
   public enum ContentTypeEnum {
     PLAIN("text/plain"),
@@ -155,12 +159,12 @@ public interface AnnotationDataDef {
 
 
   /**
-   * @return 
+   * @return The annotations textual content.
    **/
   public String getText();
 
   /**
-   * @return 
+   * @return The annotations content type.
    **/
   public ContentTypeEnum getContentType();
 
@@ -168,6 +172,16 @@ public interface AnnotationDataDef {
    * @return 
    **/
   public CoordinateDef getLocation();
+
+  /**
+   * @return 
+   **/
+  public Integer getWidth();
+
+  /**
+   * @return 
+   **/
+  public Integer getHeight();
 
   /**
    * @return 
@@ -192,11 +206,6 @@ public interface AnnotationDataDef {
   /**
    * @return 
    **/
-  public Integer getWidth();
-
-  /**
-   * @return 
-   **/
   public Integer getAnnotationVersion();
 
   /**
@@ -208,11 +217,6 @@ public interface AnnotationDataDef {
    * @return 
    **/
   public java.util.List<StyleRangeDef> getStyles();
-
-  /**
-   * @return 
-   **/
-  public Integer getHeight();
 
 
 }

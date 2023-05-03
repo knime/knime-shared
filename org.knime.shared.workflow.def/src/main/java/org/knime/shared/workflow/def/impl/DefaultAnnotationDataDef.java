@@ -70,7 +70,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
 /**
- * DefaultAnnotationDataDef
+ * The general object containing the data of an annotation.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
@@ -82,14 +82,26 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
      * a LoadExceptionTree<AnnotationDataDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /** 
+     * The annotations textual content. 
+     */
     @JsonProperty("text")
     protected String m_text;
 
+    /** 
+     * The annotations content type. 
+     */
     @JsonProperty("contentType")
     protected ContentTypeEnum m_contentType;
 
     @JsonProperty("location")
     protected CoordinateDef m_location;
+
+    @JsonProperty("width")
+    protected Integer m_width;
+
+    @JsonProperty("height")
+    protected Integer m_height;
 
     @JsonProperty("textAlignment")
     protected String m_textAlignment;
@@ -106,9 +118,6 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     @JsonProperty("bgcolor")
     protected Integer m_bgcolor;
 
-    @JsonProperty("width")
-    protected Integer m_width;
-
     @JsonProperty("annotationVersion")
     protected Integer m_annotationVersion;
 
@@ -117,9 +126,6 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
 
     @JsonProperty("styles")
     protected java.util.List<StyleRangeDef> m_styles;
-
-    @JsonProperty("height")
-    protected Integer m_height;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -143,15 +149,15 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         m_text = builder.m_text;
         m_contentType = builder.m_contentType;
         m_location = builder.m_location;
+        m_width = builder.m_width;
+        m_height = builder.m_height;
         m_textAlignment = builder.m_textAlignment;
         m_borderSize = builder.m_borderSize;
         m_borderColor = builder.m_borderColor;
         m_bgcolor = builder.m_bgcolor;
-        m_width = builder.m_width;
         m_annotationVersion = builder.m_annotationVersion;
         m_defaultFontSize = builder.m_defaultFontSize;
         m_styles = builder.m_styles;
-        m_height = builder.m_height;
 
         m_exceptionTree = Optional.empty();
     }
@@ -170,15 +176,15 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         m_text = toCopy.getText();
         m_contentType = toCopy.getContentType();
         m_location = toCopy.getLocation();
+        m_width = toCopy.getWidth();
+        m_height = toCopy.getHeight();
         m_textAlignment = toCopy.getTextAlignment();
         m_borderSize = toCopy.getBorderSize();
         m_borderColor = toCopy.getBorderColor();
         m_bgcolor = toCopy.getBgcolor();
-        m_width = toCopy.getWidth();
         m_annotationVersion = toCopy.getAnnotationVersion();
         m_defaultFontSize = toCopy.getDefaultFontSize();
         m_styles = toCopy.getStyles();
-        m_height = toCopy.getHeight();
         if(toCopy instanceof DefaultAnnotationDataDef){
             var childTree = ((DefaultAnnotationDataDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -199,15 +205,15 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         m_text = toCopy.getText();
         m_contentType = toCopy.getContentType();
         m_location = toCopy.getLocation();
+        m_width = toCopy.getWidth();
+        m_height = toCopy.getHeight();
         m_textAlignment = toCopy.getTextAlignment();
         m_borderSize = toCopy.getBorderSize();
         m_borderColor = toCopy.getBorderColor();
         m_bgcolor = toCopy.getBgcolor();
-        m_width = toCopy.getWidth();
         m_annotationVersion = toCopy.getAnnotationVersion();
         m_defaultFontSize = toCopy.getDefaultFontSize();
         m_styles = toCopy.getStyles();
-        m_height = toCopy.getHeight();
         
         m_exceptionTree = Optional.empty();
     }
@@ -268,6 +274,14 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         return m_location;
     }
     @Override
+    public Integer getWidth() {
+        return m_width;
+    }
+    @Override
+    public Integer getHeight() {
+        return m_height;
+    }
+    @Override
     public String getTextAlignment() {
         return m_textAlignment;
     }
@@ -284,10 +298,6 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         return m_bgcolor;
     }
     @Override
-    public Integer getWidth() {
-        return m_width;
-    }
-    @Override
     public Integer getAnnotationVersion() {
         return m_annotationVersion;
     }
@@ -298,10 +308,6 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     @Override
     public java.util.List<StyleRangeDef> getStyles() {
         return m_styles;
-    }
-    @Override
-    public Integer getHeight() {
-        return m_height;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -352,6 +358,26 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
          
  
     /**
+     * @return The supply exception associated to width.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getWidthSupplyException(){
+    	return getLoadExceptionTree(AnnotationDataDef.Attribute.WIDTH).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+ 
+     
+    /**
+     * @return The supply exception associated to height.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getHeightSupplyException(){
+    	return getLoadExceptionTree(AnnotationDataDef.Attribute.HEIGHT).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+ 
+     
+    /**
      * @return The supply exception associated to textAlignment.
      */
     @JsonIgnore
@@ -387,16 +413,6 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
     @JsonIgnore
     public Optional<LoadException> getBgcolorSupplyException(){
     	return getLoadExceptionTree(AnnotationDataDef.Attribute.BGCOLOR).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-     
-    /**
-     * @return The supply exception associated to width.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getWidthSupplyException(){
-    	return getLoadExceptionTree(AnnotationDataDef.Attribute.WIDTH).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
@@ -442,16 +458,6 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
 
      
  
-    /**
-     * @return The supply exception associated to height.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getHeightSupplyException(){
-    	return getLoadExceptionTree(AnnotationDataDef.Attribute.HEIGHT).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-     
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -474,15 +480,15 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
         equalsBuilder.append(m_text, other.m_text);
         equalsBuilder.append(m_contentType, other.m_contentType);
         equalsBuilder.append(m_location, other.m_location);
+        equalsBuilder.append(m_width, other.m_width);
+        equalsBuilder.append(m_height, other.m_height);
         equalsBuilder.append(m_textAlignment, other.m_textAlignment);
         equalsBuilder.append(m_borderSize, other.m_borderSize);
         equalsBuilder.append(m_borderColor, other.m_borderColor);
         equalsBuilder.append(m_bgcolor, other.m_bgcolor);
-        equalsBuilder.append(m_width, other.m_width);
         equalsBuilder.append(m_annotationVersion, other.m_annotationVersion);
         equalsBuilder.append(m_defaultFontSize, other.m_defaultFontSize);
         equalsBuilder.append(m_styles, other.m_styles);
-        equalsBuilder.append(m_height, other.m_height);
         return equalsBuilder.isEquals();
     }
 
@@ -492,15 +498,15 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
                 .append(m_text)
                 .append(m_contentType)
                 .append(m_location)
+                .append(m_width)
+                .append(m_height)
                 .append(m_textAlignment)
                 .append(m_borderSize)
                 .append(m_borderColor)
                 .append(m_bgcolor)
-                .append(m_width)
                 .append(m_annotationVersion)
                 .append(m_defaultFontSize)
                 .append(m_styles)
-                .append(m_height)
                 .toHashCode();
     }
 

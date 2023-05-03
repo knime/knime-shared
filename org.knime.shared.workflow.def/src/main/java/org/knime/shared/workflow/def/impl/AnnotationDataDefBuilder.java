@@ -58,7 +58,7 @@ import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
 /**
- * AnnotationDataDefBuilder
+ * The general object containing the data of an annotation.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
@@ -89,6 +89,12 @@ public class AnnotationDataDefBuilder {
 
     CoordinateDef m_location;
     
+    Integer m_width;
+    
+
+    Integer m_height;
+    
+
     String m_textAlignment = "LEFT";
     
 
@@ -99,9 +105,6 @@ public class AnnotationDataDefBuilder {
     
 
     Integer m_bgcolor;
-    
-
-    Integer m_width;
     
 
     Integer m_annotationVersion;
@@ -120,9 +123,6 @@ public class AnnotationDataDefBuilder {
     /** This exception is merged with the exceptions of the elements of this list into a single {@link LoadExceptionTree} during {@link #build()}. The LES is then put into {@link #m_m_exceptionalChildren}. */
     private LoadException m_stylesContainerSupplyException; 
     
-    Integer m_height;
-    
-
     /**
      * Create a new builder.
      */
@@ -136,15 +136,15 @@ public class AnnotationDataDefBuilder {
         m_text = toCopy.getText();
         m_contentType = toCopy.getContentType();
         m_location = toCopy.getLocation();
+        m_width = toCopy.getWidth();
+        m_height = toCopy.getHeight();
         m_textAlignment = toCopy.getTextAlignment();
         m_borderSize = toCopy.getBorderSize();
         m_borderColor = toCopy.getBorderColor();
         m_bgcolor = toCopy.getBgcolor();
-        m_width = toCopy.getWidth();
         m_annotationVersion = toCopy.getAnnotationVersion();
         m_defaultFontSize = toCopy.getDefaultFontSize();
         m_styles = toCopy.getStyles();
-        m_height = toCopy.getHeight();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param text 
+     * @param text The annotations textual content.
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setText(final String text) {
@@ -190,7 +190,7 @@ public class AnnotationDataDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param contentType 
+     * @param contentType The annotations content type.
      * @return this builder for fluent API.
      */ 
     public AnnotationDataDefBuilder setContentType(final ContentTypeEnum contentType) {
@@ -270,6 +270,82 @@ public class AnnotationDataDefBuilder {
             m_location = defaultValue;
             m_exceptionalChildren.put(AnnotationDataDef.Attribute.LOCATION, exceptionTree);
             	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for width
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param width 
+     * @return this builder for fluent API.
+     */ 
+    public AnnotationDataDefBuilder setWidth(final Integer width) {
+        setWidth(() -> width, width);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.WIDTH)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.WIDTH)} will return the exception.
+     * 
+     * @param width see {@link AnnotationDataDef#getWidth}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setWidth(Integer)
+     */
+    public AnnotationDataDefBuilder setWidth(final FallibleSupplier<Integer> width, Integer defaultValue) {
+        java.util.Objects.requireNonNull(width, () -> "No supplier for width provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(AnnotationDataDef.Attribute.WIDTH);
+        try {
+            m_width = width.get();
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                                     
+            m_width = defaultValue;
+            m_exceptionalChildren.put(AnnotationDataDef.Attribute.WIDTH, supplyException);
+	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for height
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param height 
+     * @return this builder for fluent API.
+     */ 
+    public AnnotationDataDefBuilder setHeight(final Integer height) {
+        setHeight(() -> height, height);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(AnnotationDataDef.Attribute.HEIGHT)} will return true and and
+     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.HEIGHT)} will return the exception.
+     * 
+     * @param height see {@link AnnotationDataDef#getHeight}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setHeight(Integer)
+     */
+    public AnnotationDataDefBuilder setHeight(final FallibleSupplier<Integer> height, Integer defaultValue) {
+        java.util.Objects.requireNonNull(height, () -> "No supplier for height provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(AnnotationDataDef.Attribute.HEIGHT);
+        try {
+            m_height = height.get();
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                                     
+            m_height = defaultValue;
+            m_exceptionalChildren.put(AnnotationDataDef.Attribute.HEIGHT, supplyException);
+	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -425,44 +501,6 @@ public class AnnotationDataDefBuilder {
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for width
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * @param width 
-     * @return this builder for fluent API.
-     */ 
-    public AnnotationDataDefBuilder setWidth(final Integer width) {
-        setWidth(() -> width, width);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(AnnotationDataDef.Attribute.WIDTH)} will return true and and
-     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.WIDTH)} will return the exception.
-     * 
-     * @param width see {@link AnnotationDataDef#getWidth}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setWidth(Integer)
-     */
-    public AnnotationDataDefBuilder setWidth(final FallibleSupplier<Integer> width, Integer defaultValue) {
-        java.util.Objects.requireNonNull(width, () -> "No supplier for width provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(AnnotationDataDef.Attribute.WIDTH);
-        try {
-            m_width = width.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                                     
-            m_width = defaultValue;
-            m_exceptionalChildren.put(AnnotationDataDef.Attribute.WIDTH, supplyException);
-	    }   
-        return this;
-    }
-    // -----------------------------------------------------------------------------------------------------------------
     // Setters for annotationVersion
     // -----------------------------------------------------------------------------------------------------------------
     
@@ -611,44 +649,6 @@ public class AnnotationDataDefBuilder {
         m_styles.add(toAdd);
         return this;
     } 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for height
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * @param height 
-     * @return this builder for fluent API.
-     */ 
-    public AnnotationDataDefBuilder setHeight(final Integer height) {
-        setHeight(() -> height, height);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(AnnotationDataDef.Attribute.HEIGHT)} will return true and and
-     * {@code getExceptionalChildren().get(AnnotationDataDef.Attribute.HEIGHT)} will return the exception.
-     * 
-     * @param height see {@link AnnotationDataDef#getHeight}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setHeight(Integer)
-     */
-    public AnnotationDataDefBuilder setHeight(final FallibleSupplier<Integer> height, Integer defaultValue) {
-        java.util.Objects.requireNonNull(height, () -> "No supplier for height provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(AnnotationDataDef.Attribute.HEIGHT);
-        try {
-            m_height = height.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                                     
-            m_height = defaultValue;
-            m_exceptionalChildren.put(AnnotationDataDef.Attribute.HEIGHT, supplyException);
-	    }   
-        return this;
-    }
     // -----------------------------------------------------------------------------------------------------------------
     // Build method
     // -----------------------------------------------------------------------------------------------------------------
