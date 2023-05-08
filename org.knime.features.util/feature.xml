@@ -2,7 +2,7 @@
 <feature
       id="org.knime.features.util"
       label="KNIME Utilities (do not install!)"
-      version="4.7.2.qualifier"
+      version="4.7.3.qualifier"
       provider-name="KNIME AG, Zurich, Switzerland">
 
    <copyright>
