@@ -48,8 +48,8 @@
  */
 package org.knime.core.util;
 
-import javax.json.Json;
-import javax.json.spi.JsonProvider;
+import jakarta.json.Json;
+import jakarta.json.spi.JsonProvider;
 
 /**
  * Utility class that holds a cached {@link JsonProvider} since {@link Json} performs a classpath scanfor every
@@ -70,6 +70,7 @@ public final class JsonUtil {
      * for every invocation.
      *
      * @return the provider
+     * @since 6.0
      */
     public static JsonProvider getProvider() {
         return PROVIDER;

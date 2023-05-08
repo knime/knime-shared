@@ -57,9 +57,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -69,6 +66,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 
 /**
  * This object represents output or input of a node for provided or consumed outside the workflow, e.g. in web service
@@ -198,6 +198,7 @@ public class ExternalNodeData {
      * provided. A <code>null</code> value means that JSON may never be available.
      *
      * @return a JSON value, may be <code>null</code>
+     * @since 6.0
      */
     @JsonProperty("jsonValue")
     @JsonInclude(Include.NON_NULL) @Nullable
@@ -326,6 +327,7 @@ public class ExternalNodeData {
          *
          * @param jsonValue a JSON value; may be <code>null</code>
          * @return the updated builder
+         * @since 6.0
          */
         public ExternalNodeDataBuilder jsonValue(@Nullable final JsonValue jsonValue) {
             m_jsonValue = jsonValue;

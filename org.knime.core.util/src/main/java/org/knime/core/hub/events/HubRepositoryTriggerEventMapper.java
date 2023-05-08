@@ -48,8 +48,6 @@
  */
 package org.knime.core.hub.events;
 
-import javax.json.JsonObject;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +55,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import jakarta.json.JsonObject;
 
 /**
  * Creates {@link HubTriggerEvent} instances from {@link JsonObject} instances following this form:

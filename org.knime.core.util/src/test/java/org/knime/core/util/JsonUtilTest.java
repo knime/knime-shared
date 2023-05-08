@@ -50,9 +50,9 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsSame.sameInstance;
 
-import javax.json.JsonObject;
-
 import org.junit.jupiter.api.Test;
+
+import jakarta.json.JsonObject;
 
 /**
  * Testcases for {@link JsonUtil}.

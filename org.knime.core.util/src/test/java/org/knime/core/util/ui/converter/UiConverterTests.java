@@ -56,8 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.util.function.Function;
 
-import javax.json.JsonObject;
-
 import org.junit.jupiter.api.Test;
 import org.knime.core.util.ui.converter.builtin.BooleanUiComponentConverter;
 import org.knime.core.util.ui.converter.builtin.DateTimeUiComponentConverter;
@@ -70,6 +68,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import jakarta.json.JsonObject;
 
 /**
  *

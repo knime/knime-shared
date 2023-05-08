@@ -48,13 +48,13 @@
  */
 package org.knime.core.util.ui.converter.builtin;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-
+import org.knime.core.util.JsonUtil;
 import org.knime.core.util.ui.converter.UiComponentConverter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import jakarta.json.JsonObject;
 
 /**
  * {@link UiComponentConverter} for integer parameters with a slider
@@ -65,7 +65,8 @@ public class IntegerSliderUiComponentConverter extends AbstractNumericUiComponen
 
     @Override
     public JsonObject getDialogNodeValueJsonFromJsonFormsModel(final JsonNode jsonFormsModel) {
-        return Json.createObjectBuilder().add("integer", jsonFormsModel.get(m_parameterName).asDouble()).build();
+        return JsonUtil.getProvider().createObjectBuilder()
+            .add("integer", jsonFormsModel.get(m_parameterName).asDouble()).build();
     }
 
     @Override

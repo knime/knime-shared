@@ -53,7 +53,7 @@ import org.knime.core.hub.events.HubTriggerEventType;
 /**
  * {@link ExternalNodeData} has a content type field, the supported content types are listed here.
  *
- * @since 5.24
+ * @since 6.0
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */

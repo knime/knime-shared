@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Core Utilities Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
-Bundle-Version: 5.24.2.qualifier
+Bundle-Version: 6.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Export-Package: org.apache.commons.io,
@@ -33,7 +33,6 @@ Export-Package: org.apache.commons.io,
  org.knime.core.util.workflowsummary,
  org.knime.core.util.xml
 Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
- org.glassfish.javax.json;bundle-version="[1.0.4,2.0.0)",
  org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
  com.fasterxml.jackson.core.jackson-databind;bundle-version="[2.13.2.2,3.0.0)",
  com.fasterxml.jackson.datatype.jackson-datatype-jdk8;bundle-version="[2.13.2,3.0.0)",
@@ -55,7 +54,8 @@ Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  junit-jupiter-api;bundle-version="[5.9.2,6.0.0)";resolution:=optional,
  junit-jupiter-engine;bundle-version="[5.9.2,6.0.0)";resolution:=optional,
  assertj-core;bundle-version="[3.22.0,4.0.0)";resolution:=optional,
- org.opentest4j;bundle-version="[1.2.0,2.0.0)";resolution:=optional
+ org.opentest4j;bundle-version="[1.2.0,2.0.0)";resolution:=optional,
+ org.eclipse.parsson.jakarta.json;bundle-version="[1.1.1,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy

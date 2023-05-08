@@ -48,12 +48,12 @@
  */
 package org.knime.core.util.ui.converter.builtin;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-
+import org.knime.core.util.JsonUtil;
 import org.knime.core.util.ui.converter.UiComponentConverter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import jakarta.json.JsonObject;
 
 /**
  * {@link UiComponentConverter} for boolean parameters
@@ -64,7 +64,8 @@ public class BooleanUiComponentConverter extends AbstractPrimitiveUiComponentCon
 
     @Override
     public JsonObject getDialogNodeValueJsonFromJsonFormsModel(final JsonNode jsonFormsModel) {
-        return Json.createObjectBuilder().add("boolean", jsonFormsModel.get(m_parameterName).asBoolean()).build();
+        return JsonUtil.getProvider().createObjectBuilder()
+            .add("boolean", jsonFormsModel.get(m_parameterName).asBoolean()).build();
     }
 
     @Override

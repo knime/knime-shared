@@ -50,10 +50,10 @@ package org.knime.core.util.ui.converter;
 
 import java.io.IOException;
 
-import javax.json.JsonObject;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import jakarta.json.JsonObject;
 
 /**
  * Interface for all {@link UiComponentConverter}s that are managed by the {@link UiComponentConverterRegistry}. A

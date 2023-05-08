@@ -272,7 +272,7 @@ public class WorkflowalizerConfiguration {
          * </p>
          *
          * @return the builder
-         * @since 5.24
+         * @since 6.0
          */
         public Builder readHubEventFiles() {
             m_hubEventInputParameters = true;

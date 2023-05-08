@@ -52,7 +52,7 @@ package org.knime.core.util.workflowalizer;
  * The type of encryption used for a repository item.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
- * @since 5.24
+ * @since 6.0
  */
 public enum Encryption {
 
