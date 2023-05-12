@@ -145,7 +145,8 @@ class MetaNodeSaverTest {
 
         assertThat(metanodeXML.getString(IOConst.WORKFLOW_HEADER_CREATED_BY_KEY.get())).startsWith("4.5.");
         assertThat(metanodeXML.getBoolean(IOConst.WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY.get())).isFalse();
-        assertThat(metanodeXML.getString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get())).isEqualTo("4.1.0");
+        assertThat(metanodeXML.getString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get())) //
+                .isEqualTo(LoadVersion.latest().getVersionString());
 
         var template = metanodeXML.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
         assertThat(template.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get())).isEqualTo("Link");

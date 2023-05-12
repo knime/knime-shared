@@ -68,6 +68,7 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.SimpleConfig;
 import org.knime.core.node.config.base.XMLConfig;
+import org.knime.core.util.LoadVersion;
 import org.knime.shared.workflow.def.ConfigValueDef;
 import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
@@ -185,7 +186,8 @@ class StandaloneSaverTest {
 
         assertThat(templateConfig.getString(IOConst.WORKFLOW_HEADER_CREATED_BY_KEY.get())).isEqualTo("4.6.0.qualifier");
         assertThat(templateConfig.getBoolean(IOConst.WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY.get())).isTrue();
-        assertThat(templateConfig.getString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get())).isEqualTo("4.1.0");
+        assertThat(templateConfig.getString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get())) //
+                .isEqualTo(LoadVersion.latest().getVersionString());
 
         var templateInfo = templateConfig.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
         assertThat(templateInfo.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get())).isEqualTo("Template");
@@ -218,7 +220,8 @@ class StandaloneSaverTest {
 
         assertThat(templateConfig.getString(IOConst.WORKFLOW_HEADER_CREATED_BY_KEY.get())).isEqualTo("4.6.0.qualifier");
         assertThat(templateConfig.getBoolean(IOConst.WORKFLOW_HEADER_CREATED_BY_NIGHTLY_KEY.get())).isTrue();
-        assertThat(templateConfig.getString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get())).isEqualTo("4.1.0");
+        assertThat(templateConfig.getString(IOConst.WORKFLOW_HEADER_VERSION_KEY.get())) //
+                .isEqualTo(LoadVersion.latest().getVersionString());
 
         var templateInfo = templateConfig.getConfigBase(IOConst.WORKFLOW_TEMPLATE_INFORMATION_KEY.get());
         assertThat(templateInfo.getString(IOConst.WORKFLOW_TEMPLATE_ROLE_KEY.get())).isEqualTo("Template");
