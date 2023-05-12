@@ -136,6 +136,12 @@ public enum LoadVersion {
          */
         V4010("4.1.0"),
         /**
+         * SubnodeContainer with report port (AP-20402)
+         * Metadata moved from SubnodeContainer into separate file (AP-20406)
+         * @since 6.0
+         */
+        V5100("5.1.0"),
+        /**
          * Try to be forward compatible.
          *
          * @since 2.8
