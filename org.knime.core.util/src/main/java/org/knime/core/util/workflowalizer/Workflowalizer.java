@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -333,13 +334,27 @@ public final class Workflowalizer {
         return readTemplateMetadata(path.toAbsolutePath().toString(), null, config);
     }
 
+    /**
+     * Reads an old {@code workflowset.meta} metadata file.
+     *
+     * @param workflowSetMeta path to the file
+     * @return parsed contents
+     * @throws IOException if the file couldn't be parsed
+     */
+    public static WorkflowSetMeta readWorkflowSetMeta(final Path workflowSetMeta) throws IOException {
+        try (final var inputStream = new BufferedInputStream(Files.newInputStream(workflowSetMeta))) {
+            return readWorkflowSetMeta(inputStream);
+        } catch (XPathExpressionException | SAXException e) {
+            throw new IOException("Cannot read `workflowset.meta`: " + e.getMessage(), e);
+        }
+    }
+
     // -- Helper methods --
 
     private static Optional<WorkflowSetMeta> readWorkflowSetMeta(final String path, final ZipFile zip,
-        final WorkflowParser parser)
-        throws IOException, XPathExpressionException, SAXException {
+        final String workflowSetMetaName) throws IOException, XPathExpressionException, SAXException {
         if (zip == null) {
-            final Path workflowsetPath = Paths.get(path, parser.getWorkflowSetMetaFileName());
+            final Path workflowsetPath = Paths.get(path, workflowSetMetaName);
             if (!Files.exists(workflowsetPath)) {
                 return Optional.empty();
             }
@@ -349,7 +364,7 @@ public final class Workflowalizer {
             }
         }
 
-        final ZipEntry entry = zip.getEntry(path + parser.getWorkflowSetMetaFileName());
+        final ZipEntry entry = zip.getEntry(path + workflowSetMetaName);
         if (entry == null) {
             return Optional.empty();
         }
@@ -382,7 +397,9 @@ public final class Workflowalizer {
         final LoadVersion loadVersion = versionOptional.get();
 
         WorkflowParser parser = null;
-        if (loadVersion.equals(LoadVersion.V4010) || loadVersion.ordinal() > LoadVersion.V4010.ordinal()) {
+        if (loadVersion.equals(LoadVersion.V5100) || loadVersion.ordinal() > LoadVersion.V5100.ordinal()) {
+            parser = new WorkflowParserV510();
+        } else if (loadVersion.equals(LoadVersion.V4010)) {
             parser = new WorkflowParserV410();
         } else if (loadVersion.equals(LoadVersion.V3080) || loadVersion.equals(LoadVersion.V3070)
             || loadVersion.equals(LoadVersion.V3060Pre) || loadVersion.equals(LoadVersion.V3010)
@@ -480,7 +497,8 @@ public final class Workflowalizer {
         }
 
         if (wc.parseWorkflowMeta()) {
-            final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser);
+            final var workflowSetMetaFileName = parser.getWorkflowSetMetaFileName();
+            final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, workflowSetMetaFileName);
             builder.setWorkflowSetMeta(wsa);
         }
 
@@ -847,7 +865,7 @@ public final class Workflowalizer {
         throws IOException, InvalidSettingsException, XPathExpressionException, SAXException {
         // workflowset.meta
         if (config.parseWorkflowMeta()) {
-            final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser);
+            final Optional<WorkflowSetMeta> wsa = readWorkflowSetMeta(path, zip, parser.getWorkflowSetMetaFileName());
             builder.setWorkflowSetMeta(wsa);
         }
 
