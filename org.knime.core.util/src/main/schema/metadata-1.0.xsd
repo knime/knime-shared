@@ -1,0 +1,114 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.knime.org/core/node/workflow/metadata/v1.0"
+        xmlns="http://www.knime.org/core/node/workflow/metadata/v1.0"
+        elementFormDefault="qualified"
+        version="1.0">
+
+    <xs:element name="workflow-metadata" type="workflow-metadata">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="component-metadata" type="component-metadata">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="node-container-metadata">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="author" type="xs:string" minOccurs="0"/>
+            <xs:element name="created" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="last-modified" type="xs:dateTime"/>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="tags" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="tag" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="links" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="link" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:string">
+                                        <xs:attribute name="href" use="required" type="xs:string"/>
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="content-type" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="text/plain"/>
+                    <xs:enumeration value="text/html"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="workflow-metadata">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="node-container-metadata"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="component-metadata">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="node-container-metadata">
+                <xs:sequence>
+                    <xs:element name="component-type" minOccurs="0">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:enumeration value="Source"/>
+                                <xs:enumeration value="Sink"/>
+                                <xs:enumeration value="Learner"/>
+                                <xs:enumeration value="Predictor"/>
+                                <xs:enumeration value="Manipulator"/>
+                                <xs:enumeration value="Visualizer"/>
+                                <xs:enumeration value="Other"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="icon" type="xs:base64Binary" minOccurs="0"/>
+                    <xs:element name="in-ports" type="port-group"/>
+                    <xs:element name="out-ports" type="port-group"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="port-group">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="port" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name" type="xs:string" use="required"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

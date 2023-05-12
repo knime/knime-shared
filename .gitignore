@@ -1,7 +1,9 @@
 */bin/
 **/target/
 */build/
-*/.polyglot.build.properties
+*/.polyglot.*
 **/.flattened-pom.xml
 **/CHANGELOG.md
 *.iml
+
+**/.openapi-generator*

@@ -18,6 +18,8 @@ Export-Package: org.apache.commons.io,
  org.knime.core.node.util,
  org.knime.core.node.workflow,
  org.knime.core.node.workflow.contextv2,
+ org.knime.core.node.workflow.metadata,
+ org.knime.core.node.workflow.metadata.v10,
  org.knime.core.util,
  org.knime.core.util.auth,
  org.knime.core.util.crypto,
@@ -32,7 +34,8 @@ Export-Package: org.apache.commons.io,
  org.knime.core.util.workflow.def,
  org.knime.core.util.workflowalizer,
  org.knime.core.util.workflowsummary,
- org.knime.core.util.xml
+ org.knime.core.util.xml,
+ org.knime.shared.workflow.metadata.legacy
 Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
  com.fasterxml.jackson.core.jackson-databind;bundle-version="[2.13.2.2,3.0.0)",
@@ -57,7 +60,8 @@ Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  assertj-core;bundle-version="[3.22.0,4.0.0)";resolution:=optional,
  org.opentest4j;bundle-version="[1.2.0,2.0.0)";resolution:=optional,
  org.eclipse.parsson.jakarta.json;bundle-version="[1.1.1,2.0.0)",
- com.ibm.icu;bundle-version="[72.1.0,73.0.0)"
+ com.ibm.icu;bundle-version="[72.1.0,73.0.0)",
+ org.apache.xmlbeans;bundle-version="[5.1.1,6.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
