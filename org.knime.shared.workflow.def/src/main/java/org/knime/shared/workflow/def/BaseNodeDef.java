@@ -88,7 +88,7 @@ import org.knime.shared.workflow.def.impl.DefaultNativeNodeDef;
   @Type(value = DefaultMetaNodeDef.class, name = "metanode")
 })
 @JsonDeserialize(as = DefaultBaseNodeDef.class)
-// @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
+// @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
 public interface BaseNodeDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 

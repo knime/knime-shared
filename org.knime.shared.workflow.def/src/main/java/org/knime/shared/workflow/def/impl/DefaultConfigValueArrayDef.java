@@ -73,7 +73,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-// @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
+// @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
 public abstract class DefaultConfigValueArrayDef extends DefaultConfigDef implements ConfigValueArrayDef {
 

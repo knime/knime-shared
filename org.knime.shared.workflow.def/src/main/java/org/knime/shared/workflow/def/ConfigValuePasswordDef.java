@@ -61,7 +61,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
  */
 @JsonDeserialize(as = DefaultConfigValuePasswordDef.class)
-// @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
+// @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
 public interface ConfigValuePasswordDef extends ConfigValueDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 

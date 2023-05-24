@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME Utilities for Apache CXF
+Bundle-SymbolicName: org.knime.cxf-util;singleton:=true
+Bundle-Version: 5.1.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: KNIME AG, Zurich, Switzerland
+Require-Bundle: jakarta.ws.rs-api;bundle-version="[3.1.0,4.0.0)",
+ org.apache.cxf.cxf-core;bundle-version="[4.0.0,5.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Eclipse-BuddyPolicy: registered
+Export-Package: org.knime.cxf
+Bundle-ActivationPolicy: lazy

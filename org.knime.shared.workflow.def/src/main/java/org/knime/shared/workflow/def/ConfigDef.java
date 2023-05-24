@@ -120,7 +120,7 @@ import org.knime.shared.workflow.def.impl.DefaultConfigValueFloatArrayDef;
 , @Type(value = DefaultConfigValueFloatArrayDef.class, name = "ConfigValueFloatArray")
 })
 @JsonDeserialize(as = DefaultConfigDef.class)
-// @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
+// @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
 public interface ConfigDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
