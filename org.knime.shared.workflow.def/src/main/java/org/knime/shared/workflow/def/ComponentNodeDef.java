@@ -54,6 +54,7 @@ import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
+import org.knime.shared.workflow.def.ReportConfigurationDef;
 import org.knime.shared.workflow.def.TemplateInfoDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 
@@ -176,6 +177,11 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
           */
          TEMPLATE_INFO,
          /** 
+          * The type of this data attribute is {@link ReportConfigurationDef}.
+          * Is is returned by {@link ComponentNodeDef#getReportConfiguration} 
+          */
+         REPORT_CONFIGURATION,
+         /** 
           * The type of this data attribute is {@link ComponentDialogSettingsDef}.
           * Is is returned by {@link ComponentNodeDef#getDialogSettings} 
           */
@@ -223,6 +229,11 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
    * @return 
    **/
   public TemplateInfoDef getTemplateInfo();
+
+  /**
+   * @return 
+   **/
+  public ReportConfigurationDef getReportConfiguration();
 
   /**
    * @return 

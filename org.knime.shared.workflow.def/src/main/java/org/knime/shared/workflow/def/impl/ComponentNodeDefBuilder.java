@@ -55,6 +55,7 @@ import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
+import org.knime.shared.workflow.def.ReportConfigurationDef;
 import org.knime.shared.workflow.def.TemplateInfoDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.impl.ConfigurableNodeDefBuilder;
@@ -148,6 +149,8 @@ public class ComponentNodeDefBuilder {
     
     TemplateInfoDef m_templateInfo;
     
+    ReportConfigurationDef m_reportConfiguration;
+    
     ComponentDialogSettingsDef m_dialogSettings;
     
     /**
@@ -178,6 +181,7 @@ public class ComponentNodeDefBuilder {
         m_virtualOutNodeId = toCopy.getVirtualOutNodeId();
         m_metadata = toCopy.getMetadata();
         m_templateInfo = toCopy.getTemplateInfo();
+        m_reportConfiguration = toCopy.getReportConfiguration();
         m_dialogSettings = toCopy.getDialogSettings();
     }
 
@@ -1053,6 +1057,55 @@ public class ComponentNodeDefBuilder {
             }
             m_templateInfo = defaultValue;
             m_exceptionalChildren.put(ComponentNodeDef.Attribute.TEMPLATE_INFO, exceptionTree);
+            	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for reportConfiguration
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param reportConfiguration 
+     * @return this builder for fluent API.
+     */ 
+    public ComponentNodeDefBuilder setReportConfiguration(final ReportConfigurationDef reportConfiguration) {
+        setReportConfiguration(() -> reportConfiguration, reportConfiguration);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(ComponentNodeDef.Attribute.REPORT_CONFIGURATION)} will return true and and
+     * {@code getExceptionalChildren().get(ComponentNodeDef.Attribute.REPORT_CONFIGURATION)} will return the exception.
+     * 
+     * @param reportConfiguration see {@link ComponentNodeDef#getReportConfiguration}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setReportConfiguration(ReportConfigurationDef)
+     */
+    public ComponentNodeDefBuilder setReportConfiguration(final FallibleSupplier<ReportConfigurationDef> reportConfiguration, ReportConfigurationDef defaultValue) {
+        java.util.Objects.requireNonNull(reportConfiguration, () -> "No supplier for reportConfiguration provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(ComponentNodeDef.Attribute.REPORT_CONFIGURATION);
+        try {
+            m_reportConfiguration = reportConfiguration.get();
+            if (m_reportConfiguration instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_reportConfiguration).hasExceptions()) {
+                m_exceptionalChildren.put(ComponentNodeDef.Attribute.REPORT_CONFIGURATION, (LoadExceptionTree<?>)m_reportConfiguration);
+            }
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                         
+            LoadExceptionTree<?> exceptionTree;
+            if(defaultValue instanceof DefaultReportConfigurationDef){
+                var childTree = ((DefaultReportConfigurationDef)defaultValue).getLoadExceptionTree();                
+                // if present, merge child tree with supply exception
+                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+            } else {
+                exceptionTree = supplyException;
+            }
+            m_reportConfiguration = defaultValue;
+            m_exceptionalChildren.put(ComponentNodeDef.Attribute.REPORT_CONFIGURATION, exceptionTree);
             	    }   
         return this;
     }

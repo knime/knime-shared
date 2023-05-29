@@ -59,6 +59,7 @@ import org.knime.shared.workflow.def.NodeAnnotationDef;
 import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.PortDef;
+import org.knime.shared.workflow.def.ReportConfigurationDef;
 import org.knime.shared.workflow.def.TemplateInfoDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.impl.DefaultConfigurableNodeDef;
@@ -119,6 +120,9 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @JsonProperty("templateInfo")
     protected TemplateInfoDef m_templateInfo;
 
+    @JsonProperty("reportConfiguration")
+    protected ReportConfigurationDef m_reportConfiguration;
+
     @JsonProperty("dialogSettings")
     protected ComponentDialogSettingsDef m_dialogSettings;
 
@@ -159,6 +163,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         m_virtualOutNodeId = builder.m_virtualOutNodeId;
         m_metadata = builder.m_metadata;
         m_templateInfo = builder.m_templateInfo;
+        m_reportConfiguration = builder.m_reportConfiguration;
         m_dialogSettings = builder.m_dialogSettings;
 
         m_exceptionTree = Optional.empty();
@@ -193,6 +198,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         m_virtualOutNodeId = toCopy.getVirtualOutNodeId();
         m_metadata = toCopy.getMetadata();
         m_templateInfo = toCopy.getTemplateInfo();
+        m_reportConfiguration = toCopy.getReportConfiguration();
         m_dialogSettings = toCopy.getDialogSettings();
         if(toCopy instanceof DefaultComponentNodeDef){
             var childTree = ((DefaultComponentNodeDef)toCopy).getLoadExceptionTree();                
@@ -229,6 +235,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         m_virtualOutNodeId = toCopy.getVirtualOutNodeId();
         m_metadata = toCopy.getMetadata();
         m_templateInfo = toCopy.getTemplateInfo();
+        m_reportConfiguration = toCopy.getReportConfiguration();
         m_dialogSettings = toCopy.getDialogSettings();
         
         m_exceptionTree = Optional.empty();
@@ -348,6 +355,10 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     @Override
     public TemplateInfoDef getTemplateInfo() {
         return m_templateInfo;
+    }
+    @Override
+    public ReportConfigurationDef getReportConfiguration() {
+        return m_reportConfiguration;
     }
     @Override
     public ComponentDialogSettingsDef getDialogSettings() {
@@ -704,6 +715,29 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
          
  
     /**
+     * @return The supply exception associated to reportConfiguration.
+     */
+    @JsonIgnore
+    public Optional<LoadException> getReportConfigurationSupplyException(){
+    	return getLoadExceptionTree(ComponentNodeDef.Attribute.REPORT_CONFIGURATION).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+     
+    /**
+     * @return If there are {@link LoadException}s related to the {@link ReportConfigurationDef} returned by {@link #getReportConfiguration()}, this
+     * returns the reportConfiguration as DefaultReportConfigurationDef which provides getters for the exceptions. Otherwise an empty optional.
+     */
+    @JsonIgnore
+    public Optional<DefaultReportConfigurationDef> getFaultyReportConfiguration(){
+    	final var reportConfiguration = getReportConfiguration(); 
+        if(reportConfiguration instanceof DefaultReportConfigurationDef && ((DefaultReportConfigurationDef)reportConfiguration).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+            return Optional.of((DefaultReportConfigurationDef)reportConfiguration);
+        }
+    	return Optional.empty();
+    }
+         
+ 
+    /**
      * @return The supply exception associated to dialogSettings.
      */
     @JsonIgnore
@@ -753,6 +787,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
         equalsBuilder.append(m_virtualOutNodeId, other.m_virtualOutNodeId);
         equalsBuilder.append(m_metadata, other.m_metadata);
         equalsBuilder.append(m_templateInfo, other.m_templateInfo);
+        equalsBuilder.append(m_reportConfiguration, other.m_reportConfiguration);
         equalsBuilder.append(m_dialogSettings, other.m_dialogSettings);
         return equalsBuilder.isEquals();
     }
@@ -778,6 +813,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
                 .append(m_virtualOutNodeId)
                 .append(m_metadata)
                 .append(m_templateInfo)
+                .append(m_reportConfiguration)
                 .append(m_dialogSettings)
                 .toHashCode();
     }
