@@ -28,6 +28,7 @@ Export-Package: org.apache.commons.io,
  org.knime.core.util.node.quickform.out,
  org.knime.core.util.report,
  org.knime.core.util.ui.converter,
+ org.knime.core.util.valueformat,
  org.knime.core.util.workflow.def,
  org.knime.core.util.workflowalizer,
  org.knime.core.util.workflowsummary,
@@ -55,7 +56,8 @@ Require-Bundle: org.apache.commons.io;bundle-version="[2.4.0,3.0.0)",
  junit-jupiter-engine;bundle-version="[5.9.2,6.0.0)";resolution:=optional,
  assertj-core;bundle-version="[3.22.0,4.0.0)";resolution:=optional,
  org.opentest4j;bundle-version="[1.2.0,2.0.0)";resolution:=optional,
- org.eclipse.parsson.jakarta.json;bundle-version="[1.1.1,2.0.0)"
+ org.eclipse.parsson.jakarta.json;bundle-version="[1.1.1,2.0.0)",
+ com.ibm.icu;bundle-version="[72.1.0,73.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
