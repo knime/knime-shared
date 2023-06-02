@@ -177,6 +177,23 @@ public final class NodeMessage {
         return getMessageType() + ": " + getMessage();
     }
 
+    /**
+     * A string representation, incl message, issue details and resolution (and line breaks) -- used in unit tests.
+     *
+     * @return That string
+     * @since 5.1
+     */
+    public String toStringWithDetails() {
+        final var strBuilder = new StringBuilder();
+        strBuilder.append(getMessageType()).append(": ").append(getMessage());
+        getIssue().ifPresent(i -> strBuilder.append("\n ").append(i));
+        if (!m_resolutions.isEmpty()) {
+            strBuilder.append("\n\n").append("Possibly resolution(s)");
+            m_resolutions.stream().forEach(r -> strBuilder.append("\n-").append(r));
+        }
+        return strBuilder.toString();
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder() //
@@ -207,13 +224,20 @@ public final class NodeMessage {
     /**
      * Merges two messages. The result message will have the most severe type
      * (e.g. if m1 is WARNING and m2 is ERROR the output is ERROR) and a
-     * concatenated message string, delimited by a line break. Issue and resolutions are ignored.
+     * concatenated message string, delimited by a line break. Issue and resolutions are ignored unless one of the
+     * arguments represents a RESET message.
+     *
      * @param m1 Message 1
      * @param m2 Message 2
      * @return A merged message
      */
     public static final NodeMessage merge(final NodeMessage m1, final NodeMessage m2) {
         if (m1.equals(m2)) {
+            return m1;
+        }
+        if (m1.m_type == Type.RESET) { // try
+            return m2;
+        } else if (m2.m_type == Type.RESET) {
             return m1;
         }
         int max = Math.max(m1.m_type.ordinal(), m2.m_type.ordinal());

@@ -91,6 +91,23 @@ class NodeMessageTest {
     }
 
     /**
+     * Tests {@link NodeMessage#toStringWithDetails()}
+     */
+    @Test
+    void testToStringWithDetails() throws IOException {
+        NodeMessage orig1 = new NodeMessage(Type.WARNING, "a warning text", "some issue",
+            Arrays.asList("resolution 1", "resolution 2"));
+
+        assertThat(orig1.toStringWithDetails()).as("String with details").isEqualTo(
+            "WARNING: a warning text\n" //
+            + " some issue\n" //
+            + "\n" //
+            + "Possibly resolution(s)\n" //
+            + "-resolution 1\n" //
+            + "-resolution 2");
+    }
+
+    /**
      * Same, just with an error.
      *
      * @throws IOException
@@ -125,6 +142,29 @@ class NodeMessageTest {
 
         assertThat(merge).extracting(m -> m.getMessageType()).isEqualTo(Type.ERROR);
         assertThat(merge).extracting(m -> m.getMessage()).asString().contains("an error text").contains("a warning text");
+    }
+
+    /**
+     * Tests {@link NodeMessage#merge(NodeMessage, NodeMessage)}
+     *
+     */
+    @Test
+    void testNodeMessageMergeWithReset() throws IOException {
+
+        NodeMessage error = NodeMessage.newError("an error text");
+        NodeMessage warning = NodeMessage.newWarning("a warning text");
+        NodeMessage reset = NodeMessage.NONE;
+        NodeMessage mergeWarnError = NodeMessage.merge(error, warning);
+
+        assertThat(mergeWarnError).extracting(m -> m.getMessageType()).isEqualTo(Type.ERROR);
+        assertThat(mergeWarnError).extracting(m -> m.getMessage()).asString().contains("an error text")
+            .contains("a warning text");
+
+        NodeMessage mergeResetError = NodeMessage.merge(reset, error);
+        assertThat(mergeResetError).as("merged with REST message").isSameAs(error);
+
+        NodeMessage mergeWarnReset = NodeMessage.merge(warning, reset);
+        assertThat(mergeWarnReset).as("merged with REST message").isSameAs(warning);
     }
 
     private static ObjectMapper createObjectMapper() {
