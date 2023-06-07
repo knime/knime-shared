@@ -108,8 +108,10 @@ public final class NumberFormatter {
         if (!settings.m_groupSeparator.isEmpty()) {
             format.setGroupingUsed(true);
             format.setGroupingSize(3);
-            symbols.setGroupingSeparatorString(settings.m_groupSeparator);
         }
+        // also apply group separator if empty in order to override default group separator
+        symbols.setGroupingSeparatorString(settings.m_groupSeparator);
+
         symbols.setDecimalSeparatorString(settings.m_decimalSeparator);
         format.setDecimalFormatSymbols(symbols);
         return format;

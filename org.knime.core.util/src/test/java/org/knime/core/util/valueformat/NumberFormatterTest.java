@@ -154,6 +154,15 @@ class NumberFormatterTest {
             assertEquals("10≈≈000", formatter.format(10000), "Value is formatted incorrectly.");
             assertEquals("1≈≈000≈≈000", formatter.format(1000000), "Value is formatted incorrectly.");
         }
+
+        // empty separator
+        {
+            NumberFormatter formatter = baseBuilder.get().setGroupSeparator("")//
+                .setAlwaysShowDecimalSeparator(false).build();
+            assertEquals("1000", formatter.format(1000), "Value is formatted incorrectly.");
+            assertEquals("10000", formatter.format(10000), "Value is formatted incorrectly.");
+            assertEquals("1000000", formatter.format(1000000), "Value is formatted incorrectly.");
+        }
     }
 
     @Test
