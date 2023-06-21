@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Properties relating to the display of a Component&#39;s node dialog.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,15 +81,23 @@ public class DefaultComponentDialogSettingsDef implements ComponentDialogSetting
      * a LoadExceptionTree<ComponentDialogSettingsDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("layoutJSON")
     protected String m_layoutJSON;
 
+    /**
+     */
     @JsonProperty("configurationLayoutJSON")
     protected String m_configurationLayoutJSON;
 
+    /**
+     */
     @JsonProperty("hideInWizard")
     protected Boolean m_hideInWizard;
 
+    /**
+     */
     @JsonProperty("cssStyles")
     protected String m_cssStyles;
 

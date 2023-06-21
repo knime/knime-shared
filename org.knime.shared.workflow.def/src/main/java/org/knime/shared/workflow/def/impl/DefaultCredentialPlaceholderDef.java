@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * This is referred to as Workflow Credentials in KNIME. It allows defining placeholders for credentials, such as for accessing a database. When configuring a node that requires database access, the placeholder can be specified. When the workflow is executed, the user will be asked to provide the credentials fill in the placeholder.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,14 +81,14 @@ public class DefaultCredentialPlaceholderDef implements CredentialPlaceholderDef
      * a LoadExceptionTree<CredentialPlaceholderDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Identifies this placeholder. Must be unique in the scope of this workflow project. 
+    /**
+     * Identifies this placeholder. Must be unique in the scope of this workflow project.
      */
     @JsonProperty("name")
     protected String m_name;
 
-    /** 
-     * The login name that is passed to the secured system. 
+    /**
+     * The login name that is passed to the secured system.
      */
     @JsonProperty("login")
     protected String m_login;

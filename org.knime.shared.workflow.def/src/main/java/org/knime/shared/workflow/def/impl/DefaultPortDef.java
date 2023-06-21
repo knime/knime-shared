@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultPortDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,15 +82,19 @@ public class DefaultPortDef implements PortDef {
      * a LoadExceptionTree<PortDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * the offset of the port relative to its siblings 
+    /**
+     * the offset of the port relative to its siblings
      */
     @JsonProperty("index")
     protected Integer m_index;
 
+    /**
+     */
     @JsonProperty("portType")
     protected PortTypeDef m_portType;
 
+    /**
+     */
     @JsonProperty("name")
     protected String m_name;
 

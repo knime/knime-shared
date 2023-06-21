@@ -73,6 +73,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * The general object containing the data of an annotation.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -82,48 +83,66 @@ public class DefaultAnnotationDataDef implements AnnotationDataDef {
      * a LoadExceptionTree<AnnotationDataDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * The annotations textual content. 
+    /**
+     * The annotations textual content.
      */
     @JsonProperty("text")
     protected String m_text;
 
-    /** 
-     * The annotations content type. 
+    /**
+     * The annotations content type.
      */
     @JsonProperty("contentType")
     protected ContentTypeEnum m_contentType;
 
+    /**
+     */
     @JsonProperty("location")
     protected CoordinateDef m_location;
 
+    /**
+     */
     @JsonProperty("width")
     protected Integer m_width;
 
+    /**
+     */
     @JsonProperty("height")
     protected Integer m_height;
 
+    /**
+     */
     @JsonProperty("textAlignment")
     protected String m_textAlignment;
 
+    /**
+     */
     @JsonProperty("borderSize")
     protected Integer m_borderSize;
 
+    /**
+     */
     @JsonProperty("borderColor")
     protected Integer m_borderColor;
 
-    /** 
-     * Background color 
+    /**
+     * Background color
      */
     @JsonProperty("bgcolor")
     protected Integer m_bgcolor;
 
+    /**
+     */
     @JsonProperty("annotationVersion")
     protected Integer m_annotationVersion;
 
+    /**
+     */
     @JsonProperty("defaultFontSize")
     protected Integer m_defaultFontSize;
 
+    /**
+     */
     @JsonProperty("styles")
     protected java.util.List<StyleRangeDef> m_styles;
 

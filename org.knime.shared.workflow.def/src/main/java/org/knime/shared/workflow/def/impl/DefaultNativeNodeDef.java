@@ -79,6 +79,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * The basic executable building block of a workflow. 
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -88,31 +89,41 @@ public class DefaultNativeNodeDef extends DefaultConfigurableNodeDef implements 
      * a LoadExceptionTree<NativeNodeDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** Example value: Table Creator
+    /**
+     * Example value: Table Creator
      */
     @JsonProperty("nodeName")
     protected String m_nodeName;
 
-    /** 
-     * Qualified class name 
-     * 
+    /**
+     * Qualified class name
      * Example value: org.knime.base.node.io.tablecreator.TableCreator2NodeFactory
      */
     @JsonProperty("factory")
     protected String m_factory;
 
+    /**
+     */
     @JsonProperty("factorySettings")
     protected ConfigMapDef m_factorySettings;
 
+    /**
+     */
     @JsonProperty("feature")
     protected VendorDef m_feature;
 
+    /**
+     */
     @JsonProperty("bundle")
     protected VendorDef m_bundle;
 
+    /**
+     */
     @JsonProperty("nodeCreationConfig")
     protected ConfigMapDef m_nodeCreationConfig;
 
+    /**
+     */
     @JsonProperty("filestore")
     protected FilestoreDef m_filestore;
 

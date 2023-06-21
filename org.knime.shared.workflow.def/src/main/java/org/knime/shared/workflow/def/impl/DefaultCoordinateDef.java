@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultCoordinateDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,14 +81,14 @@ public class DefaultCoordinateDef implements CoordinateDef {
      * a LoadExceptionTree<CoordinateDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Horizontal offset of an object. 
+    /**
+     * Horizontal offset of an object.
      */
     @JsonProperty("x")
     protected Integer m_x;
 
-    /** 
-     * Vertical offset of an object. 
+    /**
+     * Vertical offset of an object.
      */
     @JsonProperty("y")
     protected Integer m_y;

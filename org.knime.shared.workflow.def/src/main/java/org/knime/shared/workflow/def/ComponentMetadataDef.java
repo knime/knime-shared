@@ -44,6 +44,9 @@
  */
 package org.knime.shared.workflow.def;
 
+import java.time.OffsetDateTime;
+import org.knime.shared.workflow.def.LinkDef;
+import org.knime.shared.workflow.def.NodeContainerMetadataDef;
 
 import org.knime.shared.workflow.def.impl.DefaultComponentMetadataDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -58,18 +61,72 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 @JsonDeserialize(as = DefaultComponentMetadataDef.class)
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
-public interface ComponentMetadataDef {
+public interface ComponentMetadataDef extends NodeContainerMetadataDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
-         /** 
+         /**  
+          * author of the workflow or component, user-provided
+          *
+          * The type of this data attribute is {@link String}.
+          * Is is returned by {@link ComponentMetadataDef#getAuthor} 
+          * @since 5.1
+          */
+         AUTHOR,
+         /**  
+          * creation date of the metadata
+          *
+          * The type of this data attribute is {@link OffsetDateTime}.
+          * Is is returned by {@link ComponentMetadataDef#getCreated} 
+          * @since 5.1
+          */
+         CREATED,
+         /**  
+          * last-modified date of the metadata
+          *
+          * This is a required field.
+          * The type of this data attribute is {@link OffsetDateTime}.
+          * Is is returned by {@link ComponentMetadataDef#getLastModified} 
+          * @since 5.1
+          */
+         LAST_MODIFIED,
+         /**  
+          * description text of the workflow or component
+          *
+          * This is a required field.
           * The type of this data attribute is {@link String}.
           * Is is returned by {@link ComponentMetadataDef#getDescription} 
           */
          DESCRIPTION,
+         /**  
+          * list of tags
+          *
+          * The type of this data attribute is java.util.List&lt;String&gt;.
+          * Is is returned by {@link ComponentMetadataDef#getTags} 
+          * @since 5.1
+          */
+         TAGS,
+         /**  
+          * list of links to additional resources
+          *
+          * The type of this data attribute is java.util.List&lt;LinkDef&gt;.
+          * Is is returned by {@link ComponentMetadataDef#getLinks} 
+          * @since 5.1
+          */
+         LINKS,
+         /**  
+          * The content type of the rich-text fields (currently &#x60;description&#x60;, &#x60;inPortDescriptions&#x60; and &#x60;outPortDescriptions&#x60;).
+          *
+          * This is a required field.
+          * The type of this data attribute is {@link ContentTypeEnum}.
+          * Is is returned by {@link ComponentMetadataDef#getContentType} 
+          * @since 5.1
+          */
+         CONTENT_TYPE,
          /** 
           * The type of this data attribute is java.util.List&lt;String&gt;.
           * Is is returned by {@link ComponentMetadataDef#getInPortNames} 
@@ -136,11 +193,6 @@ public interface ComponentMetadataDef {
 
   }
 
-
-  /**
-   * @return 
-   **/
-  public String getDescription();
 
   /**
    * @return 

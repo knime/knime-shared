@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Cipher for metanodes and components  
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,20 +81,20 @@ public class DefaultCipherDef implements CipherDef {
      * a LoadExceptionTree<CipherDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * TODO 
+    /**
+     * TODO
      */
     @JsonProperty("passwordDigest")
     protected String m_passwordDigest;
 
-    /** 
-     * TODO 
+    /**
+     * TODO
      */
     @JsonProperty("encryptionKey")
     protected String m_encryptionKey;
 
-    /** 
-     * TODO 
+    /**
+     * TODO
      */
     @JsonProperty("passwordHint")
     protected String m_passwordHint;

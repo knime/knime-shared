@@ -86,6 +86,7 @@ import org.knime.shared.workflow.def.impl.DefaultConfigValueFloatArrayDef;
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,

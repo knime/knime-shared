@@ -76,6 +76,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Defines a data processing pipeline.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -85,33 +86,37 @@ public class DefaultWorkflowDef implements WorkflowDef {
      * a LoadExceptionTree<WorkflowDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * A user-chosen identifier for the workflow. 
+    /**
+     * A user-chosen identifier for the workflow.
      */
     @JsonProperty("name")
     protected String m_name;
 
+    /**
+     */
     @JsonProperty("authorInformation")
     protected AuthorInformationDef m_authorInformation;
 
-    /** 
-     * The executable blocks in this workflow. 
+    /**
+     * The executable blocks in this workflow.
      */
     @JsonProperty("nodes")
     protected java.util.Map<String, BaseNodeDef> m_nodes;
 
-    /** 
-     * Define the data flow between nodes. 
+    /**
+     * Define the data flow between nodes.
      */
     @JsonProperty("connections")
     protected java.util.List<ConnectionDef> m_connections;
 
-    /** 
-     * Explanatory text boxes that are shown in the workflow editor. 
+    /**
+     * Explanatory text boxes that are shown in the workflow editor.
      */
     @JsonProperty("annotations")
     protected java.util.Map<String, AnnotationDataDef> m_annotations;
 
+    /**
+     */
     @JsonProperty("workflowEditorSettings")
     protected WorkflowUISettingsDef m_workflowEditorSettings;
 

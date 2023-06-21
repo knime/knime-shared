@@ -94,15 +94,15 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * A tree of configuration values as formed by org.knime.core.node.NodeSettings. Can be either a subtree (ConfigMap) or a leaf (ConfigValueInt, ConfigValueIntArray, etc.). This is a marker interface.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
 public abstract class DefaultConfigDef implements ConfigDef {
 
 
-    /** 
-     * Discriminator for inheritance. Must be the base name of this type/schema. 
-     * 
+    /**
+     * Discriminator for inheritance. Must be the base name of this type/schema.
      * Example value: ConfigValueCharArray
      */
     @JsonProperty("configType")

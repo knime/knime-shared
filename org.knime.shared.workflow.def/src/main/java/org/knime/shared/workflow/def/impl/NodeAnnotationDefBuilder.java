@@ -48,6 +48,8 @@ import java.util.Map;
 
 import org.knime.shared.workflow.def.AnnotationDataDef;
 
+
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.NodeAnnotationDef;
 // for types that define enums

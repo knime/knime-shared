@@ -52,6 +52,8 @@ import org.knime.shared.workflow.def.BaseNodeDef;
 import org.knime.shared.workflow.def.ConnectionDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
 
+
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.WorkflowDef;
 // for types that define enums

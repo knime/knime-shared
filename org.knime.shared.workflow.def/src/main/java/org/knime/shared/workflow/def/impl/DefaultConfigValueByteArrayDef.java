@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * this is a special type because byte[] is natively supported for the string/binary type used below
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,6 +82,8 @@ public class DefaultConfigValueByteArrayDef extends DefaultConfigValueArrayDef i
      * a LoadExceptionTree<ConfigValueByteArrayDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("array")
     protected byte[] m_array;
 

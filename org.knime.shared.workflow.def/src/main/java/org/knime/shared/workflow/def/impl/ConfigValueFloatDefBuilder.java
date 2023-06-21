@@ -48,6 +48,8 @@ import java.util.Map;
 
 import org.knime.shared.workflow.def.impl.ConfigValueDefBuilder;
 
+
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.ConfigValueFloatDef;
 // for types that define enums

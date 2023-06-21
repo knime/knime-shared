@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultAuthorInformationDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,15 +82,23 @@ public class DefaultAuthorInformationDef implements AuthorInformationDef {
      * a LoadExceptionTree<AuthorInformationDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("authoredBy")
     protected String m_authoredBy;
 
+    /**
+     */
     @JsonProperty("authoredWhen")
     protected OffsetDateTime m_authoredWhen;
 
+    /**
+     */
     @JsonProperty("lastEditedBy")
     protected String m_lastEditedBy;
 
+    /**
+     */
     @JsonProperty("lastEditedWhen")
     protected OffsetDateTime m_lastEditedWhen;
 

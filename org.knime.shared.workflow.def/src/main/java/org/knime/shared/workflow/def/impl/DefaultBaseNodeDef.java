@@ -75,39 +75,48 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Basic information about an executable block (node) in a workflow.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
 public abstract class DefaultBaseNodeDef implements BaseNodeDef {
 
 
-    /** 
-     * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection.  
+    /**
+     * Identifies the node within the scope of its containing workflow, e.g., for specifying the source or target of a connection. 
      */
     @JsonProperty("id")
     protected Integer m_id;
 
-    /** 
-     * states the most specific subtype, i.e., Metanode, Component, or Native Node 
+    /**
+     * states the most specific subtype, i.e., Metanode, Component, or Native Node
      */
     @JsonProperty("nodeType")
     protected NodeTypeEnum m_nodeType;
 
-    /** 
-     * A longer description, provided by the user 
+    /**
+     * A longer description, provided by the user
      */
     @JsonProperty("customDescription")
     protected String m_customDescription;
 
+    /**
+     */
     @JsonProperty("annotation")
     protected NodeAnnotationDef m_annotation;
 
+    /**
+     */
     @JsonProperty("uiInfo")
     protected NodeUIInfoDef m_uiInfo;
 
+    /**
+     */
     @JsonProperty("locks")
     protected NodeLocksDef m_locks;
 
+    /**
+     */
     @JsonProperty("jobManager")
     protected JobManagerDef m_jobManager;
 

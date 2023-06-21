@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.knime.shared.workflow.def" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="923795461">
-            <message_arguments>
-                <message_argument value="5.1.0"/>
-                <message_argument value="5.0.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/main/java/org/knime/shared/workflow/def/AnnotationDataDef.java" type="org.knime.shared.workflow.def.AnnotationDataDef">
         <filter comment="Any compatibility issues caused by adding this field are taken care of" id="403804204">
             <message_arguments>
@@ -36,29 +28,16 @@
         </filter>
     </resource>
     <resource path="src/main/java/org/knime/shared/workflow/def/ComponentNodeDef.java" type="org.knime.shared.workflow.def.ComponentNodeDef">
-        <filter id="403804204">
-            <message_arguments>
-                <message_argument value="org.knime.shared.workflow.def.ComponentNodeDef"/>
-                <message_argument value="getReportConfiguration()"/>
-            </message_arguments>
-        </filter>
-        <filter id="1211105284">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1211105284">
             <message_arguments>
                 <message_argument value="getReportConfiguration()"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="src/main/java/org/knime/shared/workflow/def/ComponentNodeDef.java" type="org.knime.shared.workflow.def.ComponentNodeDef$Attribute">
-        <filter id="1177550852">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1177550852">
             <message_arguments>
                 <message_argument value="REPORT_CONFIGURATION"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/main/java/org/knime/shared/workflow/def/ReportConfigurationDef.java" type="org.knime.shared.workflow.def.ReportConfigurationDef">
-        <filter id="1110441988">
-            <message_arguments>
-                <message_argument value="org.knime.shared.workflow.def.ReportConfigurationDef"/>
             </message_arguments>
         </filter>
     </resource>
@@ -75,12 +54,12 @@
         </filter>
     </resource>
     <resource path="src/main/java/org/knime/shared/workflow/def/impl/ComponentNodeDefBuilder.java" type="org.knime.shared.workflow.def.impl.ComponentNodeDefBuilder">
-        <filter id="1143996420">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1143996420">
             <message_arguments>
                 <message_argument value="setReportConfiguration(FallibleSupplier&lt;ReportConfigurationDef&gt;, ReportConfigurationDef)"/>
             </message_arguments>
         </filter>
-        <filter id="1143996420">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1143996420">
             <message_arguments>
                 <message_argument value="setReportConfiguration(ReportConfigurationDef)"/>
             </message_arguments>
@@ -105,39 +84,25 @@
         </filter>
     </resource>
     <resource path="src/main/java/org/knime/shared/workflow/def/impl/DefaultComponentNodeDef.java" type="org.knime.shared.workflow.def.impl.DefaultComponentNodeDef">
-        <filter id="336658481">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="336658481">
             <message_arguments>
                 <message_argument value="org.knime.shared.workflow.def.impl.DefaultComponentNodeDef"/>
                 <message_argument value="m_reportConfiguration"/>
             </message_arguments>
         </filter>
-        <filter id="1143996420">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1143996420">
             <message_arguments>
                 <message_argument value="getFaultyReportConfiguration()"/>
             </message_arguments>
         </filter>
-        <filter id="1143996420">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1143996420">
             <message_arguments>
                 <message_argument value="getReportConfigurationSupplyException()"/>
             </message_arguments>
         </filter>
-        <filter id="1143996420">
+        <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1143996420">
             <message_arguments>
                 <message_argument value="m_reportConfiguration"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/main/java/org/knime/shared/workflow/def/impl/DefaultReportConfigurationDef.java" type="org.knime.shared.workflow.def.impl.DefaultReportConfigurationDef">
-        <filter id="1110441988">
-            <message_arguments>
-                <message_argument value="org.knime.shared.workflow.def.impl.DefaultReportConfigurationDef"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/main/java/org/knime/shared/workflow/def/impl/ReportConfigurationDefBuilder.java" type="org.knime.shared.workflow.def.impl.ReportConfigurationDefBuilder">
-        <filter id="1110441988">
-            <message_arguments>
-                <message_argument value="org.knime.shared.workflow.def.impl.ReportConfigurationDefBuilder"/>
             </message_arguments>
         </filter>
     </resource>

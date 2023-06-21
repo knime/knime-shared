@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * For metanodes and components that have been inserted into a workflow by inserting a template metanode/component. The link allows to fetch the inserted content again for updating. 
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,16 +82,15 @@ public class DefaultTemplateInfoDef implements TemplateInfoDef {
      * a LoadExceptionTree<TemplateInfoDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * How to resolve the linked Component/Metanode 
-     * 
+    /**
+     * How to resolve the linked Component/Metanode
      * Example value: knime://My-KNIME-Hub/Users/carlwitt/Private/Nice%20looking%20demo%20time%20series%20data
      */
     @JsonProperty("uri")
     protected String m_uri;
 
-    /** 
-     * When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available. 
+    /**
+     * When the template was last updated. If this date is older than the last changed date of the component or metanode, an update is available.
      */
     @JsonProperty("updatedAt")
     protected OffsetDateTime m_updatedAt;

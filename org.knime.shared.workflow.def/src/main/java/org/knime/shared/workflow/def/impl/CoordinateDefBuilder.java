@@ -47,6 +47,8 @@ package org.knime.shared.workflow.def.impl;
 import java.util.Map;
 
 
+
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.CoordinateDef;
 // for types that define enums

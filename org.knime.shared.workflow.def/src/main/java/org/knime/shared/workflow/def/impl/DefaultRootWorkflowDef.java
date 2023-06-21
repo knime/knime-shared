@@ -58,6 +58,7 @@ import org.knime.shared.workflow.def.ConnectionDef;
 import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.def.WorkflowMetadataDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
 import org.knime.shared.workflow.def.impl.DefaultWorkflowDef;
 
@@ -81,6 +82,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultRootWorkflowDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -90,20 +92,32 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
      * a LoadExceptionTree<RootWorkflowDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("tableBackendSettings")
     protected ConfigMapDef m_tableBackendSettings;
 
-    /** 
-     * Allows to define workflow-global flow variables and set their values. 
+    /**
+     * Allows to define workflow-global flow variables and set their values.
      */
     @JsonProperty("flowVariables")
     protected java.util.List<FlowVariableDef> m_flowVariables;
 
+    /**
+     */
     @JsonProperty("credentialPlaceholders")
     protected java.util.List<CredentialPlaceholderDef> m_credentialPlaceholders;
 
+    /**
+     */
     @JsonProperty("workflow")
     protected WorkflowDef m_workflow;
+
+    /**
+     * @since 5.1
+     */
+    @JsonProperty("metadata")
+    protected WorkflowMetadataDef m_metadata;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -134,6 +148,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_flowVariables = builder.m_flowVariables;
         m_credentialPlaceholders = builder.m_credentialPlaceholders;
         m_workflow = builder.m_workflow;
+        m_metadata = builder.m_metadata;
 
         m_exceptionTree = Optional.empty();
     }
@@ -159,6 +174,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_flowVariables = toCopy.getFlowVariables();
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
         m_workflow = toCopy.getWorkflow();
+        m_metadata = toCopy.getMetadata();
         if(toCopy instanceof DefaultRootWorkflowDef){
             var childTree = ((DefaultRootWorkflowDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -186,6 +202,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         m_flowVariables = toCopy.getFlowVariables();
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
         m_workflow = toCopy.getWorkflow();
+        m_metadata = toCopy.getMetadata();
         
         m_exceptionTree = Optional.empty();
     }
@@ -272,6 +289,14 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     @Override
     public WorkflowDef getWorkflow() {
         return m_workflow;
+    }
+    /**
+     * {@inheritDoc}
+     * @since 5.1
+     */
+    @Override
+    public WorkflowMetadataDef getMetadata() {
+        return m_metadata;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -485,6 +510,31 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
     }
          
  
+    /**
+     * @return The supply exception associated to metadata.
+     * @since 5.1
+     */
+    @JsonIgnore
+    public Optional<LoadException> getMetadataSupplyException(){
+    	return getLoadExceptionTree(RootWorkflowDef.Attribute.METADATA).flatMap(LoadExceptionTree::getSupplyException);
+    }
+    
+     
+    /**
+     * @return If there are {@link LoadException}s related to the {@link WorkflowMetadataDef} returned by {@link #getMetadata()}, this
+     * returns the metadata as DefaultWorkflowMetadataDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @since 5.1
+     */
+    @JsonIgnore
+    public Optional<DefaultWorkflowMetadataDef> getFaultyMetadata(){
+    	final var metadata = getMetadata(); 
+        if(metadata instanceof DefaultWorkflowMetadataDef && ((DefaultWorkflowMetadataDef)metadata).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
+            return Optional.of((DefaultWorkflowMetadataDef)metadata);
+        }
+    	return Optional.empty();
+    }
+         
+ 
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -508,6 +558,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
         equalsBuilder.append(m_flowVariables, other.m_flowVariables);
         equalsBuilder.append(m_credentialPlaceholders, other.m_credentialPlaceholders);
         equalsBuilder.append(m_workflow, other.m_workflow);
+        equalsBuilder.append(m_metadata, other.m_metadata);
         return equalsBuilder.isEquals();
     }
 
@@ -524,6 +575,7 @@ public class DefaultRootWorkflowDef extends DefaultWorkflowDef implements RootWo
                 .append(m_flowVariables)
                 .append(m_credentialPlaceholders)
                 .append(m_workflow)
+                .append(m_metadata)
                 .toHashCode();
     }
 

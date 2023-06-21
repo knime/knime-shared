@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Similar to a HTML span.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,21 +81,33 @@ public class DefaultStyleRangeDef implements StyleRangeDef {
      * a LoadExceptionTree<StyleRangeDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("fontSize")
     protected Integer m_fontSize;
 
+    /**
+     */
     @JsonProperty("color")
     protected Integer m_color;
 
+    /**
+     */
     @JsonProperty("start")
     protected Integer m_start;
 
+    /**
+     */
     @JsonProperty("fontName")
     protected String m_fontName;
 
+    /**
+     */
     @JsonProperty("fontStyle")
     protected Integer m_fontStyle;
 
+    /**
+     */
     @JsonProperty("length")
     protected Integer m_length;
 

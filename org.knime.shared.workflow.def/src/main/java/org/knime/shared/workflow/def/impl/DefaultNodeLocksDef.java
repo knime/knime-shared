@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Any kind of node (native, meta, component) can be locked to restrict the user&#39;s interactions with the node in the workflow editor.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,20 +81,20 @@ public class DefaultNodeLocksDef implements NodeLocksDef {
      * a LoadExceptionTree<NodeLocksDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Whether a user is allowed to delete the node in the workflow editor. 
+    /**
+     * Whether a user is allowed to delete the node in the workflow editor.
      */
     @JsonProperty("hasDeleteLock")
     protected Boolean m_hasDeleteLock;
 
-    /** 
-     * Whether a user is allowed to reset the node in the workflow editor (the node might contain data). 
+    /**
+     * Whether a user is allowed to reset the node in the workflow editor (the node might contain data).
      */
     @JsonProperty("hasResetLock")
     protected Boolean m_hasResetLock;
 
-    /** 
-     * Whether a user is allowed to configure the node in the workflow editor. 
+    /**
+     * Whether a user is allowed to configure the node in the workflow editor.
      */
     @JsonProperty("hasConfigureLock")
     protected Boolean m_hasConfigureLock;

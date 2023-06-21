@@ -54,8 +54,11 @@ import org.knime.shared.workflow.def.ConnectionDef;
 import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.def.WorkflowMetadataDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
 import org.knime.shared.workflow.def.impl.WorkflowDefBuilder;
+
+
 
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.RootWorkflowDef;
@@ -150,6 +153,8 @@ public class RootWorkflowDefBuilder {
     
     WorkflowDef m_workflow;
     
+    WorkflowMetadataDef m_metadata;
+    
     /**
      * Create a new builder.
      */
@@ -170,6 +175,7 @@ public class RootWorkflowDefBuilder {
         m_flowVariables = toCopy.getFlowVariables();
         m_credentialPlaceholders = toCopy.getCredentialPlaceholders();
         m_workflow = toCopy.getWorkflow();
+        m_metadata = toCopy.getMetadata();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -778,6 +784,57 @@ public class RootWorkflowDefBuilder {
             }
             m_workflow = defaultValue;
             m_exceptionalChildren.put(RootWorkflowDef.Attribute.WORKFLOW, exceptionTree);
+            	    }   
+        return this;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Setters for metadata
+    // -----------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * @param metadata 
+     * @return this builder for fluent API.
+     * @since 5.1
+     */ 
+    public RootWorkflowDefBuilder setMetadata(final WorkflowMetadataDef metadata) {
+        setMetadata(() -> metadata, metadata);
+        return this;
+    }
+ 
+    /**
+     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
+     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
+     * {@code hasExceptions(RootWorkflowDef.Attribute.METADATA)} will return true and and
+     * {@code getExceptionalChildren().get(RootWorkflowDef.Attribute.METADATA)} will return the exception.
+     * 
+     * @param metadata see {@link RootWorkflowDef#getMetadata}
+     * @param defaultValue is set in case the supplier throws an exception.
+     * @return this builder for fluent API.
+     * @see #setMetadata(WorkflowMetadataDef)
+     * @since 5.1
+     */
+    public RootWorkflowDefBuilder setMetadata(final FallibleSupplier<WorkflowMetadataDef> metadata, WorkflowMetadataDef defaultValue) {
+        java.util.Objects.requireNonNull(metadata, () -> "No supplier for metadata provided.");
+        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
+        m_exceptionalChildren.remove(RootWorkflowDef.Attribute.METADATA);
+        try {
+            m_metadata = metadata.get();
+            if (m_metadata instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_metadata).hasExceptions()) {
+                m_exceptionalChildren.put(RootWorkflowDef.Attribute.METADATA, (LoadExceptionTree<?>)m_metadata);
+            }
+	    } catch (Exception e) {
+            var supplyException = new LoadException(e);
+                         
+            LoadExceptionTree<?> exceptionTree;
+            if(defaultValue instanceof DefaultWorkflowMetadataDef){
+                var childTree = ((DefaultWorkflowMetadataDef)defaultValue).getLoadExceptionTree();                
+                // if present, merge child tree with supply exception
+                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
+            } else {
+                exceptionTree = supplyException;
+            }
+            m_metadata = defaultValue;
+            m_exceptionalChildren.put(RootWorkflowDef.Attribute.METADATA, exceptionTree);
             	    }   
         return this;
     }

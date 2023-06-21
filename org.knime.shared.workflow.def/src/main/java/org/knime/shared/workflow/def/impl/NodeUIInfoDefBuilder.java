@@ -48,6 +48,8 @@ import java.util.Map;
 
 import org.knime.shared.workflow.def.BoundsDef;
 
+
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 // for types that define enums

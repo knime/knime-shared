@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * A value that is propagated along the connections between nodes.  Nodes can use incoming flow variables to control their behavior and export them to control downstream nodes or to add data to all outgoing port objects.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,20 +82,21 @@ public class DefaultFlowVariableDef implements FlowVariableDef {
      * a LoadExceptionTree<FlowVariableDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Identifier for the flow variable. 
+    /**
+     * Identifier for the flow variable.
      */
     @JsonProperty("name")
     protected String m_name;
 
-    /** 
-     * If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec) 
-     * 
+    /**
+     * If value is a ConfigValue (a simple type): the string representation of the Config ConfigTypeEnum enum value (e.g., INTEGER). If value is a ConfigMap (a custom/complex type): the qualified name of the java class used to instantiate the value (e.g., org.knime.filehandling.core.connections.FSLocationSpec)
      * Example value: INTEGER_ARRAY
      */
     @JsonProperty("propertyClass")
     protected String m_propertyClass;
 
+    /**
+     */
     @JsonProperty("value")
     protected ConfigDef m_value;
 

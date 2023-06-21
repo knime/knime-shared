@@ -58,6 +58,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 @JsonDeserialize(as = DefaultCoordinateDef.class)
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})

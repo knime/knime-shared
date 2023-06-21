@@ -53,6 +53,9 @@ import org.knime.shared.workflow.def.NodeLocksDef;
 import org.knime.shared.workflow.def.NodeUIInfoDef;
 import org.knime.shared.workflow.def.impl.BaseNodeDefBuilder;
 
+
+import org.knime.shared.workflow.def.BaseNodeDef.*;
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.ConfigurableNodeDef;
 // for types that define enums

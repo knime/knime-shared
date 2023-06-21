@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Information about the KNIME installation that created a top-level element (workflow, shared component, shared metanode).
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,16 +81,15 @@ public class DefaultCreatorDef implements CreatorDef {
      * a LoadExceptionTree<CreatorDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Version of the KNIME instance that saved the workflow. Note that nested workflows implicitly have the same saved-with-version  as the containing workflow. Even if a Component or Meta Node was saved with an earlier version and then imported into a  newer KNIME instance the contained workflow is ultimately saved by the newer version. 
-     * 
+    /**
+     * Version of the KNIME instance that saved the workflow. Note that nested workflows implicitly have the same saved-with-version  as the containing workflow. Even if a Component or Meta Node was saved with an earlier version and then imported into a  newer KNIME instance the contained workflow is ultimately saved by the newer version.
      * Example value: 4.5.0.v202111181047
      */
     @JsonProperty("savedWithVersion")
     protected String m_savedWithVersion;
 
-    /** 
-     * Whether the workflow was created using a non-stable/preview version of KNIME. 
+    /**
+     * Whether the workflow was created using a non-stable/preview version of KNIME.
      */
     @JsonProperty("nightly")
     protected Boolean m_nightly;

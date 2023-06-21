@@ -48,6 +48,9 @@ import java.util.Map;
 
 import org.knime.shared.workflow.def.CreatorDef;
 
+
+import org.knime.shared.workflow.def.StandaloneDef.*;
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.StandaloneDef;
 // for types that define enums

@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultNodeUIInfoDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,12 +82,18 @@ public class DefaultNodeUIInfoDef implements NodeUIInfoDef {
      * a LoadExceptionTree<NodeUIInfoDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("hasAbsoluteCoordinates")
     protected Boolean m_hasAbsoluteCoordinates;
 
+    /**
+     */
     @JsonProperty("symbolRelative")
     protected Boolean m_symbolRelative;
 
+    /**
+     */
     @JsonProperty("bounds")
     protected BoundsDef m_bounds;
 

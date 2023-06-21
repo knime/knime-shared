@@ -52,6 +52,7 @@ import org.knime.shared.workflow.def.ConnectionDef;
 import org.knime.shared.workflow.def.CredentialPlaceholderDef;
 import org.knime.shared.workflow.def.FlowVariableDef;
 import org.knime.shared.workflow.def.WorkflowDef;
+import org.knime.shared.workflow.def.WorkflowMetadataDef;
 import org.knime.shared.workflow.def.WorkflowUISettingsDef;
 
 import org.knime.shared.workflow.def.impl.DefaultRootWorkflowDef;
@@ -67,6 +68,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 @JsonDeserialize(as = DefaultRootWorkflowDef.class)
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
@@ -134,6 +136,12 @@ public interface RootWorkflowDef extends WorkflowDef {
           * Is is returned by {@link RootWorkflowDef#getWorkflow} 
           */
          WORKFLOW,
+         /** 
+          * The type of this data attribute is {@link WorkflowMetadataDef}.
+          * Is is returned by {@link RootWorkflowDef#getMetadata} 
+          * @since 5.1
+          */
+         METADATA,
 ;
     }
     
@@ -157,6 +165,12 @@ public interface RootWorkflowDef extends WorkflowDef {
    * @return 
    **/
   public WorkflowDef getWorkflow();
+
+  /**
+   * @return 
+   * @since 5.1
+   **/
+  public WorkflowMetadataDef getMetadata();
 
 
 }

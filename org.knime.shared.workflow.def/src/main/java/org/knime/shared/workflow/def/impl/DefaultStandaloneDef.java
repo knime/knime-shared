@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Represents a standalone, loadable unit for editing in the workflow editor. In case this is a workflow, it is also executable. Standalone components and metanodes cannot be executed but referenced into a workflow and updated when the referenced component/metanode changed. 
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,17 +82,19 @@ public class DefaultStandaloneDef implements StandaloneDef {
      * a LoadExceptionTree<StandaloneDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("creator")
     protected CreatorDef m_creator;
 
-    /** 
-     * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content.  
+    /**
+     * This is either a RootWorkflow or a Component or a Metanode, which one is indicated by contentType. Having a workflow is useful when adding version information to copied content. 
      */
     @JsonProperty("contents")
     protected Object m_contents;
 
-    /** 
-     * Describes the type of the contents field. 
+    /**
+     * Describes the type of the contents field.
      */
     @JsonProperty("contentType")
     protected ContentTypeEnum m_contentType;

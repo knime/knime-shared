@@ -56,6 +56,9 @@ import org.knime.shared.workflow.def.TemplateInfoDef;
 import org.knime.shared.workflow.def.WorkflowDef;
 import org.knime.shared.workflow.def.impl.BaseNodeDefBuilder;
 
+
+import org.knime.shared.workflow.def.BaseNodeDef.*;
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.MetaNodeDef;
 // for types that define enums

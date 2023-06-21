@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * Optional information on the node&#39;s execution job manager.  If missing, the node is executed in a default mode.  If present, combines the factory id and factory configuration of the job manager, e.g.,  a streaming node executor and its chunk size setting.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,14 +82,15 @@ public class DefaultJobManagerDef implements JobManagerDef {
      * a LoadExceptionTree<JobManagerDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager. 
-     * 
+    /**
+     * Qualified name of a class that implements NodeExecutionJobManagerFactory This is passed to NodeExecutionJobManagerPool#getFactory when restoring a node&#39;s job manager.
      * Example value: org.knime.core.streaming.SimpleStreamerNodeExecutionJobManagerFactory
      */
     @JsonProperty("factory")
     protected String m_factory;
 
+    /**
+     */
     @JsonProperty("settings")
     protected ConfigMapDef m_settings;
 

@@ -71,6 +71,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 @JsonDeserialize(as = DefaultComponentNodeDef.class)
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
@@ -179,6 +180,7 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
          /** 
           * The type of this data attribute is {@link ReportConfigurationDef}.
           * Is is returned by {@link ComponentNodeDef#getReportConfiguration} 
+          * @since 5.1
           */
          REPORT_CONFIGURATION,
          /** 
@@ -232,6 +234,7 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
 
   /**
    * @return 
+   * @since 5.1
    **/
   public ReportConfigurationDef getReportConfiguration();
 

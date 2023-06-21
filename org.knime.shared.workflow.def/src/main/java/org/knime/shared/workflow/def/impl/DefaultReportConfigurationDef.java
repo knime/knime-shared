@@ -71,8 +71,10 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * The report configuration set on components, includes page layout etc.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @since 5.1
+ * @noextend This class is not intended to be subclassed by clients.
  */
-// @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
+// @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
 public class DefaultReportConfigurationDef implements ReportConfigurationDef {
 
@@ -80,17 +82,15 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
      * a LoadExceptionTree<ReportConfigurationDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Page size 
-     * 
+    /**
+     * Page size
      * Example value: A4
      */
     @JsonProperty("pageSize")
     protected String m_pageSize;
 
-    /** 
-     * Page orientation (portrait or landscape) 
-     * 
+    /**
+     * Page orientation (portrait or landscape)
      * Example value: portrait
      */
     @JsonProperty("orientation")

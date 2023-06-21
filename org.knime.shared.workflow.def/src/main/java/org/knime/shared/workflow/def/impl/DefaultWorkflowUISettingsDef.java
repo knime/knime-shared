@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultWorkflowUISettingsDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,44 +81,44 @@ public class DefaultWorkflowUISettingsDef implements WorkflowUISettingsDef {
      * a LoadExceptionTree<WorkflowUISettingsDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * Whether nodes moved in the editor are aligned to the nearest grid point. 
+    /**
+     * Whether nodes moved in the editor are aligned to the nearest grid point.
      */
     @JsonProperty("snapToGrid")
     protected Boolean m_snapToGrid;
 
-    /** 
-     * Whether to show a grid in the workflow editor background. 
+    /**
+     * Whether to show a grid in the workflow editor background.
      */
     @JsonProperty("showGrid")
     protected Boolean m_showGrid;
 
-    /** 
-     * Horizontal spacing of grid lines. 
+    /**
+     * Horizontal spacing of grid lines.
      */
     @JsonProperty("gridX")
     protected Integer m_gridX;
 
-    /** 
-     * Vertical spacing of grid lines. 
+    /**
+     * Vertical spacing of grid lines.
      */
     @JsonProperty("gridY")
     protected Integer m_gridY;
 
-    /** 
-     * The current magnification of the workflow in the workflow editor. 
+    /**
+     * The current magnification of the workflow in the workflow editor.
      */
     @JsonProperty("zoomLevel")
     protected Double m_zoomLevel;
 
-    /** 
-     * Whether to use straight or curved segments to connect a connection&#39;s bend points. 
+    /**
+     * Whether to use straight or curved segments to connect a connection&#39;s bend points.
      */
     @JsonProperty("curvedConnections")
     protected Boolean m_curvedConnections;
 
-    /** 
-     * The width of the lines connecting a workflow&#39;s nodes in the workflow editor. 
+    /**
+     * The width of the lines connecting a workflow&#39;s nodes in the workflow editor.
      */
     @JsonProperty("connectionLineWidth")
     protected Integer m_connectionLineWidth;

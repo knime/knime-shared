@@ -72,6 +72,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultBoundsDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -81,17 +82,19 @@ public class DefaultBoundsDef implements BoundsDef {
      * a LoadExceptionTree<BoundsDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("location")
     protected CoordinateDef m_location;
 
-    /** 
-     * Width of an object in pixels. 
+    /**
+     * Width of an object in pixels.
      */
     @JsonProperty("width")
     protected Integer m_width;
 
-    /** 
-     * Height of an object in pixels. 
+    /**
+     * Height of an object in pixels.
      */
     @JsonProperty("height")
     protected Integer m_height;

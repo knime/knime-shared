@@ -47,6 +47,8 @@ package org.knime.shared.workflow.def.impl;
 import java.util.Map;
 
 
+
+
 // for the Attribute enum and javadoc references
 import org.knime.shared.workflow.def.ReportConfigurationDef;
 // for types that define enums
@@ -60,8 +62,9 @@ import org.knime.core.util.workflow.def.LoadExceptionTree;
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
+ * @since 5.1
  */
-// @javax.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
+// @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ReportConfigurationDefBuilder {
 
     // -----------------------------------------------------------------------------------------------------------------

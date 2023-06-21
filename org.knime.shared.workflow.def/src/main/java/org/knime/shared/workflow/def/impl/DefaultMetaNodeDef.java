@@ -80,6 +80,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultMetaNodeDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -89,30 +90,40 @@ public class DefaultMetaNodeDef extends DefaultBaseNodeDef implements MetaNodeDe
      * a LoadExceptionTree<MetaNodeDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("workflow")
     protected WorkflowDef m_workflow;
 
-    /** 
-     * Defines the endpoints for incoming data connections. 
+    /**
+     * Defines the endpoints for incoming data connections.
      */
     @JsonProperty("inPorts")
     protected java.util.List<PortDef> m_inPorts;
 
-    /** 
-     * Defines the endpoints for outgoing data connections. 
+    /**
+     * Defines the endpoints for outgoing data connections.
      */
     @JsonProperty("outPorts")
     protected java.util.List<PortDef> m_outPorts;
 
+    /**
+     */
     @JsonProperty("cipher")
     protected CipherDef m_cipher;
 
+    /**
+     */
     @JsonProperty("link")
     protected TemplateInfoDef m_link;
 
+    /**
+     */
     @JsonProperty("inPortsBarUIInfo")
     protected NodeUIInfoDef m_inPortsBarUIInfo;
 
+    /**
+     */
     @JsonProperty("outPortsBarUIInfo")
     protected NodeUIInfoDef m_outPortsBarUIInfo;
 

@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * DefaultPortTypeDef
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,37 +81,38 @@ public class DefaultPortTypeDef implements PortTypeDef {
      * a LoadExceptionTree<PortTypeDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * the class of the port object this port type is associated with 
-     * 
+    /**
+     * the class of the port object this port type is associated with
      * Example value: org.knime.core.node.port.flowvariable.FlowVariablePortObject
      */
     @JsonProperty("portObjectClass")
     protected String m_portObjectClass;
 
-    /** 
-     * Returns the class of the port object spec. 
+    /**
+     * Returns the class of the port object spec.
      */
     @JsonProperty("portObjectSpecClass")
     protected String m_portObjectSpecClass;
 
+    /**
+     */
     @JsonProperty("color")
     protected Integer m_color;
 
-    /** 
-     * whether to short this port to users, e.g., in dialogs 
+    /**
+     * whether to short this port to users, e.g., in dialogs
      */
     @JsonProperty("hidden")
     protected Boolean m_hidden;
 
-    /** 
-     * whether this port needs to be connected 
+    /**
+     * whether this port needs to be connected
      */
     @JsonProperty("optional")
     protected Boolean m_optional;
 
-    /** 
-     * human-readable name. In case the port type is not registered at the extension point, the port object&#39;s class name is returned. 
+    /**
+     * human-readable name. In case the port type is not registered at the extension point, the port object&#39;s class name is returned.
      */
     @JsonProperty("name")
     protected String m_name;

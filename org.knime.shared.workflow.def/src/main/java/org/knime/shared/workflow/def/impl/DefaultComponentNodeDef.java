@@ -84,6 +84,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * A node that contains a workflow. Similar to a metanode, except it has more flexibility, e.g., filtering the incoming and outgoing flow variables.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -93,36 +94,55 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
      * a LoadExceptionTree<ComponentNodeDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
+    /**
+     */
     @JsonProperty("workflow")
     protected WorkflowDef m_workflow;
 
+    /**
+     */
     @JsonProperty("inPorts")
     protected java.util.List<PortDef> m_inPorts;
 
+    /**
+     */
     @JsonProperty("outPorts")
     protected java.util.List<PortDef> m_outPorts;
 
+    /**
+     */
     @JsonProperty("cipher")
     protected CipherDef m_cipher;
 
-    /** 
-     * The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode) 
+    /**
+     * The virtual in node provides the input ports of the component as its output ports (replaces the input bar of the metanode)
      */
     @JsonProperty("virtualInNodeId")
     protected Integer m_virtualInNodeId;
 
+    /**
+     */
     @JsonProperty("virtualOutNodeId")
     protected Integer m_virtualOutNodeId;
 
+    /**
+     */
     @JsonProperty("metadata")
     protected ComponentMetadataDef m_metadata;
 
+    /**
+     */
     @JsonProperty("templateInfo")
     protected TemplateInfoDef m_templateInfo;
 
+    /**
+     * @since 5.1
+     */
     @JsonProperty("reportConfiguration")
     protected ReportConfigurationDef m_reportConfiguration;
 
+    /**
+     */
     @JsonProperty("dialogSettings")
     protected ComponentDialogSettingsDef m_dialogSettings;
 
@@ -356,6 +376,10 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     public TemplateInfoDef getTemplateInfo() {
         return m_templateInfo;
     }
+    /**
+     * {@inheritDoc}
+     * @since 5.1
+     */
     @Override
     public ReportConfigurationDef getReportConfiguration() {
         return m_reportConfiguration;
@@ -716,6 +740,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
  
     /**
      * @return The supply exception associated to reportConfiguration.
+     * @since 5.1
      */
     @JsonIgnore
     public Optional<LoadException> getReportConfigurationSupplyException(){
@@ -726,6 +751,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     /**
      * @return If there are {@link LoadException}s related to the {@link ReportConfigurationDef} returned by {@link #getReportConfiguration()}, this
      * returns the reportConfiguration as DefaultReportConfigurationDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @since 5.1
      */
     @JsonIgnore
     public Optional<DefaultReportConfigurationDef> getFaultyReportConfiguration(){

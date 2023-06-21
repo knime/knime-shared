@@ -71,6 +71,7 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
  * The author/provider of a native node. Describes bundles and features that contain the code to execute  a native node.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
+ * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
@@ -80,33 +81,29 @@ public class DefaultVendorDef implements VendorDef {
      * a LoadExceptionTree<VendorDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
-    /** 
-     * For a bundle, see the example value; for a feature it can be an empty string 
-     * 
+    /**
+     * For a bundle, see the example value; for a feature it can be an empty string
      * Example value: KNIME Base Nodes
      */
     @JsonProperty("name")
     protected String m_name;
 
-    /** 
-     * For a bundle, see the example value; for a feature it can be an empty string 
-     * 
+    /**
+     * For a bundle, see the example value; for a feature it can be an empty string
      * Example value: org.knime.base
      */
     @JsonProperty("symbolicName")
     protected String m_symbolicName;
 
-    /** 
-     * For a bundle, see the example value; for a feature it can be an empty string 
-     * 
+    /**
+     * For a bundle, see the example value; for a feature it can be an empty string
      * Example value: KNIME AG, Zurich, Switzerland
      */
     @JsonProperty("vendor")
     protected String m_vendor;
 
-    /** 
-     * For a bundle, see the example value; for a feature, it can be, e.g., \&quot;0.0.0\&quot; 
-     * 
+    /**
+     * For a bundle, see the example value; for a feature, it can be, e.g., \&quot;0.0.0\&quot;
      * Example value: 4.6.0.v202201041551
      */
     @JsonProperty("version")
