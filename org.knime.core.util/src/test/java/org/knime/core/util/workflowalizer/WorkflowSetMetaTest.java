@@ -585,7 +585,7 @@ public class WorkflowSetMetaTest {
     @SuppressWarnings("static-method") // Cannot read in resources if the method is static
     private WorkflowSetMeta readWorkflowSetMeta(final String file)
         throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-        try (InputStream is = WorkflowSetMetaTest.class.getResourceAsStream(file)) {
+        try (InputStream is = AbstractWorkflowalizerTest.getResourceAsStream(file)) {
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder builder = factory.newDocumentBuilder();
             final Document doc = builder.parse(is);

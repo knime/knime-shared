@@ -56,7 +56,7 @@ import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
- * {@code WorkflowParser} for parsing v4.1.0 files to the current version.
+ * {@code WorkflowParser} for parsing v4.1.0 files.
  *
  * @author Alison Walter, KNIME GmbH, Konstanz, Germany
  */

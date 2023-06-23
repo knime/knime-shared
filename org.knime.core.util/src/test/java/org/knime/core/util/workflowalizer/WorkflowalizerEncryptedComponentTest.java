@@ -51,7 +51,6 @@ package org.knime.core.util.workflowalizer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,8 +80,8 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseWorkflowWithEncryptedComponent47() throws Exception {
-        var workflowMetadata = Workflowalizer.readWorkflow(Path.of(WorkflowalizerEncryptedComponentTest.class
-            .getResource("/encrypted-components/Workflow-with-encrypted-component-4.7.knwf").toURI()));
+        var workflowMetadata = Workflowalizer.readWorkflow(
+            getResourcePath("/encrypted-components/Workflow-with-encrypted-component-4.7.knwf"));
 
         assertThat("Unexpected value when checking if workflow contains an encrypted component",
             workflowMetadata.containsEncrypted(), is(true));
@@ -98,8 +97,7 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseWorkflowDoesntContainEcryptedComponent() throws Exception {
-        var workflowMetadata = Workflowalizer.readWorkflow(
-            Path.of(WorkflowalizerEncryptedComponentTest.class.getResource("/simple-workflow.zip").toURI()));
+        var workflowMetadata = Workflowalizer.readWorkflow(getResourcePath("/simple-workflow.zip"));
 
         assertThat("Unexpected value when workflow does not contain any encrypted components",
             workflowMetadata.containsEncrypted(), is(false));
@@ -112,8 +110,8 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseEncryptedComponent47() throws Exception {
-        var templateMetadata = Workflowalizer.readTemplate(Path.of(WorkflowalizerEncryptedComponentTest.class
-            .getResource("/encrypted-components/Encrypted-Component-4.7.knwf").toURI()));
+        var templateMetadata = Workflowalizer.readTemplate(
+            getResourcePath("/encrypted-components/Encrypted-Component-4.7.knwf"));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
             templateMetadata.containsEncrypted(), is(false));
@@ -140,8 +138,8 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseComponentContainingEncryptedComponent() throws Exception {
-        var templateMetadata = Workflowalizer.readTemplate(Path.of(WorkflowalizerEncryptedComponentTest.class
-            .getResource("/encrypted-components/Component-containing-encrypted-component.knwf").toURI()));
+        var templateMetadata = Workflowalizer.readTemplate(
+            getResourcePath("/encrypted-components/Component-containing-encrypted-component.knwf"));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
             templateMetadata.containsEncrypted(), is(true));
@@ -169,8 +167,7 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseNonEncryptedComponent() throws Exception {
-        var componentMetadata = Workflowalizer.readTemplate(
-            Path.of(WorkflowalizerEncryptedComponentTest.class.getResource("/component-template-simple.zip").toURI()));
+        var componentMetadata = Workflowalizer.readTemplate(getResourcePath("/component-template-simple.zip"));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
             componentMetadata.containsEncrypted(), is(false));
@@ -184,8 +181,8 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseWorkflowContainingEncryptedMetanode() throws Exception {
-        var workflowMetadata = Workflowalizer.readWorkflow(Path.of(WorkflowalizerEncryptedComponentTest.class
-            .getResource("/encrypted-components/Workflow-with-Encrypted-Metanode.knwf").toURI()));
+        var workflowMetadata = Workflowalizer.readWorkflow(
+            getResourcePath("/encrypted-components/Workflow-with-Encrypted-Metanode.knwf"));
 
         assertThat("Unexpected value when checking if workflow contains an encrypted component",
             workflowMetadata.containsEncrypted(), is(true));
@@ -208,8 +205,8 @@ class WorkflowalizerEncryptedComponentTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testParseEncryptedComponent37() throws Exception {
-        var templateMetadata = Workflowalizer.readTemplate(Path.of(WorkflowalizerEncryptedComponentTest.class
-            .getResource("/encrypted-components/Encrypt-component-37.knwf").toURI()));
+        var templateMetadata = Workflowalizer.readTemplate(
+            getResourcePath("/encrypted-components/Encrypt-component-37.knwf"));
 
         assertThat("Unexpected value when check if component contains an encrypted component",
             templateMetadata.containsEncrypted(), is(false));

@@ -54,11 +54,9 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 import org.knime.core.util.PathUtils;
@@ -80,11 +78,10 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
     @Test
     void testXxeInSvg() throws Exception {
         Path workspace = PathUtils.createTempDir(WorkflowalizerXXETest.class.getName());
-        try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/xxe/XXE_SVG.knwf")) {
-            unzip(is, workspace.toFile());
+        try (InputStream is = getResourceAsStream("/xxe/XXE_SVG.knwf")) {
+            unzip(is, workspace);
         }
-        Path workflowDir = new File(workspace.toFile(), "XXE_SVG").toPath();
-        testXxeExceptionThrown(workflowDir, "workflow.svg");
+        testXxeExceptionThrown(workspace.resolve("XXE_SVG"), "workflow.svg");
     }
 
     /**
@@ -94,8 +91,7 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testXxeInSvgZip() throws URISyntaxException {
-        Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/xxe/XXE_SVG.knwf").toURI());
-        testXxeExceptionThrown(workflowPath, "workflow.svg");
+        testXxeExceptionThrown(getResourcePath("/xxe/XXE_SVG.knwf"), "workflow.svg");
     }
 
     /**
@@ -106,11 +102,10 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
     @Test
     void testXxeInWorkflowSetMeta() throws Exception {
         Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/xxe/XXE_WorkflowSetMeta.knwf")) {
-            unzip(is, workspace.toFile());
+        try (InputStream is = getResourceAsStream("/xxe/XXE_WorkflowSetMeta.knwf")) {
+            unzip(is, workspace);
         }
-        Path workflowDir = new File(workspace.toFile(), "XXE_WorkflowSetMeta").toPath();
-        testXxeExceptionThrown(workflowDir, "workflowset.meta");
+        testXxeExceptionThrown(workspace.resolve("XXE_WorkflowSetMeta"), "workflowset.meta");
     }
 
     /**
@@ -120,14 +115,15 @@ public class WorkflowalizerXXETest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testXxeInWorkflowSetMetaInZip() throws URISyntaxException {
-        Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/xxe/XXE_WorkflowSetMeta.knwf").toURI());
-        testXxeExceptionThrown(workflowPath, "workflowset.meta");
+        testXxeExceptionThrown(getResourcePath("/xxe/XXE_WorkflowSetMeta.knwf"), "workflowset.meta");
     }
 
     // -- Helper methods --
 
     private static void testXxeExceptionThrown(final Path path, final String fileName) {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Workflowalizer.readRepositoryItem(path), "Unexpected exception when parsing XML with external references");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> Workflowalizer.readRepositoryItem(path),
+            "Unexpected exception when parsing XML with external references");
         assertThat("Unexpected error message when preventing XXE", ex.getMessage(), startsWith(String
             .format("Cannot parse the given file '%s', as it contains XML elements which are not allowed", fileName)));
         checkForSecret(ex);

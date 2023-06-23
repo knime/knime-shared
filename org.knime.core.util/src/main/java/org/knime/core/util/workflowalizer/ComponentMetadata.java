@@ -71,6 +71,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 setterVisibility = Visibility.NONE)
 public final class ComponentMetadata extends TemplateMetadata {
 
+    @JsonProperty("contentType")
+    private Optional<ContentType> m_contentType;
+
     @JsonProperty("description")
     private final Optional<String> m_description;
 

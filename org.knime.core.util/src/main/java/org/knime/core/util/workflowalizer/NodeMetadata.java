@@ -96,9 +96,9 @@ public interface NodeMetadata {
     }
 
     /**
-     * @return the node ID with hierarchy, in the form {@code ..:grandparent-ID:parent-ID:node-ID} where parent is a metanode.
-     *         There can be any number of predecessors. Nodes in the workflow (i.e. not contained in metanodes) will not
-     *         contain a ':'.
+     * @return the node ID with hierarchy, in the form {@code ..:grandparent-ID:parent-ID:node-ID} where parent is a
+     *         metanode. There can be any number of predecessors. Nodes in the workflow (i.e. not contained in
+     *         metanodes) will not contain a ':'.
      * @since 5.11
      */
     String getNodeId();

@@ -90,13 +90,13 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @BeforeAll
     public static void setup() throws Exception {
         workspaceDir = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
-        try (InputStream is = Workflowalizer410Test.class.getResourceAsStream("/workflowalizer-test-410.zip")) {
-            unzip(is, workspaceDir.toFile());
+        try (InputStream is = getResourceAsStream("/workflowalizer-test-410.zip")) {
+            unzip(is, workspaceDir);
         }
 
         final Path cd = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
-        try (final InputStream is = Workflowalizer410Test.class.getResourceAsStream("/Component-410-Full-Meta.zip")) {
-            unzip(is, cd.toFile());
+        try (final InputStream is = getResourceAsStream("/Component-410-Full-Meta.zip")) {
+            unzip(is, cd);
         }
         componentDir = cd.resolve("Full-Metadata");
         componentSettingsXml = Files.readAllLines(componentDir.resolve("settings.xml"), StandardCharsets.UTF_8);
@@ -266,8 +266,8 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testComponentNoMetadata() throws Exception {
         final Path tempNoMetaDir = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
-        try (final InputStream is = Workflowalizer410Test.class.getResourceAsStream("/Component-410-No-Meta.zip")) {
-            unzip(is, tempNoMetaDir.toFile());
+        try (final InputStream is = getResourceAsStream("/Component-410-No-Meta.zip")) {
+            unzip(is, tempNoMetaDir);
         }
         final Path noMetaDir = tempNoMetaDir.resolve("No Metadata");
         final List<String> settingsXml = Files.readAllLines(noMetaDir.resolve("settings.xml"), StandardCharsets.UTF_8);
@@ -294,8 +294,8 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testComponentNoPorts() throws Exception {
         final Path tempNoPortsDir = PathUtils.createTempDir(Workflowalizer410Test.class.getName());
-        try (final InputStream is = Workflowalizer410Test.class.getResourceAsStream("/Component-410-No-Ports.zip")) {
-            unzip(is, tempNoPortsDir.toFile());
+        try (final InputStream is = getResourceAsStream("/Component-410-No-Ports.zip")) {
+            unzip(is, tempNoPortsDir);
         }
         final Path noPortsDir = tempNoPortsDir.resolve("No Ports");
         final List<String> settingsXml = Files.readAllLines(noPortsDir.resolve("settings.xml"), StandardCharsets.UTF_8);

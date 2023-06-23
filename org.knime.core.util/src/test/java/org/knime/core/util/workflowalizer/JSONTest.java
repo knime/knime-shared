@@ -62,6 +62,7 @@ import java.text.ParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.xmlbeans.XmlException;
 import org.knime.core.node.InvalidSettingsException;
 import org.xml.sax.SAXException;
 
@@ -126,7 +127,7 @@ public class JSONTest {
                     count++;
                 }
             } catch (IOException | InvalidSettingsException | ParseException | XPathExpressionException
-                    | SAXException e) {
+                    | SAXException | XmlException e) {
                 System.out.println("Error reading template: " + templateDir);
                 System.out.println(e);
                 e.printStackTrace();
@@ -153,7 +154,7 @@ public class JSONTest {
                     count++;
                 }
             } catch (IOException | InvalidSettingsException | ParseException | XPathExpressionException
-                    | SAXException e) {
+                    | SAXException | XmlException e) {
                 System.out.println("Error reading workflow: " + workflowDir);
                 System.out.println(e);
                 e.printStackTrace();
