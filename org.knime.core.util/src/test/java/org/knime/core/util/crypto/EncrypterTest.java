@@ -155,7 +155,7 @@ public class EncrypterTest {
     }
 
     /**
-     * Test decryption of data encrypted with a previos version.
+     * Test decryption of data encrypted with a previous version.
      *
      * @throws Exception if an error occurs
      */
@@ -174,7 +174,7 @@ public class EncrypterTest {
                 enc = IOUtils.toString(is, StandardCharsets.UTF_8);
             }
 
-            assertThat(encrypter.decrypt(enc)).as("Reading version %d failed", i).isEqualTo(plain);
+            assertThat(encrypter.decrypt(enc)).as("Reading version %d failed", i).isEqualToIgnoringNewLines(plain);
         }
     }
 

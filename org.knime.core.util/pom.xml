@@ -184,7 +184,7 @@
 			<artifactId>icu4j</artifactId>
 			<version>73.1</version>
 		</dependency>
-        <dependency>
+		<dependency>
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
 			<version>5.1.1</version>

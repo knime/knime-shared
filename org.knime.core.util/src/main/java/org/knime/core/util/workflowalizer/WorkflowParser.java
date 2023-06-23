@@ -73,7 +73,15 @@ interface WorkflowParser {
     /**
      * @return the workflowset meta file name for this version
      */
-    String getWorkflowSetMetaFileName();
+    Optional<String> getWorkflowSetMetaFileName();
+
+    /**
+     * @param isComponent whether the metadata are for a component
+     * @return file name of the metadata file
+     */
+    default Optional<String> getNodeContainerMetadataFileName(final boolean isComponent) {
+        return Optional.empty();
+    }
 
     /**
      * @param config workflow config
@@ -95,7 +103,8 @@ interface WorkflowParser {
      * @return the version
      * @throws InvalidSettingsException
      */
-    Version getVersion(final ConfigBase workflowConfig, final ConfigBase templateConfig) throws InvalidSettingsException;
+    Version getVersion(final ConfigBase workflowConfig, final ConfigBase templateConfig)
+            throws InvalidSettingsException;
 
     /**
      * @param workflowConfig the {@link ConfigBase} the workflow file was read into
@@ -104,7 +113,8 @@ interface WorkflowParser {
      * @return the created-by version
      * @throws InvalidSettingsException
      */
-    Version getCreatedBy(final ConfigBase workflowConfig, final ConfigBase templateConfig) throws InvalidSettingsException;
+    Version getCreatedBy(final ConfigBase workflowConfig, final ConfigBase templateConfig)
+            throws InvalidSettingsException;
 
     /**
      * @param config the {@link ConfigBase} the xml was read into
@@ -172,7 +182,8 @@ interface WorkflowParser {
      * @return the node's annotation text
      * @throws InvalidSettingsException
      */
-    Optional<String> getAnnotationText(final ConfigBase workflowConfig, final ConfigBase nodeConfig) throws InvalidSettingsException;
+    Optional<String> getAnnotationText(final ConfigBase workflowConfig, final ConfigBase nodeConfig)
+            throws InvalidSettingsException;
 
     /**
      * @param config the {@link ConfigBase} for a specific, single, node entry (ex: the result of
@@ -190,7 +201,8 @@ interface WorkflowParser {
      * @return the node's model parameters
      * @throws InvalidSettingsException
      */
-    Optional<ConfigBase> getNodeConfiguration(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException;
+    Optional<ConfigBase> getNodeConfiguration(final ConfigBase settingsXml, final ConfigBase nodeXml)
+            throws InvalidSettingsException;
 
     /**
      *
@@ -410,7 +422,8 @@ interface WorkflowParser {
      * @return port names for the component
      * @throws InvalidSettingsException
      */
-    List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml, final boolean readInport) throws InvalidSettingsException;
+    List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException;
 
     /**
      * Returns the port descriptions for a component.
@@ -433,7 +446,8 @@ interface WorkflowParser {
      * @return port descriptions for the component
      * @throws InvalidSettingsException
      */
-    List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml, final boolean readInport) throws InvalidSettingsException;
+    List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
+        final boolean readInport) throws InvalidSettingsException;
 
     /**
      * Returns a list of the inport object types, where the indices of the list correspond to the indices of the
@@ -571,7 +585,8 @@ interface WorkflowParser {
      * @return the node's name
      * @throws InvalidSettingsException
      */
-    Optional<String> getNodeName(final ConfigBase settingsXml, final ConfigBase nodeXml) throws InvalidSettingsException;
+    Optional<String> getNodeName(final ConfigBase settingsXml, final ConfigBase nodeXml)
+            throws InvalidSettingsException;
 
     /**
      *

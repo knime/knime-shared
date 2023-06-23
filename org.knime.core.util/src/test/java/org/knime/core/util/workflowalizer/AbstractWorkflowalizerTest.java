@@ -55,12 +55,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -96,6 +98,35 @@ public class AbstractWorkflowalizerTest {
 
     // -- General --
 
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\r?\\n");
+
+    /**
+     * Opens the resource at the given path either from the class path or from the local workspace.
+     *
+     * @param file path to the resource
+     * @return input stream with the resource's contents
+     * @throws IOException if something goes wrong
+     */
+    @SuppressWarnings("resource")
+    static InputStream getResourceAsStream(final String file) throws IOException {
+        final var local = Path.of("src/test/resources" + file);
+        final var fromClassLoader = WorkflowalizerTest.class.getResourceAsStream(file);
+        return fromClassLoader != null ? fromClassLoader : Files.exists(local) ? Files.newInputStream(local) : null;
+    }
+
+    /**
+     * Opens the resource at the given path either from the class path or from the local workspace.
+     *
+     * @param file path to the resource
+     * @return local file system path to the resource
+     * @throws URISyntaxException if something goes wrong
+     */
+    static Path getResourcePath(final String file) throws URISyntaxException {
+        final var local = Path.of("src/test/resources" + file);
+        final var fromClassLoader = Workflowalizer.class.getResource(file);
+        return fromClassLoader != null ? Path.of(fromClassLoader.toURI()) : Files.exists(local) ? local : null;
+    }
+
     /**
      * Asserts that an {@link UnsupportedOperationException} was thrown.
      *
@@ -118,16 +149,16 @@ public class AbstractWorkflowalizerTest {
      * @param folder Non-null output folder
      * @throws Exception
      */
-    protected static void unzip(final InputStream in, final File folder) throws Exception {
+    protected static void unzip(final InputStream in, final Path folder) throws Exception {
         try (ArchiveInputStream ais =
             new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, in)) {
-            ZipArchiveEntry entry;
-            while ((entry = (ZipArchiveEntry)ais.getNextEntry()) != null) {
-                final File outputFile = new File(folder, entry.getName());
+            for (ZipArchiveEntry entry; (entry = (ZipArchiveEntry)ais.getNextEntry()) != null;) {
+                final Path output = folder.resolve(entry.getName());
                 if (entry.isDirectory()) {
-                    outputFile.mkdirs();
+                    Files.createDirectories(output);
                 } else {
-                    try (OutputStream os = new FileOutputStream(outputFile)) {
+                    Files.createDirectories(output.getParent());
+                    try (OutputStream os = Files.newOutputStream(output, StandardOpenOption.CREATE_NEW)) {
                         IOUtils.copy(ais, os);
                     }
                 }
@@ -244,7 +275,7 @@ public class AbstractWorkflowalizerTest {
         assertEquals(parseWorkflowSetMeta("Author", rawFileLines), workflowSetMeta.getAuthor().orElse(null));
 
         final String comments = parseWorkflowSetMeta("Comments", rawFileLines);
-        final String[] lines = comments.split(System.getProperty("line.separator"));
+        final String[] lines = NEWLINE_PATTERN.split(comments);
 
         assertTrue(workflowSetMeta.getTitle().isPresent());
         assertEquals(lines[0], workflowSetMeta.getTitle().orElse(null));

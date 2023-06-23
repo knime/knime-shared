@@ -87,8 +87,8 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     // -- Workflow --
 
     @Override
-    public String getWorkflowSetMetaFileName() {
-        return "workflowset.meta";
+    public Optional<String> getWorkflowSetMetaFileName() {
+        return Optional.of("workflowset.meta");
     }
 
     @Override
@@ -176,25 +176,26 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
             return Optional.empty();
         }
         final List<String> annotations = new ArrayList<>();
-        final ConfigBase c = config.getConfigBase("annotations");
-        for (final String key : c.keySet()) {
-            annotations.add(c.getConfigBase(key).getString("text"));
+        final var annotationsConfig = config.getConfigBase("annotations");
+        for (final var key : annotationsConfig.keySet()) {
+            annotations.add(annotationsConfig.getConfigBase(key).getString("text"));
         }
-        return annotations.isEmpty() ? Optional.empty() : Optional.ofNullable(Collections.unmodifiableList(annotations));
+        return annotations.isEmpty() ? Optional.empty() : Optional.of(Collections.unmodifiableList(annotations));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<NodeConnection> getConnections(final ConfigBase config, final Map<Integer, NodeMetadata> nodeMap) throws InvalidSettingsException {
+    public List<NodeConnection> getConnections(final ConfigBase config, final Map<Integer, NodeMetadata> nodeMap)
+            throws InvalidSettingsException {
         final List<NodeConnection> connections = new ArrayList<>();
-        final ConfigBase c = config.getConfigBase("connections");
-        for (final String key : c.keySet()) {
-            final int sourceId = c.getConfigBase(key).getInt("sourceID");
-            final int destId = c.getConfigBase(key).getInt("destID");
-            final int sourcePort = c.getConfigBase(key).getInt("sourcePort");
-            final int destPort = c.getConfigBase(key).getInt("destPort");
+        final var connectionsConfig = config.getConfigBase("connections");
+        for (final String key : connectionsConfig.keySet()) {
+            final var sourceId = connectionsConfig.getConfigBase(key).getInt("sourceID");
+            final var destId = connectionsConfig.getConfigBase(key).getInt("destID");
+            final var sourcePort = connectionsConfig.getConfigBase(key).getInt("sourcePort");
+            final var destPort = connectionsConfig.getConfigBase(key).getInt("destPort");
             final Optional<NodeMetadata> source = Optional.ofNullable(nodeMap.get(sourceId));
             final Optional<NodeMetadata> dest = Optional.ofNullable(nodeMap.get(destId));
             connections.add(new NodeConnection(sourceId, source, sourcePort, destId, dest, destPort));
@@ -208,9 +209,9 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     @Override
     public List<ConfigBase> getNodeConfigs(final ConfigBase config) throws InvalidSettingsException {
         final List<ConfigBase> nodes = new ArrayList<>();
-        final ConfigBase c = config.getConfigBase("nodes");
-        for (final String key : c.keySet()) {
-            nodes.add(c.getConfigBase(key));
+        final var nodesConfig = config.getConfigBase("nodes");
+        for (final String key : nodesConfig.keySet()) {
+            nodes.add(nodesConfig.getConfigBase(key));
         }
         return nodes;
     }
@@ -228,7 +229,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
     @Override
     public String getFactorySettingsHashCode(final ConfigBase config) throws InvalidSettingsException {
         if (config.containsKey("factory_settings")) {
-            final ConfigBase facSettings = config.getConfigBase("factory_settings");
+            final var facSettings = config.getConfigBase("factory_settings");
             return ConfigUtils.contentBasedHashString(facSettings);
         }
         return "";
@@ -275,7 +276,7 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
      */
     @Override
     public Optional<String> getCustomNodeDescription(final ConfigBase config) throws InvalidSettingsException {
-        final String desc = config.getString("customDescription");
+        final var desc = config.getString("customDescription");
         return desc == null || desc.isEmpty() ? Optional.empty() : Optional.ofNullable(desc);
     }
 

@@ -68,6 +68,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -78,6 +79,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.knime.core.util.PathUtils;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
+import org.knime.core.util.workflowalizer.RepositoryItemMetadata.ContentType;
 import org.knime.core.util.workflowalizer.RepositoryItemMetadata.RepositoryItemType;
 import org.xml.sax.SAXParseException;
 
@@ -120,8 +122,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @BeforeAll
     public static void setup() throws Exception {
         workspaceDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (InputStream is = WorkflowalizerTest.class.getResourceAsStream("/workflowalizer-test.zip")) {
-            unzip(is, workspaceDir.toFile());
+        try (InputStream is = getResourceAsStream("/workflowalizer-test.zip")) {
+            unzip(is, workspaceDir);
         }
         workflowDir = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_Workflowalizer_360Pre").toPath();
         workflowDirWithAuthorNull = new File(workspaceDir.toFile(), "workflowalizer-test/Testing_author_null").toPath();
@@ -144,8 +146,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         readTemplateTemplateKnimeWithTimezone = Files.readAllLines(templateDirWithTimezone.resolve("template.knime"));
 
         componentTemplateDir = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-simple.zip")) {
-            unzip(is, componentTemplateDir.toFile());
+        try (final InputStream is = getResourceAsStream("/component-template-simple.zip")) {
+            unzip(is, componentTemplateDir);
         }
         componentTemplateDir = componentTemplateDir.resolve("Simple-Component");
         readComponentTemplateWorkflowKnime = Files.readAllLines(componentTemplateDir.resolve("workflow.knime"));
@@ -288,14 +290,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testSvg(1301, 501, wkfMd);
 
         final Path svg = workflowDir.resolve("workflow.svg");
-        try (final InputStream readSvg = wkfMd.getSvgInputStream().orElse(null)) {
+        try (final InputStream readSvg = wkfMd.getSvgInputStream().orElse(null);
+                final InputStream referenceSvg = Files.newInputStream(svg)) {
             assertNotNull(readSvg);
-            final byte[] bytes = IOUtils.toByteArray(Files.newInputStream(svg));
-            final byte[] readBytes = IOUtils.toByteArray(readSvg);
-            assertEquals(bytes.length, readBytes.length);
-            for (int i = 0; i < bytes.length; i++) {
-                assertEquals(bytes[i], readBytes[i]);
-            }
+            assertTrue(Arrays.equals(IOUtils.toByteArray(referenceSvg), IOUtils.toByteArray(readSvg)));
         }
 
         assertUOEThrown(wkfMd::getConnections);
@@ -537,8 +535,14 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingWorkflowWorkflowSetMeta() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
-        testWorkflowSetMetaSimple(readWorkflowSetLines, wkfMd.getWorkflowSetMetadata().get());
+        final WorkflowSetMeta workflowSetMetadata = wkfMd.getWorkflowSetMetadata().orElseThrow();
+        assertEquals(ContentType.TEXT_PLAIN, workflowSetMetadata.getContentType());
+        assertTrue(workflowSetMetadata.getTitle().isEmpty());
+        assertEquals(2018, workflowSetMetadata.getCreated().get().getYear());
+        assertTrue(workflowSetMetadata.getLastModified().isEmpty());
+        assertTrue(workflowSetMetadata.getLinks().get().isEmpty());
+        assertTrue(workflowSetMetadata.getTags().get().isEmpty());
+        testWorkflowSetMetaSimple(readWorkflowSetLines, workflowSetMetadata);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -685,7 +689,6 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final Path workflowPath = workspaceDir.resolve("workflowalizer-test/test_group/test1");
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowPath, wc);
-        assertNotNull(wkfMd.getWorkflowSetMetadata());
         assertFalse(wkfMd.getWorkflowSetMetadata().isPresent());
 
         assertUOEThrown(wkfMd::getConnections);
@@ -932,7 +935,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingZipWorkflow() throws Exception {
         // This zip contains multiple workflows, but only the first should be read
-        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAll().build();
         final WorkflowMetadata twm = Workflowalizer.readWorkflow(zipFile, wc);
         assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
@@ -1002,7 +1005,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testReadingSVGFromZip() throws Exception {
-        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
         testSvg(1301, 501, wm);
@@ -1127,7 +1130,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testReadingTemplateFromZip() throws Exception {
-        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
 
         assertEquals("Hierarchical Cluster Assignment with timezone", tm.getName());
@@ -1349,8 +1352,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateNested() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-nested.zip")) {
-            unzip(is, componentPath.toFile());
+        try (final InputStream is = getResourceAsStream("/component-template-nested.zip")) {
+            unzip(is, componentPath);
         }
         componentPath = componentPath.resolve("Nested Component");
 
@@ -1412,8 +1415,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateNoPorts() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (final InputStream is = WorkflowalizerTest.class.getResourceAsStream("/component-template-no-ports.zip")) {
-            unzip(is, componentPath.toFile());
+        try (final InputStream is = getResourceAsStream("/component-template-no-ports.zip")) {
+            unzip(is, componentPath);
         }
         componentPath = componentPath.resolve("No Connections");
 
@@ -1450,9 +1453,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentNoPortDescriptions() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (final InputStream is =
-            WorkflowalizerTest.class.getResourceAsStream("/component-no-port-descriptions.zip")) {
-            unzip(is, componentPath.toFile());
+        try (final InputStream is = getResourceAsStream("/component-no-port-descriptions.zip")) {
+            unzip(is, componentPath);
         }
         componentPath = componentPath.resolve("No Descriptions");
 
@@ -1478,9 +1480,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateMissingConnections() throws Exception {
         Path componentPath = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (final InputStream is =
-            WorkflowalizerTest.class.getResourceAsStream("/component-template-missing-connection.zip")) {
-            unzip(is, componentPath.toFile());
+        try (final InputStream is = getResourceAsStream("/component-template-missing-connection.zip")) {
+            unzip(is, componentPath);
         }
         componentPath = componentPath.resolve("Missing Connection");
 
@@ -1575,7 +1576,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testReadingWorkflowGroupZip() throws Exception {
-        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final WorkflowGroupMetadata wgm = Workflowalizer.readWorkflowGroup(zipFile);
         assertEquals(RepositoryItemType.WORKFLOW_GROUP, wgm.getType());
         assertFalse(wgm.getAuthor().isPresent());
@@ -1625,7 +1626,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingRepositoryItemZip() throws Exception {
         // Test reading group
-        final Path zipFile = Paths.get(Workflowalizer.class.getResource("/workflowalizer-test.zip").toURI());
+        final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(zipFile, wc);
 
@@ -1641,14 +1642,14 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertFalse(wgm.getLinks().isPresent());
 
         // Test reading workflow
-        final Path zipWorkflow = Paths.get(Workflowalizer.class.getResource("/simple-workflow.zip").toURI());
+        final Path zipWorkflow = getResourcePath("/simple-workflow.zip");
         final RepositoryItemMetadata workflow = Workflowalizer.readRepositoryItem(zipWorkflow, wc);
 
         assertEquals(RepositoryItemType.WORKFLOW, workflow.getType());
         assertTrue(workflow instanceof WorkflowMetadata);
 
         // Test reading component
-        final Path zipComponent = Paths.get(Workflowalizer.class.getResource("/component-template-simple.zip").toURI());
+        final Path zipComponent = getResourcePath("/component-template-simple.zip");
         final RepositoryItemMetadata component = Workflowalizer.readRepositoryItem(zipComponent, wc);
 
         assertEquals(RepositoryItemType.TEMPLATE, component.getType());
@@ -1656,7 +1657,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
         // Test zip with no groups, workflows, or components
         try {
-            final Path noRepoItems = Paths.get(Workflowalizer.class.getResource("/noRepoItems.zip").toURI());
+            final Path noRepoItems = getResourcePath("/noRepoItems.zip");
             Workflowalizer.readRepositoryItem(noRepoItems, wc);
             fail("No exception thrown for zip archive containing no repository items");
         } catch (final IllegalArgumentException ex) {
@@ -1675,7 +1676,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testReadingWorkflowWithTestNodes() throws Exception {
-        final Path zipFile = Paths.get(WorkflowalizerTest.class.getResource("/Testing_nodes_wkfl.knwf").toURI());
+        final Path zipFile = getResourcePath("/Testing_nodes_wkfl.knwf");
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readNodes().build();
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(zipFile, wc);
 
@@ -1700,7 +1701,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testComponentPortsWithoutText() throws Exception {
-        Path zipFile = Paths.get(Workflowalizer.class.getResource("/Component-No-Port-Text.knwf").toURI());
+        Path zipFile = getResourcePath("/Component-No-Port-Text.knwf");
         WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         TemplateMetadata tm = Workflowalizer.readTemplate(zipFile, wc);
 
@@ -1731,10 +1732,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testWorkflowWithBrokenXML() throws Exception {
         Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
-        try (InputStream is = WorkflowalizerXXETest.class.getResourceAsStream("/Workflow_BrokenMetaXML.knwf")) {
-            unzip(is, workspace.toFile());
+        try (InputStream is = getResourceAsStream("/Workflow_BrokenMetaXML.knwf")) {
+            unzip(is, workspace);
         }
-        Path directory = new File(workspace.toFile(), "Workflow_BrokenMetaXML").toPath();
+        final var directory = workspace.resolve("Workflow_BrokenMetaXML");
         assertThrows(SAXParseException.class, () -> Workflowalizer.readRepositoryItem(directory),
             "Unexpected response code when parsing a workflow with invalid XML");
     }
@@ -1746,7 +1747,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
      */
     @Test
     void testWorkflowWithBrokenXMLZip() throws Exception {
-        Path workflowPath = Paths.get(WorkflowalizerXXETest.class.getResource("/Workflow_BrokenMetaXML.knwf").toURI());
+        Path workflowPath = getResourcePath("/Workflow_BrokenMetaXML.knwf");
         assertThrows(SAXParseException.class, () -> Workflowalizer.readRepositoryItem(workflowPath),
             "Unexpected response code when parsing a workflow with invalid XML");
     }

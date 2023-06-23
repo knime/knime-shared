@@ -48,15 +48,23 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.knime.core.util.workflowalizer.RepositoryItemMetadata.ContentType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -83,11 +91,20 @@ public class WorkflowSetMeta {
 
     private static final Pattern SPLIT_COMMENTS_REGEX = Pattern.compile("\r?\n");
 
+    @JsonProperty("contentType")
+    private final ContentType m_contentType;
+
     @JsonProperty("author")
     private final Optional<String> m_author;
 
     @JsonProperty("title")
     private Optional<String> m_title;
+
+    @JsonProperty("lastModified")
+    private Optional<ZonedDateTime> m_lastModified;
+
+    @JsonProperty("created")
+    private Optional<ZonedDateTime> m_created;
 
     @JsonProperty("description")
     private Optional<String> m_description;
@@ -98,8 +115,60 @@ public class WorkflowSetMeta {
     @JsonProperty("tags")
     private Optional<List<String>> m_tags;
 
+    WorkflowSetMeta(final org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata workflowMetadata) {
+        switch (workflowMetadata.getContentType().intValue()) {
+            case org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType.INT_TEXT_PLAIN:
+                m_contentType = ContentType.TEXT_PLAIN;
+                break;
+            case org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType.INT_TEXT_HTML:
+                m_contentType = ContentType.TEXT_HTML;
+                break;
+            default:
+                throw new IllegalArgumentException(workflowMetadata.getContentType().toString());
+        }
+        m_author = Optional.ofNullable(workflowMetadata.getAuthor());
+        m_title = Optional.empty();
+        m_lastModified = Optional.ofNullable(workflowMetadata.getLastModified()).map(WorkflowSetMeta::toZonedDateTime);
+        m_created = Optional.ofNullable(workflowMetadata.getCreated()).map(WorkflowSetMeta::toZonedDateTime);
+        m_description = Optional.ofNullable(workflowMetadata.getDescription());
+        m_links = Optional.ofNullable(workflowMetadata.getLinks()).map(xmlLinks ->
+                xmlLinks.getLinkList().stream() //
+                    .map(xmlLink -> new Link(StringUtils.defaultIfBlank(xmlLink.getHref(), null),
+                        StringUtils.defaultIfBlank(xmlLink.getStringValue(), null))) //
+                    .collect(Collectors.toList()));
+        m_tags = Optional.ofNullable(workflowMetadata.getTags()).map(tags -> new ArrayList<>(tags.getTagList()));
+    }
+
+    private static ZonedDateTime toZonedDateTime(final Calendar cal) {
+        return cal instanceof GregorianCalendar ? ((GregorianCalendar) cal).toZonedDateTime()
+            : cal.toInstant().atZone(Optional.ofNullable(cal.getTimeZone()) //
+                .map(TimeZone::toZoneId).orElseGet(ZoneId::systemDefault));
+    }
+
     WorkflowSetMeta(final Optional<String> author, final Optional<String> comments) {
+        this(author, comments, Optional.empty());
+    }
+
+    WorkflowSetMeta(final Optional<String> author, final Optional<String> comments,
+            final Optional<String> creationDate) {
         m_author = author;
+        m_contentType = ContentType.TEXT_PLAIN;
+        m_lastModified = Optional.empty();
+        m_created = Optional.empty();
+        if (creationDate.isPresent()) {
+            final var elements = creationDate.get().split("/");
+            if (elements.length >= 3) {
+                try {
+                    final var day = Integer.parseInt(elements[0]);
+                    final var month = Integer.parseInt(elements[1]);
+                    final var year = Integer.parseInt(elements[2]);
+                    m_created = Optional.of(LocalDateTime.of(year, month, day, 12, 1) //
+                            .atZone(ZoneId.systemDefault()));
+                } catch (final NumberFormatException nfe) {
+                    // ignore
+                }
+            }
+        }
 
         if (comments.isPresent() && StringUtils.isNotEmpty(comments.get())) {
             parseCommentsField(comments.get());
@@ -117,11 +186,23 @@ public class WorkflowSetMeta {
      * @param workflowSetMeta POJO to copy
      */
     protected WorkflowSetMeta(final WorkflowSetMeta workflowSetMeta) {
+        m_contentType = workflowSetMeta.m_contentType;
         m_author = workflowSetMeta.m_author;
         m_title = workflowSetMeta.m_title;
+        m_lastModified = workflowSetMeta.m_lastModified;
+        m_created = workflowSetMeta.m_created;
         m_description = workflowSetMeta.m_description;
         m_links = workflowSetMeta.m_links;
         m_tags = workflowSetMeta.m_tags;
+    }
+
+    /**
+     * Returns the content type of the description.
+     *
+     * @return the content type of the description
+     */
+    public ContentType getContentType() {
+        return m_contentType;
     }
 
     /**
@@ -131,7 +212,7 @@ public class WorkflowSetMeta {
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
     public Optional<String> getAuthor() {
-        if (m_author == null) {
+        if (m_author == null) { // NOSONAR
             throw new UnsupportedOperationException("getAuthor() is not supported, field was not read");
         }
         return m_author;
@@ -144,7 +225,7 @@ public class WorkflowSetMeta {
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
     public Optional<String> getTitle() {
-        if (m_title == null) {
+        if (m_title == null) { // NOSONAR
             throw new UnsupportedOperationException("getTitle() is not supported, field was not read");
         }
         return m_title;
@@ -157,10 +238,36 @@ public class WorkflowSetMeta {
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
     public Optional<String> getDescription() {
-        if (m_description == null) {
+        if (m_description == null) { // NOSONAR
             throw new UnsupportedOperationException("getDescription() is not supported, field was not read");
         }
         return m_description;
+    }
+
+    /**
+     * Returns the workflow's last-modified time stamp, if present.
+     *
+     * @return workflow's last-modified time stamp
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<ZonedDateTime> getLastModified() {
+        if (m_lastModified == null) { // NOSONAR
+            throw new UnsupportedOperationException("getLastModified() is not supported, field was not read");
+        }
+        return m_lastModified;
+    }
+
+    /**
+     * Returns the workflow's creation time stamp, if present.
+     *
+     * @return workflow's creation time stamp
+     * @throws UnsupportedOperationException if field is null, and therefore wasn't read
+     */
+    public Optional<ZonedDateTime> getCreated() {
+        if (m_created == null) { // NOSONAR
+            throw new UnsupportedOperationException("getCreated() is not supported, field was not read");
+        }
+        return m_created;
     }
 
     /**
@@ -170,7 +277,7 @@ public class WorkflowSetMeta {
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
     public Optional<List<Link>> getLinks() {
-        if (m_links == null) {
+        if (m_links == null) { // NOSONAR
             throw new UnsupportedOperationException("getLinks() is not supported, field was not read");
         }
         return m_links;
@@ -183,7 +290,7 @@ public class WorkflowSetMeta {
      * @throws UnsupportedOperationException if field is null, and therefore wasn't read
      */
     public Optional<List<String>> getTags() {
-        if (m_tags == null) {
+        if (m_tags == null) { // NOSONAR
             throw new UnsupportedOperationException("getTags() is not supported, field was not read");
         }
         return m_tags;
@@ -197,12 +304,19 @@ public class WorkflowSetMeta {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof WorkflowSetMeta)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final WorkflowSetMeta other = (WorkflowSetMeta)obj;
-        return new EqualsBuilder().append(m_author, other.m_author).append(m_title, other.m_title)
-            .append(m_description, other.m_description).append(m_links, other.m_links).append(m_tags, other.m_tags)
+        return new EqualsBuilder()
+                .append(m_contentType, other.m_contentType)
+                .append(m_author, other.m_author)
+                .append(m_title, other.m_title)
+                .append(m_lastModified, other.m_lastModified)
+                .append(m_created, other.m_created)
+                .append(m_description, other.m_description)
+                .append(m_links, other.m_links)
+                .append(m_tags, other.m_tags)
             .isEquals();
     }
 
@@ -214,19 +328,18 @@ public class WorkflowSetMeta {
 
     @Override
     public String toString() {
-        String links = "";
-        if (m_links.isPresent()) {
-            for (Link l : m_links.get()) {
-                links += l.toString() + ", ";
-            }
-        }
-
-        String tags = null;
-        if (m_tags.isPresent()) {
-            tags = StringUtils.join(m_tags.get(), ", ");
-        }
-        return "author: " + m_author.orElse(null) + "\n" + "title: " + m_title.orElse(null) + "\n" + "description: "
-            + m_description.orElse(null) + "\n" + "links: " + links + "\n" + "tags: " + tags;
+        final var sb = new StringBuilder()
+                .append("contentType: ").append(m_contentType).append("\n")
+                .append("author: ").append(m_author.orElse(null)).append("\n")
+                .append("title: ").append(m_title.orElse(null)).append("\n")
+                .append("lastModified: ").append(m_lastModified.orElse(null)).append("\n")
+                .append("created: ").append(m_created.orElse(null)).append("\n")
+                .append("description: ").append(m_description.orElse(null)).append("\n")
+                .append("links: ");
+        m_links.ifPresent(links -> links.forEach(link -> sb.append(link).append(", ")));
+        sb.append("\n").append("tags: ");
+        m_tags.ifPresent(tags -> StringUtils.join(m_tags.get(), ", "));
+        return sb.toString();
     }
 
     // -- Helper methods --

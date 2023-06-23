@@ -56,18 +56,20 @@ import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.util.workflowalizer.NodeMetadata.NodeType;
 
 /**
- * {@code WorkflowParser} for parsing v4.1.0 files to the current version.
+ * {@code WorkflowParser} for parsing v5.1.0 files to the current version.
  *
- * @author Alison Walter, KNIME GmbH, Konstanz, Germany
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  */
 final class WorkflowParserV510 extends AbstractWorkflowParser {
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public Optional<String> getNodeContainerMetadataFileName(final boolean isComponent) {
+        return Optional.of(isComponent ? "component-metadata.xml" : "workflow-metadata.xml");
+    }
+
     @Override
     public NodeType getType(final ConfigBase config) throws InvalidSettingsException {
-        final String type = config.getString("node_type");
+        final var type = config.getString("node_type");
         if (type.equalsIgnoreCase(NodeType.NATIVE_NODE.toString())) {
             return NodeType.NATIVE_NODE;
         } else if (type.equalsIgnoreCase(NodeType.SUBNODE.toString())) {
@@ -78,36 +80,24 @@ final class WorkflowParserV510 extends AbstractWorkflowParser {
         throw new IllegalArgumentException("Unrecognized node type: " + type);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Optional<String> getComponentTemplateDescription(final ConfigBase inputSettingsXml,
         final ConfigBase settingsXml) throws InvalidSettingsException {
         return getComponentDescriptionFromSettingsXml(settingsXml);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<Optional<String>> getPortNames(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
         final boolean readInport) throws InvalidSettingsException {
         return getPortNamesFromSettingsXml(settingsXml, readInport);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<Optional<String>> getPortDescriptions(final ConfigBase nodeConfiguration, final ConfigBase settingsXml,
         final boolean readInport) throws InvalidSettingsException {
         return getPortDescriptionsFromSettingsXml(settingsXml, readInport);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Optional<String> getIcon(final ConfigBase settingsXml) throws InvalidSettingsException {
         if (settingsXml.containsKey("metadata")) {
@@ -120,9 +110,6 @@ final class WorkflowParserV510 extends AbstractWorkflowParser {
         return Optional.empty();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Optional<String> getComponentType(final ConfigBase settingsXml) throws InvalidSettingsException {
         if (settingsXml.containsKey("metadata")) {
@@ -134,6 +121,4 @@ final class WorkflowParserV510 extends AbstractWorkflowParser {
         }
         return Optional.empty();
     }
-
-
 }

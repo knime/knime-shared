@@ -92,6 +92,17 @@ public interface RepositoryItemMetadata {
     }
 
     /**
+     * Content type of the metadata's description field(s).
+     * @since 6.0
+     */
+    public enum ContentType {
+        /** Plain text. */
+        TEXT_PLAIN,
+        /** Text with HTML markup. */
+        TEXT_HTML
+    }
+
+    /**
      * Returns the type of this KNIME repository item.
      *
      * @return the type
