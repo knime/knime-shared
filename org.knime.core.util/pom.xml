@@ -39,6 +39,8 @@
 					<name>metadata</name>
 					<partialMethods>ALL,-XGET,-XSET,-XGET_ARRAY,-XGET_LIST</partialMethods>
 					<copyAnn>true</copyAnn>
+					<!-- sourceOnly>false</sourceOnly -->
+					<outputJar>${project.basedir}/lib/schemas.jar</outputJar>
 				</configuration>
 			</plugin>
 			<plugin>
