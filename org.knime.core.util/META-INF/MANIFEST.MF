@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Core Utilities Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
 Bundle-Version: 6.0.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: ., lib/schemas.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Export-Package: org.apache.commons.io,
  org.apache.commons.io.comparator,
