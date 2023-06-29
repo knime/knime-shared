@@ -48,7 +48,9 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -159,13 +161,12 @@ public class WorkflowSetMeta {
             final var elements = creationDate.get().split("/");
             if (elements.length >= 3) {
                 try {
-                    final var day = Integer.parseInt(elements[0]);
-                    final var month = Integer.parseInt(elements[1]);
-                    final var year = Integer.parseInt(elements[2]);
-                    m_created = Optional.of(LocalDateTime.of(year, month, day, 12, 1) //
-                            .atZone(ZoneId.systemDefault()));
-                } catch (final NumberFormatException nfe) {
-                    // ignore
+                    final var day = Math.min(Math.max(1, Integer.parseInt(elements[0])), 31);
+                    final var month = Math.min(Math.max(1, Integer.parseInt(elements[1])), 12);
+                    final var year = Math.min(Math.max(Year.MIN_VALUE, Integer.parseInt(elements[2])), Year.MAX_VALUE);
+                    m_created = Optional.of(LocalDateTime.of(year, month, day,  12, 1).atZone(ZoneId.systemDefault()));
+                } catch (final NumberFormatException | DateTimeException nfe) { // NOSONAR
+                    // ignore garbage dates
                 }
             }
         }
