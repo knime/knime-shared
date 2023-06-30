@@ -53,6 +53,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.knime.core.node.workflow.contextv2.HubSpaceLocationInfoBuilderFactory.HubSpaceLocationInfoSpaceBuilder;
@@ -89,14 +90,14 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
     private final String m_spaceItemId;
 
     /**
-     * The version of the Hub Space where the current workflow is stored. May be null.
-     */
-    private final String m_spaceVersion;
-
-    /**
      * The item ID of the current workflow, e.g. *2zwDuYFgpLVveXfX (including leading asterisk).
      */
     private final String m_workflowItemId;
+
+    /**
+     * The version of the Hub Space where the current workflow is stored. May be null.
+     */
+    private final Integer m_itemVersion;
 
     HubSpaceLocationInfo( // NOSONAR only invoked by builder class
             final URI repositoryAddress, //
@@ -106,8 +107,8 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
             final URI workflowAddress, //
             final String spacePath, //
             final String spaceItemId, //
-            final String spaceVersion, //
-            final String workflowItemId) {
+            final String workflowItemId, //
+            final Integer itemVersion) {
 
         super(LocationType.HUB_SPACE, //
             repositoryAddress, //
@@ -118,8 +119,8 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
 
         m_spacePath = spacePath;
         m_spaceItemId = spaceItemId;
-        m_spaceVersion = spaceVersion;
         m_workflowItemId = workflowItemId;
+        m_itemVersion = itemVersion;
     }
 
     /**
@@ -138,11 +139,20 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
     }
 
     /**
-     * @return the version of the Hub Space where the current workflow is stored. May be null, which indicates the
-     *         staging version (latest version plus unversioned changes on top).
+     * @return same as {@link #getItemVersion()}
+     * @deprecated Space versions are not supported by KNIME Hub anymore, use {@link #getItemVersion()}
      */
+    @Deprecated(since = "6.0")
     public Optional<String> getSpaceVersion() {
-        return Optional.ofNullable(m_spaceVersion);
+        return getItemVersion().stream().mapToObj(Integer::toString).findAny();
+    }
+
+    /**
+     * @return item version of this workflow, or {@link OptionalInt#empty()} if it is not versioned
+     * @since 6.0
+     */
+    public OptionalInt getItemVersion() {
+        return m_itemVersion == null ? OptionalInt.empty() : OptionalInt.of(m_itemVersion);
     }
 
     /**
@@ -156,8 +166,8 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
     Optional<URI> mountpointURI(final Pair<URI, Path> mountpoint, final Path localWorkflowPath) {
         try {
             final var builder = new URIBuilder(mountpoint.getFirst()).setPath(getWorkflowPath());
-            if (m_spaceVersion != null) {
-                builder.addParameter("spaceVersion", m_spaceVersion);
+            if (m_itemVersion != null) {
+                builder.addParameter("version", Integer.toString(m_itemVersion));
             }
             return Optional.of(builder.build().normalize());
         } catch (final URISyntaxException ex) {
@@ -180,7 +190,7 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
                 && Objects.equals(getDefaultMountId(), that.getDefaultMountId())
                 && Objects.equals(getSpacePath(), that.getSpacePath())
                 && Objects.equals(getSpaceItemId(), that.getSpaceItemId())
-                && Objects.equals(getSpaceVersion(), that.getSpaceVersion())
+                && Objects.equals(getItemVersion(), that.getItemVersion())
                 && Objects.equals(getWorkflowItemId(), that.getWorkflowItemId());
     }
 
@@ -191,7 +201,8 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
             getRepositoryAddress(), //
             getAuthenticator(), //
             getWorkflowPath(), //
-            getDefaultMountId());
+            getDefaultMountId(), //
+            getItemVersion());
     }
 
     /**
@@ -209,7 +220,9 @@ public class HubSpaceLocationInfo extends RestLocationInfo {
         final var init = "  ".repeat(indent);
         sb.append(init).append("spacePath=").append(m_spacePath).append("\n");
         sb.append(init).append("spaceItemId=").append(m_spaceItemId).append("\n");
-        sb.append(init).append("spaceVersion=").append(m_spaceVersion).append("\n");
+        sb.append(init).append("version=") //
+                .append(m_itemVersion == null ? "current-state" : Integer.toString(m_itemVersion)) //
+                .append("\n");
         sb.append(init).append("workflowItemId=").append(m_workflowItemId).append("\n");
     }
 }
