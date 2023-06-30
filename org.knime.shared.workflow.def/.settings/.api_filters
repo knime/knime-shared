@@ -41,6 +41,13 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/main/java/org/knime/shared/workflow/def/PageMarginsDef.java" type="org.knime.shared.workflow.def.PageMarginsDef">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.knime.shared.workflow.def.PageMarginsDef"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/main/java/org/knime/shared/workflow/def/impl/AnnotationDataDefBuilder.java" type="org.knime.shared.workflow.def.impl.AnnotationDataDefBuilder">
         <filter comment="Should not manually add @since tags to generated classes" id="1143996420">
             <message_arguments>
@@ -103,6 +110,20 @@
         <filter comment="Can't add @since tags to report configuration fields for technical reasons." id="1143996420">
             <message_arguments>
                 <message_argument value="m_reportConfiguration"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/shared/workflow/def/impl/DefaultPageMarginsDef.java" type="org.knime.shared.workflow.def.impl.DefaultPageMarginsDef">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.knime.shared.workflow.def.impl.DefaultPageMarginsDef"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/main/java/org/knime/shared/workflow/def/impl/PageMarginsDefBuilder.java" type="org.knime.shared.workflow.def.impl.PageMarginsDefBuilder">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.knime.shared.workflow.def.impl.PageMarginsDefBuilder"/>
             </message_arguments>
         </filter>
     </resource>
