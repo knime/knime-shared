@@ -50,14 +50,13 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import org.knime.shared.workflow.def.PageMarginsDef;
 
-import org.knime.shared.workflow.def.ReportConfigurationDef;
+import org.knime.shared.workflow.def.PageMarginsDef;
 
 
 
 // for types that define enums
-import org.knime.shared.workflow.def.ReportConfigurationDef.*;
+import org.knime.shared.workflow.def.PageMarginsDef.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -69,38 +68,38 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
 /**
- * The report configuration set on components, includes page layout etc.
+ * Page margins for report configuration
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
- * @since 5.1
  * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
 @JsonPropertyOrder(alphabetic = true)
-public class DefaultReportConfigurationDef implements ReportConfigurationDef {
+public class DefaultPageMarginsDef implements PageMarginsDef {
 
     /** this either points to a LoadException (which implements LoadExceptionTree<Void>) or to
-     * a LoadExceptionTree<ReportConfigurationDef.Attribute> instance. */
+     * a LoadExceptionTree<PageMarginsDef.Attribute> instance. */
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
     /**
-     * Page size
-     * Example value: A4
      */
-    @JsonProperty("pageSize")
-    protected String m_pageSize;
-
-    /**
-     * Page orientation (portrait or landscape)
-     * Example value: portrait
-     */
-    @JsonProperty("orientation")
-    protected String m_orientation;
+    @JsonProperty("top")
+    protected Double m_top;
 
     /**
      */
-    @JsonProperty("pageMargins")
-    protected PageMarginsDef m_pageMargins;
+    @JsonProperty("right")
+    protected Double m_right;
+
+    /**
+     */
+    @JsonProperty("bottom")
+    protected Double m_bottom;
+
+    /**
+     */
+    @JsonProperty("left")
+    protected Double m_left;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -109,21 +108,22 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     /**
      * Internal constructor for subclasses.
      */
-    DefaultReportConfigurationDef() {
+    DefaultPageMarginsDef() {
         m_exceptionTree = Optional.empty();
     }
 
     /**
-     * Builder constructor. Only for use in {@link ReportConfigurationDefBuilder}.
+     * Builder constructor. Only for use in {@link PageMarginsDefBuilder}.
      * @param builder source
      */
-    DefaultReportConfigurationDef(ReportConfigurationDefBuilder builder) {
+    DefaultPageMarginsDef(PageMarginsDefBuilder builder) {
         // TODO make immutable copies!!
         
             
-        m_pageSize = builder.m_pageSize;
-        m_orientation = builder.m_orientation;
-        m_pageMargins = builder.m_pageMargins;
+        m_top = builder.m_top;
+        m_right = builder.m_right;
+        m_bottom = builder.m_bottom;
+        m_left = builder.m_left;
 
         m_exceptionTree = Optional.empty();
     }
@@ -131,19 +131,20 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     /**
      * LoadExceptionTree constructor. Copies the given instance and sets the {@link LoadException} as supply
      * exception, marking it as a default value that had to be used due to the given {@link LoadException}.
-     * Only for use in {@link ReportConfigurationDefBuilder}.
+     * Only for use in {@link PageMarginsDefBuilder}.
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    DefaultReportConfigurationDef(ReportConfigurationDef toCopy, final LoadException supplyException) {
+    DefaultPageMarginsDef(PageMarginsDef toCopy, final LoadException supplyException) {
         Objects.requireNonNull(supplyException);
-        toCopy = Objects.requireNonNullElse(toCopy, new ReportConfigurationDefBuilder().build());
+        toCopy = Objects.requireNonNullElse(toCopy, new PageMarginsDefBuilder().build());
         
-        m_pageSize = toCopy.getPageSize();
-        m_orientation = toCopy.getOrientation();
-        m_pageMargins = toCopy.getPageMargins();
-        if(toCopy instanceof DefaultReportConfigurationDef){
-            var childTree = ((DefaultReportConfigurationDef)toCopy).getLoadExceptionTree();                
+        m_top = toCopy.getTop();
+        m_right = toCopy.getRight();
+        m_bottom = toCopy.getBottom();
+        m_left = toCopy.getLeft();
+        if(toCopy instanceof DefaultPageMarginsDef){
+            var childTree = ((DefaultPageMarginsDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
             var merged = childTree.isEmpty() ? supplyException : SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
             m_exceptionTree = Optional.of(merged);
@@ -158,16 +159,17 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
      * Copy constructor.
      * @param toCopy source
      */
-    public DefaultReportConfigurationDef(ReportConfigurationDef toCopy) {
-        m_pageSize = toCopy.getPageSize();
-        m_orientation = toCopy.getOrientation();
-        m_pageMargins = toCopy.getPageMargins();
+    public DefaultPageMarginsDef(PageMarginsDef toCopy) {
+        m_top = toCopy.getTop();
+        m_right = toCopy.getRight();
+        m_bottom = toCopy.getBottom();
+        m_left = toCopy.getLeft();
         
         m_exceptionTree = Optional.empty();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Factory method to attach a LoadException to an existing ReportConfiguration
+    // Factory method to attach a LoadException to an existing PageMargins
     // -----------------------------------------------------------------------------------------------------------------
     /**
      * Factory method that copies all subtype information but returns the more general type, e.g., for inclusion in a container.
@@ -175,7 +177,7 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
      * @param toCopy default value to annotate with the supply exception
      * @param exception supply exception, not null (use the copy constructor otherwise)
      */
-    static DefaultReportConfigurationDef withException(ReportConfigurationDef toCopy, final LoadException exception) {
+    static DefaultPageMarginsDef withException(PageMarginsDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
         throw new IllegalArgumentException();
     }
@@ -197,11 +199,11 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
      * @return the load exceptions for the requested child instance and its descendants
      */
     @SuppressWarnings("unchecked")
-    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(ReportConfigurationDef.Attribute attribute){
+    public Optional<LoadExceptionTree<?>> getLoadExceptionTree(PageMarginsDef.Attribute attribute){
         return m_exceptionTree.flatMap(t -> {
             if(t instanceof LoadException) return Optional.empty();
-            // if the tree is not a leaf, it is typed to ReportConfigurationDef.Attribute
-            return ((LoadExceptionTree<ReportConfigurationDef.Attribute>)t).getExceptionTree(attribute);
+            // if the tree is not a leaf, it is typed to PageMarginsDef.Attribute
+            return ((LoadExceptionTree<PageMarginsDef.Attribute>)t).getExceptionTree(attribute);
         });
     }
 
@@ -210,16 +212,20 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getPageSize() {
-        return m_pageSize;
+    public Double getTop() {
+        return m_top;
     }
     @Override
-    public String getOrientation() {
-        return m_orientation;
+    public Double getRight() {
+        return m_right;
     }
     @Override
-    public PageMarginsDef getPageMargins() {
-        return m_pageMargins;
+    public Double getBottom() {
+        return m_bottom;
+    }
+    @Override
+    public Double getLeft() {
+        return m_left;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -227,48 +233,45 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     // -------------------------------------------------------------------------------------------------------------------  
     
     /**
-     * @return The supply exception associated to pageSize.
+     * @return The supply exception associated to top.
      */
     @JsonIgnore
-    public Optional<LoadException> getPageSizeSupplyException(){
-    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.PAGE_SIZE).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getTopSupplyException(){
+    	return getLoadExceptionTree(PageMarginsDef.Attribute.TOP).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
      
     /**
-     * @return The supply exception associated to orientation.
+     * @return The supply exception associated to right.
      */
     @JsonIgnore
-    public Optional<LoadException> getOrientationSupplyException(){
-    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.ORIENTATION).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getRightSupplyException(){
+    	return getLoadExceptionTree(PageMarginsDef.Attribute.RIGHT).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
      
     /**
-     * @return The supply exception associated to pageMargins.
+     * @return The supply exception associated to bottom.
      */
     @JsonIgnore
-    public Optional<LoadException> getPageMarginsSupplyException(){
-    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.PAGE_MARGINS).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getBottomSupplyException(){
+    	return getLoadExceptionTree(PageMarginsDef.Attribute.BOTTOM).flatMap(LoadExceptionTree::getSupplyException);
     }
     
+ 
      
     /**
-     * @return If there are {@link LoadException}s related to the {@link PageMarginsDef} returned by {@link #getPageMargins()}, this
-     * returns the pageMargins as DefaultPageMarginsDef which provides getters for the exceptions. Otherwise an empty optional.
+     * @return The supply exception associated to left.
      */
     @JsonIgnore
-    public Optional<DefaultPageMarginsDef> getFaultyPageMargins(){
-    	final var pageMargins = getPageMargins(); 
-        if(pageMargins instanceof DefaultPageMarginsDef && ((DefaultPageMarginsDef)pageMargins).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultPageMarginsDef)pageMargins);
-        }
-    	return Optional.empty();
+    public Optional<LoadException> getLeftSupplyException(){
+    	return getLoadExceptionTree(PageMarginsDef.Attribute.LEFT).flatMap(LoadExceptionTree::getSupplyException);
     }
-         
+    
  
+     
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -286,20 +289,22 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
         if (!(o.getClass().equals(this.getClass()))) {
             return false;
         }
-        DefaultReportConfigurationDef other = (DefaultReportConfigurationDef)o;
+        DefaultPageMarginsDef other = (DefaultPageMarginsDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.append(m_pageSize, other.m_pageSize);
-        equalsBuilder.append(m_orientation, other.m_orientation);
-        equalsBuilder.append(m_pageMargins, other.m_pageMargins);
+        equalsBuilder.append(m_top, other.m_top);
+        equalsBuilder.append(m_right, other.m_right);
+        equalsBuilder.append(m_bottom, other.m_bottom);
+        equalsBuilder.append(m_left, other.m_left);
         return equalsBuilder.isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(m_pageSize)
-                .append(m_orientation)
-                .append(m_pageMargins)
+                .append(m_top)
+                .append(m_right)
+                .append(m_bottom)
+                .append(m_left)
                 .toHashCode();
     }
 

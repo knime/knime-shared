@@ -44,9 +44,8 @@
  */
 package org.knime.shared.workflow.def;
 
-import org.knime.shared.workflow.def.PageMarginsDef;
 
-import org.knime.shared.workflow.def.impl.DefaultReportConfigurationDef;
+import org.knime.shared.workflow.def.impl.DefaultPageMarginsDef;
 import org.knime.core.util.workflow.def.DefAttribute;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -54,59 +53,62 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
- * The report configuration set on components, includes page layout etc.
+ * Page margins for report configuration
  *
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
- * @since 5.1
  * @noimplement This interface is not intended to be implemented by clients.
  */
-@JsonDeserialize(as = DefaultReportConfigurationDef.class)
+@JsonDeserialize(as = DefaultPageMarginsDef.class)
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.interface-config.json"})
-public interface ReportConfigurationDef {
+public interface PageMarginsDef {
 
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
-         /**  
-          * Page size
-          *
-          * The type of this data attribute is {@link String}.
-          * Is is returned by {@link ReportConfigurationDef#getPageSize} 
-          */
-         PAGE_SIZE,
-         /**  
-          * Page orientation (portrait or landscape)
-          *
-          * The type of this data attribute is {@link String}.
-          * Is is returned by {@link ReportConfigurationDef#getOrientation} 
-          */
-         ORIENTATION,
          /** 
-          * The type of this data attribute is {@link PageMarginsDef}.
-          * Is is returned by {@link ReportConfigurationDef#getPageMargins} 
+          * The type of this data attribute is {@link Double}.
+          * Is is returned by {@link PageMarginsDef#getTop} 
           */
-         PAGE_MARGINS,
+         TOP,
+         /** 
+          * The type of this data attribute is {@link Double}.
+          * Is is returned by {@link PageMarginsDef#getRight} 
+          */
+         RIGHT,
+         /** 
+          * The type of this data attribute is {@link Double}.
+          * Is is returned by {@link PageMarginsDef#getBottom} 
+          */
+         BOTTOM,
+         /** 
+          * The type of this data attribute is {@link Double}.
+          * Is is returned by {@link PageMarginsDef#getLeft} 
+          */
+         LEFT,
 ;
     }
     
 
   /**
-   * Example value: A4
-   * @return Page size
+   * @return 
    **/
-  public String getPageSize();
-
-  /**
-   * Example value: portrait
-   * @return Page orientation (portrait or landscape)
-   **/
-  public String getOrientation();
+  public Double getTop();
 
   /**
    * @return 
    **/
-  public PageMarginsDef getPageMargins();
+  public Double getRight();
+
+  /**
+   * @return 
+   **/
+  public Double getBottom();
+
+  /**
+   * @return 
+   **/
+  public Double getLeft();
 
 
 }
