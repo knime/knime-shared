@@ -14,14 +14,12 @@ import org.apache.xmlbeans.impl.schema.SimpleTypeFactory;
 
 
 /**
- *
- * @since 5.24
- *
  * An XML port-group(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
  */
-public interface PortGroup extends org.apache.xmlbeans.XmlObject {
+public interface PortGroup extends org.apache.xmlbeans.XmlObject
+{
     DocumentFactory<org.knime.core.node.workflow.metadata.v10.PortGroup> Factory = new DocumentFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "portgroupb3eatype");
     org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -76,7 +74,8 @@ public interface PortGroup extends org.apache.xmlbeans.XmlObject {
      *
      * This is an atomic type that is a restriction of org.knime.core.node.workflow.metadata.v10.PortGroup$Port.
      */
-    public interface Port extends org.apache.xmlbeans.XmlString {
+    public interface Port extends org.apache.xmlbeans.XmlString
+    {
         ElementFactory<org.knime.core.node.workflow.metadata.v10.PortGroup.Port> Factory = new ElementFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "port95adelemtype");
         org.apache.xmlbeans.SchemaType type = Factory.getType();
 

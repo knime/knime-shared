@@ -14,14 +14,12 @@ import org.apache.xmlbeans.impl.schema.SimpleTypeFactory;
 
 
 /**
- *
- * @since 5.24
- *
  * An XML node-container-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
  */
-public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
+public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject
+{
     DocumentFactory<org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata> Factory = new DocumentFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "nodecontainermetadata0febtype");
     org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -151,7 +149,8 @@ public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
      *
      * This is a complex type.
      */
-    public interface Tags extends org.apache.xmlbeans.XmlObject {
+    public interface Tags extends org.apache.xmlbeans.XmlObject
+    {
         ElementFactory<org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags> Factory = new ElementFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "tags0ea0elemtype");
         org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -232,7 +231,8 @@ public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
      *
      * This is a complex type.
      */
-    public interface Links extends org.apache.xmlbeans.XmlObject {
+    public interface Links extends org.apache.xmlbeans.XmlObject
+    {
         ElementFactory<org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links> Factory = new ElementFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "links6410elemtype");
         org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -287,7 +287,8 @@ public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
          *
          * This is an atomic type that is a restriction of org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata$Links$Link.
          */
-        public interface Link extends org.apache.xmlbeans.XmlString {
+        public interface Link extends org.apache.xmlbeans.XmlString
+        {
             ElementFactory<org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link> Factory = new ElementFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "link7ea6elemtype");
             org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -309,7 +310,8 @@ public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
      *
      * This is an atomic type that is a restriction of org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata$ContentType.
      */
-    public interface ContentType extends org.apache.xmlbeans.XmlString {
+    public interface ContentType extends org.apache.xmlbeans.XmlString
+    {
         ElementFactory<org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType> Factory = new ElementFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "contenttypea219attrtype");
         org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -317,11 +319,11 @@ public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
         org.apache.xmlbeans.StringEnumAbstractBase getEnumValue();
         void setEnumValue(org.apache.xmlbeans.StringEnumAbstractBase e);
 
-        Enum TEXT_PLAIN = Enum.forString("text/plain");
-        Enum TEXT_HTML = Enum.forString("text/html");
+        static final Enum TEXT_PLAIN = Enum.forString("text/plain");
+        static final Enum TEXT_HTML = Enum.forString("text/html");
 
-        int INT_TEXT_PLAIN = Enum.INT_TEXT_PLAIN;
-        int INT_TEXT_HTML = Enum.INT_TEXT_HTML;
+        static final int INT_TEXT_PLAIN = Enum.INT_TEXT_PLAIN;
+        static final int INT_TEXT_HTML = Enum.INT_TEXT_HTML;
 
         /**
          * Enumeration value class for org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata$ContentType.
@@ -338,37 +340,36 @@ public interface NodeContainerMetadata extends org.apache.xmlbeans.XmlObject {
          * public constructor. See the constants defined within this
          * class for all the valid values.
          */
-        final class Enum extends org.apache.xmlbeans.StringEnumAbstractBase {
+        static final class Enum extends org.apache.xmlbeans.StringEnumAbstractBase
+        {
             /**
              * Returns the enum value for a string, or null if none.
              */
-            public static Enum forString(java.lang.String s) {
-                return (Enum)table.forString(s);
-            }
-
+            public static Enum forString(java.lang.String s)
+                { return (Enum)table.forString(s); }
             /**
              * Returns the enum value corresponding to an int, or null if none.
              */
-            public static Enum forInt(int i) {
-                return (Enum)table.forInt(i);
-            }
+            public static Enum forInt(int i)
+                { return (Enum)table.forInt(i); }
 
-            private Enum(java.lang.String s, int i) {
-                super(s, i);
-            }
+            private Enum(java.lang.String s, int i)
+                { super(s, i); }
 
             static final int INT_TEXT_PLAIN = 1;
             static final int INT_TEXT_HTML = 2;
 
             public static final org.apache.xmlbeans.StringEnumAbstractBase.Table table =
-                new org.apache.xmlbeans.StringEnumAbstractBase.Table(new Enum[] {
-                new Enum("text/plain", INT_TEXT_PLAIN),
-                new Enum("text/html", INT_TEXT_HTML),
-            });
+                new org.apache.xmlbeans.StringEnumAbstractBase.Table
+            (
+                new Enum[]
+                {
+                    new Enum("text/plain", INT_TEXT_PLAIN),
+                    new Enum("text/html", INT_TEXT_HTML),
+                }
+            );
             private static final long serialVersionUID = 1L;
-            private java.lang.Object readResolve() {
-                return forInt(intValue());
-            }
+            private java.lang.Object readResolve() { return forInt(intValue()); } 
         }
     }
 }

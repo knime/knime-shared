@@ -15,25 +15,23 @@ import org.apache.xmlbeans.impl.schema.SimpleTypeFactory;
 
 
 /**
- *
- * @since 5.24
- *
  * A document containing one component-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0) element.
  *
  * This is a complex type.
  */
-public interface ComponentMetadataDocument extends org.apache.xmlbeans.XmlObject {
+public interface ComponentMetadataDocument extends org.apache.xmlbeans.XmlObject
+{
     DocumentFactory<org.knime.core.node.workflow.metadata.v10.ComponentMetadataDocument> Factory = new DocumentFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "componentmetadata07c6doctype");
     org.apache.xmlbeans.SchemaType type = Factory.getType();
 
 
     /**
-     * @since 5.24
+     * Gets the "component-metadata" element
      */
     org.knime.core.node.workflow.metadata.v10.ComponentMetadata getComponentMetadata();
 
     /**
-     * @since 5.24
+     * Sets the "component-metadata" element
      */
     void setComponentMetadata(org.knime.core.node.workflow.metadata.v10.ComponentMetadata componentMetadata);
 

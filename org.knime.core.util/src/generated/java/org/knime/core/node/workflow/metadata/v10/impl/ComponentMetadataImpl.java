@@ -9,12 +9,8 @@ package org.knime.core.node.workflow.metadata.v10.impl;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- * @since 5.24
- *
  * An XML component-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
@@ -39,11 +35,15 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.ComponentMetadata.ComponentType.Enum getComponentType() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], 0);
-            return (target == null) ? null : (org.knime.core.node.workflow.metadata.v10.ComponentMetadata.ComponentType.Enum)target.getEnumValue();
+            if (target == null) {
+                return null;
+            }
+            return (org.knime.core.node.workflow.metadata.v10.ComponentMetadata.ComponentType.Enum)target.getEnumValue();
         }
     }
 
@@ -52,7 +52,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public boolean isSetComponentType() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[0]) != 0;
         }
@@ -63,7 +64,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public void setComponentType(org.knime.core.node.workflow.metadata.v10.ComponentMetadata.ComponentType.Enum componentType) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], 0);
@@ -79,7 +81,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public void unsetComponentType() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[0], 0);
         }
@@ -90,11 +93,15 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public byte[] getIcon() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[1], 0);
-            return (target == null) ? null : target.getByteArrayValue();
+            if (target == null) {
+                return null;
+            }
+            return target.getByteArrayValue();
         }
     }
 
@@ -103,7 +110,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public boolean isSetIcon() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[1]) != 0;
         }
@@ -114,7 +122,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public void setIcon(byte[] icon) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[1], 0);
@@ -130,7 +139,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public void unsetIcon() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[1], 0);
         }
@@ -141,11 +151,15 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup getInPorts() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup)get_store().find_element_user(PROPERTY_QNAME[2], 0);
-            return (target == null) ? null : target;
+            if (target == null) {
+                return null;
+            }
+            return target;
         }
     }
 
@@ -162,7 +176,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup addNewInPorts() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup)get_store().add_element_user(PROPERTY_QNAME[2]);
@@ -175,11 +190,15 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup getOutPorts() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup)get_store().find_element_user(PROPERTY_QNAME[3], 0);
-            return (target == null) ? null : target;
+            if (target == null) {
+                return null;
+            }
+            return target;
         }
     }
 
@@ -196,7 +215,8 @@ public class ComponentMetadataImpl extends org.knime.core.node.workflow.metadata
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup addNewOutPorts() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup)get_store().add_element_user(PROPERTY_QNAME[3]);

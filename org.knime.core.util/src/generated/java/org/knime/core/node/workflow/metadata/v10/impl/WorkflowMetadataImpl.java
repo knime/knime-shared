@@ -9,12 +9,8 @@ package org.knime.core.node.workflow.metadata.v10.impl;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- * @since 5.24
- *
  * An XML workflow-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.

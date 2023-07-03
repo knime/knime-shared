@@ -9,12 +9,8 @@ package org.knime.core.node.workflow.metadata.v10.impl;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- * @since 5.24
- *
  * An XML node-container-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
@@ -42,11 +38,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public java.lang.String getAuthor() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], 0);
-            return (target == null) ? null : target.getStringValue();
+            if (target == null) {
+                return null;
+            }
+            return target.getStringValue();
         }
     }
 
@@ -55,7 +55,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public boolean isSetAuthor() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[0]) != 0;
         }
@@ -66,7 +67,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void setAuthor(java.lang.String author) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], 0);
@@ -82,7 +84,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void unsetAuthor() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[0], 0);
         }
@@ -93,11 +96,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public java.util.Calendar getCreated() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[1], 0);
-            return (target == null) ? null : target.getCalendarValue();
+            if (target == null) {
+                return null;
+            }
+            return target.getCalendarValue();
         }
     }
 
@@ -106,7 +113,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public boolean isSetCreated() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[1]) != 0;
         }
@@ -117,7 +125,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void setCreated(java.util.Calendar created) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[1], 0);
@@ -133,7 +142,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void unsetCreated() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[1], 0);
         }
@@ -144,11 +154,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public java.util.Calendar getLastModified() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[2], 0);
-            return (target == null) ? null : target.getCalendarValue();
+            if (target == null) {
+                return null;
+            }
+            return target.getCalendarValue();
         }
     }
 
@@ -157,7 +171,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void setLastModified(java.util.Calendar lastModified) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[2], 0);
@@ -173,11 +188,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public java.lang.String getDescription() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[3], 0);
-            return (target == null) ? null : target.getStringValue();
+            if (target == null) {
+                return null;
+            }
+            return target.getStringValue();
         }
     }
 
@@ -186,7 +205,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void setDescription(java.lang.String description) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[3], 0);
@@ -202,11 +222,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags getTags() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags target = null;
             target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags)get_store().find_element_user(PROPERTY_QNAME[4], 0);
-            return (target == null) ? null : target;
+            if (target == null) {
+                return null;
+            }
+            return target;
         }
     }
 
@@ -215,7 +239,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public boolean isSetTags() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[4]) != 0;
         }
@@ -234,7 +259,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags addNewTags() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags target = null;
             target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Tags)get_store().add_element_user(PROPERTY_QNAME[4]);
@@ -247,7 +273,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void unsetTags() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[4], 0);
         }
@@ -258,11 +285,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links getLinks() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links target = null;
             target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links)get_store().find_element_user(PROPERTY_QNAME[5], 0);
-            return (target == null) ? null : target;
+            if (target == null) {
+                return null;
+            }
+            return target;
         }
     }
 
@@ -271,7 +302,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public boolean isSetLinks() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[5]) != 0;
         }
@@ -290,7 +322,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links addNewLinks() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links target = null;
             target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links)get_store().add_element_user(PROPERTY_QNAME[5]);
@@ -303,7 +336,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void unsetLinks() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[5], 0);
         }
@@ -314,11 +348,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType.Enum getContentType() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_attribute_user(PROPERTY_QNAME[6]);
-            return (target == null) ? null : (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType.Enum)target.getEnumValue();
+            if (target == null) {
+                return null;
+            }
+            return (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType.Enum)target.getEnumValue();
         }
     }
 
@@ -327,7 +365,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
      */
     @Override
     public void setContentType(org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.ContentType.Enum contentType) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.apache.xmlbeans.SimpleValue target = null;
             target = (org.apache.xmlbeans.SimpleValue)get_store().find_attribute_user(PROPERTY_QNAME[6]);
@@ -359,7 +398,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public java.util.List<java.lang.String> getTagList() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 return new org.apache.xmlbeans.impl.values.JavaListObject<>(
                     this::getTagArray,
@@ -384,7 +424,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public java.lang.String getTagArray(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], i);
@@ -400,7 +441,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public org.apache.xmlbeans.XmlString xgetTagArray(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.XmlString target = null;
                 target = (org.apache.xmlbeans.XmlString)get_store().find_element_user(PROPERTY_QNAME[0], i);
@@ -416,7 +458,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public int sizeOfTagArray() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 return get_store().count_elements(PROPERTY_QNAME[0]);
             }
@@ -427,7 +470,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void setTagArray(java.lang.String[] tagArray) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 arraySetterHelper(tagArray, PROPERTY_QNAME[0]);
             }
@@ -438,7 +482,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void setTagArray(int i, java.lang.String tag) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], i);
@@ -454,7 +499,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void xsetTagArray(org.apache.xmlbeans.XmlString[]tagArray) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 arraySetterHelper(tagArray, PROPERTY_QNAME[0]);
             }
@@ -465,7 +511,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void xsetTagArray(int i, org.apache.xmlbeans.XmlString tag) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.XmlString target = null;
                 target = (org.apache.xmlbeans.XmlString)get_store().find_element_user(PROPERTY_QNAME[0], i);
@@ -481,9 +528,10 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void insertTag(int i, java.lang.String tag) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
-                org.apache.xmlbeans.SimpleValue target =
+                org.apache.xmlbeans.SimpleValue target = 
                     (org.apache.xmlbeans.SimpleValue)get_store().insert_element_user(PROPERTY_QNAME[0], i);
                 target.setStringValue(tag);
             }
@@ -494,7 +542,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void addTag(java.lang.String tag) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().add_element_user(PROPERTY_QNAME[0]);
@@ -507,7 +556,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public org.apache.xmlbeans.XmlString insertNewTag(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.XmlString target = null;
                 target = (org.apache.xmlbeans.XmlString)get_store().insert_element_user(PROPERTY_QNAME[0], i);
@@ -520,7 +570,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public org.apache.xmlbeans.XmlString addNewTag() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.XmlString target = null;
                 target = (org.apache.xmlbeans.XmlString)get_store().add_element_user(PROPERTY_QNAME[0]);
@@ -533,7 +584,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void removeTag(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 get_store().remove_element(PROPERTY_QNAME[0], i);
             }
@@ -561,7 +613,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public java.util.List<org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link> getLinkList() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 return new org.apache.xmlbeans.impl.values.JavaListXmlObject<>(
                     this::getLinkArray,
@@ -586,7 +639,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link getLinkArray(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link target = null;
                 target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link)get_store().find_element_user(PROPERTY_QNAME[0], i);
@@ -602,7 +656,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public int sizeOfLinkArray() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 return get_store().count_elements(PROPERTY_QNAME[0]);
             }
@@ -630,7 +685,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link insertNewLink(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link target = null;
                 target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link)get_store().insert_element_user(PROPERTY_QNAME[0], i);
@@ -643,7 +699,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link addNewLink() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link target = null;
                 target = (org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata.Links.Link)get_store().add_element_user(PROPERTY_QNAME[0]);
@@ -656,7 +713,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
          */
         @Override
         public void removeLink(int i) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 get_store().remove_element(PROPERTY_QNAME[0], i);
             }
@@ -687,11 +745,15 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
              */
             @Override
             public java.lang.String getHref() {
-                synchronized (monitor()) {
+                synchronized (monitor())
+                {
                     check_orphaned();
                     org.apache.xmlbeans.SimpleValue target = null;
                     target = (org.apache.xmlbeans.SimpleValue)get_store().find_attribute_user(PROPERTY_QNAME[0]);
-                    return (target == null) ? null : target.getStringValue();
+                    if (target == null) {
+                      return null;
+                    }
+                    return target.getStringValue();
                 }
             }
 
@@ -700,7 +762,8 @@ public class NodeContainerMetadataImpl extends org.apache.xmlbeans.impl.values.X
              */
             @Override
             public void setHref(java.lang.String href) {
-                synchronized (monitor()) {
+                synchronized (monitor())
+                {
                     check_orphaned();
                     org.apache.xmlbeans.SimpleValue target = null;
                     target = (org.apache.xmlbeans.SimpleValue)get_store().find_attribute_user(PROPERTY_QNAME[0]);

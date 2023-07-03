@@ -10,12 +10,8 @@ package org.knime.core.node.workflow.metadata.v10.impl;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- * @since 5.24
- *
  * A document containing one component-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0) element.
  *
  * This is a complex type.
@@ -33,15 +29,19 @@ public class ComponentMetadataDocumentImpl extends org.apache.xmlbeans.impl.valu
 
 
     /**
-     * @since 5.24
+     * Gets the "component-metadata" element
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.ComponentMetadata getComponentMetadata() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.ComponentMetadata target = null;
             target = (org.knime.core.node.workflow.metadata.v10.ComponentMetadata)get_store().find_element_user(PROPERTY_QNAME[0], 0);
-            return (target == null) ? null : target;
+            if (target == null) {
+                return null;
+            }
+            return target;
         }
     }
 
@@ -58,7 +58,8 @@ public class ComponentMetadataDocumentImpl extends org.apache.xmlbeans.impl.valu
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.ComponentMetadata addNewComponentMetadata() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.ComponentMetadata target = null;
             target = (org.knime.core.node.workflow.metadata.v10.ComponentMetadata)get_store().add_element_user(PROPERTY_QNAME[0]);

@@ -14,14 +14,12 @@ import org.apache.xmlbeans.impl.schema.SimpleTypeFactory;
 
 
 /**
- *
- * @since 5.24
- *
  * An XML workflow-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
  */
-public interface WorkflowMetadata extends org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata {
+public interface WorkflowMetadata extends org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata
+{
     DocumentFactory<org.knime.core.node.workflow.metadata.v10.WorkflowMetadata> Factory = new DocumentFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "workflowmetadataaac2type");
     org.apache.xmlbeans.SchemaType type = Factory.getType();
 

@@ -14,14 +14,12 @@ import org.apache.xmlbeans.impl.schema.SimpleTypeFactory;
 
 
 /**
- *
- * @since 5.24
- *
  * An XML component-metadata(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
  */
-public interface ComponentMetadata extends org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata {
+public interface ComponentMetadata extends org.knime.core.node.workflow.metadata.v10.NodeContainerMetadata
+{
     DocumentFactory<org.knime.core.node.workflow.metadata.v10.ComponentMetadata> Factory = new DocumentFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "componentmetadata99b6type");
     org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -101,7 +99,8 @@ public interface ComponentMetadata extends org.knime.core.node.workflow.metadata
      *
      * This is an atomic type that is a restriction of org.knime.core.node.workflow.metadata.v10.ComponentMetadata$ComponentType.
      */
-    public interface ComponentType extends org.apache.xmlbeans.XmlString {
+    public interface ComponentType extends org.apache.xmlbeans.XmlString
+    {
         ElementFactory<org.knime.core.node.workflow.metadata.v10.ComponentMetadata.ComponentType> Factory = new ElementFactory<>(org.knime.core.util.metadata.system.metadata.TypeSystemHolder.typeSystem, "componenttypebd50elemtype");
         org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -109,21 +108,21 @@ public interface ComponentMetadata extends org.knime.core.node.workflow.metadata
         org.apache.xmlbeans.StringEnumAbstractBase getEnumValue();
         void setEnumValue(org.apache.xmlbeans.StringEnumAbstractBase e);
 
-        Enum SOURCE = Enum.forString("Source");
-        Enum SINK = Enum.forString("Sink");
-        Enum LEARNER = Enum.forString("Learner");
-        Enum PREDICTOR = Enum.forString("Predictor");
-        Enum MANIPULATOR = Enum.forString("Manipulator");
-        Enum VISUALIZER = Enum.forString("Visualizer");
-        Enum OTHER = Enum.forString("Other");
+        static final Enum SOURCE = Enum.forString("Source");
+        static final Enum SINK = Enum.forString("Sink");
+        static final Enum LEARNER = Enum.forString("Learner");
+        static final Enum PREDICTOR = Enum.forString("Predictor");
+        static final Enum MANIPULATOR = Enum.forString("Manipulator");
+        static final Enum VISUALIZER = Enum.forString("Visualizer");
+        static final Enum OTHER = Enum.forString("Other");
 
-        int INT_SOURCE = Enum.INT_SOURCE;
-        int INT_SINK = Enum.INT_SINK;
-        int INT_LEARNER = Enum.INT_LEARNER;
-        int INT_PREDICTOR = Enum.INT_PREDICTOR;
-        int INT_MANIPULATOR = Enum.INT_MANIPULATOR;
-        int INT_VISUALIZER = Enum.INT_VISUALIZER;
-        int INT_OTHER = Enum.INT_OTHER;
+        static final int INT_SOURCE = Enum.INT_SOURCE;
+        static final int INT_SINK = Enum.INT_SINK;
+        static final int INT_LEARNER = Enum.INT_LEARNER;
+        static final int INT_PREDICTOR = Enum.INT_PREDICTOR;
+        static final int INT_MANIPULATOR = Enum.INT_MANIPULATOR;
+        static final int INT_VISUALIZER = Enum.INT_VISUALIZER;
+        static final int INT_OTHER = Enum.INT_OTHER;
 
         /**
          * Enumeration value class for org.knime.core.node.workflow.metadata.v10.ComponentMetadata$ComponentType.
@@ -140,24 +139,21 @@ public interface ComponentMetadata extends org.knime.core.node.workflow.metadata
          * public constructor. See the constants defined within this
          * class for all the valid values.
          */
-        final class Enum extends org.apache.xmlbeans.StringEnumAbstractBase {
+        static final class Enum extends org.apache.xmlbeans.StringEnumAbstractBase
+        {
             /**
              * Returns the enum value for a string, or null if none.
              */
-            public static Enum forString(java.lang.String s) {
-                return (Enum)table.forString(s);
-            }
-
+            public static Enum forString(java.lang.String s)
+                { return (Enum)table.forString(s); }
             /**
              * Returns the enum value corresponding to an int, or null if none.
              */
-            public static Enum forInt(int i) {
-                return (Enum)table.forInt(i);
-            }
+            public static Enum forInt(int i)
+                { return (Enum)table.forInt(i); }
 
-            private Enum(java.lang.String s, int i) {
-                super(s, i);
-            }
+            private Enum(java.lang.String s, int i)
+                { super(s, i); }
 
             static final int INT_SOURCE = 1;
             static final int INT_SINK = 2;
@@ -168,19 +164,21 @@ public interface ComponentMetadata extends org.knime.core.node.workflow.metadata
             static final int INT_OTHER = 7;
 
             public static final org.apache.xmlbeans.StringEnumAbstractBase.Table table =
-                new org.apache.xmlbeans.StringEnumAbstractBase.Table(new Enum[] {
-                new Enum("Source", INT_SOURCE),
-                new Enum("Sink", INT_SINK),
-                new Enum("Learner", INT_LEARNER),
-                new Enum("Predictor", INT_PREDICTOR),
-                new Enum("Manipulator", INT_MANIPULATOR),
-                new Enum("Visualizer", INT_VISUALIZER),
-                new Enum("Other", INT_OTHER),
-            });
+                new org.apache.xmlbeans.StringEnumAbstractBase.Table
+            (
+                new Enum[]
+                {
+                    new Enum("Source", INT_SOURCE),
+                    new Enum("Sink", INT_SINK),
+                    new Enum("Learner", INT_LEARNER),
+                    new Enum("Predictor", INT_PREDICTOR),
+                    new Enum("Manipulator", INT_MANIPULATOR),
+                    new Enum("Visualizer", INT_VISUALIZER),
+                    new Enum("Other", INT_OTHER),
+                }
+            );
             private static final long serialVersionUID = 1L;
-            private java.lang.Object readResolve() {
-                return forInt(intValue());
-            }
+            private java.lang.Object readResolve() { return forInt(intValue()); } 
         }
     }
 }

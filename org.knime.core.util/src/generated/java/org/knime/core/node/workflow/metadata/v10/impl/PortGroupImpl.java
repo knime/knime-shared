@@ -9,12 +9,8 @@ package org.knime.core.node.workflow.metadata.v10.impl;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- * @since 5.24
- *
  * An XML port-group(@http://www.knime.org/core/node/workflow/metadata/v1.0).
  *
  * This is a complex type.
@@ -36,7 +32,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
      */
     @Override
     public java.util.List<org.knime.core.node.workflow.metadata.v10.PortGroup.Port> getPortList() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return new org.apache.xmlbeans.impl.values.JavaListXmlObject<>(
                 this::getPortArray,
@@ -61,7 +58,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup.Port getPortArray(int i) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup.Port target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup.Port)get_store().find_element_user(PROPERTY_QNAME[0], i);
@@ -77,7 +75,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
      */
     @Override
     public int sizeOfPortArray() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             return get_store().count_elements(PROPERTY_QNAME[0]);
         }
@@ -105,7 +104,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup.Port insertNewPort(int i) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup.Port target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup.Port)get_store().insert_element_user(PROPERTY_QNAME[0], i);
@@ -118,7 +118,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
      */
     @Override
     public org.knime.core.node.workflow.metadata.v10.PortGroup.Port addNewPort() {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             org.knime.core.node.workflow.metadata.v10.PortGroup.Port target = null;
             target = (org.knime.core.node.workflow.metadata.v10.PortGroup.Port)get_store().add_element_user(PROPERTY_QNAME[0]);
@@ -131,7 +132,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
      */
     @Override
     public void removePort(int i) {
-        synchronized (monitor()) {
+        synchronized (monitor())
+        {
             check_orphaned();
             get_store().remove_element(PROPERTY_QNAME[0], i);
         }
@@ -162,11 +164,15 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
          */
         @Override
         public java.lang.String getName() {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_attribute_user(PROPERTY_QNAME[0]);
-                return (target == null) ? null : target.getStringValue();
+                if (target == null) {
+                    return null;
+                }
+                return target.getStringValue();
             }
         }
 
@@ -175,7 +181,8 @@ public class PortGroupImpl extends org.apache.xmlbeans.impl.values.XmlComplexCon
          */
         @Override
         public void setName(java.lang.String name) {
-            synchronized (monitor()) {
+            synchronized (monitor())
+            {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_attribute_user(PROPERTY_QNAME[0]);
