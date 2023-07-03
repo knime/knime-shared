@@ -298,7 +298,7 @@ public final class CheckUtils {
      * @return the object cast to the given type if possible
      * @throws T if given object is not instance of given class
      * @see Class#isInstance(Object) {@link Class#isInstance(Object)} for how the type is checked in detail
-     * @since 5.23
+     * @since 5.24
      */
     public static <O, T extends Throwable, V> V checkCast(final O toCheck, final Class<V> clazz,
         final Function<String, T> toThrowable,
@@ -318,7 +318,7 @@ public final class CheckUtils {
      * @param toThrowable function to create exception given the message
      * @param exceptionMessage exception message function provided with the object to check
      * @throws T if given predicate is {@code false}
-     * @since 5.23
+     * @since 5.24
      */
     public static <T extends Throwable> void check(final boolean predicate,
         final Function<String, T> toThrowable,
