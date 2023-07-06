@@ -1,0 +1,28 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.knime.org/2.9/metainfo"
+        xmlns="http://www.knime.org/2.9/metainfo"
+        elementFormDefault="qualified"
+        version="1.0">
+
+    <xs:element name="KNIMEMetaInfo">
+        <xs:annotation>
+            <xs:documentation>@since 6.0</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="element" minOccurs="0" maxOccurs="unbounded">
+	                <xs:complexType>
+	                	<xs:simpleContent>
+	                		<xs:extension base="xs:string">
+	                			<xs:attribute name="name" type="xs:string" use="required" />
+	                			<xs:attribute name="form" type="xs:string" />
+	                			<xs:attribute name="read-only" type="xs:boolean" />
+	                		</xs:extension>
+	                	</xs:simpleContent>
+	                </xs:complexType>
+	            </xs:element>
+	        </xs:sequence>
+	        <xs:attribute name="nrOfElements" type="xs:integer" />
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

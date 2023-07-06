@@ -162,7 +162,7 @@ public class WorkflowSetMeta {
             if (elements.length >= 3) {
                 try {
                     final var day = Math.min(Math.max(1, Integer.parseInt(elements[0])), 31);
-                    final var month = Math.min(Math.max(1, Integer.parseInt(elements[1])), 12);
+                    final var month = Math.min(Math.max(1, Integer.parseInt(elements[1]) + 1), 12);
                     final var year = Math.min(Math.max(Year.MIN_VALUE, Integer.parseInt(elements[2])), Year.MAX_VALUE);
                     m_created = Optional.of(LocalDateTime.of(year, month, day,  12, 1).atZone(ZoneId.systemDefault()));
                 } catch (final NumberFormatException | DateTimeException nfe) { // NOSONAR
