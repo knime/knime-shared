@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Apache XMLBeans
 Bundle-SymbolicName: org.apache.xmlbeans5;singleton:=true
 Bundle-Version: 5.1.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/ant-1.10.12.jar,
  lib/ant-launcher-1.10.12.jar,

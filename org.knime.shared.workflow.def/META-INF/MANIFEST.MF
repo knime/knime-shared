@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.knime.shared.workflow.def;singleton:=true
 Bundle-Version: 5.2.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Automatic-Module-Name: org.knime.shared.workflow.def
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.knime.core.util;bundle-version="[6.0.0,7.0.0)",
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.12.1",
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.12.1",
