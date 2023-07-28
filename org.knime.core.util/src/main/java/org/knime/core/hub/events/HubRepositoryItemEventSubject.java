@@ -78,6 +78,8 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
 
     private final String m_spacePath;
 
+    private final Optional<String> m_itemVersion;
+
     private final Optional<String> m_itemVersionCreatedBy;
 
     private final Optional<String> m_itemVersionCreatedByAccountId;
@@ -85,15 +87,18 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
     private final Space m_space;
 
     /**
-     * @param id see {@link #id()}
-     * @param type see {@link #type()}
-     * @param path see {@link #path()}
-     * @param canonicalPath see {@link #canonicalPath()}
-     * @param spacePath see {@link #spacePath()}
+     * @param id see {@link #getItemId()}
+     * @param type see {@link #getType()}
+     * @param path see {@link #getPath()}
+     * @param canonicalPath see {@link #getCanonicalPath()}
+     * @param spacePath see {@link #getSpacePath()}
+     * @param itemVersion see {@link #getItemVersion}
+     * @param itemVersionCreatedBy see {@link #getItemVersionCreatedBy}
+     * @param itemVersionCreatedByAccountId see {@link #getItemVersionCreatedByAccountId}
      * @param space see {@link #getSpace()}
      */
     private HubRepositoryItemEventSubject(final String id, final String type, final String path,
-        final String canonicalPath, final String spacePath, final String itemVersionCreatedBy,
+        final String canonicalPath, final String spacePath, final String itemVersion, final String itemVersionCreatedBy,
         final String itemVersionCreatedByAccountId, final Space space) {
 
         this.m_itemId = id;
@@ -101,6 +106,7 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
         this.m_path = path;
         this.m_canonicalPath = canonicalPath;
         this.m_spacePath = spacePath;
+        this.m_itemVersion = Optional.ofNullable(itemVersion);
         this.m_itemVersionCreatedBy = Optional.ofNullable(itemVersionCreatedBy);
         this.m_itemVersionCreatedByAccountId = Optional.ofNullable(itemVersionCreatedByAccountId);
         this.m_space = space;
@@ -147,6 +153,14 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
     }
 
     /**
+     * @return item version number, only present on version created events
+     */
+    @JsonProperty("itemVersion")
+    public Optional<String> getItemVersion() {
+        return m_itemVersion;
+    }
+
+    /**
      * @return account name that triggered the event
      */
     @JsonProperty("itemVersionCreatedBy")
@@ -189,6 +203,8 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
         private String m_canonicalPath;
 
         private String m_spacePath;
+
+        private String m_itemVersion;
 
         private String m_itemVersionCreatedBy;
 
@@ -254,6 +270,15 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
          */
         public Builder spacePath(final String spacePath) {
             m_spacePath = spacePath;
+            return this;
+        }
+
+        /**
+         * @param version see {@link #getItemVersion()}
+         * @return this builder
+         */
+        public Builder itemVersion(final String version) {
+            m_itemVersion = version;
             return this;
         }
 
@@ -344,8 +369,8 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
          */
         public HubRepositoryItemEventSubject buildSubject() {
             final var space = new Space(m_spaceId, m_spaceName, m_spaceOwner, m_spaceOwnerAccountId, m_spaceIsPrivate);
-            return new HubRepositoryItemEventSubject(m_itemId, m_repositoryItemType, m_path,
-                m_canonicalPath, m_spacePath, m_itemVersionCreatedBy, m_itemVersionCreatedByAccountId, space);
+            return new HubRepositoryItemEventSubject(m_itemId, m_repositoryItemType, m_path, m_canonicalPath,
+                m_spacePath, m_itemVersion, m_itemVersionCreatedBy, m_itemVersionCreatedByAccountId, space);
         }
     }
 }

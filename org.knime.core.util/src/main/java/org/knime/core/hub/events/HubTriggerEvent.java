@@ -200,7 +200,7 @@ public final class HubTriggerEvent<T extends HubEventSubject> {
         }
 
         /**
-         * @param action type of change, e.g., "added", "deleted", "updated"
+         * @param action type of change, e.g., "added", "deleted", "updated", "version created"
          * @return this builder
          */
         @SuppressWarnings("unchecked") // we want to return the specialized builder
