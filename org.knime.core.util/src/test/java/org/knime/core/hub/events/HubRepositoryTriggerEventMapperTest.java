@@ -48,6 +48,7 @@
  */
 package org.knime.core.hub.events;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -83,6 +84,7 @@ class HubRepositoryTriggerEventMapperTest {
         + "      \"path\": \"/Users/some-team/some-space/MyTestWorkflow\",\n"
         + "      \"canonicalPath\": \"/Users/account:team:some-team-id/some-space/MyTestWorkflow\",\n"
         + "      \"spacePath\": \"/MyTestWorkflow\",\n"
+        + "      \"itemVersion\": \"123\",\n"
         + "      \"itemVersionCreatedBy\": \"some user\",\n"
         + "      \"itemVersionCreatedByAccountId\": \"account:user:some-id\",\n"
         + "      \"space\": {\n"
@@ -96,17 +98,42 @@ class HubRepositoryTriggerEventMapperTest {
         + "  }\n"
         + "";
 
-    private static JsonObject object;
+    private static final String JSON_WITHOUT_ITEM_VERSION = "{\n"
+        + "    \"schemaVersion\": 1,\n"
+        + "    \"timestamp\": \"2023-02-27T10:10:47Z\",\n"
+        + "    \"source\": \"catalog\",\n"
+        + "    \"type\": \"item\",\n"
+        + "    \"action\" : \"added\",\n"
+        + "    \"eventId\": \"5b0799db-7620-499b-b305-62d228ca5662\",\n"
+        + "    \"deploymentId\": \"some-deployment-id\",\n"
+        + "    \"subject\": {\n"
+        + "      \"id\": \"some-item-id\",\n"
+        + "      \"type\": \"Workflow\",\n"
+        + "      \"path\": \"/Users/some-team/some-space/MyTestWorkflow\",\n"
+        + "      \"canonicalPath\": \"/Users/account:team:some-team-id/some-space/MyTestWorkflow\",\n"
+        + "      \"spacePath\": \"/MyTestWorkflow\",\n"
+        + "      \"itemVersionCreatedBy\": \"some user\",\n"
+        + "      \"itemVersionCreatedByAccountId\": \"account:user:some-id\",\n"
+        + "      \"space\": {\n"
+        + "        \"owner\": \"some-team\",\n"
+        + "        \"ownerAccountId\": \"account:team:some-team-id\",\n"
+        + "        \"private\": true,\n"
+        + "        \"spaceId\": \"some-space-id\",\n"
+        + "        \"spaceName\": \"some-space\"\n"
+        + "      }\n"
+        + "    }\n"
+        + "  }\n"
+        + "";
 
-    static {
-        try(JsonReader jsonReader = Json.createReader(new StringReader(JSON))){
-            object = jsonReader.readObject();
+    private static JsonObject toJsonObject(final String json) {
+        try (JsonReader jsonReader = Json.createReader(new StringReader(json))) {
+            return jsonReader.readObject();
         }
     }
 
     @Test
     void test() throws JsonProcessingException {
-        var eventData = HubRepositoryTriggerEventMapper.parse(object);
+        var eventData = HubRepositoryTriggerEventMapper.parse(toJsonObject(JSON));
         assertEquals(1, eventData.getSchemaVersion(), "Wrong schema version.");
         assertEquals("catalog", eventData.getEventSource(), "Wrong source.");
         assertEquals("item", eventData.getEventType(), "Wrong type.");
@@ -122,6 +149,7 @@ class HubRepositoryTriggerEventMapperTest {
         assertEquals("/Users/account:team:some-team-id/some-space/MyTestWorkflow",
             eventData.getSubject().getCanonicalPath(), "Wrong subject canonical path.");
         assertEquals("/MyTestWorkflow", eventData.getSubject().getSpacePath(), "Wrong subject space path.");
+        assertEquals("123", eventData.getSubject().getItemVersion().get(), "Wrong item version.");
         assertEquals("some user", eventData.getSubject().getItemVersionCreatedBy().get(),
             "Wrong subject item version created by.");
         assertEquals("account:user:some-id", eventData.getSubject().getItemVersionCreatedByAccountId().get(),
@@ -134,4 +162,43 @@ class HubRepositoryTriggerEventMapperTest {
         assertEquals("some-space", eventData.getSubject().getSpace().getName().get(), "Wrong subject space name.");
     }
 
+    @Test
+    void testParseEventWithoutItemVersion() throws JsonProcessingException {
+        var eventData = HubRepositoryTriggerEventMapper.parse(toJsonObject(JSON_WITHOUT_ITEM_VERSION));
+        assertEquals(1, eventData.getSchemaVersion(), "Wrong schema version.");
+        assertEquals("catalog", eventData.getEventSource(), "Wrong source.");
+        assertEquals("item", eventData.getEventType(), "Wrong type.");
+        assertEquals("added", eventData.getAction(), "Wrong action.");
+        assertEquals("5b0799db-7620-499b-b305-62d228ca5662", eventData.getEventId().toString(), "Wrong event id.");
+        assertEquals("some-deployment-id", eventData.getDeploymentId(), "Wrong deployment id.");
+        assertEquals(ZonedDateTime.parse("2023-02-27T10:10:47Z[UTC]"), eventData.getTimestamp(), "Wrong timestamp.");
+        assertEquals("some-item-id", eventData.getSubject().getItemId(), "Wrong subject id.");
+        assertEquals("Workflow", eventData.getSubject().getType(),
+            "Wrong subject type.");
+        assertEquals("/Users/some-team/some-space/MyTestWorkflow", eventData.getSubject().getPath(),
+            "Wrong subject path.");
+        assertEquals("/Users/account:team:some-team-id/some-space/MyTestWorkflow",
+            eventData.getSubject().getCanonicalPath(), "Wrong subject canonical path.");
+        assertEquals("/MyTestWorkflow", eventData.getSubject().getSpacePath(), "Wrong subject space path.");
+        assertTrue(eventData.getSubject().getItemVersion().isEmpty(), "Item version not empty.");
+        assertEquals("some user", eventData.getSubject().getItemVersionCreatedBy().get(),
+            "Wrong subject item version created by.");
+        assertEquals("account:user:some-id", eventData.getSubject().getItemVersionCreatedByAccountId().get(),
+            "Wrong subject item version created by account id.");
+        assertEquals("some-team", eventData.getSubject().getSpace().getOwner(), "Wrong subject space owner.");
+        assertEquals("account:team:some-team-id", eventData.getSubject().getSpace().getOwnerAccountId(),
+            "Wrong subject space owner account id.");
+        assertTrue(eventData.getSubject().getSpace().isPrivate(), "Wrong subject space is private.");
+        assertEquals("some-space-id", eventData.getSubject().getSpace().getId(), "Wrong subject space id.");
+        assertEquals("some-space", eventData.getSubject().getSpace().getName().get(), "Wrong subject space name.");
+    }
+
+    /**
+     * Does not fail on new fields.
+     */
+    @Test
+    void testIngoreUnknownFields() {
+        final String json = "{ \"schemaVersion\": 1, \"newField\": \"in subject\" }";
+        assertDoesNotThrow(() -> HubRepositoryTriggerEventMapper.parse(toJsonObject(json)), "Fails on unknown fields");
+    }
 }

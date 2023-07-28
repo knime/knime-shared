@@ -50,6 +50,7 @@ package org.knime.core.hub.events;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -76,6 +77,7 @@ import jakarta.json.JsonObject;
       "path": "/Users/some-team/some-space/MyTestWorkflow",
       "canonicalPath": "/Users/account:team:some-team-id/some-space/MyTestWorkflow",
       "spacePath": "/MyTestWorkflow",
+      "itemVersion": "123",
       "itemVersionCreatedBy": "some user",
       "itemVersionCreatedByAccountId": "account:user:some-id",
       "space": {
@@ -103,6 +105,7 @@ public final class HubRepositoryTriggerEventMapper {
         .addModule(new JavaTimeModule())//
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)//
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)//
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)//
         .build();
 
     static final TypeReference<HubTriggerEvent<HubRepositoryItemEventSubject>> TARGET_TYPE =
