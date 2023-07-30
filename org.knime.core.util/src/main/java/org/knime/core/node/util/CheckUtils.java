@@ -63,6 +63,7 @@ import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.util.proxy.URLConnectionFactory;
 
 /**
  * Static check functions used during settings loading etc.
@@ -536,7 +537,7 @@ public final class CheckUtils {
         if (looksLikeUNC(url)) {
             return Paths.get(url.toURI());
         } else {
-            URL resolvedUrl = url.openConnection().getURL();
+            final var resolvedUrl = URLConnectionFactory.getConnection(url).getURL();
 
             if (resolvedUrl.getProtocol().equalsIgnoreCase("file")) {
                 String pathString = resolvedUrl.getPath();
