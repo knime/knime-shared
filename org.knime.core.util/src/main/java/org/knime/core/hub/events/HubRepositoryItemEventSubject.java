@@ -154,6 +154,7 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
 
     /**
      * @return item version number, only present on version created events
+     * @since 6.1
      */
     @JsonProperty("itemVersion")
     public Optional<String> getItemVersion() {
@@ -276,6 +277,7 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
         /**
          * @param version see {@link #getItemVersion()}
          * @return this builder
+         * @since 6.1
          */
         public Builder itemVersion(final String version) {
             m_itemVersion = version;
