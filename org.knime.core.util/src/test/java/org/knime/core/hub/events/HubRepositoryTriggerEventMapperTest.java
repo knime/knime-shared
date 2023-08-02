@@ -96,17 +96,15 @@ public class HubRepositoryTriggerEventMapperTest {
         + "  }\n"
         + "";
 
-    private static JsonObject object;
-
-    static {
-        try(JsonReader jsonReader = Json.createReader(new StringReader(JSON))){
-            object = jsonReader.readObject();
+    private static JsonObject toJsonObject(final String json) {
+        try (JsonReader jsonReader = Json.createReader(new StringReader(json))) {
+            return jsonReader.readObject();
         }
     }
 
     @Test
     public void test() throws JsonProcessingException {
-        var eventData = HubRepositoryTriggerEventMapper.parse(object);
+        var eventData = HubRepositoryTriggerEventMapper.parse(toJsonObject(JSON));
         assertEquals("Wrong schema version.", 1, eventData.getSchemaVersion());
         assertEquals("Wrong timestamp.", "2023-03-21T11:37:03.087981490Z",
             eventData.getTimestamp().toOffsetDateTime().toString());
@@ -133,6 +131,15 @@ public class HubRepositoryTriggerEventMapperTest {
         assertTrue("Wrong subject space private.", eventData.getSubject().getSpace().isPrivate());
         assertEquals("Wrong subject space id.", "some-space-id", eventData.getSubject().getSpace().getId());
         assertEquals("Wrong subject space name.", "some-space", eventData.getSubject().getSpace().getName().get());
+    }
+
+    /**
+     * Does not fail on new fields.
+     */
+    @Test
+    public void testIngoreUnknownFields() throws IllegalArgumentException { // NOSONAR no assertion, but possible exception
+        final String json = "{ \"schemaVersion\": 1, \"newField\": \"in subject\" }";
+        HubRepositoryTriggerEventMapper.parse(toJsonObject(json)); // should not throw any exception
     }
 
 }
