@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.knime</groupId>
             <artifactId>core.util</artifactId>
-            <version>[5.13-alpha,6)</version>
+            <version>[5.22.4-alpha,5.22.5-alpha)</version>
         </dependency>
 	</dependencies>
 	
