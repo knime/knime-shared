@@ -65,6 +65,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -72,7 +73,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -112,6 +113,9 @@ public final class WorkflowSetMetaParser {
     private static final DateTimeFormatter SERVER_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
 
     private static final Pattern LINE_BREAK_REGEX = Pattern.compile("\\r?\\n");
+
+    private static final Predicate<String> TAGGED_LINE_PRED =
+            Pattern.compile("^(TAGS?|BLOG|URL|VIDEO):", Pattern.CASE_INSENSITIVE).asPredicate();
 
     private static final XmlOptions READ_OPTIONS = new XmlOptions();
     private static final XmlOptions WRITE_OPTIONS = new XmlOptions();
@@ -434,18 +438,84 @@ public final class WorkflowSetMetaParser {
         }
 
         String[] lines = LINE_BREAK_REGEX.split(comments);
-        boolean isOldStyle = isOldStyle(lines);
-
-        if (isOldStyle) {
-            final var outParam = new AtomicReference<String>();
-            int lineIndex = setTitle(lines, outParam);
-            final var title = outParam.getAndSet(null);
-            lineIndex = setDescription(lineIndex, lines, outParam);
-            final var description = outParam.get();
-            setTagsAndLines(lineIndex, lines, tags, links);
-            return Pair.create(title, description);
+        if (isOldStyle(lines)) {
+            return parseComplexCommentField(tags, links, lines);
         } else {
             return Pair.create(null, StringUtils.joinWith("\n", (Object[])lines));
+        }
+    }
+
+    private static Pair<String, String> parseComplexCommentField(final List<String> tags,
+            final List<Link> links, final String[] lines) {
+        final var posAndTitle = parseTitle(lines);
+
+        final var posAndDescription = parseDescription(lines, posAndTitle.getFirst());
+
+        parseLinksAndTags(lines, posAndDescription.getFirst(), links, tags);
+
+        return Pair.create(posAndTitle.getSecond(), posAndDescription.getSecond());
+    }
+
+    private static Pair<Integer, String> parseTitle(final String[] lines) {
+        final var builder = new StringBuilder(lines[0].trim());
+        var pos = 1;
+        while (pos < lines.length && !lines[pos].isBlank()) {
+            String line = lines[pos];
+            builder.append('\n').append(line);
+            pos++;
+        }
+        String title = Optional.of(builder.toString().trim()) //
+            .filter(t -> !t.isEmpty() && !NO_TITLE_PLACEHOLDER_TEXT.equals(t)) //
+            .orElse(null);
+        return Pair.create(pos, title);
+    }
+
+    private static Pair<Integer,String> parseDescription(final String[] lines, int pos) {
+        final var builder = new StringBuilder();
+        while (pos < lines.length && lines[pos].isBlank()) {
+            pos++;
+        }
+        while (pos < lines.length && !TAGGED_LINE_PRED.test(lines[pos])) {
+            String line2 = lines[pos];
+            builder.append(line2).append('\n');
+            pos++;
+        }
+        final var description = Optional.of(builder.toString().trim()) //
+                .filter(t -> !t.isEmpty() && !NO_DESCRIPTION_PLACEHOLDER_TEXT.equals(t)) //
+                .orElse(null);
+        return Pair.create(pos, description);
+    }
+
+    private static void parseLinksAndTags(final String[] lines, final int initPos,
+        final List<Link> links, final List<String> tags) {
+        var pos = initPos;
+        // every iteration of the loop starts with a tag like `LINK:` or `TAG:`
+        while (pos < lines.length) {
+            final var line = lines[pos];
+            final var colonPos = line.indexOf(':');
+            final var tag = line.substring(0, colonPos).toUpperCase(Locale.US);
+            final var builder = new StringBuilder(line.substring(colonPos + 1).trim());
+            pos++;
+
+            while (pos < lines.length && !TAGGED_LINE_PRED.test(lines[pos])) {
+                builder.append(' ').append(lines[pos].trim());
+                pos++;
+            }
+
+            final var rest = builder.toString().trim();
+            if (rest.isEmpty()) {
+                continue;
+            }
+
+            if (tag.equals("TAG") || tag.equals("TAGS")) {
+                tags.addAll(Arrays.stream(rest.split(",")).map(String::trim).collect(Collectors.toList()));
+            } else {
+                // we ignore improperly formatted links (no `http:` or `https:` URL)
+                final int linkStart = Math.max(rest.lastIndexOf("http:"), rest.lastIndexOf("https:"));
+                if (linkStart >= 0) {
+                    links.add(new Link(rest.substring(linkStart).trim(), rest.substring(0, linkStart).trim()));
+                }
+            }
         }
     }
 
@@ -461,100 +531,6 @@ public final class WorkflowSetMetaParser {
             }
         }
         return isOldStyle;
-    }
-
-    private static int setTitle(final String[] lines, final AtomicReference<String> titleOut) {
-        var lineIndex = 0;
-        if (NO_TITLE_PLACEHOLDER_TEXT.equals(lines[lineIndex])) {
-            titleOut.set(null);
-            lineIndex++;
-        } else {
-            var title = new StringBuilder(lines[lineIndex]);
-
-            lineIndex++;
-            while (lines[lineIndex].trim().length() > 0) {
-                title.append('\n').append(lines[lineIndex]);
-                lineIndex++;
-            }
-
-            titleOut.set(StringUtils.trimToNull(title.toString()));
-        }
-        lineIndex++;
-        return lineIndex;
-    }
-
-    private static int setDescription(final int startIndex, final String[] lines,
-            final AtomicReference<String> descOut) {
-        if (startIndex >= lines.length) {
-            descOut.set(null);
-            return startIndex;
-        }
-
-        int lineIndex = startIndex;
-        var actualDescription = new StringBuilder();
-        if (!NO_DESCRIPTION_PLACEHOLDER_TEXT.equals(lines[lineIndex])) {
-            actualDescription.append(lines[lineIndex]);
-        }
-        lineIndex++;
-        while (lineIndex < lines.length) {
-            String line = lines[lineIndex];
-            int index = line.indexOf(':');
-            if ((index != -1) && (index < (line.length() - 2))) {
-                var beforeColon = line.substring(0, index).toUpperCase(Locale.US);
-                // check if line is a tag or link, if so stop parsing description
-                if (isTextTag(beforeColon) || isLinkTag(beforeColon)) {
-                    break;
-                }
-            }
-            actualDescription.append('\n').append(line);
-            lineIndex++;
-        }
-        descOut.set(StringUtils.stripToNull(actualDescription.toString()));
-        return lineIndex;
-    }
-
-    private static void setTagsAndLines(final int startIndex, final String[] lines, final List<String> tags, // NOSONAR
-        final List<Link> links) {
-        if (startIndex >= lines.length) {
-            return;
-        }
-
-        int lineIndex = startIndex;
-        while (lineIndex < lines.length) {
-            final var line = lines[lineIndex];
-            int index = line.indexOf(':');
-
-            if ((index != -1) && (index < (line.length() - 2))) {
-                final String initialText = line.substring(0, index).toUpperCase(Locale.US);
-
-                if (isTextTag(initialText)) {
-                    for (String tag : line.substring(index + 1).split(",")) { // NOSONAR
-                        tags.add(tag.trim());
-                    }
-                } else if (isLinkTag(initialText)) {
-                    String lowercaseLine = line.toLowerCase(Locale.ROOT);
-                    int urlStart = lowercaseLine.indexOf("http:");
-                    if (urlStart == -1) { // NOSONAR
-                        urlStart = lowercaseLine.indexOf("https:");
-                    }
-
-                    var url = line.substring(urlStart);
-                    String title = line.substring((index + 1), urlStart).trim();
-                    links.add(new Link(url, title));
-                } else {
-                    // Do nothing, unknown tag
-                }
-            }
-            lineIndex++;
-        }
-    }
-
-    private static boolean isTextTag(final String tag) {
-        return tag.equals("TAG") || tag.equals("TAGS");
-    }
-
-    private static boolean isLinkTag(final String tag) {
-        return tag.equals("BLOG") || tag.equals("URL") || tag.equals("VIDEO");
     }
 
     /**
