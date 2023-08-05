@@ -59,6 +59,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -68,7 +71,107 @@ import org.junit.jupiter.api.Test;
 import org.knime.core.node.workflow.metadata.WorkflowSetMetaParser.MetadataContents;
 import org.knime.core.util.Pair;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+/**
+ * Tests for the {@link WorkflowSetMetaParser}.
+ *
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ */
+@SuppressWarnings("deprecation")
 class WorkflowSetMetaParserTest {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    static {
+        MAPPER.registerModule(new Jdk8Module());
+        MAPPER.registerModule(new JavaTimeModule());
+        MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        MAPPER.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        MAPPER.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+    }
+
+    /**
+     * Makes sure that {@code workflowset.meta} files from the test server roundtrip intact.
+     *
+     * @throws Exception
+     */
+    @Test
+    void testRoundtripWorkflowTestMetadata() throws Exception {
+        loadSaveLoad(Set.of(), "/workflowSetMeta/workflowset_meta.zip");
+    }
+
+    /**
+     * Makes sure that {@code workflowset.meta} files from the test server are read correctly.
+     *
+     * @throws Exception
+     */
+    @Test
+    void compareMetadataContents() throws Exception {
+        final var original = readFileContents("/workflowSetMeta/workflowset_meta.zip", "/workflowset.meta");
+        final var oldJson = readFileContents("/workflowSetMeta/workflowset_meta_json_old.zip", "/metadata.json");
+        for (final Entry<String, String> e : original.entrySet()) {
+            final var name = e.getKey();
+            final var contents = e.getValue();
+            if (contents.isEmpty()) {
+                continue;
+            }
+            final var json = serializeToJson(WorkflowSetMetaParser.parse(
+                new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8))));
+            assertEquals(oldJson.get(name), json, name);
+        }
+    }
+
+    /**
+     * Makes sure that {@code workflowset.meta} files from the Examples workflows roundtrip intact.
+     *
+     * @throws Exception
+     */
+    @Test
+    void testRoundtripExamplesMetadata() throws Exception {
+        // all of these are also broken in Classic AP
+        final Set<String> manuallyChecked = Set.of(
+            "40_Partners/04_GEMMACON/01_Semi_Automated_ML/workflowset.meta",
+            "40_Partners/05_Redfield/01_KNIME_meets_OrientDB/01_Create_ESCO_network_with_SQLite/workflowset.meta",
+            "40_Partners/05_Redfield/01_KNIME_meets_OrientDB/02_Network_and_OrientDB/workflowset.meta");
+        loadSaveLoad(manuallyChecked, "/workflowSetMeta/workflowset_meta_examples.zip");
+    }
+
+    /**
+     * Makes sure that {@code workflowset.meta} files from the Examples workflows are read correctly.
+     *
+     * @throws Exception
+     */
+    @Test
+    void compareMetadataContentsExamples() throws Exception {
+        // all of these are also broken in Classic AP
+        final var manuallyChecked = Set.of("40_Partners/01_Microsoft/06_Sentiment_with_Azure_for_publish");
+        final var original = readFileContents("/workflowSetMeta/workflowset_meta_examples.zip", "/workflowset.meta");
+        final var oldJson = readFileContents("/workflowSetMeta/workflowset_meta_examples_json_old.zip",
+            "/metadata.json");
+        for (final Entry<String, String> e : original.entrySet()) {
+            final var name = e.getKey();
+            final var contents = e.getValue();
+            if (manuallyChecked.contains(name) || contents.isEmpty()) {
+                continue;
+            }
+            String oldContent = oldJson.get(name)
+                    .replace(
+                        "\"url\" : \"https://www.knime.org/the-new-iris-data-modular-data-generators \"",
+                        "\"url\" : \"https://www.knime.org/the-new-iris-data-modular-data-generators\"")
+                    .replace(
+                        "\"url\" : \"http://stat-computing.org/dataexpo/2009/the-data.html \"",
+                        "\"url\" : \"http://stat-computing.org/dataexpo/2009/the-data.html\"");
+            final var json = serializeToJson(WorkflowSetMetaParser.parse(
+                new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8))));
+          assertEquals(oldContent, json, name);
+        }
+    }
 
     @SuppressWarnings("resource")
     private static InputStream getResourceAsStream(final String file) throws URISyntaxException, IOException {
@@ -77,20 +180,27 @@ class WorkflowSetMetaParserTest {
         return fromClassLoader != null ? fromClassLoader : Files.exists(local) ? Files.newInputStream(local) : null;
     }
 
-    @Test
-    void testRoundtripWorkflowTestMetadata() throws IOException, URISyntaxException, XmlException {
-        loadSaveLoad(Set.of(), "/workflowSetMeta/workflowset_meta.zip");
+    private static String serializeToJson(final MetadataContents contents)
+            throws StreamWriteException, DatabindException, IOException, XmlException {
+        final var outStream = new ByteArrayOutputStream();
+        MAPPER.writeValue(outStream, contents);
+        return new String(outStream.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n");
     }
 
-    @Test
-    void testRoundtripExamplesMetadata() throws IOException, URISyntaxException, XmlException {
-        // all of these are also broken in Classic AP
-        final Set<String> manuallyChecked = Set.of(
-            "40_Partners/01_Microsoft/06_Sentiment_with_Azure_for_publish/workflowset.meta",
-            "40_Partners/04_GEMMACON/01_Semi_Automated_ML/workflowset.meta",
-            "40_Partners/05_Redfield/01_KNIME_meets_OrientDB/01_Create_ESCO_network_with_SQLite/workflowset.meta",
-            "40_Partners/05_Redfield/01_KNIME_meets_OrientDB/02_Network_and_OrientDB/workflowset.meta");
-        loadSaveLoad(manuallyChecked, "/workflowSetMeta/workflowset_meta_examples.zip");
+    private static Map<String, String> readFileContents(final String zipPath, final String fileName)
+            throws IOException, StreamWriteException, DatabindException, XmlException, URISyntaxException {
+        final var out = new HashMap<String, String>();
+        try (final var zipStream = new ZipInputStream(getResourceAsStream(zipPath));
+                final var bufferedStream = new BufferedInputStream(zipStream)) {
+            for (ZipEntry entry; (entry = zipStream.getNextEntry()) != null;) {
+                final var name = entry.getName();
+                if (!entry.isDirectory() && name.endsWith(fileName)) {
+                    out.put(name.substring(0, name.length() - fileName.length()),
+                        new String(bufferedStream.readAllBytes(), StandardCharsets.UTF_8).replace("\r\n", "\n"));
+                }
+            }
+        }
+        return out;
     }
 
     private static void loadSaveLoad(final Set<String> manuallyChecked, final String file)
@@ -101,40 +211,38 @@ class WorkflowSetMetaParserTest {
                 if (!entry.isDirectory() && !manuallyChecked.contains(entry.getName())
                         && Path.of(entry.getName()).endsWith("workflowset.meta")) {
 
-                    final byte[] bytes0 = bufferedStream.readAllBytes();
-                    if (bytes0.length == 0) {
+                    final var contents0 = new String(bufferedStream.readAllBytes(), StandardCharsets.UTF_8);
+                    if (contents0.isEmpty()) {
                         continue;
                     }
 
-                    final var res0 = loadSaveCycle(bytes0);
-                    final MetadataContents contents0 = res0.getFirst();
-                    final byte[] bytes1 = res0.getSecond();
+                    final var res0 = loadSaveCycle(contents0);
+                    final var parsed0 = serializeToJson(res0.getFirst());
+                    final var contents1 = res0.getSecond();
 
-                    final var res1 = loadSaveCycle(bytes1);
-                    final MetadataContents contents1 = res1.getFirst();
-                    final byte[] bytes2 = res1.getSecond();
+                    final var res1 = loadSaveCycle(contents1);
+                    final var parsed1 = serializeToJson(res1.getFirst());
+                    final var contents2 = res1.getSecond();
 
-                    final var res2 = loadSaveCycle(bytes2);
-                    final byte[] bytes3 = res2.getSecond();
+                    final var res2 = loadSaveCycle(contents2);
+                    final var contents3 = res2.getSecond();
 
-                    final String out1 = new String(bytes1, StandardCharsets.UTF_8);
-                    final String out2 = new String(bytes2, StandardCharsets.UTF_8);
-                    final String out3 = new String(bytes3, StandardCharsets.UTF_8);
-                    assertEquals(contents0, contents1, "Parsed contents differ.");
-                    assertEquals(out1, out2, "Serialized files differ.");
-                    assertEquals(out2, out3, "Serialized files differ.");
+                    assertEquals(parsed0, parsed1, entry.getName() + "\n" + contents0);
+                    assertEquals(contents1, contents2, "Serialized files differ.");
+                    assertEquals(contents2, contents3, "Serialized files differ.");
                 }
             }
         }
     }
 
-    private static final Pair<MetadataContents, byte[]> loadSaveCycle(final byte[] contents)
+    private static final Pair<MetadataContents, String> loadSaveCycle(final String contents)
             throws XmlException, IOException {
-        try (final var inStream = new ByteArrayInputStream(contents)) {
+        try (final var inStream = new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8))) {
             final MetadataContents workflowsetMeta = WorkflowSetMetaParser.parse(inStream);
             final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             WorkflowSetMetaParser.write(workflowsetMeta, outStream);
-            return Pair.create(workflowsetMeta, outStream.toByteArray());
+            return Pair.create(workflowsetMeta,
+                new String(outStream.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n"));
         }
     }
 }
