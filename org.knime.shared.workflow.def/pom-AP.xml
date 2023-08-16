@@ -9,7 +9,7 @@
 
 	<groupId>org.knime</groupId>
 	<artifactId>org.knime.shared.workflow.def</artifactId>
-	<version>4.7.2-SNAPSHOT</version>
+	<version>4.7.7-SNAPSHOT</version>
 	<packaging>${packaging.default}</packaging>
 	<build>
 		<plugins>
