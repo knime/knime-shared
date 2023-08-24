@@ -21,39 +21,65 @@
 package org.knime.cxf;
 
 import java.lang.reflect.Field;
+import java.net.http.HttpClient;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.managers.ClientLifeCycleManagerImpl;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientLifeCycleListener;
 import org.apache.cxf.endpoint.ClientLifeCycleManager;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpClientHTTPConduit;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 
 /**
  * Listener on HTTP client creation and destruction.
+ * <p>
  * Resolves issues
- *   - https://issues.apache.org/jira/browse/CXF-8885 and
- *   - https://bugs.openjdk.org/browse/JDK-8308364.
+ * <ul>
+ *   <li>https://issues.apache.org/jira/browse/CXF-8885 and</li>
+ *   <li>https://bugs.openjdk.org/browse/JDK-8308364.</li>
+ * </ul>
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
+ * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  * @since 5.1
  */
 public class KNIMEClientLifeCycleListener implements ClientLifeCycleListener, CXFBusExtension<ClientLifeCycleManager> {
 
     private static final Logger LOGGER = Logger.getLogger(KNIMEClientLifeCycleListener.class.getName());
 
-    private static final Field CLIENT_FIELD;
-    static {
+    /**
+     * Map of {@link HTTPConduit}-derived classes that hold references to {@link HttpClient}s which have to be cleared
+     * so that the corresponding {@code SelectorManager} threads can shut down. Currently all of the fields in question
+     * are called "{@code client}".
+     */
+    private static final Map<Class<?>, Field> CLIENT_FIELDS =
+            List.of(HttpClientHTTPConduit.class, AsyncHTTPConduit.class).stream() //
+            .collect(Collectors.toMap(Function.identity(), KNIMEClientLifeCycleListener::getClientField));
+
+    /**
+     * Extracts the field called {@code client} declared in the given class.
+     *
+     * @param clazz class to extract the {@code client} field from
+     * @return extracted field, may be {@code null} if not present or not accessible
+     */
+    private static Field getClientField(final Class<?> clazz) {
         Field clientField = null;
         try {
-            clientField = HttpClientHTTPConduit.class.getDeclaredField("client");
+            clientField = clazz.getDeclaredField("client");
             clientField.setAccessible(true); // NOSONAR sadly necessary for now
         } catch (NoSuchFieldException | SecurityException ex) {
-            LOGGER.log(Level.WARNING, "Could not retrieve `client` field of `HttpClientHTTPConduit`", ex);
+            LOGGER.log(Level.WARNING, ex,
+                () -> "Could not retrieve `client` field of `" + clazz.getSimpleName() + "`");
         }
-        CLIENT_FIELD = clientField;
+        return clientField;
     }
 
     @Override
@@ -82,12 +108,17 @@ public class KNIMEClientLifeCycleListener implements ClientLifeCycleListener, CX
     @Override
     public void clientDestroyed(final Client client) {
         final var conduit = client.getConduit();
-        if (CLIENT_FIELD != null && conduit instanceof HttpClientHTTPConduit) {
-            try {
-                CLIENT_FIELD.set(conduit, null); // NOSONAR sadly necessary for now
-            } catch (IllegalArgumentException | IllegalAccessException ex) {
-                LOGGER.log(Level.WARNING,
-                    "Could not nullify client field on HttpClientHTTPConduit, selector manager thread is staling", ex);
+        for (final var e : CLIENT_FIELDS.entrySet()) {
+            final var conduitClass = e.getKey();
+            final var clientField = e.getValue();
+            if (conduitClass.isInstance(conduit) && clientField != null) {
+                try {
+                    clientField.set(conduit, null); // NOSONAR sadly necessary for now
+                } catch (IllegalArgumentException | IllegalAccessException ex) {
+                    LOGGER.log(Level.WARNING, ex,
+                        () -> "Could not clear `client` field on `" + conduitClass.getSimpleName()
+                                + "`, selector manager thread is staling");
+                }
             }
         }
     }
