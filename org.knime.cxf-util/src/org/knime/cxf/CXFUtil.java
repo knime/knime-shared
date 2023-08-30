@@ -51,8 +51,6 @@ package org.knime.cxf;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 
-import jakarta.ws.rs.ext.RuntimeDelegate;
-
 /**
  * Utilities for working with Apache CXF.
  *
@@ -69,20 +67,8 @@ public final class CXFUtil {
      * @param classFromBundle any class from the bundle that wants to use JAX-RS functionality
      */
     public static void initializeJAXRSRuntime(final Class<?> classFromBundle) {
-        // The JAX-RS interface is in a different plug-in than the CXF implementation. Therefore the interface classes
-        // won't find the implementation via the default ContextFinder classloader. We set the current classes's
-        // classloader as context classloader and then it will find the service definition from this plug-in.
-        var cl = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(classFromBundle.getClassLoader());
-            RuntimeDelegate.getInstance();
-
-            // This must be initialized with the correct context classloader as well. Otherwise no bus extensions
-            // will be found.
-            BusFactory.getThreadDefaultBus();
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
+        // method no longer in use, see AP-20749 - the jaxrs runtime + CXF is configured via a fragment. This method
+        // will be removed in a future version.
     }
 
     /**
@@ -93,20 +79,8 @@ public final class CXFUtil {
      * @return the thread's bus
      */
     public static Bus getThreadDefaultBus(final Class<?> classFromBundle) {
-        var cl = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(classFromBundle.getClassLoader());
-
-            // This must be initialized with the correct context classloader as well. Otherwise no bus extensions
-            // will be found.
-            var bus = BusFactory.getThreadDefaultBus(false);
-            if (bus == null) {
-                bus = BusFactory.newInstance().createBus();
-                BusFactory.setThreadDefaultBus(bus);
-            }
-            return bus;
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
+        // method no longer in use, see AP-20749 - the jaxrs runtime + CXF is configured via a fragment. This method
+        // will be removed in a future version.
+        return BusFactory.getThreadDefaultBus();
     }
 }
