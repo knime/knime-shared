@@ -5,10 +5,7 @@ Bundle-SymbolicName: org.knime.cxf-util;singleton:=true
 Bundle-Version: 5.2.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Require-Bundle: jakarta.ws.rs-api;bundle-version="[3.1.0,4.0.0)",
- org.apache.cxf.cxf-core;bundle-version="[4.0.1,5.0.0)",
- org.apache.cxf.cxf-rt-transports-http;bundle-version="[4.0.1,5.0.0)",
- org.apache.cxf.cxf-rt-transports-http-hc;bundle-version="[4.0.1,5.0.0)"
+Require-Bundle: org.apache.cxf.cxf-core;bundle-version="[4.0.1,5.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-BuddyPolicy: registered
 Export-Package: org.knime.cxf
