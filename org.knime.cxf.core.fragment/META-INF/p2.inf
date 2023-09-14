@@ -1,0 +1,5 @@
+instructions.install=\
+org.eclipse.equinox.p2.touchpoint.eclipse.addJvmArg(jvmArg:-Djakarta.ws.rs.ext.RuntimeDelegate=org.apache.cxf.jaxrs.impl.RuntimeDelegateImpl);\
+org.eclipse.equinox.p2.touchpoint.eclipse.addJvmArg(jvmArg:-Djakarta.ws.rs.client.ClientBuilder=org.apache.cxf.jaxrs.client.spec.ClientBuilderImpl);\
+org.eclipse.equinox.p2.touchpoint.eclipse.addJvmArg(jvmArg:-Dorg.apache.cxf.bus.factory=org.knime.cxf.core.fragment.KNIMECXFBusFactory);
+

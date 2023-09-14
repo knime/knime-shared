@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <feature id="org.knime.features.clfixes" version="0.0.0">
+      <category name="knime-shared"/>
+   </feature>
+   <feature id="org.knime.features.clfixes.source" version="0.0.0">
+      <category name="knime-shared"/>
+   </feature>
    <feature id="org.knime.features.util" version="0.0.0">
       <category name="knime-shared"/>
    </feature>
