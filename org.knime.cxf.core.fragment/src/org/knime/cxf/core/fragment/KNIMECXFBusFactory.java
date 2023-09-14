@@ -68,7 +68,7 @@ import jakarta.ws.rs.ext.RuntimeDelegate;
  * as bundle dependencies, e.g. cxf-rt-transports-http.
  * </ol>
  *
- * @author wiswedel
+ * @author Bernd Wiswedel
  * @since 5.1
  */
 public final class KNIMECXFBusFactory extends CXFBusFactory {
@@ -95,5 +95,4 @@ public final class KNIMECXFBusFactory extends CXFBusFactory {
             currentThread.setContextClassLoader(oldClassLoader);
         }
     }
-
 }
