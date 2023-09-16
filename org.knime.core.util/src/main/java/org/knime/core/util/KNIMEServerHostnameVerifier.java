@@ -95,7 +95,7 @@ public final class KNIMEServerHostnameVerifier implements HostnameVerifier {
                 .map(c -> ((X509Certificate)c).getSubjectX500Principal().getName())
                 .anyMatch(
                     "CN=default-server-installation.knime.local,O=KNIME.com AG,L=Atlantis,ST=Utopia,C=AA"::equals);
-        } catch (SSLPeerUnverifiedException ex) {
+        } catch (SSLPeerUnverifiedException ex) { // NOSONAR
             return false;
         }
     }

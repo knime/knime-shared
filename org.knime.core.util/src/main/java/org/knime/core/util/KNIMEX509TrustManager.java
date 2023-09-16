@@ -40,6 +40,7 @@ import javax.net.ssl.X509ExtendedTrustManager;
  * @since 6.1
  */
 public final class KNIMEX509TrustManager extends X509ExtendedTrustManager {
+
     private static final KNIMEX509TrustManager INSTANCE = new KNIMEX509TrustManager();
 
     private static final X509ExtendedTrustManager DEFAULT_X509_TRUST_MANAGER;
@@ -51,8 +52,8 @@ public final class KNIMEX509TrustManager extends X509ExtendedTrustManager {
 
             X509ExtendedTrustManager defaultTrustManager = null;
             for (TrustManager each : factory.getTrustManagers()) {
-                if (each instanceof X509ExtendedTrustManager) {
-                    defaultTrustManager = (X509ExtendedTrustManager)each;
+                if (each instanceof X509ExtendedTrustManager manager) {
+                    defaultTrustManager = manager;
                     break;
                 }
             }
@@ -72,10 +73,6 @@ public final class KNIMEX509TrustManager extends X509ExtendedTrustManager {
      */
     public static KNIMEX509TrustManager getInstance() {
         return INSTANCE;
-    }
-
-    private KNIMEX509TrustManager() {
-
     }
 
     @Override
@@ -132,5 +129,11 @@ public final class KNIMEX509TrustManager extends X509ExtendedTrustManager {
                 .map(c -> c.getSubjectX500Principal().getName())
                 .anyMatch(
                     "CN=default-server-installation.knime.local,O=KNIME.com AG,L=Atlantis,ST=Utopia,C=AA"::equals);
+    }
+
+    /**
+     * Only singleton instance.
+     */
+    private KNIMEX509TrustManager() {
     }
 }

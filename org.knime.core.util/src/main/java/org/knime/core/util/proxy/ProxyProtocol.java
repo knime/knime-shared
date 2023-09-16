@@ -93,16 +93,20 @@ public enum ProxyProtocol {
     }
 
     /**
-     * Checks whether there is a host entry for this proxy protocols.
-     * Acts as identifier whether it was configured.
+     * Checks whether there is are host and port entries for this proxy protocol.
+     * Acts as an identifier whether it was configured.
+     * It's discouraged to use the "proxySet" property, therefore we check for host and port.
      *
      * @return is configured in the system properties?
      */
     boolean isConfigured(final Properties properties) {
-        // It's discouraged to use the "proxySet" property, checking for a valid host is more robust.
-        return getProxyProperty(GlobalProxyConfigProvider.HOST_KEY, properties)//
+        final var hostPresent = getProxyProperty(GlobalProxyConfigProvider.HOST_KEY, properties)//
             .filter(StringUtils::isNotBlank)//
             .isPresent();
+        final var portPresent = getProxyProperty(GlobalProxyConfigProvider.PORT_KEY, properties)//
+            .filter(StringUtils::isNotBlank)//
+            .isPresent();
+        return hostPresent && portPresent;
     }
 
     Optional<String> getProxyProperty(final String key, final Properties properties) {

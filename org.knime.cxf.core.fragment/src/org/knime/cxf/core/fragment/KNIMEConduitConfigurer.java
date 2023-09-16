@@ -46,8 +46,8 @@ import org.knime.core.util.proxy.ProxyProtocol;
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  */
 final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExtension<HTTPConduitConfigurer> {
-    
-	@Override
+
+    @Override
     public HTTPConduitConfigurer getExtension() {
         return this;
     }
@@ -63,7 +63,6 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
         configureHTTP1OnConduit(conduit);
         configureSSLOnConduit(conduit);
         configureProxyOnConduit(conduit);
-
     }
 
     /**
