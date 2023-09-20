@@ -49,6 +49,7 @@
 package org.knime.core.node.util;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Utility methods for casting objects.
@@ -73,5 +74,19 @@ public final class ClassUtils {
      */
     public static <T> Optional<T> castOptional(final Class<T> clazz, final Object obj) {
         return clazz.isInstance(obj) ? Optional.of(clazz.cast(obj)) : Optional.empty();
+    }
+
+    /**
+     * Tries to cast an object to a given subtype.
+     *
+     * @param <T> type to which to try to cast the object
+     * @param clazz class object of the type to cast to
+     * @param obj object to try to cast to {@code T}
+     * @return single-element stream containing the cast object if it is an instance of {@code T},
+               empty stream otherwise
+     * @since 6.1
+     */
+    public static <T> Stream<T> castStream(final Class<T> clazz, final Object obj) {
+        return clazz.isInstance(obj) ? Stream.of(clazz.cast(obj)) : Stream.empty();
     }
 }
