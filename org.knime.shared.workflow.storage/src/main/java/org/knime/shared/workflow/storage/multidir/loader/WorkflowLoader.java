@@ -253,7 +253,8 @@ public final class WorkflowLoader {
         } else if (workflowFormatVersion.isOlderThan(LoadVersion.V2100Pre)) {
             return settings.getBoolean("node_is_meta") ? NodeTypeEnum.METANODE : NodeTypeEnum.NATIVENODE;
         } else {
-            final var nodeType = settings.getString("node_type");
+            // TODO some old workflows have no node type. It's often a native node but sometimes also a metanode.
+            final var nodeType = settings.getString("node_type", "missing");
             return getNodeType(nodeType);
         }
     }

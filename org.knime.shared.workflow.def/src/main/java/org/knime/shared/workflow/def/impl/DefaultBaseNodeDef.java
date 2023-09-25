@@ -159,7 +159,7 @@ public abstract class DefaultBaseNodeDef implements BaseNodeDef {
      */
     static DefaultBaseNodeDef withException(BaseNodeDef toCopy, final LoadException exception) {
         Objects.requireNonNull(exception);
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(exception);
     }
     
     // -----------------------------------------------------------------------------------------------------------------
