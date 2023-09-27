@@ -56,8 +56,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.ext.RuntimeDelegate;
-
 /**
  * Added as part of AP-20749 - a KNIME custom bus factory serving two purposes:
  *
@@ -87,7 +85,6 @@ public final class KNIMECXFBusFactory extends CXFBusFactory {
         final var oldClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(KNIMECXFBusFactory.class.getClassLoader());
         try {
-            RuntimeDelegate.getInstance();
             final var bus = super.createBus(e, properties);
             CXF_BUS_EXTENSIONS.forEach(ext -> ext.setOnBus(bus));
             return bus;
