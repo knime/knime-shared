@@ -5,13 +5,13 @@ Bundle-SymbolicName: org.knime.cxf.core.fragment;singleton:=true
 Bundle-Version: 5.2.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Fragment-Host: org.apache.cxf.cxf-core;bundle-version="[4.0.1.v20230525-knime,5)"
+Fragment-Host: org.apache.cxf.cxf-core;bundle-version="[4.0.3.v20231002-knime,5)"
 Require-Bundle: jakarta.ws.rs-api;bundle-version="[3.1.0,4.0.0)",
- org.apache.cxf.cxf-core;bundle-version="[4.0.1,5.0.0)",
- org.apache.cxf.cxf-rt-transports-http;bundle-version="[4.0.1,5.0.0)",
- org.apache.cxf.cxf-rt-transports-http-hc;bundle-version="[4.0.1,5.0.0)",
- org.apache.cxf.cxf-rt-frontend-jaxrs;bundle-version="[4.0.1,5.0.0)",
- org.apache.cxf.cxf-rt-rs-client;bundle-version="[4.0.1,5.0.0)",
+ org.apache.cxf.cxf-core;bundle-version="[4.0.3,5.0.0)",
+ org.apache.cxf.cxf-rt-transports-http;bundle-version="[4.0.3,5.0.0)",
+ org.apache.cxf.cxf-rt-transports-http-hc;bundle-version="[4.0.3,5.0.0)",
+ org.apache.cxf.cxf-rt-frontend-jaxrs;bundle-version="[4.0.3,5.0.0)",
+ org.apache.cxf.cxf-rt-rs-client;bundle-version="[4.0.3,5.0.0)",
  org.knime.core.util;bundle-version="[6.1.0,7.0.0)",
  org.apache.commons.lang3;bundle-version="[3.9.0,4.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
