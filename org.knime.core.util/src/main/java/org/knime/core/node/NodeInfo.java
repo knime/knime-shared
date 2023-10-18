@@ -60,23 +60,49 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @since 5.4
  */
 public class NodeInfo {
+    private final String m_factoryId;
+
     private final String m_factory;
 
     private final String m_name;
 
     /**
+     * @param factoryId
      * @param factory
      * @param name
+     * @since 6.2
      */
     @JsonCreator
-    public NodeInfo(@JsonProperty("factory") final String factory, @JsonProperty("name") final String name) {
+    public NodeInfo(@JsonProperty("factoryId") final String factoryId, @JsonProperty("factory") final String factory,
+        @JsonProperty("name") final String name) {
+        m_factoryId = factoryId;
         m_factory = factory;
         m_name = name;
     }
 
     /**
-     * @return the factory
+     * @param factory
+     * @param name
      */
+    public NodeInfo(final String factory, final String name) {
+        m_factoryId = null;
+        m_factory = factory;
+        m_name = name;
+    }
+
+    /**
+     * @return the factoryId
+     * @since 6.2
+     */
+    public String getFactoryId() {
+        return m_factoryId;
+    }
+
+    /**
+     * @return the factory
+     * @deprecated use {@link #getFactoryId()} instead
+     */
+    @Deprecated(since = "5.2")
     @JsonProperty("factory")
     public String getFactory() {
         return m_factory;
@@ -84,7 +110,9 @@ public class NodeInfo {
 
     /**
      * @return the name
+     * @deprecated use {@link #getFactoryId()} instead
      */
+    @Deprecated(since = "5.2")
     @JsonProperty("name")
     public String getName() {
         return m_name;
@@ -97,6 +125,7 @@ public class NodeInfo {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((m_factoryId == null) ? 0 : m_factoryId.hashCode());
         result = prime * result + ((m_factory == null) ? 0 : m_factory.hashCode());
         result = prime * result + ((m_name == null) ? 0 : m_name.hashCode());
         return result;
@@ -117,7 +146,8 @@ public class NodeInfo {
             return false;
         }
         NodeInfo other = (NodeInfo)obj;
-        return Objects.equals(m_factory, other.m_factory) && Objects.equals(m_name, other.m_name);
+        return Objects.equals(m_factoryId, other.m_factoryId) && Objects.equals(m_factory, other.m_factory)
+            && Objects.equals(m_name, other.m_name);
     }
 
     /**
