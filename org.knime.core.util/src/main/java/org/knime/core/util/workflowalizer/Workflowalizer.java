@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -1466,12 +1467,17 @@ public final class Workflowalizer {
     }
 
     private static SAXException handleSAXException(final SAXException ex, final String filename) {
-        if (ex instanceof SAXParseException && ex.getMessage().contains("is disallowed when the feature")) {
+        if (ex instanceof SAXParseException && DISABLED_FEATURES.stream().anyMatch(f -> ex.getMessage().contains(f))) {
             throw new IllegalArgumentException(String.format(
                 "Cannot parse the given file '%s', as it contains XML elements which are not allowed", filename), ex);
         }
         return ex;
     }
+
+    private static final Set<String> DISABLED_FEATURES = Set.of("http://apache.org/xml/features/disallow-doctype-decl",
+        "http://xml.org/sax/features/external-general-entities",
+        "http://xml.org/sax/features/external-parameter-entities",
+        "http://apache.org/xml/features/nonvalidating/load-external-dtd");
 
     private static DocumentBuilder getConfiguredDocumentBuilder() throws IOException {
         try {
