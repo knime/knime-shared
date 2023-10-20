@@ -84,7 +84,7 @@ public final class ClassUtils {
      * @param obj object to try to cast to {@code T}
      * @return single-element stream containing the cast object if it is an instance of {@code T},
                empty stream otherwise
-     * @since 6.1
+     * @since 6.2
      */
     public static <T> Stream<T> castStream(final Class<T> clazz, final Object obj) {
         return clazz.isInstance(obj) ? Stream.of(clazz.cast(obj)) : Stream.empty();

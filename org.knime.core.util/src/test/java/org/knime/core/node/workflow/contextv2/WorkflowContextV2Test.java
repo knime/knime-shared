@@ -48,11 +48,14 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.knime.core.util.auth.SimpleTokenAuthenticator;
@@ -119,6 +122,48 @@ public class WorkflowContextV2Test {
                     + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"),
             ((RestLocationInfo) ctx.getLocationInfo()).getWorkflowAddress(),
             "Workflow address URI is not resolved correctly.");
+    }
+
+    /** Checks that scope suppliers in Hub executor information work correctly. */
+    @Test
+    void testScopeSuppliers() {
+        // scope via supplier
+        var ctx = WorkflowContextV2.builder()
+                .withHubJobExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(ROOT.resolve("mp_root/path"))
+                    .withJobId(UUID.randomUUID())
+                    .withScope(() -> "scope-id", () -> "scope-name")
+                    .withJobCreator("User"))
+                .withServerLocation(loc -> loc
+                    .withRepositoryAddress(URI.create("https://user@localhost:1234/rest%20path"))
+                    .withWorkflowPath("/hornm/space/Component3 sdguh4r & f -   ff äöü+ß=)(}{[]$§!")
+                    .withAuthenticator(new SimpleTokenAuthenticator("token"))
+                    .withDefaultMountId("My-Server"))
+                .build();
+
+        assertThat("Unexpected scope ID", ((HubJobExecutorInfo) ctx.getExecutorInfo()).getScopeId(), is("scope-id"));
+        assertThat("Unexpected scope name", ((HubJobExecutorInfo)ctx.getExecutorInfo()).getScopeName(),
+            is("scope-name"));
+
+        // scope directly
+        ctx = WorkflowContextV2.builder()
+                .withHubJobExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(ROOT.resolve("mp_root/path"))
+                    .withJobId(UUID.randomUUID())
+                    .withScope("scope-id", "scope-name")
+                    .withJobCreator("User"))
+                .withServerLocation(loc -> loc
+                    .withRepositoryAddress(URI.create("https://user@localhost:1234/rest%20path"))
+                    .withWorkflowPath("/hornm/space/Component3 sdguh4r & f -   ff äöü+ß=)(}{[]$§!")
+                    .withAuthenticator(new SimpleTokenAuthenticator("token"))
+                    .withDefaultMountId("My-Server"))
+                .build();
+
+        assertThat("Unexpected scope ID", ((HubJobExecutorInfo) ctx.getExecutorInfo()).getScopeId(), is("scope-id"));
+        assertThat("Unexpected scope name", ((HubJobExecutorInfo)ctx.getExecutorInfo()).getScopeName(),
+            is("scope-name"));
     }
 
     /**

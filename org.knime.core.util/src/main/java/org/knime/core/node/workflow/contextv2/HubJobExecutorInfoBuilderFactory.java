@@ -52,6 +52,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.util.CheckUtils;
@@ -92,9 +93,10 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
     /** Builder accepting the execution scope of the job. */
     public static final class HubJobExecutorInfoSBuilder {
 
-        final BiFunction<String[], String, HubJobExecutorInfoBuilder> m_continuation;
+        final BiFunction<Supplier<String>[], String, HubJobExecutorInfoBuilder> m_continuation;
 
-        HubJobExecutorInfoSBuilder(final BiFunction<String[], String, HubJobExecutorInfoBuilder> continuation) {
+        HubJobExecutorInfoSBuilder(
+            final BiFunction<Supplier<String>[], String, HubJobExecutorInfoBuilder> continuation) {
             m_continuation = continuation;
         }
 
@@ -107,11 +109,28 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
          * @return this builder instance
          * @see HubJobExecutorInfo#getScopeId()
          */
+        @SuppressWarnings("unchecked")
         public HubJobExecutorInfoJCBuilder withScope(final String scopeId, final String scopeName) {
             CheckUtils.checkArgument(StringUtils.isNotBlank(scopeId), "Scope ID must not be null or blank");
             CheckUtils.checkArgument(StringUtils.isNotBlank(scopeName), "Scope name must not be null or blank");
-            return new HubJobExecutorInfoJCBuilder(
-                (jobCreatorName -> m_continuation.apply(new String[] { scopeId, scopeName }, jobCreatorName)));
+            return new HubJobExecutorInfoJCBuilder((jobCreatorName -> m_continuation
+                .apply(new Supplier[]{() -> scopeId, () -> scopeName}, jobCreatorName)));
+        }
+
+        /**
+         * Sets the scope, which is the account (e.g. team) that owns the execution context in which the job runs.
+         *
+         * @param scopeId The technical account ID, e.g.g "user:f192a301-5fda-4763-afa6-85a2c0bf8ae1"
+         * @param scopeName The human-readable account name, e.g. "bob.miller"
+         *
+         * @return this builder instance
+         * @see HubJobExecutorInfo#getScopeId()
+         * @since 6.2
+         */
+        @SuppressWarnings("unchecked")
+        public HubJobExecutorInfoJCBuilder withScope(final Supplier<String> scopeId, final Supplier<String> scopeName) {
+            return new HubJobExecutorInfoJCBuilder((jobCreatorName -> m_continuation
+                .apply(new Supplier[]{scopeId, scopeName}, jobCreatorName)));
         }
     }
 
@@ -151,12 +170,12 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
         /**
          * See {@link HubJobExecutorInfo#getScopeId()}.
          */
-        private final String m_scopeId;
+        private final Supplier<String> m_scopeId;
 
         /**
          * See {@link HubJobExecutorInfo#getScopeName()}.
          */
-        private final String m_scopeName;
+        private final Supplier<String> m_scopeName;
 
         /**
          * See {@link HubJobExecutorInfo#getJobCreatorName()}.
@@ -167,14 +186,13 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
                 final String userId, //
                 final Path localWorkflowPath, //
                 final UUID jobId, //
-                final String scopeId, //
-                final String scopeName, //
+                final Supplier<String> scopeId, //
+                final Supplier<String> scopeName, //
                 final String jobCreatorName) {
             super(ExecutorType.HUB_EXECUTOR, userId, localWorkflowPath, jobId);
             m_scopeId = scopeId;
             m_scopeName = scopeName;
             m_jobCreatorName = jobCreatorName;
-
         }
 
         @Override

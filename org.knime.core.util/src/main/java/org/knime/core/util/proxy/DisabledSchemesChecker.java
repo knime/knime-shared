@@ -60,7 +60,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @see <a href="https://docs.oracle.com/en/java/javase/16/core/networking-properties.html">Java Networking
  *      Properties</a>
- * @since 6.1
+ * @since 6.2
  */
 public final class DisabledSchemesChecker {
 

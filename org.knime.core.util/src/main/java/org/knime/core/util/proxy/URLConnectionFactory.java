@@ -63,7 +63,7 @@ import java.util.logging.Logger;
  * Consistently builds {@link URLConnection} with a proxy if configured.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.1
+ * @since 6.2
  */
 public final class URLConnectionFactory {
 

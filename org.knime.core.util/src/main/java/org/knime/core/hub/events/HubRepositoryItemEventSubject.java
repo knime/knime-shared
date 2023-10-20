@@ -277,7 +277,7 @@ public final class HubRepositoryItemEventSubject implements HubEventSubject {
         /**
          * @param version see {@link #getItemVersion()}
          * @return this builder
-         * @since 6.1
+         * @since 6.2
          */
         public Builder itemVersion(final String version) {
             m_itemVersion = version;

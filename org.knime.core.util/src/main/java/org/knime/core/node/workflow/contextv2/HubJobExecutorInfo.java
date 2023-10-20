@@ -50,6 +50,7 @@ package org.knime.core.node.workflow.contextv2;
 
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.knime.core.node.workflow.contextv2.ExecutorInfoBuilderFactory.ExecutorInfoUIBuilder;
 import org.knime.core.node.workflow.contextv2.HubJobExecutorInfoBuilderFactory.HubJobExecutorInfoSBuilder;
@@ -69,12 +70,12 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
      * The scope under which the current job has been created. The scope is the account (e.g. team) that owns the
      * execution context in which the job runs. This field holds the technical account ID (unique, immutable).
      */
-    private final String m_scopeId;
+    private final Supplier<String> m_scopeId;
 
     /**
      * See {@link #m_scopeId}. This field holds the human-readable (unique but mutable) account name.
      */
-    private final String m_scopeName;
+    private final Supplier<String> m_scopeName;
 
     /**
      * The human-readable (unique but mutable) name of the account that created the current job. See
@@ -87,8 +88,8 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
             final Path workflowPath, //
             final Path tempFolder, //
             final boolean isRemote, //
-            final String scope, //
-            final String scopeName, //
+            final Supplier<String> scope, //
+            final Supplier<String> scopeName, //
             final String jobCreatorId, //
             final String jobCreatorName) {
         super(ExecutorType.HUB_EXECUTOR, jobCreatorId, workflowPath, tempFolder, jobId, isRemote);
@@ -105,7 +106,7 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
      * @return the scope as a technical account ID.
      */
     public String getScopeId() {
-        return m_scopeId;
+        return m_scopeId.get();
     }
 
     /**
@@ -116,7 +117,7 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
      * @return the scopeName
      */
     public String getScopeName() {
-        return m_scopeName;
+        return m_scopeName.get();
     }
 
     /**

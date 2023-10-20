@@ -37,7 +37,7 @@ import javax.net.ssl.X509ExtendedTrustManager;
  * Custom trust manager that allows connection with the KNIME Server default certificate without checking the hostname.
  *
  * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
- * @since 6.1
+ * @since 6.2
  */
 public final class KNIMEX509TrustManager extends X509ExtendedTrustManager {
 

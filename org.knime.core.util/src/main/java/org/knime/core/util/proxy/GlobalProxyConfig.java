@@ -61,7 +61,7 @@ package org.knime.core.util.proxy;
  * @param excludedHosts list of exluded hostnames
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.1
+ * @since 6.2
  */
 public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port, boolean useAuthentication,
     String username, String password, boolean useExcludedHosts, String excludedHosts) {

@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
  * Returns every property as Optional<String>.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.1
+ * @since 6.2
  */
 public final class GlobalProxyConfigProvider {
 

@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
  * Type of protocol to use for the proxy connection, come with default ports.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.1
+ * @since 6.2
  */
 public enum ProxyProtocol {
         /**
