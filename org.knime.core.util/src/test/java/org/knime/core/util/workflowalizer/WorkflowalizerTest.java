@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
@@ -1750,5 +1751,22 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         Path workflowPath = getResourcePath("/Workflow_BrokenMetaXML.knwf");
         assertThrows(SAXParseException.class, () -> Workflowalizer.readRepositoryItem(workflowPath),
             "Unexpected response code when parsing a workflow with invalid XML");
+    }
+
+    @Test
+    void testReadingDynamicNodes() throws Exception {
+        Path workspace = PathUtils.createTempDir(WorkflowalizerTest.class.getName());
+        try (InputStream is = getResourceAsStream("/Workflowalizer_DynamicNodes.knwf")) {
+            unzip(is, workspace);
+        }
+        final var directory = workspace.resolve("Workflowalizer_DynamicNodes");
+        var wm = Workflowalizer.readWorkflow(directory);
+
+        // dynamic node created with 5.2 (with a proper 'factory-id-uniquifier')
+        assertThat(((NativeNodeMetadata)wm.getNodes().get(0)).getFactoryId()).isEqualTo(
+            "org.knime.core.node.NodeFactoryIdTestNodeSetFactory$NodeFactoryIdTestDynamicNodeFactory1#factory-id-uniquifier-1");
+        // dynamic node created before 5.2 (with the node name in the factory-id)
+        assertThat(((NativeNodeMetadata)wm.getNodes().get(1)).getFactoryId()).isEqualTo(
+                "org.knime.core.node.NodeFactoryIdTestNodeSetFactory$NodeFactoryIdTestDynamicNodeFactory2#dynamic node name 2");
     }
 }

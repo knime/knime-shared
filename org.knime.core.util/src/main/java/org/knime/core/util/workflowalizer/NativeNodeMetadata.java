@@ -50,6 +50,7 @@ package org.knime.core.util.workflowalizer;
 
 import java.util.Optional;
 
+import org.knime.core.node.NodeFactoryId;
 import org.knime.core.node.config.base.ConfigBase;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -69,6 +70,9 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
 
     @JsonProperty("factoryName")
     private final String m_factoryName;
+
+    @JsonProperty("factoryId")
+    private final String m_factoryId;
 
     @JsonProperty("nodeInstanceId")
     private final String m_nodeId;
@@ -90,6 +94,9 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
 
     NativeNodeMetadata(final NativeNodeMetadataBuilder builder) {
         m_factoryName = builder.getFactoryClass().orElse("") + builder.getFactorySettings();
+        var isDynamicNodeFactory = !builder.getFactorySettings().isEmpty();
+        m_factoryId = NodeFactoryId.compose(builder.getFactoryClass().orElseThrow(), isDynamicNodeFactory,
+            builder.getFactoryIdUniquifier().orElse(null), () -> builder.getNodeName().orElseThrow());
         m_nodeId = builder.getSingleNodeFields().getId();
         m_type = builder.getSingleNodeFields().getType();
         m_nodeConfiguration = builder.getSingleNodeFields().getNodeConfiguration();
@@ -156,9 +163,18 @@ public final class NativeNodeMetadata implements SingleNodeMetadata {
      * Returns the unique node identifier, which can be used to lookup nodes in the node catalog.
      *
      * @return the unique node identifier
+     * @deprecated use {@link #getFactoryId()} instead
      */
+    @Deprecated
     public String getFactoryName() {
         return m_factoryName;
+    }
+
+    /**
+     * @return the factory-id as per NodeFactory.getFactoryId
+     */
+    public String getFactoryId() {
+        return m_factoryId;
     }
 
     @Override

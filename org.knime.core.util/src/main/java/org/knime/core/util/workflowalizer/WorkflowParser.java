@@ -163,6 +163,12 @@ interface WorkflowParser {
     String getFactorySettingsHashCode(final ConfigBase config) throws InvalidSettingsException;
 
     /**
+     * @param config
+     * @return
+     */
+    Optional<String> getFactoryIdUniquifier(ConfigBase config);
+
+    /**
      * @param config a pre-loaded {@link ConfigBase} to be parsed
      * @return the node id
      * @throws InvalidSettingsException

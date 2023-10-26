@@ -835,6 +835,9 @@ public final class Workflowalizer {
         final Optional<String> factoryClass = parser.getFactoryClass(settingsXml);
         builder.setFactoryClass(factoryClass);
 
+        final var factoryIdUniquifier = parser.getFactoryIdUniquifier(settingsXml);
+        builder.setFactoryIdUniquifier(factoryIdUniquifier);
+
         final Optional<String> bundleName = parser.getBundleName(settingsXml);
         builder.setBundleName(bundleName);
 

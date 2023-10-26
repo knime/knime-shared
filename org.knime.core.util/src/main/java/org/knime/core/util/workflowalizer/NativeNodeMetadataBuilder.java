@@ -63,6 +63,7 @@ class NativeNodeMetadataBuilder {
     private SingleNodeFields m_singleNodeFields;
     private Optional<String> m_nodeName;
     private Optional<String> m_factoryClass;
+    private Optional<String> m_factoryIdUniquifier;
     private Optional<String> m_bundleName;
     private Optional<String> m_bundleSymbolicName;
     private Optional<String> m_bundleVendor;
@@ -86,6 +87,10 @@ class NativeNodeMetadataBuilder {
 
     void setFactoryClass(final Optional<String> factoryClass) {
         m_factoryClass = factoryClass;
+    }
+
+    void setFactoryIdUniquifier(final Optional<String> factoryIdUniquifier) {
+        m_factoryIdUniquifier = factoryIdUniquifier;
     }
 
     void setBundleName(final Optional<String> bundleName) {
@@ -134,6 +139,10 @@ class NativeNodeMetadataBuilder {
 
     Optional<String> getFactoryClass() {
         return m_factoryClass;
+    }
+
+    Optional<String> getFactoryIdUniquifier() {
+        return m_factoryIdUniquifier;
     }
 
     Optional<String> getBundleName() {

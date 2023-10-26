@@ -235,6 +235,11 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return "";
     }
 
+    @Override
+    public Optional<String> getFactoryIdUniquifier(final ConfigBase config) {
+        return Optional.ofNullable(config.getString("factory-id-uniquifier", null));
+    }
+
     /**
      * {@inheritDoc}
      */
