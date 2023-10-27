@@ -119,32 +119,42 @@ public class WorkspaceAnalyzerTest {
         analyzer.analyze();
 
         NodeTriple t1 = new NodeTriple(null,
-            new NodeInfo("org.knime.base.node.io.tablecreator.TableCreator2NodeFactory", "Table Creator"),
-            new NodeInfo("org.knime.base.node.preproc.filter.row.RowFilterNodeFactory", "Row Filter"));
+            new NodeInfo("org.knime.base.node.io.tablecreator.TableCreator2NodeFactory", null, null),
+            new NodeInfo("org.knime.base.node.preproc.filter.row.RowFilterNodeFactory", null, null));
         t1.incrementCount();
         t1.incrementCount();
 
         NodeTriple t2 = new NodeTriple(
-            new NodeInfo("org.knime.base.node.io.tablecreator.TableCreator2NodeFactory", "Table Creator"),
-            new NodeInfo("org.knime.base.node.preproc.filter.row.RowFilterNodeFactory", "Row Filter"),
-            new NodeInfo("org.knime.base.node.preproc.sorter.SorterNodeFactory", "Sorter"));
+            new NodeInfo("org.knime.base.node.io.tablecreator.TableCreator2NodeFactory", null, null),
+            new NodeInfo("org.knime.base.node.preproc.filter.row.RowFilterNodeFactory", null, null),
+            new NodeInfo("org.knime.base.node.preproc.sorter.SorterNodeFactory", null, null));
         t2.incrementCount();
 
         NodeTriple t3 = new NodeTriple(
-            new NodeInfo("org.knime.base.node.io.tablecreator.TableCreator2NodeFactory", "Table Creator"),
-            new NodeInfo("org.knime.base.node.preproc.filter.row.RowFilterNodeFactory", "Row Filter"),
+            new NodeInfo("org.knime.base.node.io.tablecreator.TableCreator2NodeFactory", null, null),
+            new NodeInfo("org.knime.base.node.preproc.filter.row.RowFilterNodeFactory", null, null),
             new NodeInfo("MetaNode", "Metanode"));
         t3.incrementCount();
 
+        NodeTriple t4 = new NodeTriple(null,
+            // dynamic node factory created with AP >= 5.2
+            new NodeInfo(
+                "org.knime.core.node.NodeFactoryIdTestNodeSetFactory$NodeFactoryIdTestDynamicNodeFactory1#factory-id-uniquifier-1",
+                null, null),
+            // dynamic node factory created with AP < 5.2
+            new NodeInfo(
+                "org.knime.core.node.NodeFactoryIdTestNodeSetFactory$NodeFactoryIdTestDynamicNodeFactory2#dynamic node name 2",
+                null, null));
+        t4.incrementCount();
+
         // (successor, node, predecessor) structures match
         Collection<NodeTriple> actualTriplets = analyzer.getTriplets();
-        assertThat("Unexpected triplet structures.", actualTriplets, containsInAnyOrder(t1, t2, t3));
+        assertThat("Unexpected triplet structures.", actualTriplets, containsInAnyOrder(t1, t2, t3, t4));
 
         // compare counts
-        var expectedCounts = Map.of(t1, t1.getCount(), t2, t2.getCount(), t3, t3.getCount());
+        var expectedCounts = Map.of(t1, t1.getCount(), t2, t2.getCount(), t3, t3.getCount(), t4, t4.getCount());
         var actualCounts = actualTriplets.stream().collect(Collectors.toMap(t -> t, NodeTriple::getCount));
         assertThat("Unexpected triplet counts.", actualCounts, is(expectedCounts));
-
     }
 
     /** Unzips the given zip input to the given folder.

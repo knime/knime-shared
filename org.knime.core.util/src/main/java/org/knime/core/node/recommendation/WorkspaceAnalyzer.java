@@ -81,6 +81,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.logging.LogFactory;
+import org.knime.core.node.NodeFactoryId;
 import org.knime.core.node.NodeFrequencies;
 import org.knime.core.node.NodeInfo;
 import org.knime.core.node.NodeTriple;
@@ -111,6 +112,10 @@ public class WorkspaceAnalyzer {
     private final XPathExpression m_nodeFileXpath;
 
     private final XPathExpression m_nodeFactoryXpath;
+
+    private final XPathExpression m_factoryIdUniquifierXpath;
+
+    private final XPathExpression m_factorySettingsXpath;
 
     private final XPathExpression m_nodeNameXpath;
 
@@ -195,6 +200,8 @@ public class WorkspaceAnalyzer {
         m_nodeFileXpath = fac.newXPath().compile("entry[@key = 'node_settings_file']/@value");
         m_nodeTypeXpath = fac.newXPath().compile("entry[@key = 'node_type']/@value");
         m_nodeFactoryXpath = fac.newXPath().compile("/config/entry[@key = 'factory']/@value");
+        m_factoryIdUniquifierXpath = fac.newXPath().compile("/config/entry[@key = 'factory-id-uniquifier']/@value");
+        m_factorySettingsXpath = fac.newXPath().compile("/config/config[@key = 'factory_settings']/*");
         m_nodeNameXpath = fac.newXPath().compile("/config/entry[@key = 'node-name']/@value");
         m_subnodeNameXpath = fac.newXPath().compile("/config/entry[@key = 'name']/@value");
 
@@ -371,8 +378,15 @@ public class WorkspaceAnalyzer {
             if (Files.exists(nodeFile)) {
                 Document doc = createParser().parse(nodeFile.toFile());
                 String factoryClass = (String)m_nodeFactoryXpath.evaluate(doc, XPathConstants.STRING);
+                var factoryIdUniquifier = (String)m_factoryIdUniquifierXpath.evaluate(doc, XPathConstants.STRING);
+                if (factoryIdUniquifier.isEmpty()) {
+                    factoryIdUniquifier = null;
+                }
+                var isDynamicNode =
+                    ((NodeList)m_factorySettingsXpath.evaluate(doc, XPathConstants.NODESET)).getLength() > 0;
                 String nodeName = (String)m_nodeNameXpath.evaluate(doc, XPathConstants.STRING);
-                return Optional.of(new NodeInfo(factoryClass, nodeName));
+                var factoryId = NodeFactoryId.compose(factoryClass, isDynamicNode, factoryIdUniquifier, () -> nodeName);
+                return Optional.of(new NodeInfo(factoryId, null, null));
             }
         } else if ("SubNode".equals(nodeType) || "MetaNode".equals(nodeType)) {
             String relativeNodeFile = (String)m_nodeFileXpath.evaluate(node, XPathConstants.STRING);
