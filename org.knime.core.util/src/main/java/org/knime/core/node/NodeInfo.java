@@ -155,6 +155,10 @@ public class NodeInfo {
      */
     @Override
     public String toString() {
-        return m_factory + "#" + m_name;
+        if (m_factoryId != null) {
+            return m_factoryId;
+        } else {
+            return m_factory + "#" + m_name;
+        }
     }
 }
