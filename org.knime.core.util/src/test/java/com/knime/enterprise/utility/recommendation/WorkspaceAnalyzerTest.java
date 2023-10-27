@@ -52,6 +52,7 @@ package com.knime.enterprise.utility.recommendation;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.knime.core.util.workflowalizer.AbstractWorkflowalizerTest.getResourceAsStream;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -92,7 +93,7 @@ public class WorkspaceAnalyzerTest {
     @BeforeEach
     public void setup() throws Exception {
         m_workspaceDir = PathUtils.createTempDir(WorkspaceAnalyzerTest.class.getName());
-        try (InputStream is = WorkspaceAnalyzerTest.class.getResourceAsStream("/simple-workflow.zip")) {
+        try (InputStream is = getResourceAsStream("/simple-workflow.zip")) {
             unzip(is, m_workspaceDir.toFile());
         }
     }

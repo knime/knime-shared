@@ -108,7 +108,7 @@ public class AbstractWorkflowalizerTest {
      * @throws IOException if something goes wrong
      */
     @SuppressWarnings("resource")
-    static InputStream getResourceAsStream(final String file) throws IOException {
+    public static InputStream getResourceAsStream(final String file) throws IOException {
         final var local = Path.of("src/test/resources" + file);
         final var fromClassLoader = WorkflowalizerTest.class.getResourceAsStream(file);
         return fromClassLoader != null ? fromClassLoader : Files.exists(local) ? Files.newInputStream(local) : null;
