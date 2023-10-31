@@ -50,16 +50,18 @@ package com.knime.enterprise.utility.recommendation;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -133,15 +135,15 @@ public class WorkspaceAnalyzerTest {
             new NodeInfo("MetaNode", "Metanode"));
         t3.incrementCount();
 
-        List<NodeTriple> expectedTriplets = Arrays.asList(t1, t2, t3);
+        // (successor, node, predecessor) structures match
+        Collection<NodeTriple> actualTriplets = analyzer.getTriplets();
+        assertThat("Unexpected triplet structures.", actualTriplets, containsInAnyOrder(t1, t2, t3));
 
-        List<NodeTriple> actualTriplets = new ArrayList<>(analyzer.getTriplets());
+        // compare counts
+        var expectedCounts = Map.of(t1, t1.getCount(), t2, t2.getCount(), t3, t3.getCount());
+        var actualCounts = actualTriplets.stream().collect(Collectors.toMap(t -> t, NodeTriple::getCount));
+        assertThat("Unexpected triplet counts.", actualCounts, is(expectedCounts));
 
-        for (int i = 0; i < expectedTriplets.size(); i++) {
-            assertThat("Unexpected triplet " + i, actualTriplets.get(i), is(expectedTriplets.get(i)));
-            assertThat("Unexpected count for triplet " + i, actualTriplets.get(i).getCount(),
-                is(expectedTriplets.get(i).getCount()));
-        }
     }
 
     /** Unzips the given zip input to the given folder.
