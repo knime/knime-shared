@@ -50,7 +50,6 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import org.knime.shared.workflow.def.PageMarginsDef;
 
 import org.knime.shared.workflow.def.ReportConfigurationDef;
 
@@ -69,10 +68,10 @@ import org.knime.core.util.workflow.def.SimpleLoadExceptionTree;
 
 
 /**
- * The report configuration set on components, includes page layout etc.
+ * The report configuration set on components, may include page layout in the future.
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
- * @since 5.1
+ * @since 5.2
  * @noextend This class is not intended to be subclassed by clients.
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.fallible-config.json"})
@@ -84,23 +83,10 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     final private Optional<LoadExceptionTree<?>> m_exceptionTree;
 
     /**
-     * Page size
-     * Example value: A4
+     * Whether reporting is enabled on the component.
      */
-    @JsonProperty("pageSize")
-    protected String m_pageSize;
-
-    /**
-     * Page orientation (portrait or landscape)
-     * Example value: portrait
-     */
-    @JsonProperty("orientation")
-    protected String m_orientation;
-
-    /**
-     */
-    @JsonProperty("pageMargins")
-    protected PageMarginsDef m_pageMargins;
+    @JsonProperty("enabled")
+    protected Boolean m_enabled;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -121,9 +107,7 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
         // TODO make immutable copies!!
         
             
-        m_pageSize = builder.m_pageSize;
-        m_orientation = builder.m_orientation;
-        m_pageMargins = builder.m_pageMargins;
+        m_enabled = builder.m_enabled;
 
         m_exceptionTree = Optional.empty();
     }
@@ -139,9 +123,7 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
         Objects.requireNonNull(supplyException);
         toCopy = Objects.requireNonNullElse(toCopy, new ReportConfigurationDefBuilder().build());
         
-        m_pageSize = toCopy.getPageSize();
-        m_orientation = toCopy.getOrientation();
-        m_pageMargins = toCopy.getPageMargins();
+        m_enabled = toCopy.isEnabled();
         if(toCopy instanceof DefaultReportConfigurationDef){
             var childTree = ((DefaultReportConfigurationDef)toCopy).getLoadExceptionTree();                
             // if present, merge child tree with supply exception
@@ -159,9 +141,7 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
      * @param toCopy source
      */
     public DefaultReportConfigurationDef(ReportConfigurationDef toCopy) {
-        m_pageSize = toCopy.getPageSize();
-        m_orientation = toCopy.getOrientation();
-        m_pageMargins = toCopy.getPageMargins();
+        m_enabled = toCopy.isEnabled();
         
         m_exceptionTree = Optional.empty();
     }
@@ -210,16 +190,8 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     // -----------------------------------------------------------------------------------------------------------------
 
     @Override
-    public String getPageSize() {
-        return m_pageSize;
-    }
-    @Override
-    public String getOrientation() {
-        return m_orientation;
-    }
-    @Override
-    public PageMarginsDef getPageMargins() {
-        return m_pageMargins;
+    public Boolean isEnabled() {
+        return m_enabled;
     }
     
     // -------------------------------------------------------------------------------------------------------------------
@@ -227,48 +199,15 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
     // -------------------------------------------------------------------------------------------------------------------  
     
     /**
-     * @return The supply exception associated to pageSize.
+     * @return The supply exception associated to enabled.
      */
     @JsonIgnore
-    public Optional<LoadException> getPageSizeSupplyException(){
-    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.PAGE_SIZE).flatMap(LoadExceptionTree::getSupplyException);
+    public Optional<LoadException> getEnabledSupplyException(){
+    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.ENABLED).flatMap(LoadExceptionTree::getSupplyException);
     }
     
  
      
-    /**
-     * @return The supply exception associated to orientation.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getOrientationSupplyException(){
-    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.ORIENTATION).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
- 
-     
-    /**
-     * @return The supply exception associated to pageMargins.
-     */
-    @JsonIgnore
-    public Optional<LoadException> getPageMarginsSupplyException(){
-    	return getLoadExceptionTree(ReportConfigurationDef.Attribute.PAGE_MARGINS).flatMap(LoadExceptionTree::getSupplyException);
-    }
-    
-     
-    /**
-     * @return If there are {@link LoadException}s related to the {@link PageMarginsDef} returned by {@link #getPageMargins()}, this
-     * returns the pageMargins as DefaultPageMarginsDef which provides getters for the exceptions. Otherwise an empty optional.
-     */
-    @JsonIgnore
-    public Optional<DefaultPageMarginsDef> getFaultyPageMargins(){
-    	final var pageMargins = getPageMargins(); 
-        if(pageMargins instanceof DefaultPageMarginsDef && ((DefaultPageMarginsDef)pageMargins).getLoadExceptionTree().map(LoadExceptionTree::hasExceptions).orElse(false)) {
-            return Optional.of((DefaultPageMarginsDef)pageMargins);
-        }
-    	return Optional.empty();
-    }
-         
- 
     
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -288,18 +227,14 @@ public class DefaultReportConfigurationDef implements ReportConfigurationDef {
         }
         DefaultReportConfigurationDef other = (DefaultReportConfigurationDef)o;
         var equalsBuilder = new org.apache.commons.lang3.builder.EqualsBuilder();
-        equalsBuilder.append(m_pageSize, other.m_pageSize);
-        equalsBuilder.append(m_orientation, other.m_orientation);
-        equalsBuilder.append(m_pageMargins, other.m_pageMargins);
+        equalsBuilder.append(m_enabled, other.m_enabled);
         return equalsBuilder.isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(m_pageSize)
-                .append(m_orientation)
-                .append(m_pageMargins)
+                .append(m_enabled)
                 .toHashCode();
     }
 

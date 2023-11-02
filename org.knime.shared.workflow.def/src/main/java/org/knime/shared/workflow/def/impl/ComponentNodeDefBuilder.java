@@ -1070,7 +1070,7 @@ public class ComponentNodeDefBuilder {
     /**
      * @param reportConfiguration 
      * @return this builder for fluent API.
-     * @since 5.1
+     * @since 5.2
      */ 
     public ComponentNodeDefBuilder setReportConfiguration(final ReportConfigurationDef reportConfiguration) {
         setReportConfiguration(() -> reportConfiguration, reportConfiguration);
@@ -1087,7 +1087,7 @@ public class ComponentNodeDefBuilder {
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
      * @see #setReportConfiguration(ReportConfigurationDef)
-     * @since 5.1
+     * @since 5.2
      */
     public ComponentNodeDefBuilder setReportConfiguration(final FallibleSupplier<ReportConfigurationDef> reportConfiguration, ReportConfigurationDef defaultValue) {
         java.util.Objects.requireNonNull(reportConfiguration, () -> "No supplier for reportConfiguration provided.");

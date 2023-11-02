@@ -180,7 +180,7 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
          /** 
           * The type of this data attribute is {@link ReportConfigurationDef}.
           * Is is returned by {@link ComponentNodeDef#getReportConfiguration} 
-          * @since 5.1
+          * @since 5.2
           */
          REPORT_CONFIGURATION,
          /** 
@@ -234,7 +234,7 @@ public interface ComponentNodeDef extends ConfigurableNodeDef {
 
   /**
    * @return 
-   * @since 5.1
+   * @since 5.2
    **/
   public ReportConfigurationDef getReportConfiguration();
 

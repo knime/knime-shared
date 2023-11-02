@@ -136,7 +136,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     protected TemplateInfoDef m_templateInfo;
 
     /**
-     * @since 5.1
+     * @since 5.2
      */
     @JsonProperty("reportConfiguration")
     protected ReportConfigurationDef m_reportConfiguration;
@@ -378,7 +378,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     }
     /**
      * {@inheritDoc}
-     * @since 5.1
+     * @since 5.2
      */
     @Override
     public ReportConfigurationDef getReportConfiguration() {
@@ -740,7 +740,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
  
     /**
      * @return The supply exception associated to reportConfiguration.
-     * @since 5.1
+     * @since 5.2
      */
     @JsonIgnore
     public Optional<LoadException> getReportConfigurationSupplyException(){
@@ -751,7 +751,7 @@ public class DefaultComponentNodeDef extends DefaultConfigurableNodeDef implemen
     /**
      * @return If there are {@link LoadException}s related to the {@link ReportConfigurationDef} returned by {@link #getReportConfiguration()}, this
      * returns the reportConfiguration as DefaultReportConfigurationDef which provides getters for the exceptions. Otherwise an empty optional.
-     * @since 5.1
+     * @since 5.2
      */
     @JsonIgnore
     public Optional<DefaultReportConfigurationDef> getFaultyReportConfiguration(){

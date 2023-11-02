@@ -46,7 +46,6 @@ package org.knime.shared.workflow.def.impl;
 
 import java.util.Map;
 
-import org.knime.shared.workflow.def.PageMarginsDef;
 
 
 
@@ -59,11 +58,11 @@ import org.knime.core.util.workflow.def.FallibleSupplier;
 import org.knime.core.util.workflow.def.LoadException;
 import org.knime.core.util.workflow.def.LoadExceptionTree;
 /**
- * The report configuration set on components, includes page layout etc.
+ * The report configuration set on components, may include page layout in the future.
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
- * @since 5.1
+ * @since 5.2
  */
 // @jakarta.annotation.Generated(value = {"com.knime.gateway.codegen.CoreCodegen", "src-gen/api/core/configs/org.knime.shared.workflow.def.impl.def-builder-config.json"})
 public class ReportConfigurationDefBuilder {
@@ -83,14 +82,9 @@ public class ReportConfigurationDefBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Def attributes
     // -----------------------------------------------------------------------------------------------------------------
-    String m_pageSize;
+    Boolean m_enabled;
     
 
-    String m_orientation;
-    
-
-    PageMarginsDef m_pageMargins;
-    
     /**
      * Create a new builder.
      */
@@ -101,134 +95,45 @@ public class ReportConfigurationDefBuilder {
      * Create a new builder from an existing instance.
      */
     public ReportConfigurationDefBuilder(final ReportConfigurationDef toCopy) {
-        m_pageSize = toCopy.getPageSize();
-        m_orientation = toCopy.getOrientation();
-        m_pageMargins = toCopy.getPageMargins();
+        m_enabled = toCopy.isEnabled();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Setters for pageSize
+    // Setters for enabled
     // -----------------------------------------------------------------------------------------------------------------
     
     /**
-     * @param pageSize Page size
+     * @param enabled Whether reporting is enabled on the component.
      * @return this builder for fluent API.
      */ 
-    public ReportConfigurationDefBuilder setPageSize(final String pageSize) {
-        setPageSize(() -> pageSize, pageSize);
+    public ReportConfigurationDefBuilder setEnabled(final Boolean enabled) {
+        setEnabled(() -> enabled, enabled);
         return this;
     }
  
     /**
      * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
      * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ReportConfigurationDef.Attribute.PAGE_SIZE)} will return true and and
-     * {@code getExceptionalChildren().get(ReportConfigurationDef.Attribute.PAGE_SIZE)} will return the exception.
+     * {@code hasExceptions(ReportConfigurationDef.Attribute.ENABLED)} will return true and and
+     * {@code getExceptionalChildren().get(ReportConfigurationDef.Attribute.ENABLED)} will return the exception.
      * 
-     * @param pageSize see {@link ReportConfigurationDef#getPageSize}
+     * @param enabled see {@link ReportConfigurationDef#isEnabled}
      * @param defaultValue is set in case the supplier throws an exception.
      * @return this builder for fluent API.
-     * @see #setPageSize(String)
+     * @see #setEnabled(Boolean)
      */
-    public ReportConfigurationDefBuilder setPageSize(final FallibleSupplier<String> pageSize, String defaultValue) {
-        java.util.Objects.requireNonNull(pageSize, () -> "No supplier for pageSize provided.");
+    public ReportConfigurationDefBuilder setEnabled(final FallibleSupplier<Boolean> enabled, Boolean defaultValue) {
+        java.util.Objects.requireNonNull(enabled, () -> "No supplier for enabled provided.");
         // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ReportConfigurationDef.Attribute.PAGE_SIZE);
+        m_exceptionalChildren.remove(ReportConfigurationDef.Attribute.ENABLED);
         try {
-            m_pageSize = pageSize.get();
+            m_enabled = enabled.get();
 	    } catch (Exception e) {
             var supplyException = new LoadException(e);
                                      
-            m_pageSize = defaultValue;
-            m_exceptionalChildren.put(ReportConfigurationDef.Attribute.PAGE_SIZE, supplyException);
+            m_enabled = defaultValue;
+            m_exceptionalChildren.put(ReportConfigurationDef.Attribute.ENABLED, supplyException);
 	    }   
-        return this;
-    }
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for orientation
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * @param orientation Page orientation (portrait or landscape)
-     * @return this builder for fluent API.
-     */ 
-    public ReportConfigurationDefBuilder setOrientation(final String orientation) {
-        setOrientation(() -> orientation, orientation);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ReportConfigurationDef.Attribute.ORIENTATION)} will return true and and
-     * {@code getExceptionalChildren().get(ReportConfigurationDef.Attribute.ORIENTATION)} will return the exception.
-     * 
-     * @param orientation see {@link ReportConfigurationDef#getOrientation}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setOrientation(String)
-     */
-    public ReportConfigurationDefBuilder setOrientation(final FallibleSupplier<String> orientation, String defaultValue) {
-        java.util.Objects.requireNonNull(orientation, () -> "No supplier for orientation provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ReportConfigurationDef.Attribute.ORIENTATION);
-        try {
-            m_orientation = orientation.get();
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                                     
-            m_orientation = defaultValue;
-            m_exceptionalChildren.put(ReportConfigurationDef.Attribute.ORIENTATION, supplyException);
-	    }   
-        return this;
-    }
-    // -----------------------------------------------------------------------------------------------------------------
-    // Setters for pageMargins
-    // -----------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * @param pageMargins 
-     * @return this builder for fluent API.
-     */ 
-    public ReportConfigurationDefBuilder setPageMargins(final PageMarginsDef pageMargins) {
-        setPageMargins(() -> pageMargins, pageMargins);
-        return this;
-    }
- 
-    /**
-     * Sets the field using a supplier that may throw an exception. If an exception is thrown, it is recorded and can
-     * be accessed through {@link LoadExceptionTree} interface of the instance build by this builder.
-     * {@code hasExceptions(ReportConfigurationDef.Attribute.PAGE_MARGINS)} will return true and and
-     * {@code getExceptionalChildren().get(ReportConfigurationDef.Attribute.PAGE_MARGINS)} will return the exception.
-     * 
-     * @param pageMargins see {@link ReportConfigurationDef#getPageMargins}
-     * @param defaultValue is set in case the supplier throws an exception.
-     * @return this builder for fluent API.
-     * @see #setPageMargins(PageMarginsDef)
-     */
-    public ReportConfigurationDefBuilder setPageMargins(final FallibleSupplier<PageMarginsDef> pageMargins, PageMarginsDef defaultValue) {
-        java.util.Objects.requireNonNull(pageMargins, () -> "No supplier for pageMargins provided.");
-        // in case the setter was called before with an exception and this time there is no exception, remove the old exception
-        m_exceptionalChildren.remove(ReportConfigurationDef.Attribute.PAGE_MARGINS);
-        try {
-            m_pageMargins = pageMargins.get();
-            if (m_pageMargins instanceof LoadExceptionTree<?> && ((LoadExceptionTree<?>)m_pageMargins).hasExceptions()) {
-                m_exceptionalChildren.put(ReportConfigurationDef.Attribute.PAGE_MARGINS, (LoadExceptionTree<?>)m_pageMargins);
-            }
-	    } catch (Exception e) {
-            var supplyException = new LoadException(e);
-                         
-            LoadExceptionTree<?> exceptionTree;
-            if(defaultValue instanceof DefaultPageMarginsDef){
-                var childTree = ((DefaultPageMarginsDef)defaultValue).getLoadExceptionTree();                
-                // if present, merge child tree with supply exception
-                exceptionTree = childTree.isEmpty() ? supplyException : org.knime.core.util.workflow.def.SimpleLoadExceptionTree.tree(childTree.get(), supplyException);
-            } else {
-                exceptionTree = supplyException;
-            }
-            m_pageMargins = defaultValue;
-            m_exceptionalChildren.put(ReportConfigurationDef.Attribute.PAGE_MARGINS, exceptionTree);
-            	    }   
         return this;
     }
     // -----------------------------------------------------------------------------------------------------------------

@@ -44,7 +44,6 @@
  */
 package org.knime.shared.workflow.def;
 
-import org.knime.shared.workflow.def.PageMarginsDef;
 
 import org.knime.shared.workflow.def.impl.DefaultReportConfigurationDef;
 import org.knime.core.util.workflow.def.DefAttribute;
@@ -54,12 +53,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
- * The report configuration set on components, includes page layout etc.
+ * The report configuration set on components, may include page layout in the future.
  *
  * @author Martin Horn, KNIME GmbH, Konstanz, Germany
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  * @author Dionysios Stolis, KNIME GmbH, Berlin, Germany
- * @since 5.1
+ * @since 5.2
  * @noimplement This interface is not intended to be implemented by clients.
  */
 @JsonDeserialize(as = DefaultReportConfigurationDef.class)
@@ -69,44 +68,20 @@ public interface ReportConfigurationDef {
 	/** Lists the data attributes this interface provides access to by providing a getter for each data attribute. */ 
     public enum Attribute implements DefAttribute {
          /**  
-          * Page size
+          * Whether reporting is enabled on the component.
           *
-          * The type of this data attribute is {@link String}.
-          * Is is returned by {@link ReportConfigurationDef#getPageSize} 
+          * The type of this data attribute is {@link Boolean}.
+          * Is is returned by {@link ReportConfigurationDef#isEnabled} 
           */
-         PAGE_SIZE,
-         /**  
-          * Page orientation (portrait or landscape)
-          *
-          * The type of this data attribute is {@link String}.
-          * Is is returned by {@link ReportConfigurationDef#getOrientation} 
-          */
-         ORIENTATION,
-         /** 
-          * The type of this data attribute is {@link PageMarginsDef}.
-          * Is is returned by {@link ReportConfigurationDef#getPageMargins} 
-          */
-         PAGE_MARGINS,
+         ENABLED,
 ;
     }
     
 
   /**
-   * Example value: A4
-   * @return Page size
+   * @return Whether reporting is enabled on the component.
    **/
-  public String getPageSize();
-
-  /**
-   * Example value: portrait
-   * @return Page orientation (portrait or landscape)
-   **/
-  public String getOrientation();
-
-  /**
-   * @return 
-   **/
-  public PageMarginsDef getPageMargins();
+  public Boolean isEnabled();
 
 
 }
