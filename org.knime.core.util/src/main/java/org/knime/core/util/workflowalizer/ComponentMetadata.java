@@ -80,6 +80,9 @@ public final class ComponentMetadata extends TemplateMetadata {
     @JsonProperty("viewNodes")
     private final List<String> m_viewNodes;
 
+    @JsonProperty("viewNodeFactoryIds")
+    private final List<String> m_viewNodeFactoryIds;
+
     @JsonProperty("inPorts")
     private final List<ComponentPortInfo> m_inPorts;
 
@@ -107,6 +110,7 @@ public final class ComponentMetadata extends TemplateMetadata {
     ComponentMetadata(final ComponentMetadataBuilder builder) {
         super(builder);
         m_viewNodes = builder.getViewNodes();
+        m_viewNodeFactoryIds = builder.getViewNodeFactoryIds();
         m_inPorts = builder.getInPorts();
         m_outPorts = builder.getOutPorts();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
@@ -134,6 +138,7 @@ public final class ComponentMetadata extends TemplateMetadata {
         super(component, excludedFactories);
         m_description = component.m_description;
         m_viewNodes = component.m_viewNodes;
+        m_viewNodeFactoryIds = component.m_viewNodeFactoryIds;
         m_inPorts = component.m_inPorts;
         m_outPorts = component.m_outPorts;
         m_dialog = component.m_dialog;
@@ -155,9 +160,21 @@ public final class ComponentMetadata extends TemplateMetadata {
      * Return the factoryNames of the views contained in this component.
      *
      * @return factory names of view nodes
+     * @deprecated use {@link #getViewNodeFactoryIds()} instead
      */
+    @Deprecated(since = "5.2", forRemoval = true)
     public List<String> getViewNodes() {
         return m_viewNodes;
+    }
+
+    /**
+     * Return the factory-ids of the views contained in this component.
+     *
+     * @return factory ids of view nodes
+     * @since 6.2
+     */
+    public List<String> getViewNodeFactoryIds() {
+        return m_viewNodeFactoryIds;
     }
 
     /**

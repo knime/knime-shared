@@ -1276,6 +1276,17 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:f822b045"));
         assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
         assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f"));
+
+        // 3 JS views, 1 widget, 1 legacy quickform
+        assertEquals(5, cm.getViewNodeFactoryIds().size());
+        assertTrue(
+            cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
+        assertTrue(cm.getViewNodeFactoryIds()
+            .contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
+        assertTrue(cm.getViewNodeFactoryIds()
+            .contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Parallel Coordinates Plot"));
+        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
+        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Histogram"));
     }
 
     /**
@@ -1400,6 +1411,12 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
         assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory"));
 
+        // Views - including all nested views
+        assertEquals(2, cm.getViewNodeFactoryIds().size());
+        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
+        assertTrue(
+            cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory"));
+
         // Type
         assertFalse(cm.getComponentType().isPresent());
 
@@ -1437,6 +1454,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
         // Views - including all nested views
         assertTrue(cm.getViewNodes().isEmpty());
+
+        // Views - including all nested views
+        assertTrue(cm.getViewNodeFactoryIds().isEmpty());
 
         // Type
         assertFalse(cm.getComponentType().isPresent());
@@ -1519,6 +1539,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         // Views - including all nested views
         assertEquals(1, cm.getViewNodes().size());
         assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1d2c1a0e", cm.getViewNodes().get(0));
+
+        // Views - including all nested views
+        assertEquals(1, cm.getViewNodeFactoryIds().size());
+        assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Bar Chart", cm.getViewNodeFactoryIds().get(0));
 
         // Type
         assertFalse(cm.getComponentType().isPresent());

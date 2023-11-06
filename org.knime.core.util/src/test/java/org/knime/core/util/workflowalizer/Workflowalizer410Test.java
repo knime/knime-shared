@@ -191,6 +191,17 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
         assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
         assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f"));
 
+        // 3 JS views, 1 widget, 1 legacy quickform
+        assertEquals(5, cm.getViewNodeFactoryIds().size());
+        assertTrue(
+            cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
+        assertTrue(cm.getViewNodeFactoryIds()
+            .contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
+        assertTrue(cm.getViewNodeFactoryIds()
+            .contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Parallel Coordinates Plot"));
+        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
+        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Histogram"));
+
         // 1 configuration node, 1 quickform node
         assertEquals(1, cm.getDialog().size());
         assertEquals(2, cm.getDialog().get(0).getFields().size());

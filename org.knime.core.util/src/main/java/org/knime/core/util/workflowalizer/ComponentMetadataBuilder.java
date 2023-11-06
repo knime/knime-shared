@@ -61,6 +61,7 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
 
     private Optional<String> m_description;
     private List<String> m_viewNodes;
+    private List<String> m_viewNodeFactoryIds;
     private List<ComponentPortInfo> m_inPorts;
     private List<ComponentPortInfo> m_outPorts;
     private List<ComponentDialogSection> m_dialog;
@@ -72,8 +73,16 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         m_description = description;
     }
 
+    /**
+     * @deprecated use {@link #setViewNodeFactoryIds(List)} instead
+     */
+    @Deprecated(since = "5.2", forRemoval = true)
     void setViewNodes(final List<String> viewNodes) {
         m_viewNodes = viewNodes;
+    }
+
+    void setViewNodeFactoryIds(final List<String> viewNodeFactoryIds) {
+        m_viewNodeFactoryIds = viewNodeFactoryIds;
     }
 
     void setInPorts(final List<ComponentPortInfo> inPorts) {
@@ -104,8 +113,16 @@ final class ComponentMetadataBuilder extends TemplateMetadataBuilder {
         return m_description;
     }
 
+    /**
+     * @deprecated use {@link #getViewNodeFactoryIds()} instead
+     */
+    @Deprecated(since = "5.2", forRemoval = true)
     List<String> getViewNodes() {
         return m_viewNodes;
+    }
+
+    List<String> getViewNodeFactoryIds() {
+        return m_viewNodeFactoryIds;
     }
 
     List<ComponentPortInfo> getInPorts() {

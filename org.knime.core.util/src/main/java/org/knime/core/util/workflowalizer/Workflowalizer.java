@@ -1004,6 +1004,7 @@ public final class Workflowalizer {
 
         final List<ComponentDialogSection.Field> fields = new ArrayList<>();
         final List<String> viewNodes = new ArrayList<>();
+        final List<String> viewNodeFactoryIds = new ArrayList<>();
         ConfigBase inputNodeConfig = null;
         ConfigBase outputNodeConfig = null;
 
@@ -1025,12 +1026,13 @@ public final class Workflowalizer {
                             fields.add(new ComponentDialogSection.Field(fieldName, fieldDescription, false));
                         }
                         if (parser.isInteractiveViewNode(nodeConfig)) {
+                            viewNodeFactoryIds.add(nn.getFactoryId());
                             viewNodes.add(nn.getFactoryName());
                         }
                     }
                 }
             } else if (n instanceof IWorkflowMetadata) {
-                populateViewNodes(((IWorkflowMetadata)n).getNodes(), viewNodes, parser);
+                populateViewNodes(((IWorkflowMetadata)n).getNodes(), viewNodeFactoryIds, viewNodes, parser);
             } else {
                 throw new IllegalArgumentException("Unrecognized node type: " + n.getType());
             }
@@ -1062,6 +1064,7 @@ public final class Workflowalizer {
             outportDescriptions = parser.getPortDescriptions(outputNodeConfig, settingsXml, false);
         }
 
+        builder.setViewNodeFactoryIds(viewNodeFactoryIds);
         builder.setViewNodes(viewNodes);
         builder.setDialog(
             Collections.singletonList(new ComponentDialogSection(Optional.empty(), Optional.empty(), fields)));
@@ -1087,8 +1090,8 @@ public final class Workflowalizer {
         builder.setOutPorts(outports);
     }
 
-    private static void populateViewNodes(final List<NodeMetadata> nodes, final List<String> viewNodes,
-        final WorkflowParser parser) throws InvalidSettingsException, IOException {
+    private static void populateViewNodes(final List<NodeMetadata> nodes, final List<String> viewNodeFactoryIds,
+        final List<String> viewNodes, final WorkflowParser parser) throws InvalidSettingsException, IOException {
         if (nodes.isEmpty()) {
             return;
         }
@@ -1098,10 +1101,11 @@ public final class Workflowalizer {
                 final NativeNodeMetadata nn = (NativeNodeMetadata)node;
                 final var nodeConfiguration = nn.getNodeConfiguration();
                 if (nodeConfiguration.isPresent() && parser.isInteractiveViewNode(nodeConfiguration.get())) {
+                    viewNodeFactoryIds.add(nn.getFactoryId());
                     viewNodes.add(nn.getFactoryName());
                 }
             } else if (node instanceof IWorkflowMetadata) {
-                populateViewNodes(((IWorkflowMetadata)node).getNodes(), viewNodes, parser);
+                populateViewNodes(((IWorkflowMetadata)node).getNodes(), viewNodeFactoryIds, viewNodes, parser);
             } else {
                 throw new IllegalArgumentException("Unrecognized node type: " + node.getType());
             }
