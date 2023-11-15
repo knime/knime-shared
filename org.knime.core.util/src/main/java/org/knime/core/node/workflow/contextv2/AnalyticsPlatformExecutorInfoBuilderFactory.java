@@ -130,8 +130,9 @@ public final class AnalyticsPlatformExecutorInfoBuilderFactory
         public AnalyticsPlatformExecutorInfoBuilder withMountpoint(final String mountId, final Path mountpointRoot) {
             CheckUtils.checkArgument(mountpointRoot.isAbsolute(),
                 "Root path '%s' of mountpoint '%s' must be absolute.", mountpointRoot, mountId);
-            final var mprUri = mountpointRoot.toUri().relativize(m_localWorkflowPath.toUri());
-            CheckUtils.checkArgument(!mprUri.isAbsolute(),
+
+            final var relPath = mountpointRoot.relativize(m_localWorkflowPath);
+            CheckUtils.checkArgument(!relPath.isAbsolute(),
                 "Mountpoint root '%s' must contain workflow path '%s'.", mountpointRoot, m_localWorkflowPath);
 
             try {

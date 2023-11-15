@@ -58,6 +58,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.knime.core.util.auth.SimpleTokenAuthenticator;
 
 /**
@@ -118,9 +120,10 @@ public class WorkflowContextV2Test {
                     .withDefaultMountId("My-Server"))
                 .build();
 
-        assertEquals(URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
-                    + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"),
-            ((RestLocationInfo) ctx.getLocationInfo()).getWorkflowAddress(),
+        assertEquals(
+            URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
+                + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"),
+            ((RestLocationInfo)ctx.getLocationInfo()).getWorkflowAddress(),
             "Workflow address URI is not resolved correctly.");
     }
 
@@ -164,6 +167,20 @@ public class WorkflowContextV2Test {
         assertThat("Unexpected scope ID", ((HubJobExecutorInfo) ctx.getExecutorInfo()).getScopeId(), is("scope-id"));
         assertThat("Unexpected scope name", ((HubJobExecutorInfo)ctx.getExecutorInfo()).getScopeName(),
             is("scope-name"));
+    }
+
+    /** Checks that Windows drive letters are properly recognized as case insensitive. */
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testWindowsNormalization() {
+        final var context = WorkflowContextV2.builder()
+                .withAnalyticsPlatformExecutor(exec -> exec
+                    .withCurrentUserAsUserId()
+                    .withLocalWorkflowPath(Path.of("C:\\Users\\asdf\\workspace\\dir\\workflow"))
+                    .withMountpoint("MyMountpoint", Path.of("c:\\Users\\asdf\\workspace")))
+                .withLocalLocation()
+                .build();
+        assertEquals(URI.create("knime://MyMountpoint/dir/workflow"), context.getMountpointURI().orElseThrow());
     }
 
     /**
