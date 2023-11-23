@@ -1425,8 +1425,15 @@ public abstract class ConfigBase extends AbstractConfigEntry
     @Override
     public void addPassword(final String key, final String encryptionKey, final String value) {
         try {
-            put(new ConfigPasswordEntry(key,
-                createEncrypter(encryptionKey).encrypt(value, value == null ? 0 : value.length())));
+            // AP-20484: We used to encrypt empty strings, making their detection when used as
+            // passwords difficult. Starting from 5.2, we store an empty value instead, assuming that an
+            // empty password is not safe anyways.
+            if("".equals(value)) {
+                put(new ConfigPasswordEntry(key, ""));
+            } else {
+                put(new ConfigPasswordEntry(key,
+                    createEncrypter(encryptionKey).encrypt(value, value == null ? 0 : value.length())));
+            }
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
                 | InvalidAlgorithmParameterException ex) {
             throw new RuntimeException("Error while encrypting password: " + ex.getMessage(), ex);
