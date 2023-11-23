@@ -70,6 +70,7 @@ public class WorkflowalizerConfiguration {
     private boolean m_readOpenapiOutputParameters;
     private boolean m_readOpenapiOutputResources;
     private boolean m_readHubEventInputParameters;
+    private boolean m_readSecretStoreParameters;
 
     private WorkflowalizerConfiguration() {
         // Do nothing
@@ -123,6 +124,10 @@ public class WorkflowalizerConfiguration {
         return m_readHubEventInputParameters;
     }
 
+    boolean parseSecretStoreParameters() {
+        return m_readSecretStoreParameters;
+    }
+
     WorkflowFields createWorkflowFields() {
         return new WorkflowFields(m_readConnections, m_readNodes, m_readUnexpectedFiles);
     }
@@ -158,6 +163,7 @@ public class WorkflowalizerConfiguration {
         private boolean m_openapiOutputParameters;
         private boolean m_openapiOutputResources;
         private boolean m_hubEventInputParameters;
+        private boolean m_secretStoreParameters;
 
         /**
          * Sets the configuration to read the nodes.
@@ -278,6 +284,22 @@ public class WorkflowalizerConfiguration {
             m_hubEventInputParameters = true;
             return this;
         }
+
+        /**
+         * Sets the configuration to read the secret store files.
+         *
+         * <p>
+         * This field will be read for: workflows
+         * </p>
+         *
+         * @return the builder
+         * @since 6.2
+         */
+        public Builder readSecretStoreFiles() {
+            m_secretStoreParameters = true;
+            return this;
+        }
+
         /**
          * Sets the configuration to read all the fields.
          *
@@ -296,6 +318,7 @@ public class WorkflowalizerConfiguration {
             m_openapiOutputParameters = true;
             m_openapiOutputResources = true;
             m_hubEventInputParameters = true;
+            m_secretStoreParameters = true;
             return this;
         }
 
@@ -318,6 +341,7 @@ public class WorkflowalizerConfiguration {
             config.m_readOpenapiOutputParameters = m_openapiOutputParameters;
             config.m_readOpenapiOutputResources = m_openapiOutputResources;
             config.m_readHubEventInputParameters = m_hubEventInputParameters;
+            config.m_readSecretStoreParameters = m_secretStoreParameters;
             return config;
         }
     }

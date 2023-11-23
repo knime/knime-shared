@@ -323,6 +323,13 @@ interface WorkflowParser {
      */
     String getHubEventInputParameters();
 
+    /**
+     * Returns the secret store parameters file name.
+     *
+     * @return the secret store parameters file name
+     */
+    String getSecretStoreParameters();
+
     // -- Template --
 
     /**

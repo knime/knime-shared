@@ -441,6 +441,11 @@ abstract class AbstractWorkflowParser implements WorkflowParser {
         return "hub-event-input-parameters.json";
     }
 
+    @Override
+    public String getSecretStoreParameters() {
+        return "secret-store-parameters.json";
+    }
+
     // -- Templates --
 
     /**

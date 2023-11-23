@@ -58,6 +58,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -114,6 +115,9 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     @JsonProperty("hubEventInputParameters")
     private final Optional<String> m_hubEventInputParameters;
 
+    @JsonProperty("secretStoreSecretIds")
+    private final Optional<Set<String>> m_secretStoreSecretIds;
+
     @JsonProperty("workflowMeta")
     private final Optional<WorkflowSetMeta> m_workflowSetMeta;
 
@@ -147,6 +151,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_openapiOutputParameters = builder.getOpenapiOutputParameters();
         m_openapiOutputResources = builder.getOpenapiOutputResources();
         m_hubEventInputParameters = builder.getHubEventInputParameters();
+        m_secretStoreSecretIds = builder.getSecretStoreSecretIds();
         m_workflowSetMeta = builder.getWorkflowSetMeta();
         m_credentials = builder.getWorkflowCredentialsNames();
         m_variables = builder.getWorkflowVariables();
@@ -174,6 +179,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
         m_openapiOutputParameters = workflow.m_openapiOutputParameters;
         m_openapiOutputResources = workflow.m_openapiOutputResources;
         m_hubEventInputParameters = workflow.m_hubEventInputParameters;
+        m_secretStoreSecretIds = workflow.m_secretStoreSecretIds;
         m_workflowSetMeta = workflow.m_workflowSetMeta;
         m_credentials = workflow.m_credentials;
         m_variables = workflow.m_variables;
@@ -294,6 +300,20 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
     }
 
     /**
+     * Returns the secret ids from the secret store parameters artifact, if it exists.
+     *
+     * @return the secret ids from the secret store parameters artifact, if it exists
+     * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
+     */
+    public Optional<Set<String>> getSecretStoreSecretIds() {
+        if (m_secretStoreSecretIds == null) { // NOSONAR
+            throw new UnsupportedOperationException(
+                    "getSecretStoreSecretIds() is unsupported, field was not read");
+        }
+        return m_secretStoreSecretIds;
+    }
+
+    /**
      * @return {@link WorkflowSetMeta} containing fields from workflowset file, if the file existed
      * @throws UnsupportedOperationException when field hasn't been read (i.e. when field is {@code null})
      */
@@ -356,6 +376,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
             + ", openapiInputResources: " + m_openapiInputResources + ", openapiOutputParameters: "
             + m_openapiOutputParameters + ", openapiOutputResources: " + m_openapiOutputResources
             + ", hubEventInputParameters: " + m_hubEventInputParameters
+            + ", secretStoreSecretIds: " + m_secretStoreSecretIds
             + ", workflow_meta: " + wsm + ", workflow_credentials: ["
             + String.join(", ", m_credentials) + "]" + ", workflow_variables: [" + String.join(", ", m_variables) + "]";
     }

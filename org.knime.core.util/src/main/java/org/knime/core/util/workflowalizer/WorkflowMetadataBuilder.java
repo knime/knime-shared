@@ -52,6 +52,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -76,6 +77,7 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
     private Optional<String> m_openapiOutputParameters;
     private Optional<String> m_openapiOutputResources;
     private Optional<String> m_hubEventInputParameters;
+    private Optional<Set<String>> m_secretStoreSecretIds;
     private Optional<WorkflowSetMeta> m_workflowSetMeta;
     private List<String> m_credentials;
     private List<String> m_variables;
@@ -151,6 +153,14 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         }
     }
 
+    void setSecretStoreSecretIds(final Set<String> secretIds) {
+        if (secretIds.isEmpty()) {
+            m_secretStoreSecretIds = Optional.empty();
+        } else {
+            m_secretStoreSecretIds = Optional.of(secretIds);
+        }
+    }
+
     void setWorkflowSetMeta(final Optional<WorkflowSetMeta> workflowSetMeta) {
         m_workflowSetMeta = workflowSetMeta;
     }
@@ -215,6 +225,10 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         return m_hubEventInputParameters;
     }
 
+    Optional<Set<String>> getSecretStoreSecretIds() {
+        return m_secretStoreSecretIds;
+    }
+
     Optional<WorkflowSetMeta> getWorkflowSetMeta() {
         return m_workflowSetMeta;
     }
@@ -275,6 +289,9 @@ class WorkflowMetadataBuilder extends AbstractRepositoryItemBuilder<WorkflowMeta
         }
         if (wc.parseHubEventInputParameters()) {
             checkPopulated(getHubEventInputParameters(), "hub event input parameters");
+        }
+        if (wc.parseSecretStoreParameters()) {
+            checkPopulated(getSecretStoreSecretIds(), "secret store parameters");
         }
         if (m_svgWidth == null || m_svgHeight == null) {
             LOGGER.warn("Could not extract SVG width/height for workflow: " + getWorkflowFields().getName());

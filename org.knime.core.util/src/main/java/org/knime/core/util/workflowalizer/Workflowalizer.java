@@ -509,6 +509,10 @@ public final class Workflowalizer {
             builder.setHubEventInputParameters(
                 readFileIntoString(artifactsDir.resolve(parser.getHubEventInputParameters()), zip));
         }
+        if (wc.parseSecretStoreParameters()) {
+            final var json = readFileIntoString(artifactsDir.resolve(parser.getSecretStoreParameters()), zip);
+            builder.setSecretStoreSecretIds(SecretStoreParameterParser.parseSecretIds(json));
+        }
 
         if (zip == null) {
             svgFile(parser, Paths.get(path), builder);

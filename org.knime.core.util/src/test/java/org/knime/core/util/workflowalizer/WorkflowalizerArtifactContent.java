@@ -148,6 +148,11 @@ public enum WorkflowalizerArtifactContent {
             "        \"repository\"\n" +
             "    ]\n" +
             "}"),
+    /**
+     * This constant is needed to check the contents
+     * of the workflowalizer-test.zip/Testing_Workflowalizer_360Pre/.artifacts/secret-store-parameters.json file
+     */
+        SECRET_STORE_RESOURCES_SECRET_ID("secret:6b36f5df-6e54-4197-b83f-c3913aede6cf"),
     ;
 
     private final String value;

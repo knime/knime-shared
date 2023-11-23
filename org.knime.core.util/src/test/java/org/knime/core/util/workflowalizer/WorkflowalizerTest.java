@@ -73,6 +73,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.hamcrest.Matchers;
@@ -266,15 +267,29 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     }
 
     /**
-     * Tests that reading the openapi fields without setting them in the
+     * Tests that reading the hub event input fields without setting them in the
      * {@link WorkflowalizerConfiguration} results in a {@link UnsupportedOperationException}
      *
      * @throws Exception if error occurs
      */
     @Test
     void testReadingHubEvents() throws Exception {
-        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir, WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir,
+            WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
         assertUOEThrown(wm::getHubEventInputParameters);
+    }
+
+    /**
+     * Tests that reading the secret store fields without setting them in the
+     * {@link WorkflowalizerConfiguration} results in a {@link UnsupportedOperationException}
+     *
+     * @throws Exception if error occurs
+     */
+    @Test
+    void testReadingSecretStoreEvents() throws Exception {
+        final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir,
+            WorkflowalizerConfiguration.builder().readNodeConfiguration().build());
+        assertUOEThrown(wm::getSecretStoreSecretIds);
     }
 
     // -- Test reading individual workflow fields --
@@ -314,7 +329,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
         assertTrue(wkfMd.getArtifacts().isPresent());
-        assertEquals(7, wkfMd.getArtifacts().get().size(), "Unexpected artifacts size");
+        assertEquals(8, wkfMd.getArtifacts().get().size(), "Unexpected artifacts size");
         assertTrue(wkfMd.getArtifacts().get().contains(workflowDir.relativize(test.toPath()).toString()),
             "Expected artifacts file");
 
@@ -615,6 +630,29 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         assertEquals(WorkflowalizerArtifactContent.HUB_EVENT_INPUT_RESOURCES.value(),
             wkfMd.getHubEventInputParameters().get(),
             "Unexpected hub event input parameters");
+
+        assertUOEThrown(wkfMd::getConnections);
+        assertUOEThrown(wkfMd::getNodes);
+        assertUOEThrown(wkfMd::getUnexpectedFileNames);
+        assertUOEThrown(wkfMd::getWorkflowSetMetadata);
+    }
+
+    /**
+     * Test reading secret store files for a workflow
+     *
+     * @throws Exception
+     */
+    @Test
+    void testReadingSecretStoreFiles() throws Exception {
+        final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readSecretStoreFiles().build();
+        final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
+        assertTrue(wkfMd.getSecretStoreSecretIds().isPresent(),
+            "Expected secret store parameters file is present");
+
+        final var secretIds = Set.of(WorkflowalizerArtifactContent.SECRET_STORE_RESOURCES_SECRET_ID.value());
+        assertEquals(secretIds,
+            wkfMd.getSecretStoreSecretIds().get(),
+            "Unexpected secret store parameters");
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -956,7 +994,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 ".artifacts/openapi-output-resources.json", //
                 ".artifacts/workflow-configuration.json", //
                 ".artifacts/workflow-configuration-representation.json", //
-                ".artifacts/hub-event-input-parameters.json")),
+                ".artifacts/hub-event-input-parameters.json", //
+                ".artifacts/secret-store-parameters.json")),
             "Expected artifacts file");
         assertTrue(twm.getUnexpectedFileNames().isEmpty(), "List of unexpected artifacts is empty");
 
