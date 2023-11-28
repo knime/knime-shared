@@ -54,6 +54,7 @@ import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.common.util.SystemPropertyAction;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -81,6 +82,7 @@ public final class KNIMECXFBusFactory extends CXFBusFactory {
 
     @Override
     public Bus createBus(final Map<Class<?>, Object> e, final Map<String, Object> properties) {
+        updateBusProperties(properties);
         final var currentThread = Thread.currentThread();
         final var oldClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(KNIMECXFBusFactory.class.getClassLoader());
@@ -91,5 +93,26 @@ public final class KNIMECXFBusFactory extends CXFBusFactory {
         } finally {
             currentThread.setContextClassLoader(oldClassLoader);
         }
+    }
+
+    /**
+     * The Apache CXF bus creation via this {@link CXFBusFactory} happens so early that CXF's own
+     * system properties are not read in at this point. Hence, busses would not be initialized with
+     * the configured system properties.
+     *
+     * Here, we explicitly propagate all properties relevant to us.
+     *
+     * @param properties how the {@link Bus} (and all {@link WebClient}s using the bus) should be configured
+     */
+    private static void updateBusProperties(final Map<String, Object> properties) {
+        final var systemToBusPropertyMap = Map.of(//
+            "org.apache.cxf.transport.http.forceURLConnection", "force.urlconnection.http.conduit"//
+        );
+        // propagating system properties to bus properties - currently only booleans
+        systemToBusPropertyMap.forEach((systemName, busName) -> {
+            if (Boolean.parseBoolean(SystemPropertyAction.getProperty(systemName))) {
+                properties.put(busName, Boolean.TRUE);
+            }
+        });
     }
 }
