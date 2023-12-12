@@ -50,6 +50,7 @@ package org.knime.core.util.proxy;
 
 import java.io.IOException;
 import java.net.Authenticator;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
@@ -58,6 +59,8 @@ import java.net.URLConnection;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.knime.core.util.Pair;
 
 /**
  * Consistently builds {@link URLConnection} with a proxy if configured.
@@ -79,9 +82,16 @@ public final class URLConnectionFactory {
      * @throws IOException if something went wrong
      */
     public static URLConnection getConnection(final URL url) throws IOException {
-        final var maybeProxy = getProxy();
-        if (maybeProxy.isPresent()) {
-            return url.openConnection(maybeProxy.get());
+        final var proxyAuthPair = getProxy();
+        if (proxyAuthPair.isPresent()) {
+            final var proxy = proxyAuthPair.get().getFirst();
+            final var connection = url.openConnection(proxy);
+            // handle proxy requiring authentication
+            final var authenticator = proxyAuthPair.get().getSecond();
+            if (authenticator != null && connection instanceof HttpURLConnection httpConnection) {
+                httpConnection.setAuthenticator(authenticator);
+            }
+            return connection;
         } else {
             return url.openConnection();
         }
@@ -90,14 +100,13 @@ public final class URLConnectionFactory {
     /**
      * Wraps the global proxy configuration in a {@link Proxy} object.
      */
-    private static Optional<Proxy> getProxy() {
+    private static Optional<Pair<Proxy, Authenticator>> getProxy() {
         final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrent();
         if (maybeProxyConfig.isEmpty()) {
             // Corresponds to a proxy using Proxy.Type.DIRECT.
             return Optional.empty();
         }
         final var proxyConfig = maybeProxyConfig.get();
-        final var proxyType = proxyConfig.protocol() == ProxyProtocol.SOCKS ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
         // Parsing proxy port, defaults to the protocol's default port.
         int intPort;
         try {
@@ -109,47 +118,22 @@ public final class URLConnectionFactory {
                 String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", proxyConfig.port(), defaultPort),
                 nfe);
         }
-        // Setting up the proxy authentication data if used.
-        if (proxyConfig.useAuthentication()) {
-            TemporaryAuthenticator.installAuthenticator(proxyConfig.username(), proxyConfig.password());
-        }
-        return Optional.of(new Proxy(proxyType, new InetSocketAddress(proxyConfig.host(), intPort)));
+        final var proxyAuthenticator = !proxyConfig.useAuthentication() ? null : new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(proxyConfig.username(), proxyConfig.password().toCharArray());
+            }
+        };
+        final var proxyType = proxyConfig.protocol() == ProxyProtocol.SOCKS ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
+        return Optional.of(Pair.create(//
+            new Proxy(proxyType, new InetSocketAddress(proxyConfig.host(), intPort)), //
+            proxyAuthenticator//
+        ));
     }
-
 
     /**
      * Only a utility class.
      */
     private URLConnectionFactory() {
-    }
-
-    /**
-     * Authenticator that only accepts one call to {@link Authenticator#getPasswordAuthenticaton},
-     * then switches back to the old default.
-     *
-     * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
-     */
-    private static final class TemporaryAuthenticator extends Authenticator {
-
-        private final PasswordAuthentication m_temporaryAuthentication;
-
-        private final Authenticator m_previousAuthenticator;
-
-        private TemporaryAuthenticator(final PasswordAuthentication tmpAuthentication,
-            final Authenticator prevAuthenticator) {
-            m_temporaryAuthentication = tmpAuthentication;
-            m_previousAuthenticator = prevAuthenticator;
-        }
-
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            setDefault(m_previousAuthenticator);
-            return m_temporaryAuthentication;
-        }
-
-        private static void installAuthenticator(final String username, final String password) {
-            final var tmpAuthentication = new PasswordAuthentication(username, password.toCharArray());
-            setDefault(new TemporaryAuthenticator(tmpAuthentication, getDefault()));
-        }
     }
 }

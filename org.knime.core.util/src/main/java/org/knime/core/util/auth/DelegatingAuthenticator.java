@@ -1,0 +1,194 @@
+/*
+ * ------------------------------------------------------------------------
+ *
+ *  Copyright by KNIME AG, Zurich, Switzerland
+ *  Website: http://www.knime.com; Email: contact@knime.com
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License, Version 3, as
+ *  published by the Free Software Foundation.
+ *
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, see <http://www.gnu.org/licenses>.
+ *
+ *  Additional permission under GNU GPL version 3 section 7:
+ *
+ *  KNIME interoperates with ECLIPSE solely via ECLIPSE's plug-in APIs.
+ *  Hence, KNIME and ECLIPSE are both independent programs and are not
+ *  derived from each other. Should, however, the interpretation of the
+ *  GNU GPL Version 3 ("License") under any applicable laws result in
+ *  KNIME and ECLIPSE being a combined program, KNIME AG herewith grants
+ *  you the additional permission to use and propagate KNIME together with
+ *  ECLIPSE with only the license terms in place for ECLIPSE applying to
+ *  ECLIPSE and the GNU GPL Version 3 applying for KNIME, provided the
+ *  license terms of ECLIPSE themselves allow for the respective use and
+ *  propagation of ECLIPSE together with KNIME.
+ *
+ *  Additional permission relating to nodes for KNIME that extend the Node
+ *  Extension (and in particular that are based on subclasses of NodeModel,
+ *  NodeDialog, and NodeView) and that only interoperate with KNIME through
+ *  standard APIs ("Nodes"):
+ *  Nodes are deemed to be separate and independent programs and to not be
+ *  covered works.  Notwithstanding anything to the contrary in the
+ *  License, the License does not apply to Nodes, you are not required to
+ *  license Nodes under the License, and you are granted a license to
+ *  prepare and propagate Nodes, in each case even if such Nodes are
+ *  propagated with or for interoperation with KNIME.  The owner of a Node
+ *  may freely choose the license terms applicable to such Node, including
+ *  when such Node is propagated with or for interoperation with KNIME.
+ * ---------------------------------------------------------------------
+ *
+ * History
+ *   Dec 12, 2023 (Leon Wenzler, KNIME GmbH, Konstanz, Germany): created
+ */
+package org.knime.core.util.auth;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+
+/**
+ * {@link Authenticator} class which stores the previous default authenticator instance.
+ * When authentication is requested, it first tries to provide own authentication data,
+ * then sends the request to its authenticator delegate.
+ * <p>
+ * This implementation allows for easy extensibility of application-specific authenticators.
+ * The method {@link #installAuthenticators()} can be used to install required authenticators,
+ * which currently only include the {@link SuppressingAuthenticator}.
+ *
+ * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
+ * @since 6.2
+ */
+public abstract class DelegatingAuthenticator extends Authenticator {
+
+    private static final Logger LOGGER = Logger.getLogger(DelegatingAuthenticator.class.getName());
+
+    // don't need atomicity guarantee, since we only have one state transition
+    private static volatile boolean isInstalledGlobally;
+
+    protected final Authenticator m_delegate;
+
+    /**
+     * Default constructor, storing previous authenticator default.
+     */
+    protected DelegatingAuthenticator() {
+        m_delegate = getDefault();
+    }
+
+    // -- INSTALLTION IN AUTHENTICATOR "STACK" --
+
+    /**
+     * Whether all subclasses of {@link DelegatingAuthenticator} have been installed globally.
+     *
+     * @return installed?
+     */
+    protected static boolean isInstalledGlobally() {
+        return isInstalledGlobally;
+    }
+
+    /**
+     * Returns a list of {@link DelegatingAuthenticator} subclasses, which are to be installed.
+     * Installation order is left to right, and delegation order right to left (LIFO principle).
+     *
+     * @return list of delegating authenticators
+     */
+    private static List<Supplier<DelegatingAuthenticator>> getAuthenticatorsToInstall() {
+        return List.of(SuppressingAuthenticator::new);
+    }
+
+    /**
+     * Authentication requests received by these authenticators will be delegated to the previous default,
+     * but with the additional ability to apply their own authentication.
+     * For example, the underlying {@link org.eclipse.ui.internal.net.auth.NetAuthenticator} creates annoying
+     * pop-ups, which the {@link SuppressingAuthenticator} can suppress when installed.
+     *
+     * @noreference This method is not intended to be referenced by clients.
+     * @since 5.2
+     */
+    public static synchronized void installAuthenticators() {
+        if (isInstalledGlobally()) {
+            return;
+        }
+        getAuthenticatorsToInstall().forEach(a -> setDefault(a.get()));
+        isInstalledGlobally = true;
+    }
+
+    // -- AUTHENTICATOR DELEGATION --
+
+    /**
+     * Own {@link PasswordAuthentication} provider that is queried before
+     * delegating the auth request to the {@link #m_delegate} authenticator.
+     *
+     * @return authentication, optional status selects whether to delegate
+     */
+    protected abstract OptionalAuthentication getOwnAuthentication();
+
+    @Override
+    protected PasswordAuthentication getPasswordAuthentication() {
+        // if own (non-delegated) authencation was provided use that
+        final var ownAuthenticaton = getOwnAuthentication();
+        if (ownAuthenticaton.isPresent()) {
+            return ownAuthenticaton.authentication();
+        }
+        // otherwise, send request to delegate
+        try {
+            // write request values from this object into the delegate
+            for (final Field f : Authenticator.class.getDeclaredFields()) {
+                if (!Modifier.isStatic(f.getModifiers())) {
+                    f.setAccessible(true); // NOSONAR
+                    Object o = f.get(this);
+                    f.set(m_delegate, o); // NOSONAR
+                }
+            }
+
+            final var m = Authenticator.class.getDeclaredMethod("getPasswordAuthentication");
+            m.setAccessible(true); // NOSONAR
+            return (PasswordAuthentication)m.invoke(m_delegate);
+        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException ex) {
+            LOGGER.warning("Could not delegate HTTP authentication request: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Tri-state for the {@link PasswordAuthentication}. The {@link OptionalAuthentication#isPresent} flag
+     * determines whether authentication is present (which itself is nullable).
+     *
+     * @param isPresent whether the authentication value is present
+     * @param authentication the actual, nullable authentication
+     *
+     * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
+     * @since 6.2
+     */
+    protected record OptionalAuthentication(boolean isPresent, PasswordAuthentication authentication) {
+        /**
+         * Returns the specified authentication, wrapped within this {@link OptionalAuthentication}.
+         *
+         * @param authentication value
+         * @return optional authentication
+         */
+        static OptionalAuthentication of(final PasswordAuthentication authentication) {
+            return new OptionalAuthentication(true, authentication);
+        }
+
+        /**
+         * Returns an empty {@link OptionalAuthentication}. Does not hold a value.
+         *
+         * @return optional authentication
+         */
+        static OptionalAuthentication empty() {
+            return new OptionalAuthentication(false, null);
+        }
+    }
+}

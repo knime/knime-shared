@@ -55,6 +55,7 @@ import java.util.Map;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.util.SystemPropertyAction;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -73,7 +74,7 @@ import org.slf4j.LoggerFactory;
 public final class KNIMECXFBusFactory extends CXFBusFactory {
 
     private static final Collection<CXFBusExtension<?>> CXF_BUS_EXTENSIONS =
-            List.of(new KNIMEClientLifeCycleListener(), new KNIMEConduitConfigurer());
+        List.of(new KNIMEClientLifeCycleListener(), new KNIMEConduitConfigurer(), new KNIMEInterceptorProvider());
 
     static {
         LoggerFactory.getLogger(KNIMECXFBusFactory.class)
