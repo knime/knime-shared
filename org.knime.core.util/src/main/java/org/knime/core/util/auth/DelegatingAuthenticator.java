@@ -53,8 +53,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.util.List;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -73,22 +71,25 @@ public abstract class DelegatingAuthenticator extends Authenticator {
 
     private static final Logger LOGGER = Logger.getLogger(DelegatingAuthenticator.class.getName());
 
-    // don't need atomicity guarantee, since we only have one state transition
+    /**
+     * Flag indicating whether {@link #installAuthenticators()} has already been invoked.
+     */
     private static volatile boolean isInstalledGlobally;
 
+    /**
+     * The upstream authenticator to delegate to.
+     */
     protected final Authenticator m_delegate;
 
     /**
-     * Default constructor, storing previous authenticator default.
+     * @param delegate authenticator to delegate to
      */
-    protected DelegatingAuthenticator() {
-        m_delegate = getDefault();
+    protected DelegatingAuthenticator(final Authenticator delegate) {
+        m_delegate = delegate;
     }
 
-    // -- INSTALLTION IN AUTHENTICATOR "STACK" --
-
     /**
-     * Whether all subclasses of {@link DelegatingAuthenticator} have been installed globally.
+     * Whether the {@link DelegatingAuthenticator}s have been installed globally.
      *
      * @return installed?
      */
@@ -97,19 +98,9 @@ public abstract class DelegatingAuthenticator extends Authenticator {
     }
 
     /**
-     * Returns a list of {@link DelegatingAuthenticator} subclasses, which are to be installed.
-     * Installation order is left to right, and delegation order right to left (LIFO principle).
-     *
-     * @return list of delegating authenticators
-     */
-    private static List<Supplier<DelegatingAuthenticator>> getAuthenticatorsToInstall() {
-        return List.of(SuppressingAuthenticator::new);
-    }
-
-    /**
      * Authentication requests received by these authenticators will be delegated to the previous default,
      * but with the additional ability to apply their own authentication.
-     * For example, the underlying {@link org.eclipse.ui.internal.net.auth.NetAuthenticator} creates annoying
+     * For example, the underlying {@code org.eclipse.ui.internal.net.auth.NetAuthenticator} creates annoying
      * pop-ups, which the {@link SuppressingAuthenticator} can suppress when installed.
      *
      * @noreference This method is not intended to be referenced by clients.
@@ -119,11 +110,12 @@ public abstract class DelegatingAuthenticator extends Authenticator {
         if (isInstalledGlobally()) {
             return;
         }
-        getAuthenticatorsToInstall().forEach(a -> setDefault(a.get()));
+
+        // more layers of `DelegatingAuthenticator`s can be added as needed
+        Authenticator.setDefault(new SuppressingAuthenticator(Authenticator.getDefault()));
+
         isInstalledGlobally = true;
     }
-
-    // -- AUTHENTICATOR DELEGATION --
 
     /**
      * Own {@link PasswordAuthentication} provider that is queried before
@@ -135,7 +127,7 @@ public abstract class DelegatingAuthenticator extends Authenticator {
 
     @Override
     protected PasswordAuthentication getPasswordAuthentication() {
-        // if own (non-delegated) authencation was provided use that
+        // if own (non-delegated) authentication was provided use that
         final var ownAuthenticaton = getOwnAuthentication();
         if (ownAuthenticaton.isPresent()) {
             return ownAuthenticaton.authentication();
@@ -171,6 +163,7 @@ public abstract class DelegatingAuthenticator extends Authenticator {
      * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
      * @since 6.3
      */
+    @SuppressWarnings("javadoc")
     protected record OptionalAuthentication(boolean isPresent, PasswordAuthentication authentication) {
         /**
          * Returns the specified authentication, wrapped within this {@link OptionalAuthentication}.

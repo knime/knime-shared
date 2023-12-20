@@ -49,6 +49,7 @@
 package org.knime.core.util.auth;
 
 import java.io.Closeable;
+import java.net.Authenticator;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -69,6 +70,13 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
     private static final Logger LOGGER = Logger.getLogger(SuppressingAuthenticator.class.getName());
 
     private static final ThreadLocal<MutableInt> SUPPRESS_POPUP = ThreadLocal.withInitial(MutableInt::new); // NOSONAR
+
+    /**
+     * @param delegate upstream authenticator
+     */
+    SuppressingAuthenticator(final Authenticator delegate) {
+        super(delegate);
+    }
 
     @Override
     protected OptionalAuthentication getOwnAuthentication() {
