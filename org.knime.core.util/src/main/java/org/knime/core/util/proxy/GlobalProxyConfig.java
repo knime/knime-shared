@@ -48,8 +48,18 @@
  */
 package org.knime.core.util.proxy;
 
+import java.net.URL;
+
+import org.apache.commons.lang3.StringUtils;
+
 /**
- * Captures the current global proxy configuration (in System properties). If only we had records here...
+ * Captures the current global proxy configuration (in System properties).
+ * <p>
+ * The {@code nonProxyHosts} property (stored here as {@code excludedHosts}) follows the syntax described
+ * <a href="https://docs.oracle.com/javase/8/docs/api/java/net/doc-files/net-properties.html">here</a>.
+ * <p>
+ * Example: {@code nonProxyHosts="localhost|www.google.*|*.knime.com"} where '{@code |}' are host separators,
+ * '{@code .}' are real dots (unlike in regexes), and '{@code *}' is any char (length >= 0).
  *
  * @param protocol proxy protocol, either HTTP, HTTPS, or SOCKS
  * @param host proxy server hostname
@@ -65,4 +75,21 @@ package org.knime.core.util.proxy;
  */
 public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port, boolean useAuthentication,
     String username, String password, boolean useExcludedHosts, String excludedHosts) {
+
+    /**
+     * Checks whether the host of the given URL is excluded by this proxy configuration.
+     *
+     * @param url the url which to connect to
+     * @return whether the given URL is excluded from using the proxy
+     * @since 6.3
+     */
+    public boolean isHostExcluded(final URL url) {
+        final var urlHost = url.getHost();
+        if (!useExcludedHosts || excludedHosts == null || StringUtils.isBlank(urlHost)) {
+            return false;
+        }
+
+        // translation from pattern to regex taken from `org.apache.cxf.transport.http.RegexBuilder#build(String)`
+        return urlHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
+    }
 }
