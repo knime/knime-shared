@@ -82,7 +82,7 @@ public final class URLConnectionFactory {
      * @throws IOException if something went wrong
      */
     public static URLConnection getConnection(final URL url) throws IOException {
-        final var proxyAuthPair = getProxy();
+        final var proxyAuthPair = getProxy(url);
         if (proxyAuthPair.isPresent()) {
             final var proxy = proxyAuthPair.get().getFirst();
             final var connection = url.openConnection(proxy);
@@ -100,14 +100,19 @@ public final class URLConnectionFactory {
     /**
      * Wraps the global proxy configuration in a {@link Proxy} object.
      */
-    private static Optional<Pair<Proxy, Authenticator>> getProxy() {
+    private static Optional<Pair<Proxy, Authenticator>> getProxy(final URL url) {
         final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrent();
         if (maybeProxyConfig.isEmpty()) {
-            // Corresponds to a proxy using Proxy.Type.DIRECT.
+            // corresponds to a proxy using `java.net.Proxy.Type.DIRECT`
             return Optional.empty();
         }
         final var proxyConfig = maybeProxyConfig.get();
-        // Parsing proxy port, defaults to the protocol's default port.
+        if (proxyConfig.isHostExcluded(url)) {
+            // do not use proxy, host is in exclude list
+            return Optional.empty();
+        }
+
+        // parsing proxy port, defaults to the protocol's default port
         int intPort;
         try {
             intPort = Integer.parseInt(proxyConfig.port());
@@ -125,10 +130,8 @@ public final class URLConnectionFactory {
             }
         };
         final var proxyType = proxyConfig.protocol() == ProxyProtocol.SOCKS ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
-        return Optional.of(Pair.create(//
-            new Proxy(proxyType, new InetSocketAddress(proxyConfig.host(), intPort)), //
-            proxyAuthenticator//
-        ));
+        final var proxyAddress = new InetSocketAddress(proxyConfig.host(), intPort);
+        return Optional.of(Pair.create(new Proxy(proxyType, proxyAddress), proxyAuthenticator));
     }
 
     /**
