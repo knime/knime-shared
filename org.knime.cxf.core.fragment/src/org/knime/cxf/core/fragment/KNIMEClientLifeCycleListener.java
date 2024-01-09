@@ -35,7 +35,6 @@ import org.apache.cxf.endpoint.ClientLifeCycleManager;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpClientHTTPConduit;
 import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
-import org.knime.core.util.proxy.CXFThrottlingChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,12 +101,7 @@ final class KNIMEClientLifeCycleListener implements ClientLifeCycleListener, CXF
 
     @Override
     public void clientCreated(final Client client) {
-        try {
-            // delays the client creation until the number of threads is below limit
-            CXFThrottlingChecker.callThrottled(() -> null);
-        } catch (Exception ex) { // NOSONAR
-            LOGGER.warn("Could not throttle REST request, CXF threads are piling up", ex);
-        }
+        // no-op
     }
 
     @Override
