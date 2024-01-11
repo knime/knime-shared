@@ -353,10 +353,23 @@ public final class WorkflowSetMetaParser {
             sign, offsetHours, offsetMinutes % 60);
     }
 
+   /**
+    * The "Comments" field previously contained the workflow name, then an empty line,
+    * and the following the workflow description. Instead, we now just write the workflow
+    * description if present, otherwise an empty string.
+    * <p>
+    * We don't recreate this behavior because writing...
+    * <ul>
+    *   <li> to the legacy {@code workflowset.meta} file is only done to be backwards-compatible with KS.
+    *   <li> the workflow name is retired with AP-20406. The workflow's directory name is its title.
+    * </ul>
+    *
+    * @param contents the contents of the {@code workflowset.meta} file
+    * @return combined description of original description, tags, and links (no workflow title / name!)
+    */
     private static String formatDescription(final MetadataContents contents) {
         final var sb = new StringBuilder();
-        sb.append(NO_TITLE_PLACEHOLDER_TEXT).append("\n\n");
-        sb.append(contents.getDescription().orElse(NO_DESCRIPTION_PLACEHOLDER_TEXT));
+        sb.append(contents.getDescription().orElse(""));
         final var tags = contents.getTags();
         final var links = contents.getLinks();
         if (!(tags.isEmpty() && links.isEmpty())) {
