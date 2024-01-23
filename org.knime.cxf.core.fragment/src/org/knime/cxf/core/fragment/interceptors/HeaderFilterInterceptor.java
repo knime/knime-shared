@@ -48,7 +48,6 @@
  */
 package org.knime.cxf.core.fragment.interceptors;
 
-import java.net.Authenticator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -57,23 +56,28 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
 /**
  * Filters client headers before sending the REST request.
- * <p>
- * Specifically, when using the {@link URLConnectionHTTPConduit}, the "Proxy-Authorization" header is not queried (and
- * removed), as an {@link Authenticator} handles the authentication. This would result in sending the proxy
- * "Proxy-Authorization" unencrypted to a foreign host, which this interceptor prevents.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  */
 public class HeaderFilterInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final List<HeaderFilterCondition> FILTERS = List.of(//
-        new HeaderFilterCondition("Proxy-Authorization", m -> Boolean.TRUE.equals(m.get("USING_URLCONNECTION")))//
+    private static final List<HeaderFilterCondition> FILTERS = List.of( //
+        /*
+         * When using the URLConnectionHTTPConduit to make an HTTPS connection, the connection is established
+         * via the HTTP CONNECT method (i.e. HTTP tunneling). For this, the CXF library with its
+         * org.apache.cxf.transport.http.CXFAuthenticator provides preemptive authentication and the
+         * authenticated tunnel can be established. For the "main request", the HTTPS then no longer needs to
+         * send the "Proxy-Authorization" header. Doing that anyway results in this header being treated as
+         * regular data and being sent down the tunnel, unencrypted directly to the final foreign host. This
+         * interceptor prevents this behavior by removing the unnecessary header preemptively. See AP-21902.
+         */
+        new HeaderFilterCondition("Proxy-Authorization", //
+            m -> Boolean.TRUE.equals(m.get("USING_URLCONNECTION")) && "https".equals(m.get("http.scheme"))) //
     );
 
     /**
