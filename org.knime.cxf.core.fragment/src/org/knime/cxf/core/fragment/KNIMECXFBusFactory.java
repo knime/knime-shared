@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
 public final class KNIMECXFBusFactory extends CXFBusFactory {
 
     private static final Collection<CXFBusExtension<?>> CXF_BUS_EXTENSIONS =
-        List.of(new KNIMEClientLifeCycleListener(), new KNIMEConduitConfigurer(), new KNIMEInterceptorProvider());
+        List.of(new KNIMEConduitConfigurer(), new KNIMEInterceptorProvider());
 
     static {
         LoggerFactory.getLogger(KNIMECXFBusFactory.class)
