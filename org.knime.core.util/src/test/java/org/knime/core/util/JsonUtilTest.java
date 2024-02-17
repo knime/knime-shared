@@ -66,7 +66,8 @@ public class JsonUtilTest {
     @Test
     void testStaticProvider() {
         var provider1 = JsonUtil.getProvider();
-        assertThat("Provider doesn't work properly", provider1.createObjectBuilder().build(), is(instanceOf(JsonObject.class)));
+        assertThat("Provider doesn't work properly", provider1.createObjectBuilder().build(),
+            is(instanceOf(JsonObject.class)));
 
         var provider2 = JsonUtil.getProvider();
         assertThat("Provider not cached", provider2, is(sameInstance(provider1)));

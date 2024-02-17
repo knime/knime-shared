@@ -57,6 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
@@ -149,61 +150,29 @@ public final class URIPathEncoder {
      * @return an equivalent URI with all path segment encoded
      */
     public URI encodePathSegments(final URI uri) {
-        return hasUncPath(uri) ? encodeUncUri(uri) : encodeURI(uri);
-    }
+        final var host = uri.getHost();
+        final var path = uri.getPath();
 
-    private static boolean hasUncPath(final URI uri) {
-        String path = uri.getPath();
-        return path != null && path.startsWith(UNC_PREFIX);
-    }
+        // A UNC URI has no host and its scheme specific part must start with four leading slashes:
+        // In `file:////path/segments` the scheme is "file", the host is "" and the path is "//path/segments".
+        final var isUNC = StringUtils.isEmpty(host) && path != null && path.startsWith(UNC_PREFIX);
 
-    /**
-     * A UNC URI has no host and its scheme specific part must start with four
-     * leading slashes.
-     *
-     * @param uri URI to be encoded
-     * @return an equivalent URI with encoded path or the input URI itself if it has
-     * a syntax error.
-     */
-    private URI encodeUncUri(final URI uri) {
         try {
-            return new URI(uri.getScheme(), encodeUncPath(uri), uri.getFragment());
+            final var uriBuilder = new URIBuilder(uri, m_encoding);
+
+            // The `setPath` method must be called as it is where the actual encoding happens.
+            // The Apache `URIBuilder` does not encode the URI in the builder constructor.
+            uriBuilder.setPath(uri.getPath());
+
+            if (isUNC) {
+                // the host has to be set to an empty string to preserve the four slashes, otherwise only two remain
+                uriBuilder.setHost("");
+            }
+            return uriBuilder.build();
         } catch (URISyntaxException e) {
-            LOGGER.log(Level.INFO, e, () -> "Could not encode path segments in UNC URI '" + uri + "'.");
+            LOGGER.log(Level.INFO, e,
+                () -> "Could not encode path segments in " + (isUNC ?  "UNC " : "") + "URI '" + uri + "'.");
             return uri;
         }
     }
-
-    /**
-     * UNC paths must start with four leading slashes in order to be interpreted correctly
-     * downstream in our system. The encoded URI retrieved from the encodeURI method will
-     * return a path which is normalized and only contains one leading slash. For this
-     * reason it is safe to append three slashes to the encoded path to ensure it is a UNC path.
-     *
-     * @param uri URI to be encoded
-     * @return a string representation of the encoded UNC path
-     */
-    private String encodeUncPath(final URI uri) {
-        final var uriEncoded = encodeURI(uri);
-        return "////" + uriEncoded.getHost() + uriEncoded.getPath();
-    }
-
-    /**
-     * Encodes the path segments without encoding reserved characters of a URI.
-     * The setPath method must be called as it is where the actual encoding happens.
-     * The Apache URIBuilder does not encode the URI in the builder constructor.
-     *
-     * @param uri URI to be encoded
-     * @return an equivalent URI with encoded path or the input URI itself if it has
-     * a syntax error.
-     */
-    private URI encodeURI(final URI uri) {
-        try {
-            return new URIBuilder(uri, m_encoding).setPath(uri.getPath()).build();
-        } catch (URISyntaxException e) {
-            LOGGER.log(Level.INFO, e, () -> "Could not encode path segments in URI '" + uri + "'.");
-            return uri;
-        }
-    }
-
 }
