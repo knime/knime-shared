@@ -66,6 +66,7 @@ import org.knime.core.util.auth.Authenticator;
  * @param <B> type of the rest of the builder chain for a specific location type
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  * @since 4.7
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class RestLocationInfoBuilderFactory<B> {
 

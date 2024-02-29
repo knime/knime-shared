@@ -68,6 +68,7 @@ import org.knime.core.util.User;
  * @param <B> type of the rest of the builder chain for a specific location type
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  * @since 4.7
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class ExecutorInfoBuilderFactory<B> {
 
@@ -88,7 +89,7 @@ public abstract class ExecutorInfoBuilderFactory<B> {
      *
      * @param <B> type of the rest of the builder chain
      */
-    public static class ExecutorInfoUIBuilder<B> {
+    public static final class ExecutorInfoUIBuilder<B> {
 
         final BiFunction<String, Path, B> m_continuation;
 
@@ -101,7 +102,7 @@ public abstract class ExecutorInfoBuilderFactory<B> {
          *
          * @return this builder instance
          */
-        public final ExecutorInfoWPBuilder<B> withCurrentUserAsUserId() {
+        public ExecutorInfoWPBuilder<B> withCurrentUserAsUserId() {
             String userid;
             try {
                 userid = User.getUsername();
@@ -118,7 +119,7 @@ public abstract class ExecutorInfoBuilderFactory<B> {
          * @return rest of the builder chain
          */
 
-        public final ExecutorInfoWPBuilder<B> withUserId(final String userId) {
+        public ExecutorInfoWPBuilder<B> withUserId(final String userId) {
             CheckUtils.checkArgument(StringUtils.isNotBlank(userId), "User ID must not be null or blank");
             return new ExecutorInfoWPBuilder<>(lp -> m_continuation.apply(userId, lp));
         }
@@ -129,7 +130,7 @@ public abstract class ExecutorInfoBuilderFactory<B> {
      *
      * @param <B> type of the rest of the builder chain
      */
-    public static class ExecutorInfoWPBuilder<B> {
+    public static final class ExecutorInfoWPBuilder<B> {
 
         final Function<Path, B> m_continuation;
 
@@ -159,6 +160,7 @@ public abstract class ExecutorInfoBuilderFactory<B> {
      *
      * @param <I> The type of {@link ExecutorInfo} produced.
      * @param <B> The actual type of the builder.
+     * @noextend This class is not intended to be subclassed by clients.
      */
     @SuppressWarnings("unchecked")
     public abstract static class ExecutorInfoBuilder<I extends ExecutorInfo, B extends ExecutorInfoBuilder<I, ?>> {

@@ -70,8 +70,11 @@ public class ServerJobExecutorInfo extends JobExecutorInfo {
             final Path workflowPath, //
             final Path tempFolder, //
             final UUID jobId, //
-            final boolean isRemote) {
-        super(ExecutorType.SERVER_EXECUTOR, userId, workflowPath, tempFolder, jobId, isRemote);
+            final boolean isRemote, //
+            final String localMountId, //
+            final String remoteExecutorVersion) {
+        super(ExecutorType.SERVER_EXECUTOR, userId, workflowPath, tempFolder, jobId, isRemote, localMountId, //
+            remoteExecutorVersion);
     }
 
     /**

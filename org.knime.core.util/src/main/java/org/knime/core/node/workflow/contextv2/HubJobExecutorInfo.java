@@ -88,11 +88,14 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
             final Path workflowPath, //
             final Path tempFolder, //
             final boolean isRemote, //
+            final String localMountId, //
+            final String remoteExecutorVersion, //
             final Supplier<String> scope, //
             final Supplier<String> scopeName, //
             final String jobCreatorId, //
             final String jobCreatorName) {
-        super(ExecutorType.HUB_EXECUTOR, jobCreatorId, workflowPath, tempFolder, jobId, isRemote);
+        super(ExecutorType.HUB_EXECUTOR, jobCreatorId, workflowPath, tempFolder, jobId, isRemote, localMountId, //
+            remoteExecutorVersion);
         m_scopeId = scope;
         m_scopeName = scopeName;
         m_jobCreatorName = jobCreatorName;

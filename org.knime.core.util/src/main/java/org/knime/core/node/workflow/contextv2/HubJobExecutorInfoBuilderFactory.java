@@ -163,7 +163,7 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
     /**
      * Finishing stage of the {@link HubJobExecutorInfo} builder.
      */
-    public static class HubJobExecutorInfoBuilder
+    public static final class HubJobExecutorInfoBuilder
             extends JobExecutorInfoBuilderFactory.JobExecutorInfoBuilder<HubJobExecutorInfo,
                     HubJobExecutorInfoBuilder> {
 
@@ -201,6 +201,8 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
                 m_localWorkflowPath, //
                 ensureTempFolder(), //
                 m_isRemote, //
+                m_localMountId, //
+                m_remoteExecutorVersion, //
                 m_scopeId, //
                 m_scopeName, //
                 m_userId, //

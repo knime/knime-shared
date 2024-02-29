@@ -62,6 +62,7 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
  * @param <B> type of the rest of the builder chain for a specific executor type
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  * @since 4.7
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuilderFactory<JobExecutorInfoJIBuilder<B>> {
 
@@ -92,7 +93,7 @@ public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuild
          * @param jobId The job ID.
          * @return this builder instance
          */
-        public final B withJobId(final UUID jobId) {
+        public B withJobId(final UUID jobId) {
             return m_continuation.apply(CheckUtils.checkArgumentNotNull(jobId, "Job ID must not be null"));
         }
     }
@@ -104,6 +105,7 @@ public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuild
      *
      * @param <I> The type of {@link JobExecutorInfo} produced.
      * @param <B> The actual type of the builder.
+     * @noextend This class is not intended to be subclassed by clients.
      */
     @SuppressWarnings("unchecked")
     public abstract static class
@@ -120,6 +122,18 @@ public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuild
          */
         protected boolean m_isRemote;
 
+        /**
+         * See {@link JobExecutorInfo#getLocalMountId()}.
+         * @since 6.3
+         */
+        protected String m_localMountId;
+
+        /**
+         * See {@link JobExecutorInfo#getRemoteExecutorVersion()}.
+         * @since 6.3
+         */
+        protected String m_remoteExecutorVersion;
+
         JobExecutorInfoBuilder( //
                 final ExecutorType type, //
                 final String userId, //
@@ -131,14 +145,36 @@ public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuild
 
         /**
          * Sets whether the workflow job is running in a remote executor, or locally, i.e. the current JVM is the
-         * executor).
+         * executor). This method sets both {@link JobExecutorInfo#getLocalMountId()} and
+         * {@link JobExecutorInfo#getRemoteExecutorVersion()} to {@link java.util.Optional#empty()}.
          *
          * @param isRemote Set to true, when the workflow job is running in a remote executor, otherwise set to false
          *            (i.e. the current JVM is the executor).
          * @return this builder instance
+         * @see #withRemoteExecutor(String,String)
+         * @deprecated Use {@link #withRemoteExecutor(String, String)} instead to specify additional information.
+         *             Method is scheduled for removal in version 6.4.0.
          */
+        @Deprecated(forRemoval = true, since = "6.3.0")
         public final B withIsRemote(final boolean isRemote) {
             m_isRemote = isRemote;
+            m_localMountId = null;
+            m_remoteExecutorVersion = null;
+            return (B)this;
+        }
+
+        /**
+         * Configures the context for a remotely executed workflow, where the current JVM is not the executor.
+         *
+         * @param localMountId mount ID of the local AP displaying the job, may be {@code null} if unknown
+         * @param remoteExecutorVersion version of the remote executor running the job, may be {@code null} if unknown
+         * @return this builder instance
+         * @since 6.3
+         */
+        public final B withRemoteExecutor(final String localMountId, final String remoteExecutorVersion) {
+            m_isRemote = true;
+            m_localMountId = localMountId;
+            m_remoteExecutorVersion = remoteExecutorVersion;
             return (B)this;
         }
     }

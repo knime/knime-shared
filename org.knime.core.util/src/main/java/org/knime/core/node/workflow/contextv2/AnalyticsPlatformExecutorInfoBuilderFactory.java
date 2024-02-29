@@ -90,7 +90,7 @@ public final class AnalyticsPlatformExecutorInfoBuilderFactory
     /**
      * Finishing stage of the {@link AnalyticsPlatformExecutorInfo} builder.
      */
-    public static class AnalyticsPlatformExecutorInfoBuilder
+    public static final class AnalyticsPlatformExecutorInfoBuilder
             extends ExecutorInfoBuilderFactory.ExecutorInfoBuilder<AnalyticsPlatformExecutorInfo,
                     AnalyticsPlatformExecutorInfoBuilder> {
 

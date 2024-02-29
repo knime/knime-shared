@@ -49,6 +49,7 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
@@ -71,16 +72,24 @@ public class JobExecutorInfo extends ExecutorInfo {
      */
     private final boolean m_isRemote;
 
-    JobExecutorInfo( //
+    private final String m_localMountId;
+
+    private final String m_remoteExecutorVersion;
+
+    JobExecutorInfo( // NOSONAR
             final ExecutorType type, //
             final String userId, //
             final Path workflowPath, //
             final Path tempFolder, //
             final UUID jobId, //
-            final boolean isRemote) {
+            final boolean isRemote, //
+            final String localMountId, //
+            final String remoteExecutorVersion) {
         super(type, userId, workflowPath, tempFolder);
         m_jobId = jobId;
         m_isRemote = isRemote;
+        m_localMountId = localMountId;
+        m_remoteExecutorVersion = remoteExecutorVersion;
     }
 
     /**
@@ -100,6 +109,28 @@ public class JobExecutorInfo extends ExecutorInfo {
      */
     public boolean isRemote() {
         return m_isRemote;
+    }
+
+    /**
+     * If this context is for a remotely executed workflow (i.e., {@link #isRemote()} is true), this method may return
+     * the ID of the mountpoint under which the remote job is accessible in the local Analytics Platform.
+     *
+     * @return local mountpoint ID if known, {@link Optional#empty()} otherwise
+     * @since 6.3
+     */
+    public Optional<String> getLocalMountId() {
+        return Optional.ofNullable(m_localMountId);
+    }
+
+    /**
+     * If this context is for a remotely executed workflow (i.e., {@link #isRemote()} is true), this method may return
+     * the version of the remote executor.
+     *
+     * @return remote executor version if known, {@link Optional#empty()} otherwise
+     * @since 6.3
+     */
+    public Optional<String> getRemoteExecutorVersion() {
+        return Optional.ofNullable(m_remoteExecutorVersion);
     }
 
     @Override

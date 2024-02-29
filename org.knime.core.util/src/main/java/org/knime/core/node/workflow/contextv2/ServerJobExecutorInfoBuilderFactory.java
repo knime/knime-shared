@@ -87,7 +87,7 @@ public final class ServerJobExecutorInfoBuilderFactory
     /**
      * Finishing stage of the {@link ServerJobExecutorInfo} builder.
      */
-    public static class ServerJobExecutorInfoBuilder
+    public static final class ServerJobExecutorInfoBuilder
             extends JobExecutorInfoBuilderFactory.JobExecutorInfoBuilder<ServerJobExecutorInfo,
                     ServerJobExecutorInfoBuilder> {
 
@@ -100,7 +100,13 @@ public final class ServerJobExecutorInfoBuilderFactory
 
         @Override
         public ServerJobExecutorInfo build() {
-            return new ServerJobExecutorInfo(m_userId, m_localWorkflowPath, ensureTempFolder(), m_jobId, m_isRemote);
+            return new ServerJobExecutorInfo( //
+                m_userId, //
+                m_localWorkflowPath, //
+                ensureTempFolder(), //
+                m_jobId, m_isRemote, //
+                m_localMountId, //
+                m_remoteExecutorVersion);
         }
     }
 }
