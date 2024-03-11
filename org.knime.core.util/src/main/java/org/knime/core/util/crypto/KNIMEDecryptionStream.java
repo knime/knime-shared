@@ -92,6 +92,7 @@ public class KNIMEDecryptionStream extends CipherInputStream {
     private static Cipher getDefaultDecryptCipher() throws InvalidKeyException,
             NoSuchAlgorithmException, NoSuchPaddingException,
             InvalidKeySpecException {
+        // NOFLUID only used for decryption
         Cipher cipher = Cipher.getInstance("rsa");
         cipher.init(Cipher.DECRYPT_MODE, DEFAULT_PUBLIC_KEY);
         return cipher;

@@ -69,9 +69,11 @@ public final class Encrypter implements IEncrypter {
          */
         V1Encrypter(final String key) throws NoSuchAlgorithmException, NoSuchPaddingException {
             // we assume that the key has already been checked by the outer class
+            // NOFLUID only used to *decrypt* legacy format
             m_cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
             var keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            // NOFLUID only used to *read* legacy format
             var sha = MessageDigest.getInstance("SHA-1");
             keyBytes = sha.digest(keyBytes);
             m_key = new SecretKeySpec(Arrays.copyOf(keyBytes, 16), "AES"); // 128bits
