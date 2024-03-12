@@ -56,10 +56,16 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.http.HttpHeaders;
+import org.knime.core.util.KNIMEServerHostnameVerifier;
 import org.knime.core.util.Pair;
 
 /**
@@ -82,19 +88,20 @@ public final class URLConnectionFactory {
      * @throws IOException if something went wrong
      */
     public static URLConnection getConnection(final URL url) throws IOException {
+        final URLConnection connection;
         final var proxyAuthPair = getProxy(url);
         if (proxyAuthPair.isPresent()) {
             final var proxy = proxyAuthPair.get().getFirst();
-            final var connection = url.openConnection(proxy);
+            connection = url.openConnection(proxy);
             // handle proxy requiring authentication
             final var authenticator = proxyAuthPair.get().getSecond();
             if (authenticator != null && connection instanceof HttpURLConnection httpConnection) {
                 httpConnection.setAuthenticator(authenticator);
             }
-            return connection;
         } else {
-            return url.openConnection();
+            connection = url.openConnection();
         }
+        return completeConfiguration(connection);
     }
 
     /**
@@ -132,6 +139,44 @@ public final class URLConnectionFactory {
         final var proxyType = proxyConfig.protocol() == ProxyProtocol.SOCKS ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
         final var proxyAddress = new InetSocketAddress(proxyConfig.host(), intPort);
         return Optional.of(Pair.create(new Proxy(proxyType, proxyAddress), proxyAuthenticator));
+    }
+
+    /**
+     * Adds common configuration to {@link URLConnection}s. Uses configuration pieces from these classes.
+     * <ul>
+     *   <li> <tt>org.owasp.dependencycheck.utils.URLConnectionFactory</tt>
+     *   <li> <tt>com.knime.enterprise.server.rest.api.Util</tt>
+     *   <li> <tt>com.knime.enterprise.server.rest.api.UTF8BasicAuthSupplier</tt>
+     *   <li> <tt>org.knime.cxf.core.fragment.KNIMEConduitConfigurer</tt>
+     * </ul>
+     *
+     * @param connection the URL connection
+     * @return same connection, but with additional configuratin
+     */
+    private static URLConnection completeConfiguration(final URLConnection connection) {
+        // (1) it is discouraged to pass basic server authentication per user info instead of the header, see
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#access_using_credentials_in_the_url
+        final var userInfo = connection.getURL().getUserInfo();
+        if (userInfo != null) {
+            LOGGER.log(Level.INFO, "Detected server authentication in user info of URL, moving to header");
+            final var encodedAuth = Base64.getEncoder().encodeToString(userInfo.getBytes(StandardCharsets.UTF_8));
+            connection.addRequestProperty(HttpHeaders.AUTHORIZATION, "Basic %s".formatted(encodedAuth));
+        }
+
+        if (connection instanceof HttpURLConnection httpConnection) {
+            // (2) we don't want to allow interactive authentication or popups
+            // at least for the clients reading this field (unlike Eclipse's NetAuthenticator)
+            httpConnection.setAllowUserInteraction(false);
+
+            // (3) generally, we additionally always follow redirects (as configured in KNIMEConduitConfigurer)
+            // but this is only possible to set statically for HttpURLConnections, which we don't want here
+
+            // (4) use own host name verifier if it is a HTTPS connection
+            if (httpConnection instanceof HttpsURLConnection httpsConnection) {
+                httpsConnection.setHostnameVerifier(KNIMEServerHostnameVerifier.getInstance());
+            }
+        }
+        return connection;
     }
 
     /**
