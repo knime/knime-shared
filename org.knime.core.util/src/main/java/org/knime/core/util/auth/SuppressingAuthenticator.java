@@ -58,9 +58,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * Essentially a copy of {@code org.knime.core.util.ThreadLocalHTTPAuthenticator}, but with wider accessibility.
  * {@code ThreadLocalHTTPAuthenticator#suppressAuthenticationPopups} redirects here.
  *
- * Most importantly, this authenticator is only installed once in the
- * {@code org.knime.core.eclipseUtil.NetAuthenticatorSuppressor}.
- * This allows us to still suppress Eclipse's authentication popups while not interfering with CXF.
+ * This authenticator is only installed once in the initialization of the CorePlugin and allows us to
+ * suppress Eclipse's authentication popups while not interfering with other libraries, such as CXF.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @since 6.3
@@ -70,6 +69,11 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
     private static final Logger LOGGER = Logger.getLogger(SuppressingAuthenticator.class.getName());
 
     private static final ThreadLocal<MutableInt> SUPPRESS_POPUP = ThreadLocal.withInitial(MutableInt::new); // NOSONAR
+
+    /**
+     * Flag indicating whether a warning about the authenticator's inactivity has already been logged.
+     */
+    private static volatile boolean hasWarnedAboutInactivity;
 
     /**
      * @param delegate upstream authenticator
@@ -101,9 +105,10 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
      * @return a closeable that enables popups again (if there were any before)
      */
     public static NewAuthenticationCloseable suppressDelegate() {
-        if (!isInstalledGlobally()) {
+        if (!isInstalledGlobally() && !hasWarnedAboutInactivity) {
             LOGGER.warning(() -> String.format("%s was not installed yet, authentication popups are not suppressed",
                 SuppressingAuthenticator.class.getSimpleName()));
+            hasWarnedAboutInactivity = true;
         }
         SUPPRESS_POPUP.get().increment();
         return () -> SUPPRESS_POPUP.get().decrement();
