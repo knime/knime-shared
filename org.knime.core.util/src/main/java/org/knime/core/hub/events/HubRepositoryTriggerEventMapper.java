@@ -106,6 +106,8 @@ public final class HubRepositoryTriggerEventMapper {
         .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)//
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)//
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)//
+        // context time zone should NOT interfere with the declared time zone of time stamps to parse
+        .configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false)//
         .build();
 
     static final TypeReference<HubTriggerEvent<HubRepositoryItemEventSubject>> TARGET_TYPE =
