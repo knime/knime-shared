@@ -48,9 +48,9 @@
  */
 package org.knime.core.node.dialog;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +59,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Bernd Wiswedel, KNIME AG, Zurich, Switzerland
  */
-public class ExternalNodeDataTest {
+class ExternalNodeDataTest {
 
     /**
      * Test method for {@link org.knime.core.node.dialog.ExternalNodeData#getSimpleIDFrom(java.lang.String)}.
@@ -76,7 +76,7 @@ public class ExternalNodeDataTest {
      */
     @Test
     void testGetSimpleIDFromNullCheck() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             ExternalNodeData.getSimpleIDFrom(null);
         });
     }

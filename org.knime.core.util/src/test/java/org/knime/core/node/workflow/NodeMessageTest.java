@@ -48,7 +48,6 @@
  */
 package org.knime.core.node.workflow;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -76,7 +75,8 @@ class NodeMessageTest {
     void testNodeMessageComplexWarning() throws IOException {
         ObjectMapper mapper = createObjectMapper();
 
-        NodeMessage orig1 = new NodeMessage(Type.WARNING, "a warning text", "some issue", Arrays.asList("resolution 1", "resolution 2"));
+        NodeMessage orig1 = new NodeMessage(Type.WARNING, "a warning text", "some issue",
+            Arrays.asList("resolution 1", "resolution 2"));
 
         String serialized1 = mapper.writeValueAsString(orig1);
         NodeMessage deserialized1 = mapper.readValue(serialized1, NodeMessage.class);
@@ -98,8 +98,7 @@ class NodeMessageTest {
         NodeMessage orig1 = new NodeMessage(Type.WARNING, "a warning text", "some issue",
             Arrays.asList("resolution 1", "resolution 2"));
 
-        assertThat(orig1.toStringWithDetails()).as("String with details").isEqualTo(
-            "WARNING: a warning text\n" //
+        assertThat(orig1.toStringWithDetails()).as("String with details").isEqualTo("WARNING: a warning text\n" //
             + " some issue\n" //
             + "\n" //
             + "Possibly resolution(s)\n" //
@@ -141,7 +140,8 @@ class NodeMessageTest {
         NodeMessage merge = NodeMessage.merge(error, warning);
 
         assertThat(merge).extracting(m -> m.getMessageType()).isEqualTo(Type.ERROR);
-        assertThat(merge).extracting(m -> m.getMessage()).asString().contains("an error text").contains("a warning text");
+        assertThat(merge).extracting(m -> m.getMessage()).asString().contains("an error text")
+            .contains("a warning text");
     }
 
     /**

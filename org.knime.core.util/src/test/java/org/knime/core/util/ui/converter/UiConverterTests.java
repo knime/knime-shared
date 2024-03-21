@@ -48,10 +48,8 @@
  */
 package org.knime.core.util.ui.converter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -76,7 +74,7 @@ import jakarta.json.JsonObject;
  * @author Carsten Haubold, KNIME GmbH, Konstanz, Germany
  */
 @SuppressWarnings("javadoc")
-public class UiConverterTests {
+class UiConverterTests {
     private static final JsonNodeFactory JSON_FACTORY = JsonNodeFactory.instance;
 
     private static final String BOOLEAN_WORKFLOW_REPR = "{\n" //
@@ -226,22 +224,22 @@ public class UiConverterTests {
 
     @Test
     void testConverterRegistry() throws IOException {
-        assertTrue(UiComponentConverterRegistry.getConverter(BOOLEAN_WORKFLOW_REPR,
-            "param") instanceof BooleanUiComponentConverter);
-        assertTrue(UiComponentConverterRegistry.getConverter(INT_WORKFLOW_REPR,
-            "param") instanceof IntegerUiComponentConverter);
-        assertTrue(UiComponentConverterRegistry.getConverter(DOUBLE_WORKFLOW_REPR,
-            "param") instanceof DoubleUiComponentConverter);
-        assertTrue(UiComponentConverterRegistry.getConverter(STRING_WORKFLOW_REPR,
-            "param") instanceof StringUiComponentConverter);
-        assertTrue(UiComponentConverterRegistry.getConverter(INT_SLIDER_WORKFLOW_REPR,
-            "param") instanceof IntegerSliderUiComponentConverter);
-        assertTrue(UiComponentConverterRegistry.getConverter(DATE_WORKFLOW_REPR,
-            "param") instanceof DateTimeUiComponentConverter);
-        assertThrows(IOException.class, () -> {
+        assertThat(UiComponentConverterRegistry.getConverter(BOOLEAN_WORKFLOW_REPR,
+                "param") instanceof BooleanUiComponentConverter).isTrue();
+        assertThat(UiComponentConverterRegistry.getConverter(INT_WORKFLOW_REPR,
+                "param") instanceof IntegerUiComponentConverter).isTrue();
+        assertThat(UiComponentConverterRegistry.getConverter(DOUBLE_WORKFLOW_REPR,
+                "param") instanceof DoubleUiComponentConverter).isTrue();
+        assertThat(UiComponentConverterRegistry.getConverter(STRING_WORKFLOW_REPR,
+                "param") instanceof StringUiComponentConverter).isTrue();
+        assertThat(UiComponentConverterRegistry.getConverter(INT_SLIDER_WORKFLOW_REPR,
+                "param") instanceof IntegerSliderUiComponentConverter).isTrue();
+        assertThat(UiComponentConverterRegistry.getConverter(DATE_WORKFLOW_REPR,
+                "param") instanceof DateTimeUiComponentConverter).isTrue();
+        assertThatExceptionOfType(IOException.class).isThrownBy(() -> {
             UiComponentConverterRegistry.getConverter(BROKEN_WORKFLOW_REPR, "test");
         });
-        assertThrows(IllegalStateException.class, () -> {
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
             UiComponentConverterRegistry.getConverter(UNKNOWN_WORKFLOW_REPR, "test");
         });
     }
@@ -286,34 +284,34 @@ public class UiConverterTests {
         var converter = UiComponentConverterRegistry.getConverter(jsonWorkflowRepr, "param");
         var model = JSON_FACTORY.objectNode();
         converter.insertData(model);
-        assertTrue(model.has("param"));
+        assertThat(model.has("param")).isTrue();
         // This gets the value from the "currentValue" field
-        assertEquals(expectedValue, valueExtractor.apply(model.get("param")));
+        assertThat(valueExtractor.apply(model.get("param"))).isEqualTo(expectedValue);
 
         var schema = JSON_FACTORY.objectNode();
         converter.insertSchema(schema);
-        assertTrue(schema.has("param"));
+        assertThat(schema.has("param")).isTrue();
         var schemaNode = (ObjectNode)schema.get("param");
-        assertEquals(typeStr, schemaNode.get("type").asText());
-        assertTrue(schemaNode.has("description"));
+        assertThat(schemaNode.get("type").asText()).isEqualTo(typeStr);
+        assertThat(schemaNode.has("description")).isTrue();
 
-        assertEquals(shouldHaveMinMax, schemaNode.has("minimum"));
-        assertEquals(shouldHaveMinMax, schemaNode.has("maximum"));
+        assertThat(schemaNode.has("minimum")).isEqualTo(shouldHaveMinMax);
+        assertThat(schemaNode.has("maximum")).isEqualTo(shouldHaveMinMax);
 
         var uiSchema = JSON_FACTORY.objectNode();
         converter.insertUiSchema(uiSchema);
-        assertTrue(uiSchema.has("param"));
+        assertThat(uiSchema.has("param")).isTrue();
         var uiSchemaNode = (ObjectNode)uiSchema.get("param");
-        assertEquals("Control", uiSchemaNode.get("type").asText());
-        assertTrue(uiSchemaNode.has("label"));
-        assertTrue(uiSchemaNode.has("options"));
+        assertThat(uiSchemaNode.get("type").asText()).isEqualTo("Control");
+        assertThat(uiSchemaNode.has("label")).isTrue();
+        assertThat(uiSchemaNode.has("options")).isTrue();
         var scope = uiSchemaNode.get("scope").asText();
-        assertEquals("#/properties/model/properties/param", scope);
+        assertThat(scope).isEqualTo("#/properties/model/properties/param");
 
         var jsonFormsModel = JSON_FACTORY.objectNode();
         jsonFormsModel.putPOJO("param", expectedValue);
         var output = converter.getDialogNodeValueJsonFromJsonFormsModel(jsonFormsModel);
-        assertEquals(expectedValue, dialogValueExtractor.apply(output));
+        assertThat(dialogValueExtractor.apply(output)).isEqualTo(expectedValue);
     }
 
     @Test
@@ -321,9 +319,9 @@ public class UiConverterTests {
         var converter = UiComponentConverterRegistry.getConverter(BOOLEAN_WORKFLOW_REPR_NO_CURRENT_VALUE, "param");
         var model = JSON_FACTORY.objectNode();
         converter.insertData(model);
-        assertTrue(model.has("param"));
+        assertThat(model.has("param")).isTrue();
         // This gets the value from the "defaultValue" field
-        assertFalse(model.get("param").asBoolean());
+        assertThat(model.get("param").asBoolean()).isFalse();
     }
 
     @Test
@@ -336,18 +334,18 @@ public class UiConverterTests {
 
         var forms = new ObjectMapper().readTree(jsonforms);
         var model = forms.get("data").get("model");
-        assertTrue(model.get("int").isInt());
-        assertTrue(model.get("bool").isBoolean());
-        assertTrue(model.get("double").isDouble());
+        assertThat(model.get("int").isInt()).isTrue();
+        assertThat(model.get("bool").isBoolean()).isTrue();
+        assertThat(model.get("double").isDouble()).isTrue();
 
         var schema = forms.get("schema").get("properties").get("model").get("properties");
-        assertEquals("integer", schema.get("int").get("type").asText());
-        assertEquals("boolean", schema.get("bool").get("type").asText());
-        assertEquals("number", schema.get("double").get("type").asText());
+        assertThat(schema.get("int").get("type").asText()).isEqualTo("integer");
+        assertThat(schema.get("bool").get("type").asText()).isEqualTo("boolean");
+        assertThat(schema.get("double").get("type").asText()).isEqualTo("number");
 
         var uiSchema = forms.get("ui_schema").get("elements");
-        assertTrue(uiSchema.has("int"));
-        assertTrue(uiSchema.has("bool"));
-        assertTrue(uiSchema.has("double"));
+        assertThat(uiSchema.has("int")).isTrue();
+        assertThat(uiSchema.has("bool")).isTrue();
+        assertThat(uiSchema.has("double")).isTrue();
     }
 }

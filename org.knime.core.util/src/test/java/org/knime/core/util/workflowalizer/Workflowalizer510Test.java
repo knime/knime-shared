@@ -48,7 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -148,21 +148,19 @@ public class Workflowalizer510Test extends AbstractWorkflowalizerTest {
     @Test
     void testReadingWorkflowMetadata() throws Exception {
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir);
-        assertEquals(Version510, wm.getVersion().toString());
-        assertEquals("WorkflowWithMetadata", wm.getName());
+        assertThat(wm.getVersion().toString()).isEqualTo(Version510);
+        assertThat(wm.getName()).isEqualTo("WorkflowWithMetadata");
         testStructure(wm, workflowDir.resolve("workflow.knime"));
 
         final var workflowMetadata = wm.getWorkflowSetMetadata().orElseThrow();
-        assertEquals(ContentType.TEXT_HTML, workflowMetadata.getContentType());
-        assertEquals("Carl Witt", workflowMetadata.getAuthor().orElseThrow());
-        assertEquals(14, workflowMetadata.getCreated().orElseThrow().getHour());
-        assertEquals(15, workflowMetadata.getLastModified().orElseThrow().getHour());
-        assertEquals("This is a <b>test</b> workflow.", workflowMetadata.getDescription().orElseThrow());
-        assertEquals(List.of("tags, good", "tag2"), workflowMetadata.getTags().orElseThrow());
-        assertEquals(
-            List.of(new WorkflowSetMeta.Link("https://knime.com", "knime"),
-                new WorkflowSetMeta.Link("https://www.knime.com", "www.knime.com")),
-            workflowMetadata.getLinks().orElseThrow());
+        assertThat(workflowMetadata.getContentType()).isEqualTo(ContentType.TEXT_HTML);
+        assertThat(workflowMetadata.getAuthor().orElseThrow()).isEqualTo("Carl Witt");
+        assertThat(workflowMetadata.getCreated().orElseThrow().getHour()).isEqualTo(14);
+        assertThat(workflowMetadata.getLastModified().orElseThrow().getHour()).isEqualTo(15);
+        assertThat(workflowMetadata.getDescription().orElseThrow()).isEqualTo("This is a <b>test</b> workflow.");
+        assertThat(workflowMetadata.getTags().orElseThrow()).isEqualTo(List.of("tags, good", "tag2"));
+        assertThat(workflowMetadata.getLinks().orElseThrow()).isEqualTo(List.of(new WorkflowSetMeta.Link("https://knime.com", "knime"),
+                new WorkflowSetMeta.Link("https://www.knime.com", "www.knime.com")));
     }
 
     /**
@@ -173,30 +171,25 @@ public class Workflowalizer510Test extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponent() throws Exception {
         final var compMetadata = (ComponentMetadata)Workflowalizer.readTemplate(componentDir);
-        assertEquals(Version510, compMetadata.getVersion().toString());
-        assertEquals("ComponentWithMetadata", compMetadata.getName());
+        assertThat(compMetadata.getVersion().toString()).isEqualTo(Version510);
+        assertThat(compMetadata.getName()).isEqualTo("ComponentWithMetadata");
         testStructure(compMetadata, componentDir.resolve("workflow.knime"));
-        assertEquals("LEARNER", compMetadata.getComponentType().orElseThrow());
-        assertEquals("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAhElEQVR4nGNgoDIox4HzgJiVGAP+A3EHFgwS"
-            + "X0+MIf/xiK8nxhB8BtQA8UeoISQbgO4dkg1gBGJ+AmpQJEWBOBdJvAWIjwAxBzEGcEAVfwbiBCi+DcT9QCxL"
-            + "jAEgRZ1ArAHEL6BYHYsr8XoBBhygGJ8a4iXpZgCu/ADDeA3Alg+wYeoBAO4gNc6sqU+FAAAAAElFTkSuQmCC",
-            compMetadata.getIcon().orElseThrow());
-        assertEquals(List.of(Pair.create("train", "training data"), Pair.create("test", "test data")),
-            extractNameAndDescription(compMetadata.getInPorts()));
-        assertEquals(List.of(Pair.create("model", "trained model")),
-            extractNameAndDescription(compMetadata.getOutPorts()));
+        assertThat(compMetadata.getComponentType().orElseThrow()).isEqualTo("LEARNER");
+        assertThat(compMetadata.getIcon().orElseThrow()).isEqualTo("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAhElEQVR4nGNgoDIox4HzgJiVGAP+A3EHFgwS"
+                + "X0+MIf/xiK8nxhB8BtQA8UeoISQbgO4dkg1gBGJ+AmpQJEWBOBdJvAWIjwAxBzEGcEAVfwbiBCi+DcT9QCxL"
+                + "jAEgRZ1ArAHEL6BYHYsr8XoBBhygGJ8a4iXpZgCu/ADDeA3Alg+wYeoBAO4gNc6sqU+FAAAAAElFTkSuQmCC");
+        assertThat(extractNameAndDescription(compMetadata.getInPorts())).isEqualTo(List.of(Pair.create("train", "training data"), Pair.create("test", "test data")));
+        assertThat(extractNameAndDescription(compMetadata.getOutPorts())).isEqualTo(List.of(Pair.create("model", "trained model")));
 
         final var workflowMetadata = compMetadata.getWorkflowSetMeta().orElseThrow();
-        assertEquals(ContentType.TEXT_HTML, workflowMetadata.getContentType());
-        assertEquals("Carl Witt", workflowMetadata.getAuthor().orElseThrow());
-        assertEquals(14, workflowMetadata.getCreated().orElseThrow().getHour());
-        assertEquals(15, workflowMetadata.getLastModified().orElseThrow().getHour());
-        assertEquals("This is a <b>test</b> component.", workflowMetadata.getDescription().orElseThrow());
-        assertEquals(List.of("useful", "nice"), workflowMetadata.getTags().orElseThrow());
-        assertEquals(
-            List.of(new WorkflowSetMeta.Link("https://knime.com", "knime"),
-                new WorkflowSetMeta.Link("https://www.knime.com", null)),
-            workflowMetadata.getLinks().orElseThrow());
+        assertThat(workflowMetadata.getContentType()).isEqualTo(ContentType.TEXT_HTML);
+        assertThat(workflowMetadata.getAuthor().orElseThrow()).isEqualTo("Carl Witt");
+        assertThat(workflowMetadata.getCreated().orElseThrow().getHour()).isEqualTo(14);
+        assertThat(workflowMetadata.getLastModified().orElseThrow().getHour()).isEqualTo(15);
+        assertThat(workflowMetadata.getDescription().orElseThrow()).isEqualTo("This is a <b>test</b> component.");
+        assertThat(workflowMetadata.getTags().orElseThrow()).isEqualTo(List.of("useful", "nice"));
+        assertThat(workflowMetadata.getLinks().orElseThrow()).isEqualTo(List.of(new WorkflowSetMeta.Link("https://knime.com", "knime"),
+                new WorkflowSetMeta.Link("https://www.knime.com", null)));
     }
 
     private static List<Pair<String, String>> extractNameAndDescription(final List<ComponentPortInfo> ports) {

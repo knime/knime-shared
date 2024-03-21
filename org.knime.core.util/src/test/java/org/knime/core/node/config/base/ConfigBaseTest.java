@@ -49,7 +49,6 @@
 package org.knime.core.node.config.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,7 +69,7 @@ import org.knime.core.node.InvalidSettingsException;
  *
  * @author Carl Witt, KNIME AG, Zurich, Switzerland
  */
-public class ConfigBaseTest {
+class ConfigBaseTest {
 
     /**
      * Opens a config that has been written using Java serialization. Tries to deserialize. Prior to AP-18979,
@@ -89,7 +88,7 @@ public class ConfigBaseTest {
         try (ObjectInputStream ois = new ObjectInputStream(is)) {
             config = (SimpleConfig)ois.readObject();
         }
-        assertEquals("12345", config.getPassword("database", "secret"));
+        assertThat(config.getPassword("database", "secret")).isEqualTo("12345");
     }
 
     /**

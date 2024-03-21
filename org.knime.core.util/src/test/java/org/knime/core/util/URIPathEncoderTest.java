@@ -48,7 +48,7 @@
  */
 package org.knime.core.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.net.URI;
@@ -74,7 +74,7 @@ final class URIPathEncoderTest {
     @Test
     void testEncodingURIWithoutSpecialCharactersLeavesItUnchanged() throws Exception {
         final var uri = new URI("file://knime.mountpoint/path/file.txt");
-        assertEquals(uri, URIPathEncoder.UTF_8.encodePathSegments(uri), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(uri)).as("Unexpected encoded URI").isEqualTo(uri);
     }
 
     /**
@@ -85,7 +85,7 @@ final class URIPathEncoderTest {
     @Test
     void testURIReservedCharactersAreNotEncoded() throws Exception {
         final var uri = new URI("file://knime.mountpoint/pa+th/file@.txt");
-        assertEquals(uri, URIPathEncoder.UTF_8.encodePathSegments(uri), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(uri)).as("Unexpected encoded URI").isEqualTo(uri);
     }
 
     /**
@@ -97,7 +97,7 @@ final class URIPathEncoderTest {
     void testUmlautsAreEncoded() throws Exception {
         final var umlautURI = new URI("file://knime.mountpoint/ä/Ä.txt");
         final var encodedURI = new URI("file://knime.mountpoint/%C3%A4/%C3%84.txt");
-        assertEquals(encodedURI, URIPathEncoder.UTF_8.encodePathSegments(umlautURI), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(umlautURI)).as("Unexpected encoded URI").isEqualTo(encodedURI);
     }
 
     /**
@@ -111,7 +111,7 @@ final class URIPathEncoderTest {
 
         final var uncURI = new File("\\\\HOST\\path\\file.txt").toURI();
         final var expectedUNC = new URI("file:////HOST/path/file.txt");
-        assertEquals(expectedUNC, URIPathEncoder.UTF_8.encodePathSegments(uncURI), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(uncURI)).as("Unexpected encoded URI").isEqualTo(expectedUNC);
     }
 
     /**
@@ -125,7 +125,7 @@ final class URIPathEncoderTest {
 
         final var windowsURI = new File("C:\\path\\fileÄ.txt").toURI();
         final var expectedWindowsURI = new URI("file:/C:/path/file%C3%84.txt");
-        assertEquals(expectedWindowsURI, URIPathEncoder.UTF_8.encodePathSegments(windowsURI), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(windowsURI)).as("Unexpected encoded URI").isEqualTo(expectedWindowsURI);
     }
 
     /**
@@ -137,7 +137,7 @@ final class URIPathEncoderTest {
     void testURLIsEncoded() throws Exception {
         final var url = new URI("file://knime.mountpoint/path/fileÄ.txt").toURL();
         final var expectedEncodedURL = new URI("file://knime.mountpoint/path/file%C3%84.txt").toURL();
-        assertEquals(expectedEncodedURL, URIPathEncoder.UTF_8.encodePathSegments(url), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(url)).as("Unexpected encoded URI").isEqualTo(expectedEncodedURL);
     }
 
     /**
@@ -151,7 +151,7 @@ final class URIPathEncoderTest {
 
         final var uncURI = new File("\\\\HOST\\path\\file with whitespace.txt").toURI();
         final var expectedUNC = new URI("file:////HOST/path/file%20with%20whitespace.txt");
-        assertEquals(expectedUNC, URIPathEncoder.UTF_8.encodePathSegments(uncURI), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(uncURI)).as("Unexpected encoded URI").isEqualTo(expectedUNC);
     }
 
     /**
@@ -165,6 +165,6 @@ final class URIPathEncoderTest {
 
         final var uncURI = new File("\\\\HOST\\path\\file Ä.txt").toURI();
         final var expectedUNC = new URI("file:////HOST/path/file%20%C3%84.txt");
-        assertEquals(expectedUNC, URIPathEncoder.UTF_8.encodePathSegments(uncURI), "Unexpected encoded URI");
+        assertThat(URIPathEncoder.UTF_8.encodePathSegments(uncURI)).as("Unexpected encoded URI").isEqualTo(expectedUNC);
     }
 }

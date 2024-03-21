@@ -48,10 +48,8 @@
  */
 package org.knime.core.util.workflowalizer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -193,9 +191,9 @@ public class AbstractWorkflowalizerTest {
         final long wrappedMetaNodeCount = lines.stream()
             .filter(line -> line.contains("key=\"node_type\"") && line.contains("value=\"SubNode\"")).count();
 
-        assertEquals(nodeCount, wkfMd.getNodes().size());
-        assertEquals(metaNodeCount, metaNodes.size());
-        assertEquals(wrappedMetaNodeCount, wrappedMetaNodes.size());
+        assertThat(wkfMd.getNodes().size()).isEqualTo(nodeCount);
+        assertThat(metaNodes.size()).isEqualTo(metaNodeCount);
+        assertThat(wrappedMetaNodes.size()).isEqualTo(wrappedMetaNodeCount);
 
         for (final NodeMetadata metaNode : metaNodes) {
             final String settingsLine = lines.stream()
@@ -248,13 +246,13 @@ public class AbstractWorkflowalizerTest {
      * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the {@link Workflowalizer}
      */
     protected void testWorkflowSetMetaSimple(final List<String> rawFileLines, final WorkflowSetMeta workflowSetMeta) {
-        assertEquals(parseWorkflowSetMeta("Author", rawFileLines), workflowSetMeta.getAuthor().orElse(null));
+        assertThat(workflowSetMeta.getAuthor().orElse(null)).isEqualTo(parseWorkflowSetMeta("Author", rawFileLines));
 
         final String comments = parseWorkflowSetMeta("Comments", rawFileLines);
-        assertFalse(workflowSetMeta.getTitle().isPresent());
-        assertEquals(comments, workflowSetMeta.getDescription().orElse(null));
-        assertEquals(0, workflowSetMeta.getLinks().get().size());
-        assertEquals(0, workflowSetMeta.getTags().get().size());
+        assertThat(workflowSetMeta.getTitle().isPresent()).isFalse();
+        assertThat(workflowSetMeta.getDescription().orElse(null)).isEqualTo(comments);
+        assertThat(workflowSetMeta.getLinks().get().size()).isEqualTo(0);
+        assertThat(workflowSetMeta.getTags().get().size()).isEqualTo(0);
     }
 
     /**
@@ -272,16 +270,16 @@ public class AbstractWorkflowalizerTest {
      * @param workflowSetMeta the {@link WorkflowSetMeta} returned by the {@link Workflowalizer}
      */
     protected void testWorkflowSetMeta(final List<String> rawFileLines, final WorkflowSetMeta workflowSetMeta) {
-        assertEquals(parseWorkflowSetMeta("Author", rawFileLines), workflowSetMeta.getAuthor().orElse(null));
+        assertThat(workflowSetMeta.getAuthor().orElse(null)).isEqualTo(parseWorkflowSetMeta("Author", rawFileLines));
 
         final String comments = parseWorkflowSetMeta("Comments", rawFileLines);
         final String[] lines = NEWLINE_PATTERN.split(comments);
 
-        assertTrue(workflowSetMeta.getTitle().isPresent());
-        assertEquals(lines[0], workflowSetMeta.getTitle().orElse(null));
-        assertEquals(lines[2], workflowSetMeta.getDescription().orElse(null));
-        assertEquals(0,workflowSetMeta.getLinks().get().size());
-        assertEquals(0, workflowSetMeta.getTags().get().size());
+        assertThat(workflowSetMeta.getTitle().isPresent()).isTrue();
+        assertThat(workflowSetMeta.getTitle().orElse(null)).isEqualTo(lines[0]);
+        assertThat(workflowSetMeta.getDescription().orElse(null)).isEqualTo(lines[2]);
+        assertThat(workflowSetMeta.getLinks().get().size()).isEqualTo(0);
+        assertThat(workflowSetMeta.getTags().get().size()).isEqualTo(0);
     }
 
     // -- Workflow Tests --
@@ -308,7 +306,7 @@ public class AbstractWorkflowalizerTest {
      */
     protected void testAuthorInformation(final List<String> workflowFileLines,
         final AbstractRepositoryItemMetadata<?, ?> wkfMd) throws IOException, ParseException {
-        assertEquals(readAuthorInformation(workflowFileLines), wkfMd.getAuthorInformation());
+        assertThat(wkfMd.getAuthorInformation()).isEqualTo(readAuthorInformation(workflowFileLines));
     }
 
     /**
@@ -330,7 +328,7 @@ public class AbstractWorkflowalizerTest {
      * @param wkfMd the parsed {@link IWorkflowMetadata} returned by the workflowalizer
      */
     protected void testCreatedBy(final List<String> workflowFileLines, final IWorkflowMetadata wkfMd) {
-        assertEquals(readCreatedBy(workflowFileLines), wkfMd.getCreatedBy());
+        assertThat(wkfMd.getCreatedBy()).isEqualTo(readCreatedBy(workflowFileLines));
     }
 
     /**
@@ -340,7 +338,7 @@ public class AbstractWorkflowalizerTest {
      * @param wkfMd the parsed {@link IWorkflowMetadata} returned by the workflowalizer
      */
     protected void testCustomDescription(final List<String> workflowFileLines, final IWorkflowMetadata wkfMd) {
-        assertEquals(readCustomDescription(workflowFileLines), wkfMd.getCustomDescription());
+        assertThat(wkfMd.getCustomDescription()).isEqualTo(readCustomDescription(workflowFileLines));
     }
 
     /**
@@ -350,7 +348,7 @@ public class AbstractWorkflowalizerTest {
      * @param wkfMd the parsed {@link WorkflowMetadata} returned by the workflowalizer
      */
     protected void testWorkflowName(final Path workflowDir, final WorkflowMetadata wkfMd) {
-        assertEquals(workflowDir.getFileName().toString(), wkfMd.getName());
+        assertThat(wkfMd.getName()).isEqualTo(workflowDir.getFileName().toString());
     }
 
     /**
@@ -360,7 +358,7 @@ public class AbstractWorkflowalizerTest {
      * @param wkfMd the {@link IWorkflowMetadata} returned by the workflowalizer
      */
     protected void testWorkflowName(final List<String> workflowFileLines, final IWorkflowMetadata wkfMd) {
-        assertEquals(readName(workflowFileLines), wkfMd.getName());
+        assertThat(wkfMd.getName()).isEqualTo(readName(workflowFileLines));
     }
 
     /**
@@ -375,16 +373,16 @@ public class AbstractWorkflowalizerTest {
         final String prefix) {
         final List<Integer> nodeIds = readNodeIds(workflowFileLines);
         final List<NodeMetadata> nodes = wkfMd.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
+        assertThat(nodes.size()).isEqualTo(nodeIds.size());
         for (final NodeMetadata node : nodes) {
             String id = node.getNodeId();
             final int index = id.lastIndexOf(':');
             if (index >= 0) {
                 id = id.substring(index + 1, id.length());
             }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
+            assertThat(nodeIds.contains(Integer.parseInt(id))).isTrue();
             if (prefix != null) {
-                assertEquals(prefix + id, node.getNodeId());
+                assertThat(node.getNodeId()).isEqualTo(prefix + id);
             }
         }
     }
@@ -402,7 +400,7 @@ public class AbstractWorkflowalizerTest {
         final int trueNativeNodeCount, final int trueMetaNodeCount, final int trueComponentCount) {
         List<Integer> nodeIds = readNodeIds(workflowFileLines);
         List<NodeMetadata> nodes = wkfMd.getNodes();
-        assertEquals(nodeIds.size(), nodes.size());
+        assertThat(nodes.size()).isEqualTo(nodeIds.size());
         int nativeNodeCount = 0;
         int subnodeCount = 0;
         int metanodeCount = 0;
@@ -412,7 +410,7 @@ public class AbstractWorkflowalizerTest {
             if (index >= 0) {
                 id = id.substring(index + 1, id.length());
             }
-            assertTrue(nodeIds.contains(Integer.parseInt(id)));
+            assertThat(nodeIds.contains(Integer.parseInt(id))).isTrue();
             if (node.getType().equals(NodeType.NATIVE_NODE)) {
                 nativeNodeCount++;
             }
@@ -423,9 +421,9 @@ public class AbstractWorkflowalizerTest {
                 metanodeCount++;
             }
         }
-        assertEquals(trueNativeNodeCount, nativeNodeCount);
-        assertEquals(trueComponentCount, subnodeCount);
-        assertEquals(trueMetaNodeCount, metanodeCount);
+        assertThat(nativeNodeCount).isEqualTo(trueNativeNodeCount);
+        assertThat(subnodeCount).isEqualTo(trueComponentCount);
+        assertThat(metanodeCount).isEqualTo(trueMetaNodeCount);
     }
 
     /**
@@ -435,7 +433,7 @@ public class AbstractWorkflowalizerTest {
      * @param wkfMd the parsed {@link IWorkflowMetadata} returned by the workflowalizer
      */
     protected void testVersion(final List<String> workflowFileLines, final IWorkflowMetadata wkfMd) {
-        assertEquals(readVersion(workflowFileLines), wkfMd.getVersion());
+        assertThat(wkfMd.getVersion()).isEqualTo(readVersion(workflowFileLines));
     }
 
     /**
@@ -446,9 +444,9 @@ public class AbstractWorkflowalizerTest {
      * @param wkfMd the parsed {@link WorkflowMetadata} returned by the workflowalizer
      */
     protected void testSvg(final int width, final int height, final WorkflowMetadata wkfMd) {
-        assertTrue(wkfMd.getWorkflowSvg().isPresent());
-        assertEquals(width, wkfMd.getWorkflowSvg().get().getWidth().intValue());
-        assertEquals(height, wkfMd.getWorkflowSvg().get().getHeight().intValue());
+        assertThat(wkfMd.getWorkflowSvg().isPresent()).isTrue();
+        assertThat(wkfMd.getWorkflowSvg().get().getWidth().intValue()).isEqualTo(width);
+        assertThat(wkfMd.getWorkflowSvg().get().getHeight().intValue()).isEqualTo(height);
     }
 
     // -- Node Tests --
@@ -460,7 +458,7 @@ public class AbstractWorkflowalizerTest {
      * @param nm the {@link NodeMetadata} returned by the workflowalizer
      */
     protected void testAnnotationText(final List<String> rawNodeFileLines, final NodeMetadata nm) {
-        assertEquals(readAnnotationText(rawNodeFileLines), nm.getAnnotationText());
+        assertThat(nm.getAnnotationText()).isEqualTo(readAnnotationText(rawNodeFileLines));
     }
 
     /**
@@ -470,7 +468,7 @@ public class AbstractWorkflowalizerTest {
      * @param snm the {@link SingleNodeMetadata} returned by the workflowalizer
      */
     protected void testCustomNodeDescription(final List<String> rawNodeFileLines, final SingleNodeMetadata snm) {
-        assertEquals(readCustomNodeDescription(rawNodeFileLines), snm.getCustomNodeDescription());
+        assertThat(snm.getCustomNodeDescription()).isEqualTo(readCustomNodeDescription(rawNodeFileLines));
     }
 
     /**
@@ -481,8 +479,8 @@ public class AbstractWorkflowalizerTest {
      * @throws Exception
      */
     protected void testNodeConfiguration(final Path nodeDir, final SingleNodeMetadata snm) throws Exception {
-        assertTrue(readNodeConfiguration(new File(nodeDir.toFile(), "settings.xml")).get()
-            .isIdentical(snm.getNodeConfiguration().get()));
+        assertThat(readNodeConfiguration(new File(nodeDir.toFile(), "settings.xml")).get()
+                .isIdentical(snm.getNodeConfiguration().get())).isTrue();
     }
 
     /**
@@ -492,7 +490,7 @@ public class AbstractWorkflowalizerTest {
      * @param nnm the {@link NativeNodeMetadata} returned by the workflowalizer
      */
     protected void testNodeAndBundleInformation(final List<String> rawNodeFileLines, final NativeNodeMetadata nnm) {
-        assertEquals(readNodeAndBundleInformation(false, rawNodeFileLines), nnm.getNodeAndBundleInformation());
+        assertThat(nnm.getNodeAndBundleInformation()).isEqualTo(readNodeAndBundleInformation(false, rawNodeFileLines));
     }
 
     /**
@@ -502,7 +500,7 @@ public class AbstractWorkflowalizerTest {
      * @param sm the {@link SubnodeMetadata} returned by the workflowalizer
      */
     protected void testTemplateLink(final List<String> rawFileLines, final SubnodeMetadata sm) {
-        assertEquals(readTemplateLink(rawFileLines), sm.getTemplateLink());
+        assertThat(sm.getTemplateLink()).isEqualTo(readTemplateLink(rawFileLines));
     }
 
     /**
@@ -512,7 +510,7 @@ public class AbstractWorkflowalizerTest {
      * @param mm the {@link MetanodeMetadata} returned by the workflowalizer
      */
     protected void testTemplateLink(final List<String> rawFileLines, final MetanodeMetadata mm) {
-        assertEquals(readTemplateLink(rawFileLines), mm.getTemplateLink());
+        assertThat(mm.getTemplateLink()).isEqualTo(readTemplateLink(rawFileLines));
     }
 
     // -- Template Tests --
@@ -527,7 +525,7 @@ public class AbstractWorkflowalizerTest {
      */
     protected void testTemplateInformation(final List<String> rawTemplateFileLines, final TemplateMetadata tm)
         throws IOException, ParseException {
-        assertEquals(readTemplateInformation(rawTemplateFileLines), tm.getTemplateInformation());
+        assertThat(tm.getTemplateInformation()).isEqualTo(readTemplateInformation(rawTemplateFileLines));
     }
 
     // -- Component Tests --
@@ -541,10 +539,10 @@ public class AbstractWorkflowalizerTest {
     protected void testComponentDescription(final List<String> rawSettingsXml, final ComponentMetadata cm) {
         final String rawDescription = readComponentDescription(rawSettingsXml);
         if (StringUtils.isEmpty(rawDescription)) {
-            assertFalse(cm.getDescription().isPresent());
+            assertThat(cm.getDescription().isPresent()).isFalse();
         } else {
-            assertTrue(cm.getDescription().isPresent());
-            assertEquals(rawDescription, cm.getDescription().get());
+            assertThat(cm.getDescription().isPresent()).isTrue();
+            assertThat(cm.getDescription().get()).isEqualTo(rawDescription);
         }
     }
 
@@ -557,10 +555,10 @@ public class AbstractWorkflowalizerTest {
     protected void testComponentType(final List<String> rawSettingsXml, final ComponentMetadata cm) {
         final String rawType = readComponentType(rawSettingsXml);
         if (StringUtils.isEmpty(rawType)) {
-            assertFalse(cm.getComponentType().isPresent());
+            assertThat(cm.getComponentType().isPresent()).isFalse();
         } else {
-            assertTrue(cm.getComponentType().isPresent());
-            assertEquals(rawType, cm.getComponentType().get());
+            assertThat(cm.getComponentType().isPresent()).isTrue();
+            assertThat(cm.getComponentType().get()).isEqualTo(rawType);
         }
     }
 
@@ -573,10 +571,10 @@ public class AbstractWorkflowalizerTest {
     protected void testComponentIcon(final List<String> rawSettingsXml, final ComponentMetadata cm) {
         final String rawIcon = readComponentIcon(rawSettingsXml);
         if (StringUtils.isEmpty(rawIcon)) {
-            assertFalse(cm.getIcon().isPresent());
+            assertThat(cm.getIcon().isPresent()).isFalse();
         } else {
-            assertTrue(cm.getIcon().isPresent());
-            assertEquals(rawIcon, cm.getIcon().get());
+            assertThat(cm.getIcon().isPresent()).isTrue();
+            assertThat(cm.getIcon().get()).isEqualTo(rawIcon);
         }
     }
 
@@ -594,8 +592,8 @@ public class AbstractWorkflowalizerTest {
         final List<ComponentPortInfo> inports = cm.getInPorts();
         final List<ComponentPortInfo> outports = cm.getOutPorts();
 
-        assertEquals(numInports, inports.size());
-        assertEquals(numOutports, outports.size());
+        assertThat(inports.size()).isEqualTo(numInports);
+        assertThat(outports.size()).isEqualTo(numOutports);
 
         final List<String> objectClasses = readPortObjectClass(rawSettingsXml);
         final List<Optional<String>> inportNames =
@@ -609,30 +607,30 @@ public class AbstractWorkflowalizerTest {
 
         for (int i = 0; i < inports.size(); i++) {
             final ComponentPortInfo inport = inports.get(i);
-            assertEquals(objectClasses.get(i), inport.getObjectClass());
+            assertThat(inport.getObjectClass()).isEqualTo(objectClasses.get(i));
 
-            assertEquals(inportNames.get(i).isPresent(), inport.getName().isPresent());
+            assertThat(inport.getName().isPresent()).isEqualTo(inportNames.get(i).isPresent());
             if (inport.getName().isPresent()) {
-                assertEquals(inportNames.get(i).get(), inport.getName().get());
+                assertThat(inport.getName().get()).isEqualTo(inportNames.get(i).get());
             }
 
-            assertEquals(inportDescs.get(i).isPresent(), inport.getDescription().isPresent());
+            assertThat(inport.getDescription().isPresent()).isEqualTo(inportDescs.get(i).isPresent());
             if (inport.getDescription().isPresent()) {
-                assertEquals(inportDescs.get(i).get(), inport.getDescription().get());
+                assertThat(inport.getDescription().get()).isEqualTo(inportDescs.get(i).get());
             }
         }
         for (int i = 0; i < outports.size(); i++) {
             final ComponentPortInfo outport = outports.get(i);
-            assertEquals(objectClasses.get(i + numInports), outport.getObjectClass());
+            assertThat(outport.getObjectClass()).isEqualTo(objectClasses.get(i + numInports));
 
-            assertEquals(outportNames.get(i).isPresent(), outport.getName().isPresent());
+            assertThat(outport.getName().isPresent()).isEqualTo(outportNames.get(i).isPresent());
             if (outport.getName().isPresent()) {
-                assertEquals(outportNames.get(i).get(), outport.getName().get());
+                assertThat(outport.getName().get()).isEqualTo(outportNames.get(i).get());
             }
 
-            assertEquals(outportDescs.get(i).isPresent(), outport.getDescription().isPresent());
+            assertThat(outport.getDescription().isPresent()).isEqualTo(outportDescs.get(i).isPresent());
             if (outport.getDescription().isPresent()) {
-                assertEquals(outportDescs.get(i).get(), outport.getDescription().get());
+                assertThat(outport.getDescription().get()).isEqualTo(outportDescs.get(i).get());
             }
         }
     }
@@ -730,7 +728,7 @@ public class AbstractWorkflowalizerTest {
 
     private static void assertEquivalentConnections(final List<Integer> expectedIds,
         final List<NodeConnection> actual) {
-        assertEquals(expectedIds.size() / 4, actual.size());
+        assertThat(actual.size()).isEqualTo(expectedIds.size() / 4);
         for (int i = 0, j = 0; i < actual.size(); i++, j += 4) {
             final int sourceId = expectedIds.get(j).intValue();
             final int destId = expectedIds.get(j + 1).intValue();
@@ -744,19 +742,19 @@ public class AbstractWorkflowalizerTest {
             if (indexDest >= 0) {
                 parsedDest = parsedDest.substring(indexDest + 1, parsedDest.length());
             }
-            assertEquals(sourceId, Integer.parseInt(parsedSource));
-            assertEquals(expectedIds.get(j + 1).intValue(), Integer.parseInt(parsedDest));
-            assertEquals(expectedIds.get(j + 2).intValue(), actual.get(i).getSourcePort());
-            assertEquals(expectedIds.get(j + 3).intValue(), actual.get(i).getDestinationPort());
+            assertThat(Integer.parseInt(parsedSource)).isEqualTo(sourceId);
+            assertThat(Integer.parseInt(parsedDest)).isEqualTo(expectedIds.get(j + 1).intValue());
+            assertThat(actual.get(i).getSourcePort()).isEqualTo(expectedIds.get(j + 2).intValue());
+            assertThat(actual.get(i).getDestinationPort()).isEqualTo(expectedIds.get(j + 3).intValue());
             if (sourceId == -1) {
-                assertFalse(actual.get(i).getSourceNode().isPresent());
+                assertThat(actual.get(i).getSourceNode().isPresent()).isFalse();
             } else {
-                assertTrue(actual.get(i).getSourceNode().isPresent());
+                assertThat(actual.get(i).getSourceNode().isPresent()).isTrue();
             }
             if (destId == -1) {
-                assertFalse(actual.get(i).getDestinationNode().isPresent());
+                assertThat(actual.get(i).getDestinationNode().isPresent()).isFalse();
             } else {
-                assertTrue(actual.get(i).getDestinationNode().isPresent());
+                assertThat(actual.get(i).getDestinationNode().isPresent()).isTrue();
             }
         }
     }
@@ -825,15 +823,15 @@ public class AbstractWorkflowalizerTest {
 
     private static void assertEquivalentAnnotations(final Optional<List<String>> expected,
         final Optional<List<String>> actual) {
-        assertEquals(expected.isPresent(), actual.isPresent());
+        assertThat(actual.isPresent()).isEqualTo(expected.isPresent());
         if (!expected.isPresent() || !actual.isPresent()) {
             return;
         }
         final List<String> e = expected.get();
         final List<String> a = actual.get();
-        assertEquals(e.size(), a.size());
+        assertThat(a.size()).isEqualTo(e.size());
         for (int i = 0; i < e.size(); i++) {
-            assertEquals(e.get(i), a.get(i));
+            assertThat(a.get(i)).isEqualTo(e.get(i));
         }
     }
 

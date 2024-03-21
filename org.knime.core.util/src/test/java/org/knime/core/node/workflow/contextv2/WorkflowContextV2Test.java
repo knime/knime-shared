@@ -48,9 +48,9 @@
  */
 package org.knime.core.node.workflow.contextv2;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -67,7 +67,7 @@ import org.knime.core.util.auth.SimpleTokenAuthenticator;
  *
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  */
-public class WorkflowContextV2Test {
+class WorkflowContextV2Test {
 
     private static final Path ROOT = Path.of("/root/").toAbsolutePath();
 
@@ -91,7 +91,7 @@ public class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
 
-        assertEquals(Optional.of(MOUNTPOINT_URI), ctx.getMountpointURI(), "Mountpoint URI is not resolved correctly.");
+        assertThat(ctx.getMountpointURI()).as("Mountpoint URI is not resolved correctly.").isEqualTo(Optional.of(MOUNTPOINT_URI));
     }
 
     /** Checks that mountpoint URIs containing non-ASCII characters are encoded correctly. */
@@ -120,11 +120,8 @@ public class WorkflowContextV2Test {
                     .withDefaultMountId("My-Server"))
                 .build();
 
-        assertEquals(
-            URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
-                + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"),
-            ((RestLocationInfo)ctx.getLocationInfo()).getWorkflowAddress(),
-            "Workflow address URI is not resolved correctly.");
+        assertThat(((RestLocationInfo)ctx.getLocationInfo()).getWorkflowAddress()).as("Workflow address URI is not resolved correctly.").isEqualTo(URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
+                + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"));
     }
 
     /** Checks that scope suppliers in Hub executor information work correctly. */
@@ -180,7 +177,7 @@ public class WorkflowContextV2Test {
                     .withMountpoint("MyMountpoint", Path.of("c:\\Users\\asdf\\workspace")))
                 .withLocalLocation()
                 .build();
-        assertEquals(URI.create("knime://MyMountpoint/dir/workflow"), context.getMountpointURI().orElseThrow());
+        assertThat(context.getMountpointURI().orElseThrow()).isEqualTo(URI.create("knime://MyMountpoint/dir/workflow"));
     }
 
     /**
@@ -197,8 +194,6 @@ public class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
 
-        assertEquals(Optional.of(URI.create("knime://LOCAL" + uriPath)),
-            ctx.getMountpointURI(),
-            "Mountpoint URI is not resolved correctly.");
+        assertThat(ctx.getMountpointURI()).as("Mountpoint URI is not resolved correctly.").isEqualTo(Optional.of(URI.create("knime://LOCAL" + uriPath)));
     }
 }

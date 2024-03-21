@@ -48,7 +48,7 @@
  */
 package org.knime.core.node.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -66,16 +66,13 @@ class CheckUtilsTest {
     @Test
     final void testCheckCast() {
         final Object obj = "testIsInstance";
-        final String ret1 = CheckUtils.checkCast(obj, String.class,
-            IllegalArgumentException::new,
+        final String ret1 = CheckUtils.checkCast(obj, String.class, IllegalArgumentException::new,
             "Given object '%s' is not a string.", obj);
-        assertEquals(ret1, obj, "Should result in equal objects");
+        assertThat(obj).as("Should result in equal objects").isEqualTo(ret1);
 
         final Object notAString = 42L;
-        assertThrows(Exception.class,
-            () -> CheckUtils.checkCast(notAString, String.class, Exception::new,
-                "Object %s is not a string.", notAString),
-            "Expected to not be a string");
+        assertThrows(Exception.class, () -> CheckUtils.checkCast(notAString, String.class, Exception::new,
+            "Object %s is not a string.", notAString), "Expected to not be a string");
     }
 
     /**
@@ -87,8 +84,7 @@ class CheckUtilsTest {
         CheckUtils.check(obj instanceof String, IllegalArgumentException::new,
             () -> String.format("Object %s is not a string.", obj));
 
-        assertThrows(Exception.class,
-            () -> CheckUtils.check(false, Exception::new, () -> "Should throw this"),
+        assertThrows(Exception.class, () -> CheckUtils.check(false, Exception::new, () -> "Should throw this"),
             "Expected to throw");
     }
 }

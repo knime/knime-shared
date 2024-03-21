@@ -49,8 +49,8 @@
 package org.knime.core.node;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -72,8 +72,8 @@ public class NodeFactoryIdTest {
         facId = NodeFactoryId.compose("factory-class-name", true, "id-uniquifier", () -> "node-name");
         assertThat(facId).isEqualTo("factory-class-name#id-uniquifier");
 
-        Assertions.assertThrows(NullPointerException.class,
-            () -> NodeFactoryId.compose(null, true, "id-uniquifier", () -> "node-name"));
+        assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> NodeFactoryId.compose(null, true, "id-uniquifier", () -> "node-name"));
     }
 
 }

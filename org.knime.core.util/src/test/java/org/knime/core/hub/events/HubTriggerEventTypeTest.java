@@ -48,9 +48,7 @@
  */
 package org.knime.core.hub.events;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -65,14 +63,16 @@ class HubTriggerEventTypeTest {
      */
     @Test
     void testIsHubEventContentType() {
-        assertTrue(HubTriggerEventType.isHubEventContentType("knime-hub-event/repository"),
-            "Known event type not recognized.");
-        assertEquals(1, HubTriggerEventType.values().length,
-            "Double check HubTriggerEventType.isHubEventContentType implementation, new enum values have been added.");
+        assertThat(HubTriggerEventType.isHubEventContentType("knime-hub-event/repository"))
+            .as("Known event type not recognized.").isTrue();
+        assertThat(HubTriggerEventType.values()).as(
+            "Double check HubTriggerEventType.isHubEventContentType implementation, new enum values have been added.")
+            .hasSize(1);
 
-        assertFalse(HubTriggerEventType.isHubEventContentType(null), "Null is not a hub event content type.");
-        assertFalse(HubTriggerEventType.isHubEventContentType("some-other-prefix/subtype"),
-            "Bogus content type is not a hub event content type.");
+        assertThat(HubTriggerEventType.isHubEventContentType(null)).as("Null is not a hub event content type.")
+            .isFalse();
+        assertThat(HubTriggerEventType.isHubEventContentType("some-other-prefix/subtype"))
+            .as("Bogus content type is not a hub event content type.").isFalse();
     }
 
     /**
@@ -80,8 +80,8 @@ class HubTriggerEventTypeTest {
      */
     @Test
     void testGetHubEventContentType() {
-        assertEquals(HubTriggerEventType.REPOSITORY,
-            HubTriggerEventType.getHubEventContentType("knime-hub-event/repository"), "Parsing did not work.");
+        assertThat(HubTriggerEventType.getHubEventContentType("knime-hub-event/repository")).as("Parsing did not work.")
+            .isEqualTo(HubTriggerEventType.REPOSITORY);
     }
 
     /**
@@ -89,8 +89,8 @@ class HubTriggerEventTypeTest {
      */
     @Test
     void testRepositoryParamterNameUnchanged() {
-        assertEquals("knime.hub.trigger.repository", HubTriggerEventType.REPOSITORY.getReservedParameterName(),
-            "The reserved parameter name has been changed.");
+        assertThat(HubTriggerEventType.REPOSITORY.getReservedParameterName())
+            .as("The reserved parameter name has been changed.").isEqualTo("knime.hub.trigger.repository");
     }
 
 }

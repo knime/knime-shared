@@ -48,7 +48,7 @@
  */
 package org.knime.core.node.workflow.metadata;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -123,7 +123,7 @@ class WorkflowSetMetaParserTest {
             }
             final var json = serializeToJson(WorkflowSetMetaParser.parse(
                 new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8))));
-            assertEquals(oldJson.get(name), json, name);
+            assertThat(json).as(name).isEqualTo(oldJson.get(name));
         }
     }
 
@@ -169,7 +169,7 @@ class WorkflowSetMetaParserTest {
                         "\"url\" : \"http://stat-computing.org/dataexpo/2009/the-data.html\"");
             final var json = serializeToJson(WorkflowSetMetaParser.parse(
                 new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8))));
-          assertEquals(oldContent, json, name);
+            assertThat(json).as(name).isEqualTo(oldContent);
         }
     }
 
@@ -227,9 +227,9 @@ class WorkflowSetMetaParserTest {
                     final var res2 = loadSaveCycle(contents2);
                     final var contents3 = res2.getSecond();
 
-                    assertEquals(parsed0, parsed1, entry.getName() + "\n" + contents0);
-                    assertEquals(contents1, contents2, "Serialized files differ.");
-                    assertEquals(contents2, contents3, "Serialized files differ.");
+                    assertThat(parsed1).as(entry.getName() + "\n" + contents0).isEqualTo(parsed0);
+                    assertThat(contents2).as("Serialized files differ.").isEqualTo(contents1);
+                    assertThat(contents3).as("Serialized files differ.").isEqualTo(contents2);
                 }
             }
         }

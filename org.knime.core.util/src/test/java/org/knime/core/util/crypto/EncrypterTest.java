@@ -49,7 +49,7 @@
 package org.knime.core.util.crypto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -66,7 +66,7 @@ import org.junit.jupiter.api.Timeout;
  *
  * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
  */
-public class EncrypterTest {
+class EncrypterTest {
     /**
      * Test round tripping with the current version.
      *
@@ -101,8 +101,8 @@ public class EncrypterTest {
         assertThat(encrypter.decrypt("")).as("Empty string not decrypted correctly").isEmpty();
         assertThat(encrypter.encrypt("")).as("Empty string not encrypted correctly").isNotEmpty();
 
-        assertThrows(IllegalArgumentException.class, () -> new Encrypter(null));
-        assertThrows(IllegalArgumentException.class, () -> new Encrypter(""));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new Encrypter(null));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new Encrypter(""));
     }
 
     /**
@@ -136,7 +136,7 @@ public class EncrypterTest {
         var encrypted = encrypter.encrypt(plain);
 
         var encrypter2 = new Encrypter("some other key");
-        assertThrows(InvalidKeyException.class, () -> encrypter2.decrypt(encrypted));
+        assertThatExceptionOfType(InvalidKeyException.class).isThrownBy(() -> encrypter2.decrypt(encrypted));
     }
 
     /**
@@ -185,10 +185,10 @@ public class EncrypterTest {
     @Test
     void invalidDecryptionInput() throws Exception {
         IEncrypter enc = new Encrypter("AKeyForTestingTheEncrypter");
-        assertThrows(IllegalArgumentException.class, () -> enc.decrypt("z"));
-        assertThrows(IllegalArgumentException.class, () -> enc.decrypt("something"));
-        assertThrows(IllegalBlockSizeException.class, () -> enc.decrypt("01something"));
-        assertThrows(IllegalArgumentException.class, () -> enc.decrypt("02something"));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> enc.decrypt("z"));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> enc.decrypt("something"));
+        assertThatExceptionOfType(IllegalBlockSizeException.class).isThrownBy(() -> enc.decrypt("01something"));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> enc.decrypt("02something"));
     }
 
     /**

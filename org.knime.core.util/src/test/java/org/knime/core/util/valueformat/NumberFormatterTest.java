@@ -48,9 +48,8 @@
  */
 package org.knime.core.util.valueformat;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -84,9 +83,9 @@ class NumberFormatterTest {
             NumberFormatter formatter = baseBuilder.get().setMinimumDecimals(2).build();
             // when formatting a number with only zero decimals
             // then show trailing zeros
-            assertEquals("1|00", formatter.format(1.0), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.0)).as("Value is formatted incorrectly.").isEqualTo("1|00");
             // when formatting a number with more than zero decimals
-            assertEquals("1|0001", formatter.format(1.000123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.000123)).as("Value is formatted incorrectly.").isEqualTo("1|0001");
         }
 
         {
@@ -94,9 +93,9 @@ class NumberFormatterTest {
             NumberFormatter formatter = baseBuilder.get().setMinimumDecimals(3).build();
             // when formatting a number with only zero decimals
             // then show trailing zeros
-            assertEquals("1|000", formatter.format(1.0), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.0)).as("Value is formatted incorrectly.").isEqualTo("1|000");
             // when formatting a number with more than zero decimals
-            assertEquals("1|0001", formatter.format(1.000123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.000123)).as("Value is formatted incorrectly.").isEqualTo("1|0001");
         }
     }
 
@@ -104,27 +103,27 @@ class NumberFormatterTest {
     void testMaximumDecimals() throws InvalidSettingsException {
         {
             NumberFormatter formatter = baseBuilder.get().setMaximumDecimals(2).build();
-            assertEquals("1|", formatter.format(1.0), "Value is formatted incorrectly.");
-            assertEquals("1|", formatter.format(1.000123), "Value is formatted incorrectly.");
-            assertEquals("1|12", formatter.format(1.123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.0)).as("Value is formatted incorrectly.").isEqualTo("1|");
+            assertThat(formatter.format(1.000123)).as("Value is formatted incorrectly.").isEqualTo("1|");
+            assertThat(formatter.format(1.123)).as("Value is formatted incorrectly.").isEqualTo("1|12");
         }
 
         {
             NumberFormatter formatter = baseBuilder.get().setMaximumDecimals(3).build();
-            assertEquals("1|", formatter.format(1.000123), "Value is formatted incorrectly.");
-            assertEquals("1|123", formatter.format(1.123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.000123)).as("Value is formatted incorrectly.").isEqualTo("1|");
+            assertThat(formatter.format(1.123)).as("Value is formatted incorrectly.").isEqualTo("1|123");
         }
 
         {
             NumberFormatter formatter = baseBuilder.get().setMaximumDecimals(4).build();
-            assertEquals("1|0001", formatter.format(1.000123), "Value is formatted incorrectly.");
-            assertEquals("1|123", formatter.format(1.123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.000123)).as("Value is formatted incorrectly.").isEqualTo("1|0001");
+            assertThat(formatter.format(1.123)).as("Value is formatted incorrectly.").isEqualTo("1|123");
         }
 
         {
             NumberFormatter formatter = baseBuilder.get().setMaximumDecimals(5).build();
-            assertEquals("1|00012", formatter.format(1.000123), "Value is formatted incorrectly.");
-            assertEquals("1|123", formatter.format(1.123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1.000123)).as("Value is formatted incorrectly.").isEqualTo("1|00012");
+            assertThat(formatter.format(1.123)).as("Value is formatted incorrectly.").isEqualTo("1|123");
         }
     }
 
@@ -133,35 +132,35 @@ class NumberFormatterTest {
         {
             NumberFormatter formatter = baseBuilder.get().setGroupSeparator("$")//
                 .setAlwaysShowDecimalSeparator(false).build();
-            assertEquals("1$000", formatter.format(1000), "Value is formatted incorrectly.");
-            assertEquals("10$000", formatter.format(10000), "Value is formatted incorrectly.");
-            assertEquals("1$000$000", formatter.format(1000000), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1000)).as("Value is formatted incorrectly.").isEqualTo("1$000");
+            assertThat(formatter.format(10000)).as("Value is formatted incorrectly.").isEqualTo("10$000");
+            assertThat(formatter.format(1000000)).as("Value is formatted incorrectly.").isEqualTo("1$000$000");
         }
 
         {
             NumberFormatter formatter = baseBuilder.get().setGroupSeparator("≈")//
                 .setAlwaysShowDecimalSeparator(false).build();
-            assertEquals("1≈000", formatter.format(1000), "Value is formatted incorrectly.");
-            assertEquals("10≈000", formatter.format(10000), "Value is formatted incorrectly.");
-            assertEquals("1≈000≈000", formatter.format(1000000), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1000)).as("Value is formatted incorrectly.").isEqualTo("1≈000");
+            assertThat(formatter.format(10000)).as("Value is formatted incorrectly.").isEqualTo("10≈000");
+            assertThat(formatter.format(1000000)).as("Value is formatted incorrectly.").isEqualTo("1≈000≈000");
         }
 
         // separator with more than one character
         {
             NumberFormatter formatter = baseBuilder.get().setGroupSeparator("≈≈")//
                 .setAlwaysShowDecimalSeparator(false).build();
-            assertEquals("1≈≈000", formatter.format(1000), "Value is formatted incorrectly.");
-            assertEquals("10≈≈000", formatter.format(10000), "Value is formatted incorrectly.");
-            assertEquals("1≈≈000≈≈000", formatter.format(1000000), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1000)).as("Value is formatted incorrectly.").isEqualTo("1≈≈000");
+            assertThat(formatter.format(10000)).as("Value is formatted incorrectly.").isEqualTo("10≈≈000");
+            assertThat(formatter.format(1000000)).as("Value is formatted incorrectly.").isEqualTo("1≈≈000≈≈000");
         }
 
         // empty separator
         {
             NumberFormatter formatter = baseBuilder.get().setGroupSeparator("")//
                 .setAlwaysShowDecimalSeparator(false).build();
-            assertEquals("1000", formatter.format(1000), "Value is formatted incorrectly.");
-            assertEquals("10000", formatter.format(10000), "Value is formatted incorrectly.");
-            assertEquals("1000000", formatter.format(1000000), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1000)).as("Value is formatted incorrectly.").isEqualTo("1000");
+            assertThat(formatter.format(10000)).as("Value is formatted incorrectly.").isEqualTo("10000");
+            assertThat(formatter.format(1000000)).as("Value is formatted incorrectly.").isEqualTo("1000000");
         }
     }
 
@@ -171,26 +170,26 @@ class NumberFormatterTest {
             NumberFormatter formatter = baseBuilder.get().setDecimalSeparator("|")//
                 .setAlwaysShowDecimalSeparator(false).build();
             // should still not be shown if set but not necessary
-            assertEquals("10", formatter.format(10), "Value is formatted incorrectly.");
-            assertEquals("10|4", formatter.format(10.4), "Value is formatted incorrectly.");
-            assertEquals("1$000|1", formatter.format(1000.1), "Value is formatted incorrectly.");
-            assertEquals("1$000|123", formatter.format(1000.123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(10)).as("Value is formatted incorrectly.").isEqualTo("10");
+            assertThat(formatter.format(10.4)).as("Value is formatted incorrectly.").isEqualTo("10|4");
+            assertThat(formatter.format(1000.1)).as("Value is formatted incorrectly.").isEqualTo("1$000|1");
+            assertThat(formatter.format(1000.123)).as("Value is formatted incorrectly.").isEqualTo("1$000|123");
         }
 
         {
             // use same decimal separator and group separator (hell yeah)
             NumberFormatter formatter = baseBuilder.get().setDecimalSeparator("$").build();
-            assertEquals("1$000$1", formatter.format(1000.1), "Value is formatted incorrectly.");
+            assertThat(formatter.format(1000.1)).as("Value is formatted incorrectly.").isEqualTo("1$000$1");
         }
 
         // separator with more than one character
         {
             NumberFormatter formatter = baseBuilder.get().setDecimalSeparator("||")//
                 .setAlwaysShowDecimalSeparator(false).build();
-            assertEquals("10", formatter.format(10), "Value is formatted incorrectly.");
-            assertEquals("10||4", formatter.format(10.4), "Value is formatted incorrectly.");
-            assertEquals("1$000||1", formatter.format(1000.1), "Value is formatted incorrectly.");
-            assertEquals("1$000||123", formatter.format(1000.123), "Value is formatted incorrectly.");
+            assertThat(formatter.format(10)).as("Value is formatted incorrectly.").isEqualTo("10");
+            assertThat(formatter.format(10.4)).as("Value is formatted incorrectly.").isEqualTo("10||4");
+            assertThat(formatter.format(1000.1)).as("Value is formatted incorrectly.").isEqualTo("1$000||1");
+            assertThat(formatter.format(1000.123)).as("Value is formatted incorrectly.").isEqualTo("1$000||123");
         }
     }
 
@@ -222,7 +221,7 @@ class NumberFormatterTest {
         Locale.setDefault(Locale.GERMAN);
 
         // then default decimal separator is still a dot
-        assertEquals("1.111", formatter.format(1.111), "Value is formatted incorrectly.");
+        assertThat(formatter.format(1.111)).as("Value is formatted incorrectly.").isEqualTo("1.111");
     }
 
     @Test
@@ -242,11 +241,11 @@ class NumberFormatterTest {
         NumberFormatter persisted = NumberFormatter.Persistor.load(config);
 
         // then the persisted string contains the minimum and maximum decimals
-        assertEquals(1, persisted.getMinimumDecimals(), "Wrong minimum decimals after loading.");
-        assertEquals(2, persisted.getMaximumDecimals(), "Wrong maximum decimals after loading.");
-        assertEquals("≈", persisted.getGroupSeparator(), "Wrong group separator after loading.");
-        assertEquals("|", persisted.getDecimalSeparator(), "Wrong decimal separator after loading.");
-        assertTrue(persisted.isAlwaysShowDecimalSeparator(), "Wrong always show decimal separator after loading.");
+        assertThat(persisted.getMinimumDecimals()).as("Wrong minimum decimals after loading.").isEqualTo(1);
+        assertThat(persisted.getMaximumDecimals()).as("Wrong maximum decimals after loading.").isEqualTo(2);
+        assertThat(persisted.getGroupSeparator()).as("Wrong group separator after loading.").isEqualTo("≈");
+        assertThat(persisted.getDecimalSeparator()).as("Wrong decimal separator after loading.").isEqualTo("|");
+        assertThat(persisted.isAlwaysShowDecimalSeparator()).as("Wrong always show decimal separator after loading.").isTrue();
     }
 
 }

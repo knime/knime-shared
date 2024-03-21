@@ -56,11 +56,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
@@ -189,7 +185,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testTopLevelWorkflowMetadata() throws Exception {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
-        assertEquals(RepositoryItemType.WORKFLOW, wkfMd.getType());
+        assertThat(wkfMd.getType()).isEqualTo(RepositoryItemType.WORKFLOW);
 
         testAnnotations(readWorkflowLines, wkfMd);
         testAuthorInformation(readWorkflowLines, wkfMd);
@@ -201,39 +197,32 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testVersion(readWorkflowLines, wkfMd);
         testSvg(1301, 501, wkfMd);
 
-        assertTrue(wkfMd.getUnexpectedFileNames().isEmpty());
-        assertTrue(wkfMd.getWorkflowSetMetadata().isPresent());
+        assertThat(wkfMd.getUnexpectedFileNames().isEmpty()).isTrue();
+        assertThat(wkfMd.getWorkflowSetMetadata().isPresent()).isTrue();
         testWorkflowSetMetaSimple(readWorkflowSetLines, wkfMd.getWorkflowSetMetadata().get());
 
-        assertTrue(wkfMd.getArtifacts().get().containsAll(List.of(
-            workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
-                .toString(),
-            workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-resources.json").toPath())
-                .toString(),
-            workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-output-parameters.json").toPath())
-                .toString(),
-            workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-output-resources.json").toPath())
-                .toString(),
-            workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/workflow-configuration.json").toPath())
-                .toString(),
-            workflowDir
-                .relativize(
-                    new File(workflowDir.toFile(), ".artifacts/workflow-configuration-representation.json").toPath())
-                .toString())),
-            "Expected artifacts file");
+        assertThat(wkfMd.getArtifacts().get().containsAll(List.of(
+                workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json").toPath())
+                        .toString(),
+                workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-input-resources.json").toPath())
+                        .toString(),
+                workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-output-parameters.json").toPath())
+                        .toString(),
+                workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/openapi-output-resources.json").toPath())
+                        .toString(),
+                workflowDir.relativize(new File(workflowDir.toFile(), ".artifacts/workflow-configuration.json").toPath())
+                        .toString(),
+                workflowDir
+                        .relativize(
+                                new File(workflowDir.toFile(), ".artifacts/workflow-configuration-representation.json").toPath())
+                        .toString()))).as("Expected artifacts file").isTrue();
 
-        assertEquals(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION.value(),
-            wkfMd.getWorkflowConfiguration().get(), "Unexpected workflow configuration");
-        assertEquals(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION_REPRESENTATION.value(),
-            wkfMd.getWorkflowConfigurationRepresentation().get(), "Unexpected workflow configuration representation");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value(),
-            wkfMd.getOpenapiInputParameters().get(), "Unexpected openapi input parameters");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value(),
-            wkfMd.getOpenapiInputResources().get(), "Unexpected openapi input resources");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(),
-            wkfMd.getOpenapiOutputParameters().get(), "Unexpected openapi output parameters");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(),
-            wkfMd.getOpenapiOutputResources().get(), "Unexpected openapi output resources");
+        assertThat(wkfMd.getWorkflowConfiguration().get()).as("Unexpected workflow configuration").isEqualTo(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION.value());
+        assertThat(wkfMd.getWorkflowConfigurationRepresentation().get()).as("Unexpected workflow configuration representation").isEqualTo(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION_REPRESENTATION.value());
+        assertThat(wkfMd.getOpenapiInputParameters().get()).as("Unexpected openapi input parameters").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value());
+        assertThat(wkfMd.getOpenapiInputResources().get()).as("Unexpected openapi input resources").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value());
+        assertThat(wkfMd.getOpenapiOutputParameters().get()).as("Unexpected openapi output parameters").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value());
+        assertThat(wkfMd.getOpenapiOutputResources().get()).as("Unexpected openapi output resources").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value());
     }
 
     /**
@@ -308,8 +297,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final Path svg = workflowDir.resolve("workflow.svg");
         try (final InputStream readSvg = wkfMd.getSvgInputStream().orElse(null);
                 final InputStream referenceSvg = Files.newInputStream(svg)) {
-            assertNotNull(readSvg);
-            assertTrue(Arrays.equals(IOUtils.toByteArray(referenceSvg), IOUtils.toByteArray(readSvg)));
+            assertThat(readSvg).isNotNull();
+            assertThat(Arrays.equals(IOUtils.toByteArray(referenceSvg), IOUtils.toByteArray(readSvg))).isTrue();
         }
 
         assertUOEThrown(wkfMd::getConnections);
@@ -328,10 +317,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final File test = new File(workflowDir.toFile(), ".artifacts/openapi-input-parameters.json");
-        assertTrue(wkfMd.getArtifacts().isPresent());
-        assertEquals(8, wkfMd.getArtifacts().get().size(), "Unexpected artifacts size");
-        assertTrue(wkfMd.getArtifacts().get().contains(workflowDir.relativize(test.toPath()).toString()),
-            "Expected artifacts file");
+        assertThat(wkfMd.getArtifacts().isPresent()).isTrue();
+        assertThat(wkfMd.getArtifacts().get().size()).as("Unexpected artifacts size").isEqualTo(8);
+        assertThat(wkfMd.getArtifacts().get().contains(workflowDir.relativize(test.toPath()).toString())).as("Expected artifacts file").isTrue();
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -368,9 +356,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readUnexpectedFiles().build();
             final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
             final Collection<String> unexpectedFiles = wkfMd.getUnexpectedFileNames();
-            assertEquals(2, unexpectedFiles.size());
-            assertTrue(unexpectedFiles.contains(workflowDir.relativize(dataFile.toPath()).toString()));
-            assertTrue(unexpectedFiles.contains(workflowDir.relativize(subDataFile.toPath()).toString()));
+            assertThat(unexpectedFiles.size()).isEqualTo(2);
+            assertThat(unexpectedFiles.contains(workflowDir.relativize(dataFile.toPath()).toString())).isTrue();
+            assertThat(unexpectedFiles.contains(workflowDir.relativize(subDataFile.toPath()).toString())).isTrue();
 
             assertUOEThrown(wkfMd::getConnections);
             assertUOEThrown(wkfMd::getNodes);
@@ -552,12 +540,12 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final WorkflowSetMeta workflowSetMetadata = wkfMd.getWorkflowSetMetadata().orElseThrow();
-        assertEquals(ContentType.TEXT_PLAIN, workflowSetMetadata.getContentType());
-        assertTrue(workflowSetMetadata.getTitle().isEmpty());
-        assertEquals(2018, workflowSetMetadata.getCreated().get().getYear());
-        assertTrue(workflowSetMetadata.getLastModified().isEmpty());
-        assertTrue(workflowSetMetadata.getLinks().get().isEmpty());
-        assertTrue(workflowSetMetadata.getTags().get().isEmpty());
+        assertThat(workflowSetMetadata.getContentType()).isEqualTo(ContentType.TEXT_PLAIN);
+        assertThat(workflowSetMetadata.getTitle().isEmpty()).isTrue();
+        assertThat(workflowSetMetadata.getCreated().get().getYear()).isEqualTo(2018);
+        assertThat(workflowSetMetadata.getLastModified().isEmpty()).isTrue();
+        assertThat(workflowSetMetadata.getLinks().get().isEmpty()).isTrue();
+        assertThat(workflowSetMetadata.getTags().get().isEmpty()).isTrue();
         testWorkflowSetMetaSimple(readWorkflowSetLines, workflowSetMetadata);
 
         assertUOEThrown(wkfMd::getConnections);
@@ -575,8 +563,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc =
             WorkflowalizerConfiguration.builder().readWorkflowConfigurationFiles().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertTrue(wkfMd.getWorkflowConfiguration().isPresent());
-        assertTrue(wkfMd.getWorkflowConfigurationRepresentation().isPresent());
+        assertThat(wkfMd.getWorkflowConfiguration().isPresent()).isTrue();
+        assertThat(wkfMd.getWorkflowConfigurationRepresentation().isPresent()).isTrue();
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -593,20 +581,15 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingOpenapiFiles() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readOpenapiFiles().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertTrue(wkfMd.getOpenapiInputParameters().isPresent(), "Expected openapi input parameters file is present");
-        assertTrue(wkfMd.getOpenapiInputResources().isPresent(), "Expected openapi input resources file is present");
-        assertTrue(wkfMd.getOpenapiOutputParameters().isPresent(),
-            "Expected openapi output parameters file is present");
-        assertTrue(wkfMd.getOpenapiOutputResources().isPresent(), "Expected openapi output resources file is present");
+        assertThat(wkfMd.getOpenapiInputParameters().isPresent()).as("Expected openapi input parameters file is present").isTrue();
+        assertThat(wkfMd.getOpenapiInputResources().isPresent()).as("Expected openapi input resources file is present").isTrue();
+        assertThat(wkfMd.getOpenapiOutputParameters().isPresent()).as("Expected openapi output parameters file is present").isTrue();
+        assertThat(wkfMd.getOpenapiOutputResources().isPresent()).as("Expected openapi output resources file is present").isTrue();
 
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value(),
-            wkfMd.getOpenapiInputParameters().get(), "Unexpected openapi input parameters");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value(),
-            wkfMd.getOpenapiInputResources().get(), "Unexpected openapi input resources");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(),
-            wkfMd.getOpenapiOutputParameters().get(), "Unexpected openapi output parameters");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(),
-            wkfMd.getOpenapiOutputResources().get(), "Unexpected openapi output resources");
+        assertThat(wkfMd.getOpenapiInputParameters().get()).as("Unexpected openapi input parameters").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value());
+        assertThat(wkfMd.getOpenapiInputResources().get()).as("Unexpected openapi input resources").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value());
+        assertThat(wkfMd.getOpenapiOutputParameters().get()).as("Unexpected openapi output parameters").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value());
+        assertThat(wkfMd.getOpenapiOutputResources().get()).as("Unexpected openapi output resources").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -624,12 +607,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingHubEventFiles() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readHubEventFiles().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertTrue(wkfMd.getHubEventInputParameters().isPresent(),
-            "Expected hub event input parameters file is present");
+        assertThat(wkfMd.getHubEventInputParameters().isPresent()).as("Expected hub event input parameters file is present").isTrue();
 
-        assertEquals(WorkflowalizerArtifactContent.HUB_EVENT_INPUT_RESOURCES.value(),
-            wkfMd.getHubEventInputParameters().get(),
-            "Unexpected hub event input parameters");
+        assertThat(wkfMd.getHubEventInputParameters().get()).as("Unexpected hub event input parameters").isEqualTo(WorkflowalizerArtifactContent.HUB_EVENT_INPUT_RESOURCES.value());
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -646,13 +626,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingSecretStoreFiles() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readSecretStoreFiles().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertTrue(wkfMd.getSecretStoreSecretIds().isPresent(),
-            "Expected secret store parameters file is present");
+        assertThat(wkfMd.getSecretStoreSecretIds().isPresent()).as("Expected secret store parameters file is present").isTrue();
 
         final var secretIds = Set.of(WorkflowalizerArtifactContent.SECRET_STORE_RESOURCES_SECRET_ID.value());
-        assertEquals(secretIds,
-            wkfMd.getSecretStoreSecretIds().get(),
-            "Unexpected secret store parameters");
+        assertThat(wkfMd.getSecretStoreSecretIds().get()).as("Unexpected secret store parameters").isEqualTo(secretIds);
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -670,8 +647,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<String> cred = wkfMd.getWorkflowCredentialsNames();
-        assertEquals(1, cred.size());
-        assertEquals("Credential", cred.get(0));
+        assertThat(cred.size()).isEqualTo(1);
+        assertThat(cred.get(0)).isEqualTo("Credential");
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -689,10 +666,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final List<String> vars = wkfMd.getWorkflowVariables();
-        assertEquals(3, vars.size());
-        assertTrue(vars.contains("TestDouble"));
-        assertTrue(vars.contains("TestInteger"));
-        assertTrue(vars.contains("TestString"));
+        assertThat(vars.size()).isEqualTo(3);
+        assertThat(vars.contains("TestDouble")).isTrue();
+        assertThat(vars.contains("TestInteger")).isTrue();
+        assertThat(vars.contains("TestString")).isTrue();
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -710,7 +687,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingHasReport() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
-        assertFalse(wkfMd.hasReport());
+        assertThat(wkfMd.hasReport()).isFalse();
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -728,7 +705,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readWorkflowMeta().build();
         final Path workflowPath = workspaceDir.resolve("workflowalizer-test/test_group/test1");
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowPath, wc);
-        assertFalse(wkfMd.getWorkflowSetMetadata().isPresent());
+        assertThat(wkfMd.getWorkflowSetMetadata().isPresent()).isFalse();
 
         assertUOEThrown(wkfMd::getConnections);
         assertUOEThrown(wkfMd::getNodes);
@@ -747,9 +724,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
-        assertEquals(NodeType.NATIVE_NODE, node.getType());
+        assertThat(node.getType()).isEqualTo(NodeType.NATIVE_NODE);
 
         testAnnotationText(readNodeLines, nativeNode);
         testCustomNodeDescription(readNodeLines, nativeNode);
@@ -778,7 +755,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testCustomNodeDescription(readLines, node);
         testNodeConfiguration(nodePath.getParent(), node);
         testNodeAndBundleInformation(readLines, node);
-        assertEquals(NodeType.NATIVE_NODE, node.getType());
+        assertThat(node.getType()).isEqualTo(NodeType.NATIVE_NODE);
     }
 
     // -- Test reading individual node fields --
@@ -794,7 +771,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         testAnnotationText(readNodeLines, nativeNode);
@@ -812,7 +789,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         testCustomNodeDescription(readNodeLines, nativeNode);
@@ -832,7 +809,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
         testNodeConfiguration(nodeDir, nativeNode);
     }
@@ -848,7 +825,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
         testNodeAndBundleInformation(readNodeLines, nativeNode);
@@ -871,10 +848,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             && ((NativeNodeMetadata)n).getNodeAndBundleInformation().getNodeName().get().contains("Column Splitter"))
             .findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals("10", nativeNode.getNodeId());
+        assertThat(nativeNode.getNodeId()).isEqualTo("10");
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -889,10 +866,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowMetadata wkfMd = Workflowalizer.readWorkflow(workflowDir, wc);
         final NodeMetadata node = wkfMd.getNodes().stream().filter(n -> n.getNodeId().equals("10")).findFirst().get();
 
-        assertTrue(node instanceof NativeNodeMetadata);
+        assertThat(node instanceof NativeNodeMetadata).isTrue();
         final NativeNodeMetadata nativeNode = (NativeNodeMetadata)node;
 
-        assertEquals(NodeType.NATIVE_NODE, nativeNode.getType());
+        assertThat(nativeNode.getType()).isEqualTo(NodeType.NATIVE_NODE);
         assertUOEThrown(nativeNode::getNodeConfiguration);
     }
 
@@ -920,10 +897,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testNodeIds(readMetaNodeWorkflowLines, mtnMtd, "15:");
         testVersion(readMetaNodeWorkflowLines, mtnMtd);
 
-        assertTrue(mtnMtd.getUnexpectedFileNames().isEmpty());
+        assertThat(mtnMtd.getUnexpectedFileNames().isEmpty()).isTrue();
 
         // Read node fields
-        assertEquals("15", mtnMtd.getNodeId());
+        assertThat(mtnMtd.getNodeId()).isEqualTo("15");
 
         testTemplateLink(readMetaNodeWorkflowLines, mtnMtd);
         testAnnotationText(readMetaNodeWorkflowLines, mtnMtd);
@@ -953,7 +930,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testNodeIds(readMetaNodeWorkflowLines, mtnMtd, "16:");
         testVersion(readMetaNodeWorkflowLines, mtnMtd);
 
-        assertTrue(mtnMtd.getUnexpectedFileNames().isEmpty());
+        assertThat(mtnMtd.getUnexpectedFileNames().isEmpty()).isTrue();
 
         // Read node fields
         testAnnotationText(readMetaNodeNodeLines, mtnMtd);
@@ -961,7 +938,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testNodeConfiguration(workflowDir.resolve("Format Outpu (#16)"), mtnMtd);
         testTemplateLink(readMetaNodeNodeLines, mtnMtd);
 
-        assertEquals("16", mtnMtd.getNodeId());
+        assertThat(mtnMtd.getNodeId()).isEqualTo("16");
     }
 
     // -- Test reading from zip --
@@ -977,7 +954,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().readAll().build();
         final WorkflowMetadata twm = Workflowalizer.readWorkflow(zipFile, wc);
-        assertEquals("Testing_Workflowalizer_360Pre", twm.getName());
+        assertThat(twm.getName()).isEqualTo("Testing_Workflowalizer_360Pre");
 
         testAnnotations(readWorkflowLines, twm);
         testAuthorInformation(readWorkflowLines, twm);
@@ -987,7 +964,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testVersion(readWorkflowLines, twm);
         testSvg(1301, 501, twm);
 
-        assertTrue(twm.getArtifacts().get().containsAll(List.of( //
+        assertThat(twm.getArtifacts().get().containsAll(List.of( //
                 ".artifacts/openapi-input-parameters.json", //
                 ".artifacts/openapi-input-resources.json", //
                 ".artifacts/openapi-output-parameters.json", //
@@ -995,9 +972,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 ".artifacts/workflow-configuration.json", //
                 ".artifacts/workflow-configuration-representation.json", //
                 ".artifacts/hub-event-input-parameters.json", //
-                ".artifacts/secret-store-parameters.json")),
-            "Expected artifacts file");
-        assertTrue(twm.getUnexpectedFileNames().isEmpty(), "List of unexpected artifacts is empty");
+                ".artifacts/secret-store-parameters.json"))).as("Expected artifacts file").isTrue();
+        assertThat(twm.getUnexpectedFileNames().isEmpty()).as("List of unexpected artifacts is empty").isTrue();
 
         // Top-level workflow nodes
         testNodeIds(readWorkflowLines, twm, 7, 1, 1);
@@ -1023,18 +999,12 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         testNodeIds(readSubNodeWorkflowLines, sm, 6, 0, 0);
 
         // Configuration files
-        assertEquals(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION.value(), twm.getWorkflowConfiguration().get(),
-            "Unexpected workflow configuration");
-        assertEquals(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION_REPRESENTATION.value(),
-            twm.getWorkflowConfigurationRepresentation().get(), "Unexpected workflow configuration representation");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value(),
-            twm.getOpenapiInputParameters().get(), "Unexpected openapi input parameters");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value(),
-            twm.getOpenapiInputResources().get(), "Unexpected openapi input resources");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value(),
-            twm.getOpenapiOutputParameters().get(), "Unexpected openapi output parameters");
-        assertEquals(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value(),
-            twm.getOpenapiOutputResources().get(), "Unexpected openapi output resources");
+        assertThat(twm.getWorkflowConfiguration().get()).as("Unexpected workflow configuration").isEqualTo(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION.value());
+        assertThat(twm.getWorkflowConfigurationRepresentation().get()).as("Unexpected workflow configuration representation").isEqualTo(WorkflowalizerArtifactContent.WORKFLOW_CONFIGURATION_REPRESENTATION.value());
+        assertThat(twm.getOpenapiInputParameters().get()).as("Unexpected openapi input parameters").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_INPUT_PARAMETERS.value());
+        assertThat(twm.getOpenapiInputResources().get()).as("Unexpected openapi input resources").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_INPUT_RESOURCES.value());
+        assertThat(twm.getOpenapiOutputParameters().get()).as("Unexpected openapi output parameters").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_PARAMETERS.value());
+        assertThat(twm.getOpenapiOutputResources().get()).as("Unexpected openapi output resources").isEqualTo(WorkflowalizerArtifactContent.OPENAPI_OUTPUT_RESOURCES.value());
     }
 
     /**
@@ -1052,12 +1022,12 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
 
         final Path svg = workflowDir.resolve("workflow.svg");
         try (final InputStream readSvg = wm.getSvgInputStream().orElse(null)) {
-            assertNotNull(readSvg);
+            assertThat(readSvg).isNotNull();
             final byte[] bytes = IOUtils.toByteArray(Files.newInputStream(svg));
             final byte[] readBytes = IOUtils.toByteArray(readSvg);
-            assertEquals(bytes.length, readBytes.length);
+            assertThat(readBytes.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                assertEquals(bytes[i], readBytes[i]);
+                assertThat(readBytes[i]).isEqualTo(bytes[i]);
             }
         }
 
@@ -1090,9 +1060,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testTemplateMetadata() throws Exception {
         final TemplateMetadata template = Workflowalizer.readTemplate(templateDir);
 
-        assertEquals(RepositoryItemType.TEMPLATE, template.getType());
-        assertEquals(templateDir.getFileName().toString(), template.getName());
-        assertTrue(template.getUnexpectedFileNames().isEmpty());
+        assertThat(template.getType()).isEqualTo(RepositoryItemType.TEMPLATE);
+        assertThat(template.getName()).isEqualTo(templateDir.getFileName().toString());
+        assertThat(template.getUnexpectedFileNames().isEmpty()).isTrue();
 
         testAnnotations(readTemplateWorkflowKnime, template);
         testAuthorInformation(readTemplateWorkflowKnime, template);
@@ -1173,8 +1143,8 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final TemplateMetadata tm = Workflowalizer.readTemplate(zipFile);
 
-        assertEquals("Hierarchical Cluster Assignment with timezone", tm.getName());
-        assertTrue(tm.getUnexpectedFileNames().isEmpty());
+        assertThat(tm.getName()).isEqualTo("Hierarchical Cluster Assignment with timezone");
+        assertThat(tm.getUnexpectedFileNames().isEmpty()).isTrue();
 
         List<String> templateAndWorkflowDotKnimeFileLines = new ArrayList<>();
         templateAndWorkflowDotKnimeFileLines.addAll(readTemplateTemplateKnimeWithTimezone);
@@ -1200,7 +1170,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
             Workflowalizer.readWorkflow(templateDir);
         });
-        assertTrue(exception.getMessage().contains(templateDir + " is a template, not a workflow"));
+        assertThat(exception.getMessage().contains(templateDir + " is a template, not a workflow")).isTrue();
     }
 
     /**
@@ -1213,7 +1183,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
             Workflowalizer.readTemplate(workflowDir);
         });
-        assertTrue(exception.getMessage().contains(workflowDir + " is a workflow, not a template"));
+        assertThat(exception.getMessage().contains(workflowDir + " is a workflow, not a template")).isTrue();
     }
 
     // -- Component Template --
@@ -1228,7 +1198,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testComponentTemplateStructure() throws Exception {
         final TemplateMetadata template = Workflowalizer.readTemplate(componentTemplateDir);
         final Path t = Paths.get(componentTemplateDir.toAbsolutePath().toString(), "workflow.knime");
-        assertTrue(template instanceof ComponentMetadata);
+        assertThat(template instanceof ComponentMetadata).isTrue();
         testStructure(template, t);
     }
 
@@ -1241,9 +1211,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateWorkflowFields() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
-        assertEquals("Simple-Component", tm.getName());
-        assertTrue(tm.getUnexpectedFileNames().isEmpty());
+        assertThat(tm instanceof ComponentMetadata).isTrue();
+        assertThat(tm.getName()).isEqualTo("Simple-Component");
+        assertThat(tm.getUnexpectedFileNames().isEmpty()).isTrue();
 
         testAnnotations(readComponentTemplateWorkflowKnime, tm);
         testAuthorInformation(readComponentTemplateWorkflowKnime, tm);
@@ -1264,35 +1234,35 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplatePorts() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // inports
         final List<ComponentPortInfo> inports = cm.getInPorts();
-        assertEquals(2, inports.size());
+        assertThat(inports.size()).isEqualTo(2);
 
-        assertEquals("1st data table inport", inports.get(0).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(0).getObjectClass());
-        assertEquals("Inport 1", inports.get(0).getName().orElse(""));
+        assertThat(inports.get(0).getDescription().orElse("")).isEqualTo("1st data table inport");
+        assertThat(inports.get(0).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
+        assertThat(inports.get(0).getName().orElse("")).isEqualTo("Inport 1");
 
-        assertEquals("2nd data table inport", inports.get(1).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(1).getObjectClass());
-        assertEquals("Inport 2", inports.get(1).getName().orElse(""));
+        assertThat(inports.get(1).getDescription().orElse("")).isEqualTo("2nd data table inport");
+        assertThat(inports.get(1).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
+        assertThat(inports.get(1).getName().orElse("")).isEqualTo("Inport 2");
 
         // outports
         final List<ComponentPortInfo> outports = cm.getOutPorts();
-        assertEquals(3, outports.size());
-        assertEquals("Variable outport.", outports.get(0).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.port.flowvariable.FlowVariablePortObject", outports.get(0).getObjectClass());
-        assertEquals("Outport 1", outports.get(0).getName().orElse(""));
+        assertThat(outports.size()).isEqualTo(3);
+        assertThat(outports.get(0).getDescription().orElse("")).isEqualTo("Variable outport.");
+        assertThat(outports.get(0).getObjectClass()).isEqualTo("org.knime.core.node.port.flowvariable.FlowVariablePortObject");
+        assertThat(outports.get(0).getName().orElse("")).isEqualTo("Outport 1");
 
-        assertEquals("Data outport.", outports.get(1).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", outports.get(1).getObjectClass());
-        assertEquals("Outport 2", outports.get(1).getName().orElse(""));
+        assertThat(outports.get(1).getDescription().orElse("")).isEqualTo("Data outport.");
+        assertThat(outports.get(1).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
+        assertThat(outports.get(1).getName().orElse("")).isEqualTo("Outport 2");
 
-        assertEquals("Image outport.", outports.get(2).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.port.image.ImagePortObject", outports.get(2).getObjectClass());
-        assertEquals("Outport 3", outports.get(2).getName().orElse(""));
+        assertThat(outports.get(2).getDescription().orElse("")).isEqualTo("Image outport.");
+        assertThat(outports.get(2).getObjectClass()).isEqualTo("org.knime.core.node.port.image.ImagePortObject");
+        assertThat(outports.get(2).getName().orElse("")).isEqualTo("Outport 3");
     }
 
     /**
@@ -1304,28 +1274,26 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateViewNodes() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // 3 JS views, 1 widget, 1 legacy quickform
-        assertEquals(5, cm.getViewNodes().size());
-        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
-        assertTrue(
-            cm.getViewNodes().contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
-        assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:f822b045"));
-        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
-        assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f"));
+        assertThat(cm.getViewNodes().size()).isEqualTo(5);
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:f822b045")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f")).isTrue();
 
         // 3 JS views, 1 widget, 1 legacy quickform
-        assertEquals(5, cm.getViewNodeFactoryIds().size());
-        assertTrue(
-            cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
-        assertTrue(cm.getViewNodeFactoryIds()
-            .contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
-        assertTrue(cm.getViewNodeFactoryIds()
-            .contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Parallel Coordinates Plot"));
-        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
-        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Histogram"));
+        assertThat(cm.getViewNodeFactoryIds().size()).isEqualTo(5);
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds()
+                .contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds()
+                .contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Parallel Coordinates Plot")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Histogram")).isTrue();
     }
 
     /**
@@ -1337,10 +1305,10 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateDescription() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
-        assertEquals("Simple component description.", cm.getDescription().orElse(""));
+        assertThat(cm.getDescription().orElse("")).isEqualTo("Simple component description.");
     }
 
     /**
@@ -1352,18 +1320,18 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentTemplateDialog() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // 1 configuration node, 1 quickform node
-        assertEquals(1, cm.getDialog().size());
-        assertEquals(2, cm.getDialog().get(0).getFields().size());
-        assertFalse(cm.getDialog().get(0).getSectionHeader().isPresent());
-        assertFalse(cm.getDialog().get(0).getSectionDescription().isPresent());
-        assertEquals("Legacy dialog name", cm.getDialog().get(0).getFields().get(0).getName().orElse(""));
-        assertEquals("Legacy dialog description", cm.getDialog().get(0).getFields().get(0).getDescription().orElse(""));
-        assertEquals("Dialog field name", cm.getDialog().get(0).getFields().get(1).getName().orElse(""));
-        assertEquals("Dialog field description", cm.getDialog().get(0).getFields().get(1).getDescription().orElse(""));
+        assertThat(cm.getDialog().size()).isEqualTo(1);
+        assertThat(cm.getDialog().get(0).getFields().size()).isEqualTo(2);
+        assertThat(cm.getDialog().get(0).getSectionHeader().isPresent()).isFalse();
+        assertThat(cm.getDialog().get(0).getSectionDescription().isPresent()).isFalse();
+        assertThat(cm.getDialog().get(0).getFields().get(0).getName().orElse("")).isEqualTo("Legacy dialog name");
+        assertThat(cm.getDialog().get(0).getFields().get(0).getDescription().orElse("")).isEqualTo("Legacy dialog description");
+        assertThat(cm.getDialog().get(0).getFields().get(1).getName().orElse("")).isEqualTo("Dialog field name");
+        assertThat(cm.getDialog().get(0).getFields().get(1).getDescription().orElse("")).isEqualTo("Dialog field description");
     }
 
     /**
@@ -1375,9 +1343,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentType() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
-        assertFalse(cm.getComponentType().isPresent());
+        assertThat(cm.getComponentType().isPresent()).isFalse();
     }
 
     /**
@@ -1389,9 +1357,9 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponentIcon() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentTemplateDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
-        assertFalse(cm.getIcon().isPresent());
+        assertThat(cm.getIcon().isPresent()).isFalse();
     }
 
     /**
@@ -1409,58 +1377,57 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         componentPath = componentPath.resolve("Nested Component");
 
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // Description
-        assertEquals("I like kitty cats", cm.getDescription().orElse(""));
+        assertThat(cm.getDescription().orElse("")).isEqualTo("I like kitty cats");
 
         // InPorts
         final List<ComponentPortInfo> inports = cm.getInPorts();
-        assertEquals(2, inports.size());
+        assertThat(inports.size()).isEqualTo(2);
 
-        assertEquals("IP1 desc", inports.get(0).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(0).getObjectClass());
-        assertEquals("InPort 1", inports.get(0).getName().orElse(""));
+        assertThat(inports.get(0).getDescription().orElse("")).isEqualTo("IP1 desc");
+        assertThat(inports.get(0).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
+        assertThat(inports.get(0).getName().orElse("")).isEqualTo("InPort 1");
 
-        assertEquals("IP2 desc", inports.get(1).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(1).getObjectClass());
-        assertEquals("InPort 2", inports.get(1).getName().orElse(""));
+        assertThat(inports.get(1).getDescription().orElse("")).isEqualTo("IP2 desc");
+        assertThat(inports.get(1).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
+        assertThat(inports.get(1).getName().orElse("")).isEqualTo("InPort 2");
 
         // OutPorts
         final List<ComponentPortInfo> outports = cm.getOutPorts();
-        assertEquals(2, outports.size());
+        assertThat(outports.size()).isEqualTo(2);
 
-        assertEquals("OP1 desc", outports.get(0).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", outports.get(0).getObjectClass());
-        assertEquals("OutPort 1", outports.get(0).getName().orElse(""));
+        assertThat(outports.get(0).getDescription().orElse("")).isEqualTo("OP1 desc");
+        assertThat(outports.get(0).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
+        assertThat(outports.get(0).getName().orElse("")).isEqualTo("OutPort 1");
 
-        assertEquals("OP2 desc", outports.get(1).getDescription().orElse(""));
-        assertEquals("org.knime.core.node.port.flowvariable.FlowVariablePortObject", outports.get(1).getObjectClass());
-        assertEquals("OutPort 2", outports.get(1).getName().orElse(""));
+        assertThat(outports.get(1).getDescription().orElse("")).isEqualTo("OP2 desc");
+        assertThat(outports.get(1).getObjectClass()).isEqualTo("org.knime.core.node.port.flowvariable.FlowVariablePortObject");
+        assertThat(outports.get(1).getName().orElse("")).isEqualTo("OutPort 2");
 
         // Dialog - "top-level" dialog elements only
-        assertEquals(1, cm.getDialog().size());
-        assertEquals(1, cm.getDialog().get(0).getFields().size());
-        assertEquals("Field Name", cm.getDialog().get(0).getFields().get(0).getName().orElse(""));
-        assertEquals("Field Description", cm.getDialog().get(0).getFields().get(0).getDescription().orElse(""));
+        assertThat(cm.getDialog().size()).isEqualTo(1);
+        assertThat(cm.getDialog().get(0).getFields().size()).isEqualTo(1);
+        assertThat(cm.getDialog().get(0).getFields().get(0).getName().orElse("")).isEqualTo("Field Name");
+        assertThat(cm.getDialog().get(0).getFields().get(0).getDescription().orElse("")).isEqualTo("Field Description");
 
         // Views - including all nested views
-        assertEquals(2, cm.getViewNodes().size());
-        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
-        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory"));
+        assertThat(cm.getViewNodes().size()).isEqualTo(2);
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory")).isTrue();
 
         // Views - including all nested views
-        assertEquals(2, cm.getViewNodeFactoryIds().size());
-        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
-        assertTrue(
-            cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory"));
+        assertThat(cm.getViewNodeFactoryIds().size()).isEqualTo(2);
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.pagedTable.PagedTableViewNodeFactory")).isTrue();
 
         // Type
-        assertFalse(cm.getComponentType().isPresent());
+        assertThat(cm.getComponentType().isPresent()).isFalse();
 
         // Icon
-        assertFalse(cm.getIcon().isPresent());
+        assertThat(cm.getIcon().isPresent()).isFalse();
     }
 
     /**
@@ -1478,30 +1445,30 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         componentPath = componentPath.resolve("No Connections");
 
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // Description
-        assertFalse(cm.getDescription().isPresent());
+        assertThat(cm.getDescription().isPresent()).isFalse();
 
         // Ports
-        assertTrue(cm.getInPorts().isEmpty());
-        assertTrue(cm.getOutPorts().isEmpty());
+        assertThat(cm.getInPorts().isEmpty()).isTrue();
+        assertThat(cm.getOutPorts().isEmpty()).isTrue();
 
         // Dialog - "top-level" dialog elements only
-        assertTrue(cm.getDialog().isEmpty());
+        assertThat(cm.getDialog().isEmpty()).isTrue();
 
         // Views - including all nested views
-        assertTrue(cm.getViewNodes().isEmpty());
+        assertThat(cm.getViewNodes().isEmpty()).isTrue();
 
         // Views - including all nested views
-        assertTrue(cm.getViewNodeFactoryIds().isEmpty());
+        assertThat(cm.getViewNodeFactoryIds().isEmpty()).isTrue();
 
         // Type
-        assertFalse(cm.getComponentType().isPresent());
+        assertThat(cm.getComponentType().isPresent()).isFalse();
 
         // Icon
-        assertFalse(cm.getIcon().isPresent());
+        assertThat(cm.getIcon().isPresent()).isFalse();
     }
 
     /**
@@ -1523,7 +1490,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // Description
-        assertFalse(cm.getDescription().isPresent());
+        assertThat(cm.getDescription().isPresent()).isFalse();
 
         // Ports
         assertThat("No input ports found", cm.getInPorts(), is(not(empty())));
@@ -1546,48 +1513,48 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         componentPath = componentPath.resolve("Missing Connection");
 
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentPath);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // Description
-        assertFalse(cm.getDescription().isPresent());
+        assertThat(cm.getDescription().isPresent()).isFalse();
 
         // InPorts
         final List<ComponentPortInfo> inports = cm.getInPorts();
-        assertEquals(2, inports.size());
+        assertThat(inports.size()).isEqualTo(2);
 
-        assertFalse(inports.get(0).getDescription().isPresent());
-        assertEquals("Port 1", inports.get(0).getName().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(0).getObjectClass());
+        assertThat(inports.get(0).getDescription().isPresent()).isFalse();
+        assertThat(inports.get(0).getName().orElse("")).isEqualTo("Port 1");
+        assertThat(inports.get(0).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
 
-        assertFalse(inports.get(1).getDescription().isPresent());
-        assertEquals("Port 2", inports.get(1).getName().orElse(""));
-        assertEquals("org.knime.core.node.BufferedDataTable", inports.get(1).getObjectClass());
+        assertThat(inports.get(1).getDescription().isPresent()).isFalse();
+        assertThat(inports.get(1).getName().orElse("")).isEqualTo("Port 2");
+        assertThat(inports.get(1).getObjectClass()).isEqualTo("org.knime.core.node.BufferedDataTable");
 
         // OutPorts
         final List<ComponentPortInfo> outports = cm.getOutPorts();
-        assertEquals(1, outports.size());
+        assertThat(outports.size()).isEqualTo(1);
 
-        assertFalse(outports.get(0).getDescription().isPresent());
-        assertEquals("Port 1", outports.get(0).getName().orElse(""));
-        assertEquals("org.knime.core.node.port.image.ImagePortObject", outports.get(0).getObjectClass());
+        assertThat(outports.get(0).getDescription().isPresent()).isFalse();
+        assertThat(outports.get(0).getName().orElse("")).isEqualTo("Port 1");
+        assertThat(outports.get(0).getObjectClass()).isEqualTo("org.knime.core.node.port.image.ImagePortObject");
 
         // Dialog - "top-level" dialog elements only
-        assertTrue(cm.getDialog().isEmpty());
+        assertThat(cm.getDialog().isEmpty()).isTrue();
 
         // Views - including all nested views
-        assertEquals(1, cm.getViewNodes().size());
-        assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1d2c1a0e", cm.getViewNodes().get(0));
+        assertThat(cm.getViewNodes().size()).isEqualTo(1);
+        assertThat(cm.getViewNodes().get(0)).isEqualTo("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1d2c1a0e");
 
         // Views - including all nested views
-        assertEquals(1, cm.getViewNodeFactoryIds().size());
-        assertEquals("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Bar Chart", cm.getViewNodeFactoryIds().get(0));
+        assertThat(cm.getViewNodeFactoryIds().size()).isEqualTo(1);
+        assertThat(cm.getViewNodeFactoryIds().get(0)).isEqualTo("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Bar Chart");
 
         // Type
-        assertFalse(cm.getComponentType().isPresent());
+        assertThat(cm.getComponentType().isPresent()).isFalse();
 
         // Icon
-        assertFalse(cm.getIcon().isPresent());
+        assertThat(cm.getIcon().isPresent()).isFalse();
     }
 
     // -- Workflow group --
@@ -1600,7 +1567,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingWorkflowGroup() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile);
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
+        assertThat(wsm.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
 
         testWorkflowSetMeta(readWorkflowGroupLines, wsm);
     }
@@ -1613,7 +1580,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingWorkflowGroupWithLongTitle() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFileLongTitle);
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
+        assertThat(wsm.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
 
         testWorkflowSetMeta(readWorkflowGroupLinesLongTitle, wsm);
     }
@@ -1627,7 +1594,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     @Test
     void testReadingWorkflowGroupDir() throws Exception {
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroupFile.getParent());
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
+        assertThat(wsm.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
 
         testWorkflowSetMeta(readWorkflowGroupLines, wsm);
     }
@@ -1642,12 +1609,12 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingWorkflowGroupZip() throws Exception {
         final Path zipFile = getResourcePath("/workflowalizer-test.zip");
         final WorkflowGroupMetadata wgm = Workflowalizer.readWorkflowGroup(zipFile);
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wgm.getType());
-        assertFalse(wgm.getAuthor().isPresent());
-        assertFalse(wgm.getDescription().isPresent());
-        assertFalse(wgm.getTitle().isPresent());
-        assertFalse(wgm.getTags().isPresent());
-        assertFalse(wgm.getLinks().isPresent());
+        assertThat(wgm.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
+        assertThat(wgm.getAuthor().isPresent()).isFalse();
+        assertThat(wgm.getDescription().isPresent()).isFalse();
+        assertThat(wgm.getTitle().isPresent()).isFalse();
+        assertThat(wgm.getTags().isPresent()).isFalse();
+        assertThat(wgm.getLinks().isPresent()).isFalse();
     }
 
     // -- General repository item --
@@ -1662,22 +1629,22 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
     void testReadingRepositoryItem() throws Exception {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(workflowDir, wc);
-        assertEquals(RepositoryItemType.WORKFLOW, rip.getType());
-        assertTrue(rip instanceof WorkflowMetadata);
+        assertThat(rip.getType()).isEqualTo(RepositoryItemType.WORKFLOW);
+        assertThat(rip instanceof WorkflowMetadata).isTrue();
 
         rip = Workflowalizer.readRepositoryItem(templateDir, wc);
-        assertEquals(RepositoryItemType.TEMPLATE, rip.getType());
-        assertTrue(rip instanceof TemplateMetadata);
+        assertThat(rip.getType()).isEqualTo(RepositoryItemType.TEMPLATE);
+        assertThat(rip instanceof TemplateMetadata).isTrue();
 
         rip = Workflowalizer.readRepositoryItem(workflowGroupFile.getParent(), wc);
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, rip.getType());
-        assertTrue(rip instanceof WorkflowGroupMetadata);
+        assertThat(rip.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
+        assertThat(rip instanceof WorkflowGroupMetadata).isTrue();
 
         try {
             rip = Workflowalizer.readRepositoryItem(nodeDir, wc);
             fail("Expected exception was not thrown");
         } catch (final IllegalArgumentException ex) {
-            assertTrue(ex.getMessage().startsWith("No template, workflow, or workflow group found"));
+            assertThat(ex.getMessage().startsWith("No template, workflow, or workflow group found")).isTrue();
         }
     }
 
@@ -1694,30 +1661,30 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         final WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         final RepositoryItemMetadata rip = Workflowalizer.readRepositoryItem(zipFile, wc);
 
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, rip.getType());
-        assertTrue(rip instanceof WorkflowGroupMetadata);
+        assertThat(rip.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
+        assertThat(rip instanceof WorkflowGroupMetadata).isTrue();
 
         // Test that is the top-level group
         final WorkflowGroupMetadata wgm = (WorkflowGroupMetadata)rip;
-        assertFalse(wgm.getAuthor().isPresent());
-        assertFalse(wgm.getDescription().isPresent());
-        assertFalse(wgm.getTitle().isPresent());
-        assertFalse(wgm.getTags().isPresent());
-        assertFalse(wgm.getLinks().isPresent());
+        assertThat(wgm.getAuthor().isPresent()).isFalse();
+        assertThat(wgm.getDescription().isPresent()).isFalse();
+        assertThat(wgm.getTitle().isPresent()).isFalse();
+        assertThat(wgm.getTags().isPresent()).isFalse();
+        assertThat(wgm.getLinks().isPresent()).isFalse();
 
         // Test reading workflow
         final Path zipWorkflow = getResourcePath("/simple-workflow.zip");
         final RepositoryItemMetadata workflow = Workflowalizer.readRepositoryItem(zipWorkflow, wc);
 
-        assertEquals(RepositoryItemType.WORKFLOW, workflow.getType());
-        assertTrue(workflow instanceof WorkflowMetadata);
+        assertThat(workflow.getType()).isEqualTo(RepositoryItemType.WORKFLOW);
+        assertThat(workflow instanceof WorkflowMetadata).isTrue();
 
         // Test reading component
         final Path zipComponent = getResourcePath("/component-template-simple.zip");
         final RepositoryItemMetadata component = Workflowalizer.readRepositoryItem(zipComponent, wc);
 
-        assertEquals(RepositoryItemType.TEMPLATE, component.getType());
-        assertTrue(component instanceof ComponentMetadata);
+        assertThat(component.getType()).isEqualTo(RepositoryItemType.TEMPLATE);
+        assertThat(component instanceof ComponentMetadata).isTrue();
 
         // Test zip with no groups, workflows, or components
         try {
@@ -1725,9 +1692,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
             Workflowalizer.readRepositoryItem(noRepoItems, wc);
             fail("No exception thrown for zip archive containing no repository items");
         } catch (final IllegalArgumentException ex) {
-            assertTrue(
-                ex.getMessage().startsWith("No template," + " workflow, or workflow group found in zip file at: "),
-                "Incorrect exception message: " + ex.getMessage());
+            assertThat(ex.getMessage().startsWith("No template," + " workflow, or workflow group found in zip file at: ")).as("Incorrect exception message: " + ex.getMessage()).isTrue();
         }
     }
 
@@ -1749,9 +1714,7 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
                 NativeNodeMetadata nn = (NativeNodeMetadata)nm;
                 if (nn.getFactoryName().equals("org.knime.testing.node.disturber.DisturberNodeFactory") || nn
                     .getFactoryName().equals("org.knime.testing.internal.nodes.differ.DifferenceCheckerNodeFactory")) {
-                    assertEquals("org.knime.features.testing.application",
-                        nn.getNodeAndBundleInformation().getFeatureSymbolicName().orElse(null),
-                        "Testing node '" + nn.getFactoryName() + "' has incorrect extension symbolic name");
+                    assertThat(nn.getNodeAndBundleInformation().getFeatureSymbolicName().orElse(null)).as("Testing node '" + nn.getFactoryName() + "' has incorrect extension symbolic name").isEqualTo("org.knime.features.testing.application");
                 }
             }
         }
@@ -1769,23 +1732,21 @@ public class WorkflowalizerTest extends AbstractWorkflowalizerTest {
         WorkflowalizerConfiguration wc = WorkflowalizerConfiguration.builder().build();
         TemplateMetadata tm = Workflowalizer.readTemplate(zipFile, wc);
 
-        assertTrue(tm instanceof ComponentMetadata, "Template was not read as component");
+        assertThat(tm instanceof ComponentMetadata).as("Template was not read as component").isTrue();
         ComponentMetadata cm = (ComponentMetadata)tm;
 
-        assertEquals(1, cm.getInPorts().size(), "Unexpected number of inports");
-        assertEquals(1, cm.getOutPorts().size(), "Unexpected number of outports");
+        assertThat(cm.getInPorts().size()).as("Unexpected number of inports").isEqualTo(1);
+        assertThat(cm.getOutPorts().size()).as("Unexpected number of outports").isEqualTo(1);
 
         ComponentPortInfo inport = cm.getInPorts().get(0);
-        assertEquals(inport.getDescription(), Optional.empty(), "Unexpected description for inport");
-        assertEquals(inport.getName(), Optional.empty(), "Unexpected name for inport");
-        assertEquals("org.knime.core.node.BufferedDataTable", inport.getObjectClass(),
-            "Unexpected object class for inport");
+        assertThat(Optional.empty()).as("Unexpected description for inport").isEqualTo(inport.getDescription());
+        assertThat(Optional.empty()).as("Unexpected name for inport").isEqualTo(inport.getName());
+        assertThat(inport.getObjectClass()).as("Unexpected object class for inport").isEqualTo("org.knime.core.node.BufferedDataTable");
 
         ComponentPortInfo outport = cm.getOutPorts().get(0);
-        assertEquals(outport.getDescription(), Optional.empty(), "Unexpected description for outport");
-        assertEquals(outport.getName(), Optional.empty(), "Unexpected name for outport");
-        assertEquals("org.knime.core.node.BufferedDataTable", outport.getObjectClass(),
-            "Unexpected object class for outport");
+        assertThat(Optional.empty()).as("Unexpected description for outport").isEqualTo(outport.getDescription());
+        assertThat(Optional.empty()).as("Unexpected name for outport").isEqualTo(outport.getName());
+        assertThat(outport.getObjectClass()).as("Unexpected object class for outport").isEqualTo("org.knime.core.node.BufferedDataTable");
     }
 
     /**

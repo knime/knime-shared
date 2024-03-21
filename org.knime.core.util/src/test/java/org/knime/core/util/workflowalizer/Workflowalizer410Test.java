@@ -48,9 +48,7 @@
  */
 package org.knime.core.util.workflowalizer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -111,7 +109,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     void testReadingWorkflow() throws Exception {
         final Path workflowDir = workspaceDir.resolve("workflowalizer-test/Testing_Workflowalizer_360Pre");
         final WorkflowMetadata wm = Workflowalizer.readWorkflow(workflowDir);
-        assertEquals("4.1.0", wm.getVersion().toString());
+        assertThat(wm.getVersion().toString()).isEqualTo("4.1.0");
         testStructure(wm, workflowDir.resolve("workflow.knime"));
     }
 
@@ -127,7 +125,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
             workspaceDir.resolve("workflowalizer-test/test_group/workflowset.meta"), StandardCharsets.UTF_8);
 
         final WorkflowGroupMetadata wsm = Workflowalizer.readWorkflowGroup(workflowGroup);
-        assertEquals(RepositoryItemType.WORKFLOW_GROUP, wsm.getType());
+        assertThat(wsm.getType()).isEqualTo(RepositoryItemType.WORKFLOW_GROUP);
         testWorkflowSetMeta(rawLines, wsm);
     }
 
@@ -140,7 +138,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     void testReadingTemplate() throws Exception {
         final Path templateDir = workspaceDir.resolve("workflowalizer-test/Hierarchical Cluster Assignment");
         final TemplateMetadata tm = Workflowalizer.readTemplate(templateDir);
-        assertEquals("4.1.0", tm.getVersion().toString());
+        assertThat(tm.getVersion().toString()).isEqualTo("4.1.0");
         testStructure(tm, templateDir.resolve("workflow.knime"));
     }
 
@@ -152,8 +150,8 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testReadingComponent() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
-        assertTrue(tm instanceof ComponentMetadata);
-        assertEquals("4.1.0", tm.getVersion().toString());
+        assertThat(tm instanceof ComponentMetadata).isTrue();
+        assertThat(tm.getVersion().toString()).isEqualTo("4.1.0");
         testStructure(tm, componentDir.resolve("workflow.knime"));
     }
 
@@ -167,9 +165,9 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
         final List<String> componentWorkflowKnime = Files.readAllLines(componentDir.resolve("workflow.knime"));
         final List<String> componentTemplateKnime = Files.readAllLines(componentDir.resolve("template.knime"));
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
-        assertTrue(tm instanceof ComponentMetadata);
-        assertEquals("Full-Metadata", tm.getName());
-        assertTrue(tm.getUnexpectedFileNames().isEmpty());
+        assertThat(tm instanceof ComponentMetadata).isTrue();
+        assertThat(tm.getName()).isEqualTo("Full-Metadata");
+        assertThat(tm.getUnexpectedFileNames().isEmpty()).isTrue();
 
         testAnnotations(componentWorkflowKnime, tm);
         testAuthorInformation(componentWorkflowKnime, tm);
@@ -183,34 +181,32 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         // 3 JS views, 1 widget, 1 legacy quickform
-        assertEquals(5, cm.getViewNodes().size());
-        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
-        assertTrue(
-            cm.getViewNodes().contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
-        assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:f822b045"));
-        assertTrue(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
-        assertTrue(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f"));
+        assertThat(cm.getViewNodes().size()).isEqualTo(5);
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:f822b045")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory")).isTrue();
+        assertThat(cm.getViewNodes().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory:1ce36c2f")).isTrue();
 
         // 3 JS views, 1 widget, 1 legacy quickform
-        assertEquals(5, cm.getViewNodeFactoryIds().size());
-        assertTrue(
-            cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory"));
-        assertTrue(cm.getViewNodeFactoryIds()
-            .contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory"));
-        assertTrue(cm.getViewNodeFactoryIds()
-            .contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Parallel Coordinates Plot"));
-        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory"));
-        assertTrue(cm.getViewNodeFactoryIds().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Histogram"));
+        assertThat(cm.getViewNodeFactoryIds().size()).isEqualTo(5);
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.widget.input.bool.BooleanWidgetNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds()
+                .contains("org.knime.js.base.node.quickform.input.bool.BooleanInputQuickFormNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds()
+                .contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Parallel Coordinates Plot")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.js.base.node.viz.heatmap.HeatMapNodeFactory")).isTrue();
+        assertThat(cm.getViewNodeFactoryIds().contains("org.knime.dynamic.js.v30.DynamicJSNodeFactory#Histogram")).isTrue();
 
         // 1 configuration node, 1 quickform node
-        assertEquals(1, cm.getDialog().size());
-        assertEquals(2, cm.getDialog().get(0).getFields().size());
-        assertFalse(cm.getDialog().get(0).getSectionHeader().isPresent());
-        assertFalse(cm.getDialog().get(0).getSectionDescription().isPresent());
-        assertEquals("Legacy dialog name", cm.getDialog().get(0).getFields().get(0).getName().orElse(""));
-        assertEquals("Legacy dialog description", cm.getDialog().get(0).getFields().get(0).getDescription().orElse(""));
-        assertEquals("Dialog field name", cm.getDialog().get(0).getFields().get(1).getName().orElse(""));
-        assertEquals("Dialog field description", cm.getDialog().get(0).getFields().get(1).getDescription().orElse(""));
+        assertThat(cm.getDialog().size()).isEqualTo(1);
+        assertThat(cm.getDialog().get(0).getFields().size()).isEqualTo(2);
+        assertThat(cm.getDialog().get(0).getSectionHeader().isPresent()).isFalse();
+        assertThat(cm.getDialog().get(0).getSectionDescription().isPresent()).isFalse();
+        assertThat(cm.getDialog().get(0).getFields().get(0).getName().orElse("")).isEqualTo("Legacy dialog name");
+        assertThat(cm.getDialog().get(0).getFields().get(0).getDescription().orElse("")).isEqualTo("Legacy dialog description");
+        assertThat(cm.getDialog().get(0).getFields().get(1).getName().orElse("")).isEqualTo("Dialog field name");
+        assertThat(cm.getDialog().get(0).getFields().get(1).getDescription().orElse("")).isEqualTo("Dialog field description");
     }
 
     /**
@@ -221,7 +217,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testComponentPorts() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
         testComponentPorts(componentSettingsXml, cm, 2, 3);
     }
@@ -234,7 +230,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testComponentDescription() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
         testComponentDescription(componentSettingsXml, cm);
     }
@@ -247,7 +243,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testComponentType() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
         testComponentType(componentSettingsXml, cm);
     }
@@ -260,7 +256,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
     @Test
     void testComponentIcon() throws Exception {
         final TemplateMetadata tm = Workflowalizer.readTemplate(componentDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
         testComponentIcon(componentSettingsXml, cm);
     }
@@ -284,7 +280,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
         final List<String> settingsXml = Files.readAllLines(noMetaDir.resolve("settings.xml"), StandardCharsets.UTF_8);
 
         final TemplateMetadata tm = Workflowalizer.readTemplate(noMetaDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         testComponentPorts(settingsXml, cm, 1, 0);
@@ -312,7 +308,7 @@ public class Workflowalizer410Test extends AbstractWorkflowalizerTest {
         final List<String> settingsXml = Files.readAllLines(noPortsDir.resolve("settings.xml"), StandardCharsets.UTF_8);
 
         final TemplateMetadata tm = Workflowalizer.readTemplate(noPortsDir);
-        assertTrue(tm instanceof ComponentMetadata);
+        assertThat(tm instanceof ComponentMetadata).isTrue();
         final ComponentMetadata cm = (ComponentMetadata)tm;
 
         testComponentPorts(settingsXml, cm, 0, 0);
