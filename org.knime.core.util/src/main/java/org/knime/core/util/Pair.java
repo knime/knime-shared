@@ -46,6 +46,8 @@
 package org.knime.core.util;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -132,5 +134,32 @@ public final class Pair<T, M> {
     @NonNull
     public static <T, M> Pair<T, M> create(final T first, final M second) {
         return new Pair<>(first, second);
+    }
+
+    /**
+     * Applies the given function to both elements of the pair.
+     *
+     * @param <R> result type of the function
+     * @param reducer function being applied to the pair's elements
+     * @return the result of applying the function
+     * @since 6.3
+     */
+    public <R> R reduce(final BiFunction<T, M, R> reducer) {
+        return reducer.apply(m_first, m_second);
+    }
+
+    /**
+     * Applies the given functions to the corresponding elements of the pair.
+     *
+     * @param <X> type of the first element of returned pair
+     * @param <Y> type of the second element of returned pair
+     * @param mapFirst function being applied to the first element of the pair
+     * @param mapSecond function being applied to the second element of the pair
+     * @return pair containing the results of the two function applications
+     * @since 6.3
+     */
+    @NonNull
+    public <X, Y> Pair<X, Y> map(final Function<T, X> mapFirst, final Function<M, Y> mapSecond) {
+        return new Pair<>(mapFirst.apply(m_first), mapSecond.apply(m_second));
     }
 }
