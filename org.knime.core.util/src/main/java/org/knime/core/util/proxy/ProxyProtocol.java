@@ -63,14 +63,14 @@ import org.apache.commons.lang3.StringUtils;
 public enum ProxyProtocol {
         /**
          * Uses the HTTP protocol to establish a proxy connection.
-         * Some also use 3128 as default port.
+         * Some also use 8080 or 3128 as default port.
          */
-        HTTP(8080),
+        HTTP(80),
         /**
          * Uses the HTTPS protocol to establish a proxy connection. More secure than HTTP.
-         * Some also use 3128 as default port.
+         * Some also use 8080 or 3128 as default port.
          */
-        HTTPS(8080),
+        HTTPS(443),
         /**
          * Uses the SOCKS protocol to establish a proxy connection. Defined in RFC 1928, can safely traverse a firewall
          * both at the TCP and UDP level.
@@ -132,7 +132,7 @@ public enum ProxyProtocol {
      *
      * @return protocol string
      */
-    private String asLowerString() {
+    String asLowerString() {
         return name().toLowerCase(Locale.ENGLISH);
     }
 }

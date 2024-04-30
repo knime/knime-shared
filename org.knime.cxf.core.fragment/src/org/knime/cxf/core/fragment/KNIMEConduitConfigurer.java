@@ -20,6 +20,8 @@
  */
 package org.knime.cxf.core.fragment;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -34,13 +36,12 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.ProxyServerType;
 import org.knime.core.util.KNIMEServerHostnameVerifier;
 import org.knime.core.util.KNIMEX509TrustManager;
-import org.knime.core.util.proxy.GlobalProxyConfig;
-import org.knime.core.util.proxy.GlobalProxyConfigProvider;
 import org.knime.core.util.proxy.ProxyProtocol;
+import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 /**
  * Automatic configurer for HTTP clients by Apache CXF. Always enables the KNIME-specific SSL configuration and uses the
- * current global proxy configuration from the {@link GlobalProxyConfigProvider}.
+ * current global proxy configuration from the {@link GlobalProxySearch}.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
@@ -62,7 +63,7 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
         final var conduit = Objects.requireNonNull(c);
         configureHTTP1OnConduit(conduit);
         configureSSLOnConduit(conduit);
-        configureProxyOnConduit(conduit);
+        configureProxyOnConduit(conduit, address);
     }
 
     /**
@@ -97,9 +98,15 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
      *
      * @param conduit of an HTTP client
      */
-    static void configureProxyOnConduit(final HTTPConduit conduit) {
+    static void configureProxyOnConduit(final HTTPConduit conduit, final String address) {
+        // Try to create URI to match on proxy exclusion below. Proxy selection works for a null URI as well.
+        URI uri = null;
+        try {
+            uri = new URI(address);
+        } catch (URISyntaxException ignored) { // NOSONAR
+        }
         // Noop if no proxy protocol was configured.
-        final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrent();
+        final var maybeProxyConfig = GlobalProxySearch.getCurrentFor(uri);
         if (maybeProxyConfig.isEmpty()) {
             return;
         }
@@ -107,7 +114,7 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
 
         modifyClientPolicy(conduit, policy -> {
             policy.setProxyServer(proxyConfig.host());
-            policy.setProxyServerPort(getProxyPort(proxyConfig));
+            policy.setProxyServerPort(proxyConfig.intPort());
             policy.setProxyServerType(
                 proxyConfig.protocol() == ProxyProtocol.SOCKS ? ProxyServerType.SOCKS : ProxyServerType.HTTP);
             policy.setNonProxyHosts(StringUtils.defaultIfEmpty(proxyConfig.excludedHosts(), null));
@@ -129,14 +136,6 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
             authorization.setPassword(proxyConfig.password());
             authorization.setAuthorizationType("Basic");
             conduit.setProxyAuthorization(authorization);
-        }
-    }
-
-    private static int getProxyPort(final GlobalProxyConfig proxyConfig) {
-        try {
-            return Integer.parseInt(proxyConfig.port());
-        } catch (NumberFormatException ignored) { // NOSONAR
-            return proxyConfig.protocol().getDefaultPort();
         }
     }
 

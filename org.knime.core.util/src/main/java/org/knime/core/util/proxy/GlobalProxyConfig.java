@@ -48,9 +48,21 @@
  */
 package org.knime.core.util.proxy;
 
-import java.net.URL;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.knime.core.util.Pair;
 
 /**
  * Captures the current global proxy configuration (in System properties).
@@ -76,20 +88,101 @@ import org.apache.commons.lang3.StringUtils;
 public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port, boolean useAuthentication,
     String username, String password, boolean useExcludedHosts, String excludedHosts) {
 
+    private static final Logger LOGGER = Logger.getLogger(GlobalProxyConfig.class.getName());
+
     /**
-     * Checks whether the host of the given URL is excluded by this proxy configuration.
+     * Attemps to parse the string-stored {@link #port()} into an integer. Returns the protocol's
+     * default port if parsing fails. See {@link ProxyProtocol#getDefaultPort()}.
      *
-     * @param url the url which to connect to
-     * @return whether the given URL is excluded from using the proxy
+     * @return integer port
      * @since 6.3
      */
-    public boolean isHostExcluded(final URL url) {
-        final var urlHost = url.getHost();
-        if (!useExcludedHosts || excludedHosts == null || StringUtils.isBlank(urlHost)) {
+    public int intPort() {
+        // parsing proxy port, defaults to the protocol's default port
+        try {
+            return Integer.parseInt(port());
+        } catch (NumberFormatException nfe) {
+            final var defaultPort = protocol().getDefaultPort();
+            LOGGER.log(Level.WARNING,
+                String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", port(), defaultPort),
+                nfe);
+            return defaultPort;
+        }
+    }
+
+    /**
+     * Checks whether the host of the given URI is excluded by this proxy configuration.
+     *
+     * @param uri the URI which to connect to
+     * @return whether the given URI is excluded from using the proxy
+     * @since 6.3
+     */
+    public boolean isHostExcluded(final URI uri) {
+        if (uri == null) {
+            return false;
+        }
+        final var uriHost = uri.getHost();
+        if (!useExcludedHosts || excludedHosts == null || StringUtils.isBlank(uriHost)) {
             return false;
         }
 
         // translation from pattern to regex taken from `org.apache.cxf.transport.http.RegexBuilder#build(String)`
-        return urlHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
+        return uriHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
+    }
+
+    // -- CONVERTING TO OTHER CONFIGS --
+
+    /**
+     * Converts this proxy configuration to Java's {@link Proxy} along with an authenticator,
+     * if authentication is needed. The {@link Authenticator} is never null,
+     * but if authentication is *not* needed, it returns {@code null} on request.
+     *
+     * @return Java Net proxy specification
+     * @since 6.3
+     */
+    public Pair<Proxy, Authenticator> forJavaNetProxy() {
+        final var authenticator = new Authenticator() {
+            private boolean verifyRequestor() {
+                // cannot use #getRequestingProtocol() since it may return HTTP for HTTPS configs,
+                // but querying the URL (if set) should match the configured protocol
+                final var proxyProtocolMatches = getRequestingURL() == null //
+                        || StringUtils.equalsIgnoreCase(getRequestingURL().getProtocol(), protocol().name());
+                // verify that the authentication request came from the configured proxy
+                return getRequestorType() == RequestorType.PROXY //
+                        && proxyProtocolMatches //
+                        && StringUtils.equals(getRequestingHost(), host()) //
+                        && getRequestingPort() == intPort();
+            }
+
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                if (!useAuthentication() || !verifyRequestor()) {
+                    return null;
+                }
+                return new PasswordAuthentication(username(), password().toCharArray());
+            }
+        };
+        final var proxyType = protocol() == ProxyProtocol.SOCKS ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
+        final var proxyAddress = InetSocketAddress.createUnresolved(host(), intPort());
+        return Pair.create(new Proxy(proxyType, proxyAddress), authenticator);
+    }
+
+    /**
+     * Converts this proxy configuration to Apache's {@link org.apache.http.client.HttpClient},
+     * along with a credentials if needed. The {@link CredentialsProvider} is never null,
+     * but if authentication is *not* needed, it does not contain credentials.
+     *
+     * @return Apache HttpClient proxy specification
+     * @since 6.3
+     */
+    public Pair<HttpHost, CredentialsProvider> forApacheHttpClient() {
+        final var httpHost = new HttpHost(host(), intPort(), protocol().asLowerString());
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        if (useAuthentication()) {
+            credentialsProvider.setCredentials( //
+                new AuthScope(httpHost), //
+                new UsernamePasswordCredentials(username(), password()));
+        }
+        return Pair.create(httpHost, credentialsProvider);
     }
 }

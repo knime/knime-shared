@@ -49,16 +49,11 @@
 package org.knime.core.util.proxy;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,7 +61,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.HttpHeaders;
 import org.knime.core.util.KNIMEServerHostnameVerifier;
-import org.knime.core.util.Pair;
+import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 /**
  * Consistently builds {@link URLConnection} with a proxy if configured.
@@ -89,7 +84,8 @@ public final class URLConnectionFactory {
      */
     public static URLConnection getConnection(final URL url) throws IOException {
         final URLConnection connection;
-        final var proxyAuthPair = getProxy(url);
+        final var proxyAuthPair = GlobalProxySearch.getCurrentFor(url) //
+                .map(GlobalProxyConfig::forJavaNetProxy);
         if (proxyAuthPair.isPresent()) {
             final var proxy = proxyAuthPair.get().getFirst();
             connection = url.openConnection(proxy);
@@ -102,43 +98,6 @@ public final class URLConnectionFactory {
             connection = url.openConnection();
         }
         return completeConfiguration(connection);
-    }
-
-    /**
-     * Wraps the global proxy configuration in a {@link Proxy} object.
-     */
-    private static Optional<Pair<Proxy, Authenticator>> getProxy(final URL url) {
-        final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrent();
-        if (maybeProxyConfig.isEmpty()) {
-            // corresponds to a proxy using `java.net.Proxy.Type.DIRECT`
-            return Optional.empty();
-        }
-        final var proxyConfig = maybeProxyConfig.get();
-        if (proxyConfig.isHostExcluded(url)) {
-            // do not use proxy, host is in exclude list
-            return Optional.empty();
-        }
-
-        // parsing proxy port, defaults to the protocol's default port
-        int intPort;
-        try {
-            intPort = Integer.parseInt(proxyConfig.port());
-        } catch (NumberFormatException nfe) {
-            final var defaultPort = proxyConfig.protocol().getDefaultPort();
-            intPort = defaultPort;
-            LOGGER.log(Level.INFO,
-                String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", proxyConfig.port(), defaultPort),
-                nfe);
-        }
-        final var proxyAuthenticator = !proxyConfig.useAuthentication() ? null : new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(proxyConfig.username(), proxyConfig.password().toCharArray());
-            }
-        };
-        final var proxyType = proxyConfig.protocol() == ProxyProtocol.SOCKS ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
-        final var proxyAddress = new InetSocketAddress(proxyConfig.host(), intPort);
-        return Optional.of(Pair.create(new Proxy(proxyType, proxyAddress), proxyAuthenticator));
     }
 
     /**

@@ -48,10 +48,12 @@
  */
 package org.knime.core.util.proxy;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 /**
  * Accesses Java's System.properties to retrieve proxy-relevant properties.
@@ -61,8 +63,6 @@ import org.apache.commons.lang3.StringUtils;
  * @since 6.2
  */
 public final class GlobalProxyConfigProvider {
-
-    // Keys used to identify System properties.
 
     static final String HOST_KEY = "proxyHost";
 
@@ -80,7 +80,7 @@ public final class GlobalProxyConfigProvider {
      * @return ProxyProtocol enum if present
      */
     public static Optional<ProxyProtocol> getProtocol() {
-        return getProtocol(System.getProperties());
+        return getProtocol(System.getProperties(), ProxyProtocol.values());
     }
 
     /**
@@ -89,17 +89,13 @@ public final class GlobalProxyConfigProvider {
      *
      * @return ProxyProtocol enum if present
      */
-    private static Optional<ProxyProtocol> getProtocol(final Properties properties) {
-        for (var p : ProxyProtocol.values()) {
+    private static Optional<ProxyProtocol> getProtocol(final Properties properties, final ProxyProtocol... protocols) {
+        for (var p : protocols) {
             if (p.isConfigured(properties)) {
                 return Optional.of(p);
             }
         }
         return Optional.empty();
-    }
-
-    private static Optional<String> getProperty(final String key, final Properties properties) {
-        return getProtocol().flatMap(p -> p.getProxyProperty(key, properties));
     }
 
     /**
@@ -108,7 +104,7 @@ public final class GlobalProxyConfigProvider {
      * @return Proxy host address
      */
     public static Optional<String> getHost() {
-        return getHost(System.getProperties());
+        return getProtocol().flatMap(p -> getHost(System.getProperties(), p));
     }
 
     /**
@@ -118,8 +114,8 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Proxy host address
      */
-    private static Optional<String> getHost(final Properties properties) {
-        return getProperty(HOST_KEY, properties);
+    private static Optional<String> getHost(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(HOST_KEY, properties);
     }
 
     /**
@@ -128,7 +124,7 @@ public final class GlobalProxyConfigProvider {
      * @return Proxy port
      */
     public static Optional<String> getPort() {
-        return getPort(System.getProperties());
+        return getProtocol().flatMap(p -> getPort(System.getProperties(), p));
     }
 
     /**
@@ -138,8 +134,8 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Proxy port
      */
-    private static Optional<String> getPort(final Properties properties) {
-        return getProperty(PORT_KEY, properties);
+    private static Optional<String> getPort(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(PORT_KEY, properties);
     }
 
     /**
@@ -148,7 +144,7 @@ public final class GlobalProxyConfigProvider {
      * @return Use proxy authentication?
      */
     public static boolean useAuthentication() {
-        return useAuthentication(System.getProperties());
+        return getProtocol().map(p -> useAuthentication(System.getProperties(), p)).orElse(false);
     }
 
     /**
@@ -157,9 +153,9 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Use proxy authentication?
      */
-    private static boolean useAuthentication(final Properties properties) {
-        return getProperty(USER_KEY, properties).isPresent()
-                && getProperty(PASSWORD_KEY, properties).isPresent();
+    private static boolean useAuthentication(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(USER_KEY, properties).isPresent()
+                && protocol.getProxyProperty(PASSWORD_KEY, properties).isPresent();
     }
 
     /**
@@ -168,7 +164,7 @@ public final class GlobalProxyConfigProvider {
      * @return Proxy user name
      */
     public static Optional<String> getUsername() {
-        return getUsername(System.getProperties());
+        return getProtocol().flatMap(p -> getUsername(System.getProperties(), p));
     }
 
     /**
@@ -178,8 +174,8 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Proxy user name
      */
-    private static Optional<String> getUsername(final Properties properties) {
-        return getProperty(USER_KEY, properties);
+    private static Optional<String> getUsername(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(USER_KEY, properties);
     }
 
     /**
@@ -188,7 +184,7 @@ public final class GlobalProxyConfigProvider {
      * @return Proxy password
      */
     public static Optional<String> getPassword() {
-        return getPassword(System.getProperties());
+        return getProtocol().flatMap(p -> getPassword(System.getProperties(), p));
     }
 
     /**
@@ -198,8 +194,8 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Proxy password
      */
-    private static Optional<String> getPassword(final Properties properties) {
-        return getProperty(PASSWORD_KEY, properties);
+    private static Optional<String> getPassword(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(PASSWORD_KEY, properties);
     }
 
     /**
@@ -208,7 +204,7 @@ public final class GlobalProxyConfigProvider {
      * @return Proxy-excluded hosts
      */
     public static Optional<String> getExcludedHosts() {
-        return getExcludedHosts(System.getProperties());
+        return getProtocol().flatMap(p -> getExcludedHosts(System.getProperties(), p));
     }
 
     /**
@@ -218,8 +214,8 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Proxy-excluded hosts
      */
-    private static Optional<String> getExcludedHosts(final Properties properties) {
-        return getProperty(EXCLUDED_HOSTS_KEY, properties);
+    private static Optional<String> getExcludedHosts(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(EXCLUDED_HOSTS_KEY, properties);
     }
 
     /**
@@ -228,7 +224,7 @@ public final class GlobalProxyConfigProvider {
      * @return Use proxy-excluded hosts?
      */
     public static boolean useExcludedHosts() {
-        return useExcludedHosts(System.getProperties());
+        return getProtocol().map(p -> useExcludedHosts(System.getProperties(), p)).orElse(false);
     }
 
     /**
@@ -237,32 +233,45 @@ public final class GlobalProxyConfigProvider {
      *
      * @return Use proxy-excluded hosts?
      */
-    private static boolean useExcludedHosts(final Properties properties) {
-        return getProperty(EXCLUDED_HOSTS_KEY, properties).map(StringUtils::isNotBlank).orElse(false);
+    private static boolean useExcludedHosts(final Properties properties, final ProxyProtocol protocol) {
+        return protocol.getProxyProperty(EXCLUDED_HOSTS_KEY, properties).map(StringUtils::isNotBlank).orElse(false);
     }
 
     /**
-     * Retrieves the current global proxy configuration and stores it in a read-only format.
-     * Returns {@link Optional#empty()} if no proxy is configured.
+     * Retrieves the current global proxy configuration *only* from System properties and stores
+     * it in a read-only format. Returns {@link Optional#empty()} if no proxy is configured.
+     * <p>
+     * Deprecated since we actually want to get the current proxy independent of its source which
+     * can be retrieved via {@link GlobalProxySearch}. For Java-only proxy configuration, see
+     * {@link #getConfigFromSystemProperties(ProxyProtocol...)}.
      *
-     * @return {@link GlobalProxyConfig}
+     * @return {@link GlobalProxyConfig} if configuration is present
+     * @deprecated use {@link GlobalProxySearch#getCurrentFor(URI, ProxyProtocol...)} for instead
      */
-    public static synchronized Optional<GlobalProxyConfig> getCurrent() {
+    @Deprecated(since = "5.3.0", forRemoval = true)
+    public static Optional<GlobalProxyConfig> getCurrent() {
+        return getConfigFromSystemProperties(ProxyProtocol.values());
+    }
+
+    /**
+     * Retrieves the proxy configuration *only* from System properties.
+     *
+     * @param protocols a selection of protocols for which to get the config
+     * @return GlobalProxyConfig
+     * @since 6.3
+     */
+    public static Optional<GlobalProxyConfig> getConfigFromSystemProperties(final ProxyProtocol... protocols) {
         final var properties = System.getProperties();
-        final var maybeProtocol = getProtocol(properties);
-        if (maybeProtocol.isEmpty()) {
-            return Optional.empty();
-        }
-        final var protocol = maybeProtocol.get();
-        final var host = getHost(properties).get(); // NOSONAR if protocol exists, host does too
-        final var port = getPort(properties).get(); // NOSONAR if protocol exists, port does too
-        final var useAuthentication = useAuthentication(properties);
-        final var username = getUsername(properties).orElse(null);
-        final var password = getPassword(properties).orElse(null);
-        final var useExcludedHosts = useExcludedHosts(properties);
-        final var excludedHosts = getExcludedHosts(properties).orElse(null);
-        return Optional.of(new GlobalProxyConfig(protocol, host, port, useAuthentication, username, password,
-            useExcludedHosts, excludedHosts));
+        return getProtocol(properties, protocols) //
+            .map(p -> new GlobalProxyConfig(p, //
+                getHost(properties, p).get(), //
+                getPort(properties, p).get(), //
+                useAuthentication(properties, p), //
+                getUsername(properties, p).orElse(null), //
+                getPassword(properties, p).orElse(null), //
+                useExcludedHosts(properties, p), //
+                getExcludedHosts(properties, p).orElse(null) //
+            ));
     }
 
     /**
