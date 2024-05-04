@@ -136,6 +136,11 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.5.13</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.platform</groupId>
+		    <artifactId>org.eclipse.core.net</artifactId>
+		    <version>1.4.0</version>
+		</dependency>
 		<!-- Test scope dependencies -->
 		<dependency>
 			<groupId>org.hamcrest</groupId>

@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.proxy;
 
+import java.net.URI;
 import java.net.URL;
 
 import org.apache.commons.lang3.StringUtils;
@@ -77,19 +78,39 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
     String username, String password, boolean useExcludedHosts, String excludedHosts) {
 
     /**
-     * Checks whether the host of the given URL is excluded by this proxy configuration.
+     * Checks whether the host of the given {@link URL} is excluded by this proxy configuration.
      *
      * @param url the url which to connect to
      * @return whether the given URL is excluded from using the proxy
      * @since 6.2
      */
     public boolean isHostExcluded(final URL url) {
-        final var urlHost = url.getHost();
-        if (!useExcludedHosts || excludedHosts == null || StringUtils.isBlank(urlHost)) {
+        if (url == null) {
+            return false;
+        }
+        return isHostExcluded(url.getHost());
+    }
+
+    /**
+     * Checks whether the host of the given {@link URI} is excluded by this proxy configuration.
+     *
+     * @param uri the URI which to connect to
+     * @return whether the given URI is excluded from using the proxy
+     * @since 6.2
+     */
+    public boolean isHostExcluded(final URI uri) {
+        if (uri == null) {
+            return false;
+        }
+        return isHostExcluded(uri.getHost());
+    }
+
+    private boolean isHostExcluded(final String serverHost) {
+        if (!useExcludedHosts || excludedHosts == null || StringUtils.isBlank(serverHost)) {
             return false;
         }
 
         // translation from pattern to regex taken from `org.apache.cxf.transport.http.RegexBuilder#build(String)`
-        return urlHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
+        return serverHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
     }
 }

@@ -20,6 +20,8 @@
  */
 package org.knime.cxf.core.fragment;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -62,7 +64,7 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
         final var conduit = Objects.requireNonNull(c);
         configureHTTP1OnConduit(conduit);
         configureSSLOnConduit(conduit);
-        configureProxyOnConduit(conduit);
+        configureProxyOnConduit(conduit, address);
     }
 
     /**
@@ -96,10 +98,17 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
      * conduit.
      *
      * @param conduit of an HTTP client
+     * @param address string address of the web target
      */
-    static void configureProxyOnConduit(final HTTPConduit conduit) {
+    static void configureProxyOnConduit(final HTTPConduit conduit, final String address) {
+        // Try to create URI to match on proxy exclusion below. Proxy selection works for a null URI as well.
+        URI uri = null;
+        try {
+            uri = new URI(address);
+        } catch (URISyntaxException ignored) { // NOSONAR
+        }
         // Noop if no proxy protocol was configured.
-        final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrent();
+        final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrentFor(uri);
         if (maybeProxyConfig.isEmpty()) {
             return;
         }

@@ -101,7 +101,7 @@ public final class URLConnectionFactory {
      * Wraps the global proxy configuration in a {@link Proxy} object.
      */
     private static Optional<Pair<Proxy, Authenticator>> getProxy(final URL url) {
-        final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrent();
+        final var maybeProxyConfig = GlobalProxyConfigProvider.getCurrentFor(url);
         if (maybeProxyConfig.isEmpty()) {
             // corresponds to a proxy using `java.net.Proxy.Type.DIRECT`
             return Optional.empty();
