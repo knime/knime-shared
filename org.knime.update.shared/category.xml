@@ -12,9 +12,6 @@
    <feature id="org.knime.features.util.source" version="0.0.0">
       <category name="knime-shared"/>
    </feature>
-   <bundle id="org.apache.xmlbeans5">
-      <category name="knime-shared"/>
-   </bundle>
    <category-def name="knime-shared" label="Build artifacts from knime-shared">
       <description>
          Build artifacts from knime-shared

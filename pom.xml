@@ -38,7 +38,6 @@
 			</properties>
 
 			<modules>
-				<module>org.apache.xmlbeans</module>
 				<module>org.knime.cxf.core.fragment</module>
 				<module>org.knime.cxf-util</module>
 				<module>org.knime.core.util/pom-AP.xml</module>
