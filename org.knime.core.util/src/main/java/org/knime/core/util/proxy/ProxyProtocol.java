@@ -95,36 +95,58 @@ public enum ProxyProtocol {
     /**
      * Checks whether there is are host and port entries for this proxy protocol.
      * Acts as an identifier whether it was configured.
-     * It's discouraged to use the "proxySet" property, therefore we check for host and port.
+     * <p>
+     * First checks whether system proxies are enabled. If so, property-based are not to be considered.
+     * It is discouraged to use the "proxySet" property, therefore we check the host's presence.
+     * </p>
      *
      * @return is configured in the system properties?
      */
     boolean isConfigured(final Properties properties) {
-        final var hostPresent = getProxyProperty(GlobalProxyConfigProvider.HOST_KEY, properties)//
+        if (Boolean.parseBoolean(properties.getProperty(GlobalProxyConfigProvider.USE_SYSTEM_PROXIES_KEY))) {
+            return false;
+        }
+        // The port is not required for configuration. If it is absent, the default port is used.
+        return getProxyProperty(GlobalProxyConfigProvider.HOST_KEY, properties)//
             .filter(StringUtils::isNotBlank)//
             .isPresent();
-        final var portPresent = getProxyProperty(GlobalProxyConfigProvider.PORT_KEY, properties)//
-            .filter(StringUtils::isNotBlank)//
-            .isPresent();
-        return hostPresent && portPresent;
     }
 
-    Optional<String> getProxyProperty(final String key, final Properties properties) {
-        if (key == null) {
+    /**
+     * Implements the proxy property syntax for the HTTP, HTTPS, and SOCKS protocol according to the
+     * Java documentation. See below for the documentation URL.
+     *
+     * @param name property name
+     * @param properties current {@link System#getProperties()}
+     * @return string of the configured value, if present
+     * @see "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/net/doc-files/net-properties.html"
+     */
+    Optional<String> getProxyProperty(final String name, final Properties properties) {
+        if (properties == null || properties.isEmpty() || name == null) {
             return Optional.empty();
         }
+        return Optional.ofNullable(properties.getProperty(createPropertyKey(name)));
+    }
 
+    String createPropertyKey(final String name) {
         if (this == ProxyProtocol.SOCKS) {
+            if (GlobalProxyConfigProvider.USER_KEY.equals(name)) {
+                return GlobalProxyConfigProvider.SOCKS_USER_KEY;
+            }
+            if (GlobalProxyConfigProvider.PASSWORD_KEY.equals(name)) {
+                return GlobalProxyConfigProvider.SOCKS_PASSWORD_KEY;
+            }
             // For the SOCKS protocol, keys do not contain a dot and are in camel-case.
-            final var protocolKey =
-                asLowerString() + key.substring(0, 1).toUpperCase(Locale.ENGLISH) + key.substring(1);
-            return Optional.ofNullable(properties.getProperty(protocolKey));
-        } else if (GlobalProxyConfigProvider.EXCLUDED_HOSTS_KEY.equals(key)) {
-            // According to https://docs.oracle.com/javase/6/docs/technotes/guides/net/proxies.html,
-            // the HTTP and HTTPS protocol use the same property for non-proxy-hosts.
-            return Optional.ofNullable(properties.getProperty("http." + key));
+            return asLowerString() + StringUtils.capitalize(name);
         }
-        return Optional.ofNullable(properties.getProperty(asLowerString() + "." + key));
+
+        if (GlobalProxyConfigProvider.EXCLUDED_HOSTS_KEY.equals(name)) {
+            // The HTTP and HTTPS protocol use the same property for non-proxy-hosts.
+            return "http." + name;
+        }
+
+        // If none of the special cases match, use standard "<protocol>.<property>" syntax.
+        return asLowerString() + "." + name;
     }
 
     /**

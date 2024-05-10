@@ -44,83 +44,27 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Apr 30, 2024 (lw): created
+ *   May 10, 2024 (lw): created
  */
-package org.knime.core.util.proxy;
+package org.knime.core.util.proxy.search;
 
-import java.io.IOException;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
 import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.knime.core.util.proxy.search.GlobalProxySearch;
-
+import org.knime.core.util.proxy.EnvironmentProxyConfigProvider;
+import org.knime.core.util.proxy.ProxyProtocol;
+import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
 
 /**
- * A {@link ProxySelector} that uses the {@link GlobalProxySearch} to select proxies for {@link URI}s.
+ * Searches through the enviromen variables for proxy configuration.
+ * This functionality already exists in the {@link EnvironmentProxyConfigProvider} which we can use here.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.3
  */
-public final class ProxySelectorAdapter extends ProxySelector {
-
-    private static final Logger LOGGER = Logger.getLogger(ProxySelectorAdapter.class.getName());
-
-    private final ProxySelector m_fallbackSelector;
-
-    /**
-     * Inaccessible the constructor. Created through {@link #installProxySelector()}.
-     */
-    private ProxySelectorAdapter(final ProxySelector fallbackSelector) {
-        m_fallbackSelector = Objects.requireNonNullElseGet(fallbackSelector, NoProxySelector::new);
-    }
-
-    /**
-     * Sets this adapter to the {@link GlobalProxySearch} as default {@link ProxySelector}.
-     *
-     * @noreference This method is not intended to be referenced by clients.
-     * @since 5.3
-     */
-    public static void installProxySelector() {
-        final var currentSelector = ProxySelector.getDefault();
-        if (!(currentSelector instanceof ProxySelectorAdapter)) {
-            ProxySelector.setDefault(new ProxySelectorAdapter(currentSelector));
-        }
-    }
+final class EnvironmentProxyStrategy implements GlobalProxyStrategy {
 
     @Override
-    public List<Proxy> select(final URI uri) {
-        return GlobalProxySearch.getCurrentFor(uri) //
-            .map(cfg -> List.of(cfg.forJavaNetProxy().getFirst())) //
-            .orElse(m_fallbackSelector.select(uri));
-    }
-
-    @Override
-    public void connectFailed(final URI uri, final SocketAddress sa, final IOException ioe) {
-        LOGGER.log(Level.WARNING, "Connection to proxy at \"%s\" failed".formatted(uri), ioe);
-        m_fallbackSelector.connectFailed(uri, sa, ioe);
-    }
-
-    /**
-     * {@link ProxySelector} that always returns {@link Proxy#NO_PROXY}.
-     *
-     * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
-     */
-    private static class NoProxySelector extends ProxySelector {
-
-        @Override
-        public List<Proxy> select(final URI uri) {
-            return List.of(Proxy.NO_PROXY);
-        }
-
-        @Override
-        public void connectFailed(final URI uri, final SocketAddress sa, final IOException ioe) {
-            // do nothing
-        }
+    public GlobalProxySearchResult getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
+        return new GlobalProxySearchResult(SearchSignal.EVALUATE,
+            EnvironmentProxyConfigProvider.getConfigFromEnvironment(uri, protocols));
     }
 }

@@ -49,10 +49,12 @@
 package org.knime.core.util.proxy.search;
 
 import static java.util.Objects.requireNonNullElse;
+import static org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.empty;
+import static org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.found;
+import static org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.stop;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.net.proxy.IProxyData;
@@ -107,18 +109,17 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
     }
 
     @Override
-    public Optional<GlobalProxyConfig> getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
+    public GlobalProxySearchResult getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
         // we do not initialize the service here, this is the responsibility of other bundles
         // some applications using the 'GlobalProxySearch' API may not initialize the service at all
-        if (m_proxyServiceTracker == null) {
+        if (m_proxyServiceTracker == null || m_proxyServiceTracker.getService() == null) {
             // can be null in non-Eclipse applications as there is no bundle context
-            return Optional.empty();
+            return empty();
         }
         final var service = m_proxyServiceTracker.getService();
-        if (service == null || !service.isProxiesEnabled()) {
-            return Optional.empty();
+        if (!service.isProxiesEnabled()) {
+            return stop();
         }
-
         // if the URI is null, choose proxy data independently (retrieve any configuration)
         final var validData = uri != null ? service.select(uri) : service.getProxyData();
         final var validProtocols = Arrays.stream(protocols) //
@@ -127,9 +128,9 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
         for (var data : validData) {
             if (StringUtils.equalsAnyIgnoreCase(data.getType(), validProtocols)
                     && StringUtils.isNotBlank(data.getHost())) {
-                return Optional.of(toGlobalProxyConfig(data, service.getNonProxiedHosts()));
+                return found(toGlobalProxyConfig(data, service.getNonProxiedHosts()));
             }
         }
-        return Optional.empty();
+        return empty();
     }
 }

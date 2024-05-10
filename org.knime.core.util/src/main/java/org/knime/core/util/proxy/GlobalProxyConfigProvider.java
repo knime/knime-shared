@@ -64,6 +64,8 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
  */
 public final class GlobalProxyConfigProvider {
 
+    static final String USE_SYSTEM_PROXIES_KEY = "java.net.useSystemProxies";
+
     static final String HOST_KEY = "proxyHost";
 
     static final String PORT_KEY = "proxyPort";
@@ -73,6 +75,13 @@ public final class GlobalProxyConfigProvider {
     static final String PASSWORD_KEY = "proxyPassword";
 
     static final String EXCLUDED_HOSTS_KEY = "nonProxyHosts";
+
+    // Special authentication keys for SOCKS, are switched to when using #getUsername() or
+    // #getPassword() and a ProxyProtocol.SOCKS proxy is detected or specified.
+
+    static final String SOCKS_USER_KEY = "java.net.socks.username";
+
+    static final String SOCKS_PASSWORD_KEY = "java.net.socks.password";
 
     /**
      * @see GlobalProxyConfigProvider#getProtocol(Properties)
@@ -261,11 +270,15 @@ public final class GlobalProxyConfigProvider {
      * @since 6.3
      */
     public static Optional<GlobalProxyConfig> getConfigFromSystemProperties(final ProxyProtocol... protocols) {
-        final var properties = System.getProperties();
+        return getConfigFromSystemProperties(System.getProperties(), protocols);
+    }
+
+    static Optional<GlobalProxyConfig> getConfigFromSystemProperties(final Properties properties,
+        final ProxyProtocol... protocols) {
         return getProtocol(properties, protocols) //
             .map(p -> new GlobalProxyConfig(p, //
                 getHost(properties, p).get(), //
-                getPort(properties, p).get(), //
+                getPort(properties, p).orElse(null), //
                 useAuthentication(properties, p), //
                 getUsername(properties, p).orElse(null), //
                 getPassword(properties, p).orElse(null), //

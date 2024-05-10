@@ -53,6 +53,7 @@ import java.util.Optional;
 
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
+import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
 
 /**
  * Interface for retrieving the single best fitting proxy configuration for a given {@link URI}
@@ -76,5 +77,37 @@ public interface GlobalProxyStrategy {
      * @param protocols protocols whose configurations are queried in order, first one present is returned
      * @return {@link GlobalProxyConfig} if configuration is present
      */
-    Optional<GlobalProxyConfig> getCurrentFor(final URI uri, final ProxyProtocol... protocols);
+    GlobalProxySearchResult getCurrentFor(final URI uri, final ProxyProtocol... protocols);
+
+    /**
+     * Tri-state for the {@link GlobalProxyConfig} search result. The {@link #signal()} indicator
+     * determines whether to continue search or return the found config value. The following three
+     * states are possible.
+     * <ul>
+     *   <li>Nothing was found and search should continue, see {@link #empty()}.</li>
+     *   <li>Nothing was found since proxies are disabled, see {@link #stop()}.</li>
+     *   <li>A proxy config was found, see {@link #found(GlobalProxyConfig)}.</li>
+     * </ul>
+     *
+     * @param signal the {@link SearchSignal} indicator
+     * @param value the {@link GlobalProxyConfig} value
+     */
+    record GlobalProxySearchResult(SearchSignal signal, Optional<GlobalProxyConfig> value) {
+
+        enum SearchSignal {
+                EVALUATE, STOP;
+        }
+
+        static GlobalProxySearchResult stop() {
+            return new GlobalProxySearchResult(SearchSignal.STOP, Optional.empty());
+        }
+
+        static GlobalProxySearchResult empty() {
+            return new GlobalProxySearchResult(SearchSignal.EVALUATE, Optional.empty());
+        }
+
+        static GlobalProxySearchResult found(final GlobalProxyConfig value) {
+            return new GlobalProxySearchResult(SearchSignal.EVALUATE, Optional.of(value));
+        }
+    }
 }

@@ -98,16 +98,16 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
      * @since 6.3
      */
     public int intPort() {
-        // parsing proxy port, defaults to the protocol's default port
+        // attempt to parse port, fall back to protocol's default port
+        var intPort = protocol.getDefaultPort();
         try {
-            return Integer.parseInt(port());
+            intPort = Integer.parseInt(String.valueOf(port()));
         } catch (NumberFormatException nfe) {
-            final var defaultPort = protocol().getDefaultPort();
             LOGGER.log(Level.WARNING,
-                String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", port(), defaultPort),
+                String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", port(), intPort),
                 nfe);
-            return defaultPort;
         }
+        return intPort;
     }
 
     /**
@@ -143,13 +143,9 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
     public Pair<Proxy, Authenticator> forJavaNetProxy() {
         final var authenticator = new Authenticator() {
             private boolean verifyRequestor() {
-                // cannot use #getRequestingProtocol() since it may return HTTP for HTTPS configs,
-                // but querying the URL (if set) should match the configured protocol
-                final var proxyProtocolMatches = getRequestingURL() == null //
-                        || StringUtils.equalsIgnoreCase(getRequestingURL().getProtocol(), protocol().name());
-                // verify that the authentication request came from the configured proxy
+                // we omit matching on protocol since (1) #getRequestingProtocol() is not consistent
+                // and (2) with ALL_PROXY configured proxies do not specify a protocol to match on
                 return getRequestorType() == RequestorType.PROXY //
-                        && proxyProtocolMatches //
                         && StringUtils.equals(getRequestingHost(), host()) //
                         && getRequestingPort() == intPort();
             }

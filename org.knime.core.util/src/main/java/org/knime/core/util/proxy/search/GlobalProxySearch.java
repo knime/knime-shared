@@ -62,6 +62,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
+import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
 
 /**
  * Employs multiple {@link GlobalProxyStrategy}s to search for the current global proxy
@@ -74,9 +75,8 @@ public final class GlobalProxySearch {
 
     private static final Logger LOGGER = Logger.getLogger(GlobalProxySearch.class.getName());
 
-    // TODO: Add more proxy search strategies with AP-20419.
     private static final List<GlobalProxyStrategy> SEARCH_STRATEGIES = List.of( //
-        new JavaProxyStrategy(), new EclipseProxyStrategy() //
+        new EclipseProxyStrategy(), new JavaProxyStrategy(), new EnvironmentProxyStrategy() //
     );
 
     /**
@@ -92,6 +92,10 @@ public final class GlobalProxySearch {
     public static Optional<GlobalProxyConfig> getCurrentFor(final URL url) {
         URI uri = null;
         if (url != null) {
+            // return early for file:// URLs before trying to parse as URI
+            if ("file".equalsIgnoreCase(url.getProtocol())) {
+                return Optional.empty();
+            }
             try {
                 uri = url.toURI();
             } catch (URISyntaxException e) {
@@ -148,13 +152,22 @@ public final class GlobalProxySearch {
      * @return GlobalProxyConfig if present
      */
     public static Optional<GlobalProxyConfig> getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
+        if (uri != null && "file".equalsIgnoreCase(uri.getScheme())) {
+            return Optional.empty();
+        }
         // while the URI may be null, protocol elements should be valid for strategies to work with
         final var validProtocols = validateProxyProtocols(protocols);
         // search through all registered strategies
         for (var strategy : SEARCH_STRATEGIES) {
             final var result = strategy.getCurrentFor(uri, validProtocols);
-            if (result.filter(cfg -> !cfg.isHostExcluded(uri)).isPresent()) {
-                return result;
+            final var value = result.value();
+            // return if signaled by strategy
+            if (result.signal() == SearchSignal.STOP) {
+                return value;
+            }
+            // otherwise evaluate and *only* return if present and valid for URI
+            if (value.filter(cfg -> !cfg.isHostExcluded(uri)).isPresent()) {
+                return value;
             }
         }
         return Optional.empty();

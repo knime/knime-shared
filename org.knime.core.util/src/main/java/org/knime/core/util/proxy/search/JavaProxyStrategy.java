@@ -49,11 +49,10 @@
 package org.knime.core.util.proxy.search;
 
 import java.net.URI;
-import java.util.Optional;
 
-import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.GlobalProxyConfigProvider;
 import org.knime.core.util.proxy.ProxyProtocol;
+import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
 
 /**
  * Searches through Java's System properties for proxy configuration.
@@ -64,7 +63,8 @@ import org.knime.core.util.proxy.ProxyProtocol;
 final class JavaProxyStrategy implements GlobalProxyStrategy {
 
     @Override
-    public Optional<GlobalProxyConfig> getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
-        return GlobalProxyConfigProvider.getConfigFromSystemProperties(protocols);
+    public GlobalProxySearchResult getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
+        return new GlobalProxySearchResult(SearchSignal.EVALUATE,
+            GlobalProxyConfigProvider.getConfigFromSystemProperties(protocols));
     }
 }
