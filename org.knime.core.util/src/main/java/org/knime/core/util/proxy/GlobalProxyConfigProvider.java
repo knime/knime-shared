@@ -88,10 +88,14 @@ public final class GlobalProxyConfigProvider {
 
     static {
         final var bundle = FrameworkUtil.getBundle(GlobalProxyConfigProvider.class);
-        // using proxy service class name as String to avoid initialization of the class
-        PROXY_SERVICE_TRACKER =
-            new ServiceTracker<>(bundle.getBundleContext(), "org.eclipse.core.net.proxy.IProxyService", null);
-        PROXY_SERVICE_TRACKER.open();
+        if (bundle != null) {
+            // using proxy service class name as String to avoid initialization of the class
+            PROXY_SERVICE_TRACKER = new ServiceTracker<>(bundle.getBundleContext(), //
+                "org.eclipse.core.net.proxy.IProxyService", null);
+            PROXY_SERVICE_TRACKER.open();
+        } else {
+            PROXY_SERVICE_TRACKER = null;
+        }
     }
 
     /**
@@ -285,6 +289,10 @@ public final class GlobalProxyConfigProvider {
     private static Optional<GlobalProxyConfig> getConfigFromEclipse(final URI uri) {
         // we do not initialize the service here, this is the responsibility of other bundles
         // some applications using the 'GlobalProxySearch' API may not initialize the service at all
+        if (PROXY_SERVICE_TRACKER == null) {
+            // can be null in non-Eclipse applications as there is no bundle context
+            return Optional.empty();
+        }
         final var service = PROXY_SERVICE_TRACKER.getService();
         if (service == null || !service.isProxiesEnabled()) {
             return Optional.empty();
