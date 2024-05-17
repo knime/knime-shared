@@ -73,10 +73,15 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
     private final ServiceTracker<IProxyService, IProxyService> m_proxyServiceTracker;
 
     EclipseProxyStrategy() {
-        // using proxy service class name as String to avoid initialization of the class
-        m_proxyServiceTracker = new ServiceTracker<>(FrameworkUtil.getBundle(this.getClass()).getBundleContext(),
-            "org.eclipse.core.net.proxy.IProxyService", null);
-        m_proxyServiceTracker.open();
+        final var bundle = FrameworkUtil.getBundle(this.getClass());
+        if (bundle != null) {
+            // using proxy service class name as String to avoid initialization of the class
+            m_proxyServiceTracker = new ServiceTracker<>(bundle.getBundleContext(), //
+                "org.eclipse.core.net.proxy.IProxyService", null);
+            m_proxyServiceTracker.open();
+        } else {
+            m_proxyServiceTracker = null;
+        }
     }
 
     /**
@@ -105,6 +110,10 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
     public Optional<GlobalProxyConfig> getCurrentFor(final URI uri, final ProxyProtocol... protocols) {
         // we do not initialize the service here, this is the responsibility of other bundles
         // some applications using the 'GlobalProxySearch' API may not initialize the service at all
+        if (m_proxyServiceTracker == null) {
+            // can be null in non-Eclipse applications as there is no bundle context
+            return Optional.empty();
+        }
         final var service = m_proxyServiceTracker.getService();
         if (service == null || !service.isProxiesEnabled()) {
             return Optional.empty();
