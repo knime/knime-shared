@@ -63,6 +63,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.knime.core.util.Pair;
+import org.knime.core.util.proxy.whitelist.DefaultWhiteListParser;
+import org.knime.core.util.proxy.whitelist.WhiteListParser;
 
 /**
  * Captures the current global proxy configuration (in System properties).
@@ -89,6 +91,8 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
     String username, String password, boolean useExcludedHosts, String excludedHosts) {
 
     private static final Logger LOGGER = Logger.getLogger(GlobalProxyConfig.class.getName());
+
+    private static final WhiteListParser EXCLUSION_PARSER = new DefaultWhiteListParser();
 
     /**
      * Attemps to parse the string-stored {@link #port()} into an integer. Returns the protocol's
@@ -126,8 +130,9 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
             return false;
         }
 
-        // translation from pattern to regex taken from `org.apache.cxf.transport.http.RegexBuilder#build(String)`
-        return uriHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
+        // proxy exclusion according to proxy-vole, see "https://github.com/akuhtz/proxy-vole"
+        return EXCLUSION_PARSER.parseWhiteList(this.excludedHosts).stream() //
+                .anyMatch(filter -> filter.test(uri));
     }
 
     // -- CONVERTING TO OTHER CONFIGS --
