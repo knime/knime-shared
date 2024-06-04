@@ -128,15 +128,37 @@ abstract class AbstractProxyConfigProviderTest<T> {
                     .as("Detected proxy configuration is not the same as expected") //
                     .usingRecursiveComparison() //
                     .isEqualTo(Optional.of(data));
+
+                // (2) check proxy port defaulting
+                final var config = testConfig.get();
+                final var expectedPort = isNonNegativeInt(config.port());
+                if (expectedPort.isPresent()) {
+                    assertThat(config.intPort()) //
+                        .as("Integer port does not equal string port") //
+                        .isEqualTo(expectedPort.get());
+                } else {
+                    assertThat(config.intPort()) //
+                        .as("Integer port did not default correctly to procotol-specific port") //
+                        .isEqualTo(config.protocol().getDefaultPort());
+                }
             }
         }
 
-        // (2) check invalid proxy configs
+        // (3) check invalid proxy configs
         for (var protocol : ProxyProtocol.values()) {
             final var data = new GlobalProxyConfig(protocol, null, null, false, null, null, false, null);
             assertThat(createTestConfig(data, null, protocol)) //
                 .as("Proxy configuration should not be present but was") //
                 .isEmpty();
+        }
+    }
+
+    private static Optional<Integer> isNonNegativeInt(final String value) {
+        try {
+            return Optional.of(Integer.parseInt(value))
+                    .filter(number -> number >= 0);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
         }
     }
 

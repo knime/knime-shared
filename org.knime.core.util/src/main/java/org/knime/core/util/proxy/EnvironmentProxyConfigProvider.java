@@ -53,6 +53,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.EnumUtils;
@@ -75,14 +76,38 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class EnvironmentProxyConfigProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(EnvironmentProxyConfigProvider.class.getName());
-
     /**
      * Proxy environment variables used by convention (popular use in {@code libcurl}).
      * Specifies {@link #getValue()} for retrieving its value from the environment.
      */
     enum ProxyEnvVar {
         HTTP_PROXY, HTTPS_PROXY, SOCKS_PROXY, ALL_PROXY, NO_PROXY;
+
+        private static final Logger LOGGER = Logger.getLogger(ProxyEnvVar.class.getName());
+
+        static {
+            final var environmentVariables = System.getenv();
+            final var joiner = new StringJoiner(", ");
+            for (var procotol : ProxyProtocol.values()) {
+                final var ev = ProxyEnvVar.fromProxyProtocol(procotol);
+                final var result = ev.getValue(environmentVariables);
+                if (result == null) {
+                    continue;
+                } else if (parseResultAsURI(result, procotol) == null) {
+                    LOGGER.warning(() -> String.format(
+                        "Environment variable \"%s\" could not be parsed as proxy host", ev));
+                } else {
+                    joiner.add(ev.name());
+                }
+            }
+            final var detectedVariables = joiner.toString();
+            if (!detectedVariables.isEmpty()) {
+                LOGGER.info(() -> String.format(
+                    "Detected environment variables to be used as fallback "
+                        + "if the Eclipse proxy provider is inactive or not set to \"Direct\": %s",
+                    detectedVariables));
+            }
+        }
 
         /**
          * Converts from {@link ProxyProtocol} to {@link ProxyEnvVar}.
@@ -114,12 +139,12 @@ public class EnvironmentProxyConfigProvider {
          * @return value if present (otherwise default value)
          */
         String getValue(final Map<String, String> variables) {
-            final var lowerResult = variables.get(getLowerKey());
-            if (StringUtils.isNotBlank(lowerResult)) {
+            final var lowerResult = StringUtils.strip(variables.get(getLowerKey()));
+            if (StringUtils.isNotEmpty(lowerResult)) {
                 return lowerResult;
             }
-            final var upperResult = variables.get(getUpperKey());
-            if (StringUtils.isNotBlank(upperResult)) {
+            final var upperResult = StringUtils.strip(variables.get(getUpperKey()));
+            if (StringUtils.isNotEmpty(upperResult)) {
                 return upperResult;
             }
             return null;
@@ -145,7 +170,9 @@ public class EnvironmentProxyConfigProvider {
             proxyValue = protocol.asLowerString() + separator + proxyValue;
         }
         try {
-            return new URI(proxyValue);
+            final var uri = new URI(proxyValue);
+            // port is not required for configuration - if absent, the default port is used
+            return StringUtils.isNotBlank(uri.getHost()) ? uri : null;
         } catch (URISyntaxException e) { // NOSONAR return 'null' here, indicator for invalid value
             return null;
         }

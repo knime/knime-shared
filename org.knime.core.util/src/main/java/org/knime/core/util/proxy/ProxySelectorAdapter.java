@@ -86,7 +86,7 @@ public final class ProxySelectorAdapter extends ProxySelector {
      * @noreference This method is not intended to be referenced by clients.
      * @since 5.3
      */
-    public static void installProxySelector() {
+    public static synchronized void installProxySelector() {
         final var currentSelector = ProxySelector.getDefault();
         if (!(currentSelector instanceof ProxySelectorAdapter)) {
             ProxySelector.setDefault(new ProxySelectorAdapter(currentSelector));

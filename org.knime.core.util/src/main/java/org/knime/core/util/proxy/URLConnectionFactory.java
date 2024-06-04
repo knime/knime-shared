@@ -127,8 +127,8 @@ public final class URLConnectionFactory {
             // at least for the clients reading this field (unlike Eclipse's NetAuthenticator)
             httpConnection.setAllowUserInteraction(false);
 
-            // (3) generally, we additionally always follow redirects (as configured in KNIMEConduitConfigurer)
-            // but this is only possible to set statically for HttpURLConnections, which we don't want here
+            // (3) generally, we additionally always follow redirects (as in KNIMEConduitConfigurer)
+            httpConnection.setInstanceFollowRedirects(true);
 
             // (4) use own host name verifier if it is a HTTPS connection
             if (httpConnection instanceof HttpsURLConnection httpsConnection) {

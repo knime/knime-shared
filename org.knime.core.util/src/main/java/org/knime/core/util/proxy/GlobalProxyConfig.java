@@ -105,7 +105,10 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
         // attempt to parse port, fall back to protocol's default port
         var intPort = protocol.getDefaultPort();
         try {
-            intPort = Integer.parseInt(String.valueOf(port()));
+            final var parsedPort = Integer.parseInt(String.valueOf(port()));
+            if (parsedPort >= 0) {
+                intPort = parsedPort;
+            }
         } catch (NumberFormatException nfe) {
             LOGGER.log(Level.WARNING,
                 String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", port(), intPort),

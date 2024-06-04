@@ -76,6 +76,7 @@ class EnvironmentProxyConfigProviderTest extends AbstractProxyConfigProviderTest
                 : String.format("%s://%s%s", protocol.asLowerString(), userInfo, config.host()));
         }
         if (config.useExcludedHosts()) {
+            // use the ','-separated variant for host exclusion
             variables.put("NO_PROXY", StringUtils.replaceChars(config.excludedHosts(), '|', ','));
         }
         return variables;

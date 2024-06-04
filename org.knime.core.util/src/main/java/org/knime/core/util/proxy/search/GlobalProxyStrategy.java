@@ -53,7 +53,6 @@ import java.util.Optional;
 
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
-import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
 
 /**
  * Interface for retrieving the single best fitting proxy configuration for a given {@link URI}
@@ -62,7 +61,7 @@ import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchRes
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @since 6.3
  */
-public interface GlobalProxyStrategy {
+interface GlobalProxyStrategy {
 
     /**
      * Retrieves the current global proxy configuration for a URI and a selection of proxy protocols
