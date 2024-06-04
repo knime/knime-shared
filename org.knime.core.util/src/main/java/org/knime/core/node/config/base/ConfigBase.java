@@ -188,6 +188,19 @@ public abstract class ConfigBase extends AbstractConfigEntry
     }
 
     /**
+     * Removes the config at the given key
+     *
+     * @param key
+     * @return the previous value associated with {@code key}, or {@code null} if there was no mapping for {@code key}.
+     *         (A {@code null} return can also indicate that the map previously associated {@code null} with
+     *         {@code key}.)
+     * @since 6.3
+     */
+    public final AbstractConfigEntry removeConfig(final String key) {
+        return m_map.remove(key);
+    }
+
+    /**
      * Adds an int.
      *
      * @param key The key.
@@ -1345,13 +1358,20 @@ public abstract class ConfigBase extends AbstractConfigEntry
      */
     @Override
     public void copyTo(final ConfigBaseWO dest) {
+        if (dest instanceof CopyFromConfigBase copyFrom) {
+            copyFrom.copyFrom(this);
+            return;
+        }
         for (Map.Entry<String, AbstractConfigEntry> e : m_map.entrySet()) {
             AbstractConfigEntry ace = e.getValue();
-            if (ace instanceof ConfigBase) {
+            if (ace instanceof ConfigBase configBaseAce) {
                 ConfigBase config = dest.addConfigBase(ace.getKey());
-                ((ConfigBase) ace).copyTo(config);
+                configBaseAce.copyTo(config);
+            } else if (dest instanceof ConfigBase configBase) {
+                configBase.addEntry(ace);
             } else {
-                ((ConfigBase) dest).addEntry(ace);
+                throw new ClassCastException(
+                    "Cannot copy to the given destination config. It needs to extend ConfigBase.");
             }
         }
     }
@@ -1521,6 +1541,31 @@ public abstract class ConfigBase extends AbstractConfigEntry
         Map<String, AbstractJSONEntry> jsonMap = m_map.entrySet().stream()
                 .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toJSONEntry()));
         return new JSONRoot(getKey(), jsonMap);
+    }
+
+    /**
+     * This interface allows for {@link #copyTo} to work for other implementations of {@link ConfigBaseWO} apart from
+     * classes extending {@link ConfigBase}. This is in particular necessary when working with a proxy of an interfaces
+     * extending {@link ConfigBaseWO}. I.e. such a proxy also needs to implement this interface in order to allow
+     * {@link #copyTo} to not throw an exception when applied to it.
+     *
+     * @noreference
+     * @noimplement
+     *
+     * @since 6.3
+     * @author Paul Bärnreuther
+     */
+    @FunctionalInterface
+    public interface CopyFromConfigBase {
+
+        /**
+         * @noreference
+         * @noimplement
+         *
+         * @since 6.3
+         * @param src
+         */
+        void copyFrom(final ConfigBase src);
     }
 
 }

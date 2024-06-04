@@ -113,7 +113,7 @@ class ConfigBaseTest {
             "getLongArray", "getPassword", "getPassword", "getShort", "getShort", "getShortArray", "getShortArray",
             "getString", "getString", "getStringArray", "getStringArray", "getTransientString", "hasIdenticalValue",
             "isLeaf", "iterator", "keySet", "load", "loadFromXML", "put", "readFromFile", "saveToXML", "toJSONEntry",
-            "toJSONRoot", "toString", "toString", "toString", "toStringValue", "writeToFile"};
+            "toJSONRoot", "toString", "toString", "toString", "toStringValue", "writeToFile", "removeConfig"};
 
         Predicate<String> regularName = s -> !s.contains("$");
 
