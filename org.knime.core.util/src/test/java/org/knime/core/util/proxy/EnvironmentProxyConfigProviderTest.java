@@ -72,8 +72,8 @@ class EnvironmentProxyConfigProviderTest extends AbstractProxyConfigProviderTest
         }
         if (config.host() != null) {
             variables.put(protocol.name() + "_PROXY", config.port() != null //
-                ? String.format("%s%s:%s", userInfo, config.host(), config.port()) //
-                : String.format("%s%s", userInfo, config.host()));
+                ? String.format("%s://%s%s:%s", protocol.asLowerString(), userInfo, config.host(), config.port()) //
+                : String.format("%s://%s%s", protocol.asLowerString(), userInfo, config.host()));
         }
         if (config.useExcludedHosts()) {
             variables.put("NO_PROXY", StringUtils.replaceChars(config.excludedHosts(), '|', ','));

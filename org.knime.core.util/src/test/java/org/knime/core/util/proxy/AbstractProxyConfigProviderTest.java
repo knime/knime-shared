@@ -118,7 +118,7 @@ abstract class AbstractProxyConfigProviderTest<T> {
             final var ord = String.valueOf(protocol.ordinal());
             for (var data : List.of(
                 new GlobalProxyConfig(protocol, name + "host", ord, true, name + "user", name + "pw", false, null),
-                new GlobalProxyConfig(protocol, name + "host", "-1", true, name + "user", "", false, null),
+                new GlobalProxyConfig(protocol, name + "host", "42", true, name + "user", "", false, null),
                 new GlobalProxyConfig(protocol, name + "host", null, false, null, null, false, null))) {
 
                 final var testConfig = createTestConfig(data, null, protocol);

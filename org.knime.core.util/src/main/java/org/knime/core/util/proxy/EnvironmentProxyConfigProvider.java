@@ -49,6 +49,7 @@
 package org.knime.core.util.proxy;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -126,42 +127,64 @@ public class EnvironmentProxyConfigProvider {
     }
 
     /**
-     * Maps a {@link String} value of an environment variable to a {@link GlobalProxyConfig}.
+     * Parses a proxy hostname as {@link URI}. To ensure correct parsing, a scheme/protocol
+     * has to be prepended (if missing) before creating the URI.
      *
-     * @param proxy non-null string result
+     * @param proxy string result
+     * @param protocol non-empty proxy protocol
+     * @return URI instance
+     */
+    private static URI parseResultAsURI(final String proxy, final ProxyProtocol protocol) {
+        if (proxy == null) {
+            return null;
+        }
+        final var separator = "://";
+        var proxyValue = proxy;
+        // prepend scheme/protocol to ensure correct parsing by URI
+        if (!proxy.contains(separator)) {
+            proxyValue = protocol.asLowerString() + separator + proxyValue;
+        }
+        try {
+            return new URI(proxyValue);
+        } catch (URISyntaxException e) { // NOSONAR return 'null' here, indicator for invalid value
+            return null;
+        }
+    }
+
+    /**
+     * Maps a {@link URI} value of a parsed environment variable to a {@link GlobalProxyConfig}.
+     *
+     * @param proxyValue non-null {@link URI}, representing the proxy hostname
      * @param protocol non-empty proxy protocol
      * @param noProxyValue non-null value of the NO_PROXY variable
      * @return GlobalProxyConfig instance
      */
-    private static GlobalProxyConfig toGlobalProxyConfig(final String proxy, final ProxyProtocol protocol,
+    private static GlobalProxyConfig toGlobalProxyConfig(final URI proxyValue, final ProxyProtocol protocol,
         final String noProxyValue) {
-        String host = proxy;
-        String port = null;
+        // extract username and password from user info
+        boolean useAuthentication = false;
         String username = null;
         String password = null;
-        final var userInfoIdx = proxy.indexOf('@');
-        if (userInfoIdx > 0) {
-            host = proxy.substring(userInfoIdx + 1);
-            final var userInfo = proxy.substring(0, userInfoIdx).split(":", -1);
-            username = userInfo[0];
-            if (userInfo.length > 1) {
-                password = userInfo[1];
+        final var userInfo = proxyValue.getUserInfo();
+        if (StringUtils.isNotEmpty(userInfo)) {
+            final var parts = userInfo.split(":", 2);
+            username = parts[0];
+            if (parts.length > 1) {
+                password = parts[1];
             }
+            useAuthentication = true;
         }
-        // tries to parse host and integer port from string
-        final var portIdx = host.lastIndexOf(':');
-        if (portIdx > 0) {
-            port = host.substring(portIdx + 1);
-            host = host.substring(0, portIdx);
-        }
+        // a negative port is invalid for a URI, it can either be empty (e.g. "http://knime.com:")
+        // or must be present; we choose 'null' as placeholder which will be parsed correctly in #intPort()
+        final var rawPort = proxyValue.getPort() < 0 ? null : String.valueOf(proxyValue.getPort());
         // the NO_PROXY variable specifies excluded hosts for all proxies in comma-separated list,
-        // re-joining this list with '|' instead to use the same format as Java
+        // re-joining this list with '|' separator to use the same format as Java
         final var excludedHosts = StringUtils.replaceChars(noProxyValue, ',', '|');
         return new GlobalProxyConfig( //
             protocol, //
-            host, //
-            port, //
-            !Objects.isNull(username) && !Objects.isNull(password), //
+            proxyValue.getHost(), //
+            rawPort, //
+            useAuthentication, //
             username, //
             password, //
             StringUtils.isNotEmpty(excludedHosts), //
@@ -188,8 +211,9 @@ public class EnvironmentProxyConfigProvider {
         // select protocol-based *_PROXY variable value
         for (var procotol : protocols) {
             final var result = ProxyEnvVar.fromProxyProtocol(procotol).getValue(environmentVariables);
-            if (result != null) {
-                return Optional.of(toGlobalProxyConfig(result, procotol, noProxyValue));
+            final var proxyValue = parseResultAsURI(result, procotol);
+            if (proxyValue != null) {
+                return Optional.of(toGlobalProxyConfig(proxyValue, procotol, noProxyValue));
             }
         }
 
@@ -199,7 +223,10 @@ public class EnvironmentProxyConfigProvider {
             // if not found, try getting the URI protocol for proxy but fall back to HTTP if null
             final var fallbackProtocol = Objects.requireNonNullElse(uri == null ? null //
                 : EnumUtils.getEnum(ProxyProtocol.class, uri.getScheme()), ProxyProtocol.HTTP);
-            return Optional.of(toGlobalProxyConfig(fallbackResult, fallbackProtocol, noProxyValue));
+            final var fallbackProxyValue = parseResultAsURI(fallbackResult, fallbackProtocol);
+            if (fallbackProxyValue != null) {
+                return Optional.of(toGlobalProxyConfig(fallbackProxyValue, fallbackProtocol, noProxyValue));
+            }
         }
         return Optional.empty();
     }

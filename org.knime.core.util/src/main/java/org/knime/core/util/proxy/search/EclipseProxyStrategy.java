@@ -101,7 +101,7 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
             ProxyProtocol.valueOf(data.getType()), //
             data.getHost(), //
             String.valueOf(data.getPort()), //
-            StringUtils.isNotBlank(username) && StringUtils.isNotEmpty(password), //
+            data.isRequiresAuthentication(), //
             username, //
             password, //
             StringUtils.isNotEmpty(excludedHosts), //
