@@ -6,12 +6,7 @@ Bundle-SymbolicName: org.knime.core.util;singleton:=true
 Bundle-Version: 6.4.0.qualifier
 Bundle-ClassPath: ., lib/schemas.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Export-Package: org.apache.commons.io,
- org.apache.commons.io.comparator,
- org.apache.commons.io.filefilter,
- org.apache.commons.io.input,
- org.apache.commons.io.output,
- org.knime.core.hub.events,
+Export-Package: org.knime.core.hub.events,
  org.knime.core.node,
  org.knime.core.node.config.base,
  org.knime.core.node.dialog,
