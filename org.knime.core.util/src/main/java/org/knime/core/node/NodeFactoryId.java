@@ -67,18 +67,23 @@ public final class NodeFactoryId {
     }
 
     /**
-     * @param factoryClassName
-     * @param isDynamicNodeFactory
-     * @param factoryIdUniquifier
-     * @param nodeName required as a fallback if no factory-id-uniquifier is provided; usually only the case for dynamic
-     *            nodes created with AP < 5.2
-     * @return the factory id
+     * @param factoryClassName the class name ({@link Class#getName()}) of the node factory
+     * @param isParameterizedNodeFactory whether the factory-id is composed for a ParameterizedNodeFactory
+     * @param factoryIdUniquifier only relevant if {@code isParameterizedNodeFactory)} is {@code true} - included in the
+     *            factory id to make it globally unique; if not provided in case of a parameterized node factory (i.e.
+     *            if {@code null}) the node name will be used instead @param nodeName required as a fallback if no
+     *            factory-id-uniquifier is provided; usually only the case for dynamic/parameterized nodes created with
+     *            AP < 5.2 @return the factory id
+     * @param nodeName supplier of the node's name used in case no factory-id-uniquifier is provided and
+     *            {@code isParameterizedNodeFactory} is {@code true}
+     * @return the factory-id
      */
-    public static String compose(final String factoryClassName, final boolean isDynamicNodeFactory,
+    @SuppressWarnings("java:S2301")
+    public static String compose(final String factoryClassName, final boolean isParameterizedNodeFactory,
         final String factoryIdUniquifier, final Supplier<String> nodeName) {
         CheckUtils.checkNotNull(factoryClassName);
         var id = factoryClassName;
-        if (isDynamicNodeFactory) {
+        if (isParameterizedNodeFactory) {
             return id + FACTORY_ID_UNIQUIFIER_SEPARATOR
                 + (factoryIdUniquifier == null ? nodeName.get() : factoryIdUniquifier);
         } else {
