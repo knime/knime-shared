@@ -57,6 +57,7 @@ import java.net.URI;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.internal.net.ProxyManager;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.knime.core.util.proxy.GlobalProxyConfig;
@@ -70,9 +71,10 @@ import org.osgi.util.tracker.ServiceTracker;
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  */
+@SuppressWarnings("restriction")
 final class EclipseProxyStrategy implements GlobalProxyStrategy {
 
-    private final ServiceTracker<IProxyService, IProxyService> m_proxyServiceTracker;
+    private final ServiceTracker<IProxyService, ProxyManager> m_proxyServiceTracker;
 
     EclipseProxyStrategy() {
         final var bundle = FrameworkUtil.getBundle(this.getClass());
@@ -84,6 +86,35 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
         } else {
             m_proxyServiceTracker = null;
         }
+    }
+
+    /**
+     * Unfortunately, we have to access the restricted {@link ProxyManager} API here (instead of {@link IProxyService}),
+     * because for some reason Eclipse returns native proxies only for #select(URI) but not for #getProxyData().
+     *
+     * @param service the {@link IProxyService}, instantiated as proxy manager
+     * @param uri the {@link URI} to select the proxy for (may be null)
+     * @return an array of proxy data of different types
+     */
+    private static IProxyData[] getProxyData(final ProxyManager service, final URI uri) {
+        if (uri != null) {
+            return service.select(uri);
+        }
+        return service.isSystemProxiesEnabled() //
+            ? service.getNativeProxyData() //
+            : service.getProxyData();
+    }
+
+    /**
+     * Same case as above. The public {@link IProxyService} API does not return native non-proxied-hosts.
+     *
+     * @param service the {@link IProxyService}, instantiated as proxy manager
+     * @return an array of strings of proxy-excluded hosts
+     */
+    private static String[] getNonProxiedHosts(final ProxyManager service) {
+        return service.isSystemProxiesEnabled() //
+            ? service.getNativeNonProxiedHosts() //
+            : service.getNonProxiedHosts();
     }
 
     /**
@@ -121,14 +152,14 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
             return stop();
         }
         // if the URI is null, choose proxy data independently (retrieve any configuration)
-        final var validData = uri != null ? service.select(uri) : service.getProxyData();
+        final var validData = getProxyData(service, uri);
         final var validProtocols = Arrays.stream(protocols) //
                 .map(ProxyProtocol::name) //
                 .toArray(String[]::new);
         for (var data : validData) {
             if (StringUtils.equalsAnyIgnoreCase(data.getType(), validProtocols)
                     && StringUtils.isNotBlank(data.getHost())) {
-                return found(toGlobalProxyConfig(data, service.getNonProxiedHosts()));
+                return found(toGlobalProxyConfig(data, getNonProxiedHosts(service)));
             }
         }
         return empty();
