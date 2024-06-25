@@ -44,73 +44,36 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Dec 12, 2023 (Leon Wenzler, KNIME GmbH, Konstanz, Germany): created
+ *   Jun 25, 2024 (lw): created
  */
-package org.knime.cxf.core.fragment;
+package org.knime.cxf.core.fragment.interceptors;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.cxf.Bus;
-import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.interceptor.InterceptorProvider;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
-import org.knime.cxf.core.fragment.interceptors.EmptyRequestInterceptor;
-import org.knime.cxf.core.fragment.interceptors.HeaderFilterInterceptor;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.transport.http.Headers;
 
 /**
- * Provides custom CXF interceptors that all CXF clients which are instantiated in the AP should use.
- * Very general implementation to provide easy extensibility for further interceptors.
- * <p>
- * NB: for example, the {@link sun.net.www.protocol.http.HttpURLConnection} always caches proxy credentials
- * (see also <a href="https://github.com/frohoff/jdk8u-jdk/blob/ebf994e653bf56b6772ec621aacc6f48ee08d9a5/
- *src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#L2146-L2148">here</a>).
- * An idea for another interceptor may be one invalidating these caches for allowing a state-less
- * execution of REST requests using CXF. Not implemented since <tt>sun.*</tt> classes are not public API.
+ * Forcefully sets the {@value Headers#EMPTY_REQUEST_PROPERTY} property in CXF requests
+ * to {@code false}, leading to synchronous response processing, and subsequently correct
+ * proxy authentication. See issue AP-22505.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  */
-public class KNIMEInterceptorProvider implements InterceptorProvider, CXFBusExtension<Void> {
+public class EmptyRequestInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    @Override
-    public Void getExtension() {
-        return null;
+    /**
+     * Default constructor.
+     */
+    public EmptyRequestInterceptor() {
+        super(Phase.PREPARE_SEND);
     }
 
     @Override
-    public Class<Void> getRegistrationType() {
-        return null;
-    }
-
-    @Override
-    public void setOnBus(final Bus bus) {
-        // could not get the extension architecture to work with the
-        // InterceptorProvider.class as bus extension, but this works as well
-        bus.getInInterceptors().addAll(this.getInInterceptors());
-        bus.getOutInterceptors().addAll(this.getOutInterceptors());
-        bus.getInFaultInterceptors().addAll(this.getInFaultInterceptors());
-        bus.getOutFaultInterceptors().addAll(this.getOutFaultInterceptors());
-    }
-
-    // -- INTERCEPTORS --
-
-    @Override
-    public List<Interceptor<? extends Message>> getInInterceptors() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<Interceptor<? extends Message>> getOutInterceptors() {
-        return List.of(new EmptyRequestInterceptor(), new HeaderFilterInterceptor());
-    }
-
-    @Override
-    public List<Interceptor<? extends Message>> getInFaultInterceptors() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<Interceptor<? extends Message>> getOutFaultInterceptors() {
-        return Collections.emptyList();
+    public void handleMessage(final Message message) throws Fault {
+        if (Boolean.TRUE.equals(message.get(Headers.EMPTY_REQUEST_PROPERTY))) {
+            message.put(Headers.EMPTY_REQUEST_PROPERTY, Boolean.FALSE);
+        }
     }
 }
