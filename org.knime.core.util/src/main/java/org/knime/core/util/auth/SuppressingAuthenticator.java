@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.auth;
 
+import java.awt.GraphicsEnvironment;
 import java.io.Closeable;
 import java.net.Authenticator;
 import java.util.logging.Logger;
@@ -71,6 +72,15 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
     private static final ThreadLocal<MutableInt> SUPPRESS_POPUP = ThreadLocal.withInitial(MutableInt::new); // NOSONAR
 
     /**
+     * Java property for suppressing authentication popups by Eclipse when
+     * authentication cannot be found for an {@link Authenticator} request.
+     * Is {@code false} per default.
+     *
+     * @since 6.4
+     */
+    public static final String PROPERTY_AUTH_POPUPS_ALLOWED = "knime.auth.popups.allowed";
+
+    /**
      * Flag indicating whether a warning about the authenticator's inactivity has already been logged.
      */
     private static volatile boolean hasWarnedAboutInactivity;
@@ -84,7 +94,8 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
 
     @Override
     protected OptionalAuthentication getOwnAuthentication() {
-        if (SUPPRESS_POPUP.get().intValue() > 0) {
+        if (GraphicsEnvironment.isHeadless() || !Boolean.getBoolean(PROPERTY_AUTH_POPUPS_ALLOWED)
+            || SUPPRESS_POPUP.get().intValue() > 0) {
             // cannot be an Optional.empty, a null value is what we want
             return OptionalAuthentication.of(null);
         }

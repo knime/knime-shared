@@ -112,7 +112,10 @@ public abstract class DelegatingAuthenticator extends Authenticator {
         }
 
         // more layers of `DelegatingAuthenticator`s can be added as needed
-        Authenticator.setDefault(new SuppressingAuthenticator(Authenticator.getDefault()));
+        Authenticator.setDefault( //
+            new ProxyAuthenticatorAdapter( //
+                new SuppressingAuthenticator( //
+                    Authenticator.getDefault())));
 
         isInstalledGlobally = true;
     }
@@ -173,6 +176,17 @@ public abstract class DelegatingAuthenticator extends Authenticator {
          */
         static OptionalAuthentication of(final PasswordAuthentication authentication) {
             return new OptionalAuthentication(true, authentication);
+        }
+
+        /**
+         * Returns the specified authentication, wrapped within this {@link OptionalAuthentication},
+         * will be empty if the {@link PasswordAuthentication} is {@code null}.
+         *
+         * @param authentication value
+         * @return optional authentication
+         */
+        static OptionalAuthentication ofNullable(final PasswordAuthentication authentication) {
+            return new OptionalAuthentication(authentication != null, authentication);
         }
 
         /**
