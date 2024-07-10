@@ -57,6 +57,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -178,6 +179,20 @@ class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
         assertThat(context.getMountpointURI().orElseThrow()).isEqualTo(URI.create("knime://MyMountpoint/dir/workflow"));
+    }
+
+    @Test
+    /**
+     * Checks that we can't create a {@link WorkflowContextV2} with the workflow outside of it's mount point
+     */
+    void testInvalidPathDetection() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            WorkflowContextV2.builder()
+                .withAnalyticsPlatformExecutor(
+                    exec -> exec.withCurrentUserAsUserId().withLocalWorkflowPath(Path.of("/tmp/workflows/workflow1"))
+                        .withMountpoint("MyMountpoint", Path.of("/opt/mountpoint")))
+                .withLocalLocation().build();
+        }, "Should not be able to create a WorkflowContextV2 with the workflow outside of the mount point");
     }
 
     /**
