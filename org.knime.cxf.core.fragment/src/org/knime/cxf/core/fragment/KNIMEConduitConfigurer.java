@@ -108,6 +108,7 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
         // Noop if no proxy protocol was configured.
         final var maybeProxyConfig = GlobalProxySearch.getCurrentFor(uri);
         if (maybeProxyConfig.isEmpty()) {
+            ensureProxyExclusionInCXF(conduit, uri);
             return;
         }
         final var proxyConfig = maybeProxyConfig.get();
@@ -137,6 +138,31 @@ final class KNIMEConduitConfigurer implements HTTPConduitConfigurer, CXFBusExten
             authorization.setAuthorizationType("Basic");
             conduit.setProxyAuthorization(authorization);
         }
+    }
+
+    /**
+     * When proxy configuration goes beyond what CXF can do, CXF falls back to a default configuration.
+     * <p>
+     * For proxy exclusion, we integrated functionality from 'proxy-vole' (see AP-22603), resulting in
+     * more cases where *we* exclude a host from the proxy than CXF would. Previously, we left the proxy
+     * configuration in the {@link HTTPClientPolicy} empty when no proxy was found. However, this results
+     * in CXF falling back and filling the blanks.
+     * </p>
+     * This is essentially an uncontrolled proxy configuration that we want to prevent here by excluding
+     * the current target host from the proxy if none was configured by us.
+     *
+     * @param conduit of an HTTP client
+     * @param uri the {@link URI} of the target host, can be null
+     */
+    private static void ensureProxyExclusionInCXF(final HTTPConduit conduit, final URI uri) {
+        if (uri == null) {
+            return;
+        }
+        modifyClientPolicy(conduit, policy -> {
+            // a non-empty host is required as dummy, otherwise CXF won't detect exclusion
+            policy.setProxyServer("non-empty-host");
+            policy.setNonProxyHosts(StringUtils.joinWith("|", uri.getHost(), policy.getNonProxyHosts()));
+        });
     }
 
     private static void modifyClientPolicy(final HTTPConduit conduit, final Consumer<HTTPClientPolicy> setter) {
