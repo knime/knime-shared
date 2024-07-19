@@ -64,7 +64,7 @@ import org.junit.jupiter.api.condition.OS;
 import org.knime.core.util.auth.SimpleTokenAuthenticator;
 
 /**
- * Tests for {@link WorkflowContextV2Test}.
+ * Tests for {@link WorkflowContextV2}.
  *
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
  */
@@ -92,7 +92,8 @@ class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
 
-        assertThat(ctx.getMountpointURI()).as("Mountpoint URI is not resolved correctly.").isEqualTo(Optional.of(MOUNTPOINT_URI));
+        assertThat(ctx.getMountpointURI()).as("Mountpoint URI is not resolved correctly.") //
+            .isEqualTo(Optional.of(MOUNTPOINT_URI));
     }
 
     /** Checks that mountpoint URIs containing non-ASCII characters are encoded correctly. */
@@ -121,8 +122,10 @@ class WorkflowContextV2Test {
                     .withDefaultMountId("My-Server"))
                 .build();
 
-        assertThat(((RestLocationInfo)ctx.getLocationInfo()).getWorkflowAddress()).as("Workflow address URI is not resolved correctly.").isEqualTo(URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20-%20%20%20"
-                + "ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"));
+        assertThat(((RestLocationInfo)ctx.getLocationInfo()).getWorkflowAddress()) //
+            .as("Workflow address URI is not resolved correctly.") //
+            .isEqualTo(URI.create("https://user@localhost:1234/rest%20path/hornm/space/Component3%20sdguh4r%20&%20f%20"
+                + "-%20%20%20ff%20%C3%A4%C3%B6%C3%BC+%C3%9F=)(%7D%7B%5B%5D$%C2%A7!"));
     }
 
     /** Checks that scope suppliers in Hub executor information work correctly. */
@@ -178,7 +181,8 @@ class WorkflowContextV2Test {
                     .withMountpoint("MyMountpoint", Path.of("c:\\Users\\asdf\\workspace")))
                 .withLocalLocation()
                 .build();
-        assertThat(context.getMountpointURI().orElseThrow()).isEqualTo(URI.create("knime://MyMountpoint/dir/workflow"));
+        assertThat(context.getMountpointURI().orElseThrow()).as("Mountpoint URI") //
+            .isEqualTo(URI.create("knime://MyMountpoint/dir/workflow"));
     }
 
     @Test
@@ -186,12 +190,14 @@ class WorkflowContextV2Test {
      * Checks that we can't create a {@link WorkflowContextV2} with the workflow outside of it's mount point
      */
     void testInvalidPathDetection() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> { // NOSONAR
             WorkflowContextV2.builder()
-                .withAnalyticsPlatformExecutor(
-                    exec -> exec.withCurrentUserAsUserId().withLocalWorkflowPath(Path.of("/tmp/workflows/workflow1"))
-                        .withMountpoint("MyMountpoint", Path.of("/opt/mountpoint")))
-                .withLocalLocation().build();
+                .withAnalyticsPlatformExecutor(exec -> exec //
+                    .withCurrentUserAsUserId() //
+                    .withLocalWorkflowPath(Path.of("/tmp/workflows/workflow1")) //
+                    .withMountpoint("MyMountpoint", Path.of("/opt/mountpoint")))
+                .withLocalLocation() //
+                .build();
         }, "Should not be able to create a WorkflowContextV2 with the workflow outside of the mount point");
     }
 
@@ -209,6 +215,7 @@ class WorkflowContextV2Test {
                 .withLocalLocation()
                 .build();
 
-        assertThat(ctx.getMountpointURI()).as("Mountpoint URI is not resolved correctly.").isEqualTo(Optional.of(URI.create("knime://LOCAL" + uriPath)));
+        assertThat(ctx.getMountpointURI()).as("Mountpoint URI is not resolved correctly.") //
+            .isEqualTo(Optional.of(URI.create("knime://LOCAL" + uriPath)));
     }
 }
