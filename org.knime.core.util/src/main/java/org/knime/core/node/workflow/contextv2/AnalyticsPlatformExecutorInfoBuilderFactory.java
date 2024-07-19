@@ -131,8 +131,8 @@ public final class AnalyticsPlatformExecutorInfoBuilderFactory
             CheckUtils.checkArgument(mountpointRoot.isAbsolute(),
                 "Root path '%s' of mountpoint '%s' must be absolute.", mountpointRoot, mountId);
 
-            final var relPath = mountpointRoot.relativize(m_localWorkflowPath);
-            CheckUtils.checkArgument(!relPath.isAbsolute(),
+            // `normalize()` removes non-initial `/..` steps, so the workflow is properly included
+            CheckUtils.checkArgument(m_localWorkflowPath.normalize().startsWith(mountpointRoot),
                 "Mountpoint root '%s' must contain workflow path '%s'.", mountpointRoot, m_localWorkflowPath);
 
             try {
