@@ -55,7 +55,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.message.Message;
-import org.knime.cxf.core.fragment.interceptors.EmptyRequestInterceptor;
 import org.knime.cxf.core.fragment.interceptors.HeaderFilterInterceptor;
 
 /**
@@ -101,7 +100,7 @@ public class KNIMEInterceptorProvider implements InterceptorProvider, CXFBusExte
 
     @Override
     public List<Interceptor<? extends Message>> getOutInterceptors() {
-        return List.of(new EmptyRequestInterceptor(), new HeaderFilterInterceptor());
+        return List.of(new HeaderFilterInterceptor());
     }
 
     @Override
