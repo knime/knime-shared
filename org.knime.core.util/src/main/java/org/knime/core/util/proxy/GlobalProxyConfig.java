@@ -53,6 +53,7 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URI;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,8 +64,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.knime.core.util.Pair;
-import org.knime.core.util.proxy.whitelist.DefaultWhiteListParser;
-import org.knime.core.util.proxy.whitelist.WhiteListParser;
 
 /**
  * Captures the current global proxy configuration (in System properties).
@@ -82,7 +81,7 @@ import org.knime.core.util.proxy.whitelist.WhiteListParser;
  * @param username proxy server username
  * @param password proxy server password
  * @param useExcludedHosts whether to exclude hostnames from using the proxy
- * @param excludedHosts list of exluded hostnames
+ * @param excludedHosts list of excluded hostnames
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @since 6.2
@@ -92,7 +91,45 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
 
     private static final Logger LOGGER = Logger.getLogger(GlobalProxyConfig.class.getName());
 
-    private static final WhiteListParser EXCLUSION_PARSER = new DefaultWhiteListParser();
+    /**
+     * Default constructor, parses and rejoins excluded hosts with the pipe delimiter.
+     *
+     * @param protocol proxy protocol, either HTTP, HTTPS, or SOCKS
+     * @param host proxy server hostname
+     * @param port proxy server port
+     * @param useAuthentication whether to use (Basic) authentication
+     * @param username proxy server username
+     * @param password proxy server password
+     * @param useExcludedHosts whether to exclude hostnames from using the proxy
+     * @param excludedHosts list of excluded hostnames
+     */
+    public GlobalProxyConfig(final ProxyProtocol protocol, final String host, final String port,
+        final boolean useAuthentication, final String username, final String password,
+        final boolean useExcludedHosts, final String excludedHosts) {
+        this.protocol = protocol;
+        this.host = host;
+        this.port = port;
+        this.useAuthentication = useAuthentication;
+        this.username = username;
+        this.password = password;
+        this.useExcludedHosts = useExcludedHosts;
+        if (excludedHosts == null) {
+            this.excludedHosts = useExcludedHosts ? "" : null;
+            return;
+        }
+        final var joiner = new StringJoiner("|");
+        for (var excluded : ExcludedHostsTokenizer.tokenize(excludedHosts)) {
+            if ("<local>".equals(excluded)) {
+                joiner.add("localhost");
+                joiner.add("127.0.0.1");
+                joiner.add("0:0:0:0:0:0:0:1");
+                joiner.add("0000:0000:0000:0000:0000:0000:0000:0001");
+            } else {
+                joiner.add(excluded);
+            }
+        }
+        this.excludedHosts = joiner.toString();
+    }
 
     /**
      * Attemps to parse the string-stored {@link #port()} into an integer. Returns the protocol's
@@ -133,9 +170,8 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
             return false;
         }
 
-        // proxy exclusion according to proxy-vole, see "https://github.com/akuhtz/proxy-vole"
-        return EXCLUSION_PARSER.parseWhiteList(this.excludedHosts).stream() //
-                .anyMatch(filter -> filter.test(uri));
+        // translation from pattern to regex taken from `org.apache.cxf.transport.http.RegexBuilder#build(String)`
+        return uriHost.matches(excludedHosts.replace(".", "\\.").replace("*", ".*"));
     }
 
     // -- CONVERTING TO OTHER CONFIGS --

@@ -204,8 +204,6 @@ public class EnvironmentProxyConfigProvider {
         // a negative port is invalid for a URI, it can either be empty (e.g. "http://knime.com:")
         // or must be present; we choose 'null' as placeholder which will be parsed correctly in #intPort()
         final var rawPort = proxyValue.getPort() < 0 ? null : String.valueOf(proxyValue.getPort());
-        // convert to '|'-separated format used by Java
-        final var excludedHosts = toJavaExcludedHosts(noProxyValue);
         return new GlobalProxyConfig( //
             protocol, //
             proxyValue.getHost(), //
@@ -213,20 +211,8 @@ public class EnvironmentProxyConfigProvider {
             useAuthentication, //
             username, //
             password, //
-            StringUtils.isNotEmpty(excludedHosts), //
-            excludedHosts);
-    }
-
-    /**
-     * Ideally, the NO_PROXY variable specifies excluded hosts for all proxies in comma-separated list.
-     * However, the use of '|'-separated or ' '-separated string lists is also popular.
-     *
-     * @param noProxyValue string of host concatenation, likely separated by ',' or '|'
-     * @return string of '|'-separated hosts to be excluded from proxy
-     * @see ExcludedHostsTokenizer#tokenize(String)
-     */
-    private static String toJavaExcludedHosts(final String noProxyValue) {
-        return StringUtils.join(ExcludedHostsTokenizer.tokenize(noProxyValue), '|');
+            StringUtils.isNotEmpty(noProxyValue), //
+            noProxyValue);
     }
 
     /**
