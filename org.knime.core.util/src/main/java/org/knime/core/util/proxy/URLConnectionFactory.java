@@ -58,6 +58,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -77,6 +78,108 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
 public final class URLConnectionFactory {
 
     private static final Log LOGGER = LogFactory.getLog(URLConnectionFactory.class);
+
+    /**
+     * Java property used to set the timeout in milliseconds trying to connect or read data from a URL.
+     * Discouraged (not deprecated), but rather use {@link #PROPERTY_URL_CONNECT_TIMEOUT} and
+     * {@link #PROPERTY_URL_READ_TIMEOUT} instead for finer timeout control.
+     * <p>
+     * Lives in this class since "org.knime.core.util:6.4.0", but present in KNIME since "org.knime.core:2.6.0".
+     * </p>
+     *
+     * @since 6.4
+     */
+    public static final String PROPERTY_URL_GENERIC_TIMEOUT = "knime.url.timeout";
+
+    /**
+     * Default value if {@value #PROPERTY_URL_GENERIC_TIMEOUT} is not set or not a positive integer.
+     *
+     * @since 6.4
+     */
+    public static final int DEFAULT_URL_GENERIC_TIMEOUT_MS = 1000;
+
+    private static final Optional<Integer> URL_GENERIC_TIMEOUT_MS = readNonNegIntProperty( //
+        PROPERTY_URL_GENERIC_TIMEOUT, DEFAULT_URL_GENERIC_TIMEOUT_MS);
+
+    /**
+     * Java property used to only set the connect timeout in milliseconds for {@link URL}s.
+     * Overwritten by {@link #PROPERTY_URL_GENERIC_TIMEOUT} it that is set.
+     * The default value is {@code 5000} milliseconds.
+     *
+     * @since 6.4
+     */
+    public static final String PROPERTY_URL_CONNECT_TIMEOUT = "knime.url.connectTimeout";
+
+    /**
+     * Default value if {@value #PROPERTY_URL_CONNECT_TIMEOUT} is not set or not a positive integer.
+     *
+     * @since 6.4
+     */
+    public static final int DEFAULT_URL_CONNECT_TIMEOUT_MS = 5000;
+
+    private static final Optional<Integer> URL_CONNECT_TIMEOUT_MS = readNonNegIntProperty( //
+        PROPERTY_URL_CONNECT_TIMEOUT, DEFAULT_URL_CONNECT_TIMEOUT_MS);
+
+    /**
+     * Java property used to only set the read timeout in milliseconds for {@link URL}s.
+     * Overwritten by {@link #PROPERTY_URL_GENERIC_TIMEOUT} it that is set.
+     * The default value is {@code 20000} milliseconds.
+     *
+     * @since 6.4
+     */
+    public static final String PROPERTY_URL_READ_TIMEOUT = "knime.url.readTimeout";
+
+    /**
+     * Default value if {@value #PROPERTY_URL_READ_TIMEOUT} is not set or not a positive integer.
+     *
+     * @since 6.4
+     */
+    public static final int DEFAULT_URL_READ_TIMEOUT_MS = 20000;
+
+    private static final Optional<Integer> URL_READ_TIMEOUT_MS = readNonNegIntProperty( //
+        PROPERTY_URL_READ_TIMEOUT, DEFAULT_URL_READ_TIMEOUT_MS);
+
+    /**
+     * Returns the default timeout in milliseconds for {@link URLConnection}s obtained through
+     * {@link #getConnection(URL)}. Usage also includes the {@code org.knime.core.util.FileUtil} class.
+     *
+     * @return default timeout in milliseconds
+     * @noreference This method is not intended to be referenced by clients.
+     * @since 6.4
+     * @deprecated Use {@link #getDefaultURLConnectTimeoutMillis()} or {@link #getDefaultURLReadTimeoutMillis()}
+     *             instead. This method exists the support the discourage generic timeout property in
+     *             {@code org.knime.core.util.FileUtil}.
+     */
+    @Deprecated(since = "6.4", forRemoval = true)
+    public static int getDefaultURLGenericTimeoutMillis() { // NOSONAR (deprecation)
+        return URL_GENERIC_TIMEOUT_MS.orElse(DEFAULT_URL_GENERIC_TIMEOUT_MS);
+    }
+
+    /**
+     * Returns the default timeout in milliseconds for {@link URLConnection}s obtained through
+     * {@link #getConnection(URL)}. Usage also includes the {@code org.knime.core.util.FileUtil} class.
+     *
+     * @return default timeout in milliseconds
+     * @since 6.4
+     */
+    public static int getDefaultURLConnectTimeoutMillis() {
+        return URL_CONNECT_TIMEOUT_MS //
+            .or(() -> URL_GENERIC_TIMEOUT_MS) //
+            .orElse(DEFAULT_URL_CONNECT_TIMEOUT_MS);
+    }
+
+    /**
+     * Returns the default timeout in milliseconds for {@link URLConnection}s obtained through
+     * {@link #getConnection(URL)}. Usage also includes the {@code org.knime.core.util.FileUtil} class.
+     *
+     * @return default timeout in milliseconds
+     * @since 6.4
+     */
+    public static int getDefaultURLReadTimeoutMillis() {
+        return URL_READ_TIMEOUT_MS //
+            .or(() -> URL_GENERIC_TIMEOUT_MS) //
+            .orElse(DEFAULT_URL_READ_TIMEOUT_MS);
+    }
 
     /**
      * Retrieves the {@link URLConnection} for a given @{link URL}, and performs
@@ -167,6 +270,10 @@ public final class URLConnectionFactory {
                 httpsConnection.setHostnameVerifier(KNIMEServerHostnameVerifier.getInstance());
             }
         }
+
+        // (5) set URL timeout if set in knime.ini or default to 5s and 20s
+        connection.setConnectTimeout(getDefaultURLConnectTimeoutMillis());
+        connection.setReadTimeout(getDefaultURLReadTimeoutMillis());
         return connection;
     }
 
@@ -191,5 +298,26 @@ public final class URLConnectionFactory {
             }
         }
         return null;
+    }
+
+
+    private static Optional<Integer> readNonNegIntProperty(final String key, final int defaultValue) {
+        final var stringValue = System.getProperty(key);
+        if (stringValue == null) {
+            return Optional.empty();
+        }
+        try {
+            final var intValue = Integer.parseInt(stringValue);
+            if (intValue < 0) {
+                LOGGER.warn(String.format("The value \"%s\" of property \"%s\" must to be positive, " //
+                    + "using default value \"%s\" instead", stringValue, key, defaultValue));
+                return Optional.empty();
+            }
+            return Optional.of(intValue);
+        } catch (NumberFormatException e) {
+            LOGGER.warn(String.format("Could not read value \"%s\" of property \"%s\" as positive integer, " //
+                + "using default value \"%s\" instead", stringValue, key, defaultValue), e);
+            return Optional.empty();
+        }
     }
 }
