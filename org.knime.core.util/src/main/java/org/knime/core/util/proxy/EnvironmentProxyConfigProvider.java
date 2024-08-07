@@ -54,10 +54,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Searches through the environment variables configured in the JVM.
@@ -83,7 +84,7 @@ public class EnvironmentProxyConfigProvider {
     enum ProxyEnvVar {
         HTTP_PROXY, HTTPS_PROXY, SOCKS_PROXY, ALL_PROXY, NO_PROXY;
 
-        private static final Logger LOGGER = Logger.getLogger(ProxyEnvVar.class.getName());
+        private static final Log LOGGER = LogFactory.getLog(ProxyEnvVar.class.getName());
 
         static {
             final var environmentVariables = System.getenv();
@@ -93,16 +94,16 @@ public class EnvironmentProxyConfigProvider {
                 final var result = ev.getValue(environmentVariables);
                 if (result == null) {
                     continue;
-                } else if (parseResultAsURI(result, procotol) == null) {
-                    LOGGER.warning(() -> String.format(
+                } else if (parseResultAsURI(result, procotol) == null && LOGGER.isWarnEnabled()) {
+                    LOGGER.warn(String.format(
                         "Environment variable \"%s\" could not be parsed as proxy host", ev));
                 } else {
                     joiner.add(ev.name());
                 }
             }
             final var detectedVariables = joiner.toString();
-            if (!detectedVariables.isEmpty()) {
-                LOGGER.info(() -> String.format(
+            if (!detectedVariables.isEmpty() && LOGGER.isInfoEnabled()) {
+                LOGGER.info(String.format(
                     "Detected environment variables to be used as fallback "
                         + "if the Eclipse proxy provider is inactive or not set to \"Direct\": %s",
                     detectedVariables));
@@ -189,7 +190,7 @@ public class EnvironmentProxyConfigProvider {
     private static GlobalProxyConfig toGlobalProxyConfig(final URI proxyValue, final ProxyProtocol protocol,
         final String noProxyValue) {
         // extract username and password from user info
-        boolean useAuthentication = false;
+        var useAuthentication = false;
         String username = null;
         String password = null;
         final var userInfo = proxyValue.getUserInfo();

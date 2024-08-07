@@ -58,11 +58,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHeaders;
 import org.knime.core.util.KNIMEServerHostnameVerifier;
 import org.knime.core.util.Pair;
@@ -76,7 +76,7 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
  */
 public final class URLConnectionFactory {
 
-    private static final Logger LOGGER = Logger.getLogger(URLConnectionFactory.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(URLConnectionFactory.class);
 
     /**
      * Retrieves the {@link URLConnection} for a given @{link URL}, and performs
@@ -134,7 +134,7 @@ public final class URLConnectionFactory {
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#access_using_credentials_in_the_url
         final var userInfo = connection.getURL().getUserInfo();
         if (userInfo != null) {
-            LOGGER.log(Level.INFO, "Detected server authentication in user info of URL, moving to header");
+            LOGGER.info("Detected server authentication in user info of URL, moving to header");
             final var encodedAuth = Base64.getEncoder().encodeToString(userInfo.getBytes(StandardCharsets.UTF_8));
             connection.addRequestProperty(HttpHeaders.AUTHORIZATION, "Basic %s".formatted(encodedAuth));
         }
@@ -171,7 +171,8 @@ public final class URLConnectionFactory {
         if (url != null) {
             try {
                 return url.toURI();
-            } catch (URISyntaxException e) { // NOSONAR
+            } catch (URISyntaxException e) {
+                LOGGER.debug("Could not parse URL as URI for proxy selection", e);
             }
         }
         return null;

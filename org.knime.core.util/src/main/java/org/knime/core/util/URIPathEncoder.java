@@ -54,10 +54,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
@@ -73,7 +73,7 @@ public final class URIPathEncoder {
     /** Encoder using the UTF-8 charset. */
     public static final URIPathEncoder UTF_8 = new URIPathEncoder(StandardCharsets.UTF_8);
 
-    private static final Logger LOGGER = Logger.getLogger(URIPathEncoder.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(URIPathEncoder.class.getName());
 
     private static final String UNC_PREFIX = "//";
 
@@ -108,7 +108,9 @@ public final class URIPathEncoder {
             // Instead, we can rely on converting the entire `URL` to `URI`. `URI#getPath` will decode its path part.
             return url.toURI().getPath();
         } catch (URISyntaxException e) {
-            LOGGER.log(Level.INFO, e, () -> "URL path could not be encoded: '" + url + "'");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("URL path could not be encoded: '" + url + "'", e);
+            }
             // In this case, we assume there are disallowed characters in the path string, although
             // there are other instances that also trigger a parse error. This means this method does not enforce
             // or ensure that the given and returned paths are actually valid.
@@ -138,7 +140,9 @@ public final class URIPathEncoder {
         try {
             return encodePathSegments(url.toURI()).toURL();
         } catch (MalformedURLException | URISyntaxException e) {
-            LOGGER.log(Level.INFO, e, () -> "Could not encode path segments in URL '" + url + "'.");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Could not encode path segments in URL '" + url + "'.", e);
+            }
             return url;
         }
     }
@@ -170,8 +174,9 @@ public final class URIPathEncoder {
             }
             return uriBuilder.build();
         } catch (URISyntaxException e) {
-            LOGGER.log(Level.INFO, e,
-                () -> "Could not encode path segments in " + (isUNC ?  "UNC " : "") + "URI '" + uri + "'.");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Could not encode path segments in " + (isUNC ? "UNC " : "") + "URI '" + uri + "'.", e);
+            }
             return uri;
         }
     }

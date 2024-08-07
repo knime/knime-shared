@@ -50,9 +50,10 @@ package org.knime.core.util.auth;
 
 import java.io.Closeable;
 import java.net.Authenticator;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Essentially a copy of {@code org.knime.core.util.ThreadLocalHTTPAuthenticator}, but with wider accessibility.
@@ -66,7 +67,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
  */
 public final class SuppressingAuthenticator extends DelegatingAuthenticator {
 
-    private static final Logger LOGGER = Logger.getLogger(SuppressingAuthenticator.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(SuppressingAuthenticator.class.getName());
 
     private static final ThreadLocal<MutableInt> SUPPRESS_POPUP = ThreadLocal.withInitial(MutableInt::new); // NOSONAR
 
@@ -105,8 +106,8 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
      * @return a closeable that enables popups again (if there were any before)
      */
     public static NewAuthenticationCloseable suppressDelegate() {
-        if (!isInstalledGlobally() && !hasWarnedAboutInactivity) {
-            LOGGER.warning(() -> String.format("%s was not installed yet, authentication popups are not suppressed",
+        if (!isInstalledGlobally() && !hasWarnedAboutInactivity && LOGGER.isWarnEnabled()) {
+            LOGGER.warn(String.format("%s was not installed yet, authentication popups are not suppressed",
                 SuppressingAuthenticator.class.getSimpleName()));
             hasWarnedAboutInactivity = true;
         }
