@@ -55,9 +55,9 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 
@@ -69,7 +69,7 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
  */
 public final class ProxySelectorAdapter extends ProxySelector {
 
-    private static final Logger LOGGER = Logger.getLogger(ProxySelectorAdapter.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(ProxySelectorAdapter.class.getName());
 
     private final ProxySelector m_fallbackSelector;
 
@@ -104,7 +104,9 @@ public final class ProxySelectorAdapter extends ProxySelector {
 
     @Override
     public void connectFailed(final URI uri, final SocketAddress sa, final IOException ioe) {
-        LOGGER.log(Level.WARNING, "Connection to proxy at \"%s\" failed".formatted(uri), ioe);
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn("Connection to proxy at \"%s\" failed".formatted(uri), ioe);
+        }
         m_fallbackSelector.connectFailed(uri, sa, ioe);
     }
 

@@ -55,11 +55,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
 import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
@@ -73,7 +73,7 @@ import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchRes
  */
 public final class GlobalProxySearch {
 
-    private static final Logger LOGGER = Logger.getLogger(GlobalProxySearch.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(GlobalProxySearch.class.getName());
 
     /**
      * Search instance uses default strategies that are being use the the static-method API.
@@ -128,8 +128,9 @@ public final class GlobalProxySearch {
             try {
                 uri = url.toURI();
             } catch (URISyntaxException e) {
-                LOGGER.log(Level.WARNING,
-                    "Could not convert URL \"%s\" to URI for proxy exclusion detection".formatted(url), e);
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Could not convert URL \"%s\" to URI for proxy exclusion detection".formatted(url), e);
+                }
             }
         }
         return getCurrentFor(uri);

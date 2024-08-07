@@ -53,6 +53,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.knime.core.util.proxy.ProxySelectorAdapter;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
 
@@ -64,6 +66,8 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
  * @since 6.4
  */
 final class ProxyAuthenticatorAdapter extends DelegatingAuthenticator {
+
+    private static final Log LOGGER = LogFactory.getLog(ProxyAuthenticatorAdapter.class);
 
     /**
      * @param delegate upstream authenticator
@@ -108,7 +112,8 @@ final class ProxyAuthenticatorAdapter extends DelegatingAuthenticator {
         if (url != null) {
             try {
                 return url.toURI();
-            } catch (URISyntaxException e) { // NOSONAR
+            } catch (URISyntaxException e) {
+                LOGGER.debug("Could not parse URL as URI for proxy selection", e);
             }
         }
         return null;

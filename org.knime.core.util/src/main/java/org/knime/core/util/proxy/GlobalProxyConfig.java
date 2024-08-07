@@ -54,10 +54,10 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.StringJoiner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -89,7 +89,7 @@ import org.knime.core.util.Pair;
 public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port, boolean useAuthentication,
     String username, String password, boolean useExcludedHosts, String excludedHosts) {
 
-    private static final Logger LOGGER = Logger.getLogger(GlobalProxyConfig.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(GlobalProxyConfig.class.getName());
 
     /**
      * Default constructor, parses and rejoins excluded hosts with the pipe delimiter.
@@ -147,9 +147,10 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
                 intPort = parsedPort;
             }
         } catch (NumberFormatException nfe) {
-            LOGGER.log(Level.WARNING,
-                String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", port(), intPort),
-                nfe);
+            if (LOGGER.isWarnEnabled()) {
+                // not printing the NFE, it's practically useless to have the call stack
+                LOGGER.warn(String.format("Cannot parse proxy port \"%s\", defaulting to \"%s\"", port(), intPort));
+            }
         }
         return intPort;
     }

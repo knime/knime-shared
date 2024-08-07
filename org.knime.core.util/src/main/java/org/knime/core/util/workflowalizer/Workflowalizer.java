@@ -76,8 +76,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -94,6 +92,8 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xmlbeans.XmlException;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
@@ -126,7 +126,7 @@ public final class Workflowalizer {
     /** Name of the workflow information XML files. */
     private static final String WORKFLOW_KNIME = "workflow.knime";
 
-    private static final Logger LOGGER = Logger.getLogger(Workflowalizer.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(Workflowalizer.class.getName());
 
     /**
      * Reads the repository item at the given path. All fields for the given item will be read.
@@ -1432,7 +1432,9 @@ public final class Workflowalizer {
             byte[] encoded = Files.readAllBytes(path);
             return new String(encoded, StandardCharsets.UTF_8);
         }
-        LOGGER.log(Level.WARNING, () -> "File does not exist: " + path.toString());
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn("File does not exist: " + path.toString());
+        }
         return null;
     }
 

@@ -53,7 +53,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * {@link Authenticator} class which stores the previous default authenticator instance.
@@ -69,7 +71,7 @@ import java.util.logging.Logger;
  */
 public abstract class DelegatingAuthenticator extends Authenticator {
 
-    private static final Logger LOGGER = Logger.getLogger(DelegatingAuthenticator.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(DelegatingAuthenticator.class.getName());
 
     /**
      * Flag indicating whether {@link #installAuthenticators()} has already been invoked.
@@ -151,7 +153,9 @@ public abstract class DelegatingAuthenticator extends Authenticator {
             return (PasswordAuthentication)m.invoke(m_delegate);
         } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException ex) {
-            LOGGER.warning("Could not delegate HTTP authentication request: " + ex.getMessage());
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Could not delegate HTTP authentication request: " + ex.getMessage());
+            }
             return null;
         }
     }

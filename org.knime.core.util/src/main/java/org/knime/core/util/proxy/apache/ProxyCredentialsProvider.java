@@ -51,9 +51,9 @@ package org.knime.core.util.proxy.apache;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -69,7 +69,7 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
  */
 public final class ProxyCredentialsProvider extends BasicCredentialsProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(ProxyCredentialsProvider.class.getName());
+    private static final Log LOGGER = LogFactory.getLog(ProxyCredentialsProvider.class.getName());
 
     /**
      * Instance object for a state-less version of the credentials provider. Does not use a fallback {@link URI} for
@@ -107,9 +107,10 @@ public final class ProxyCredentialsProvider extends BasicCredentialsProvider {
         try {
             return ProxyHttpRoutePlanner.createURIFromHttpHost(httpHost);
         } catch (URISyntaxException e) {
-            LOGGER.log(Level.WARNING, e,
-                () -> "Could not create URI target for proxy search on input \"%s\", defaulting to target: %s"
-                    .formatted(httpHost, m_defaultTarget));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Could not create URI target for proxy search on input \"%s\", defaulting to target: %s"
+                    .formatted(httpHost, m_defaultTarget), e);
+            }
             return m_defaultTarget;
         }
     }
