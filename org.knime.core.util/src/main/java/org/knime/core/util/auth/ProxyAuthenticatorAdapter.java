@@ -71,6 +71,14 @@ final class ProxyAuthenticatorAdapter extends DelegatingAuthenticator {
 
     @Override
     protected OptionalAuthentication getOwnAuthentication() {
+        /*
+         * If the current request for authentication was made within an auth-suppressed context,
+         * only the explicitly supplied authentication should be used, accepting a failure to authorize.
+         * Thus, avoid interference here.
+         */
+        if (SuppressingAuthenticator.isInSuppressedContext()) {
+            return OptionalAuthentication.empty();
+        }
         return OptionalAuthentication.ofNullable(GlobalProxySearch.getCurrentFor(getRequestingURL()) //
             .map(cfg -> cfg.forJavaNetProxy().getSecond()) //
             .map(auth -> auth.requestPasswordAuthenticationInstance( //

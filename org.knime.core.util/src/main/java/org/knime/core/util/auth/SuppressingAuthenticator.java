@@ -95,7 +95,7 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
     @Override
     protected OptionalAuthentication getOwnAuthentication() {
         if (GraphicsEnvironment.isHeadless() || !Boolean.getBoolean(PROPERTY_AUTH_POPUPS_ALLOWED)
-            || SUPPRESS_POPUP.get().intValue() > 0) {
+            || isInSuppressedContext()) {
             // cannot be an Optional.empty, a null value is what we want
             return OptionalAuthentication.of(null);
         }
@@ -103,6 +103,10 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
     }
 
     // -- AUTHENTICATOR SUPPRESSING CONTROL --
+
+    static boolean isInSuppressedContext() {
+        return SUPPRESS_POPUP.get().intValue() > 0;
+    }
 
     /**
      * <p>Turns suppression of authentication popups on (*). Make sure to close the returned closeable after you have
