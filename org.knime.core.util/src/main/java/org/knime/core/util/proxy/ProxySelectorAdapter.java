@@ -96,8 +96,10 @@ public final class ProxySelectorAdapter extends ProxySelector {
     @Override
     public List<Proxy> select(final URI uri) {
         return GlobalProxySearch.getCurrentFor(uri) //
-            .map(cfg -> List.of(cfg.forJavaNetProxy().getFirst())) //
-            .orElse(m_fallbackSelector.select(uri));
+            .map(cfg -> cfg.isHostExcluded(uri) //
+                ? NoProxySelector.NO_PROXY_LIST //
+                : List.of(cfg.forJavaNetProxy().getFirst())) //
+            .orElseGet(() -> m_fallbackSelector.select(uri));
     }
 
     @Override
@@ -113,9 +115,11 @@ public final class ProxySelectorAdapter extends ProxySelector {
      */
     private static class NoProxySelector extends ProxySelector {
 
+        private static final List<Proxy> NO_PROXY_LIST = List.of(Proxy.NO_PROXY);
+
         @Override
         public List<Proxy> select(final URI uri) {
-            return List.of(Proxy.NO_PROXY);
+            return NO_PROXY_LIST;
         }
 
         @Override

@@ -49,7 +49,11 @@
 package org.knime.core.util.proxy;
 
 import java.io.IOException;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -61,6 +65,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.HttpHeaders;
 import org.knime.core.util.KNIMEServerHostnameVerifier;
+import org.knime.core.util.Pair;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 /**
@@ -74,30 +79,42 @@ public final class URLConnectionFactory {
     private static final Logger LOGGER = Logger.getLogger(URLConnectionFactory.class.getName());
 
     /**
-     * Retrieves the {@link URLConnection} for a given @{link URL}.
-     * Queries the {@link GlobalProxyConfigProvider} for the global proxy configuration.
-     * If one is configured, it opens the connection using that config.
+     * Retrieves the {@link URLConnection} for a given @{link URL}, and performs
+     * custom configuration (incl. proxies, HTTP redirects, and hostname verification).
      *
      * @param url the URL to open the connection for
      * @return opened URLConnection
      * @throws IOException if something went wrong
      */
     public static URLConnection getConnection(final URL url) throws IOException {
-        final URLConnection connection;
-        final var proxyAuthPair = GlobalProxySearch.getCurrentFor(url) //
-                .map(GlobalProxyConfig::forJavaNetProxy);
-        if (proxyAuthPair.isPresent()) {
-            final var proxy = proxyAuthPair.get().getFirst();
-            connection = url.openConnection(proxy);
-            // handle proxy requiring authentication
-            final var authenticator = proxyAuthPair.get().getSecond();
-            if (authenticator != null && connection instanceof HttpURLConnection httpConnection) {
-                httpConnection.setAuthenticator(authenticator);
-            }
-        } else {
-            connection = url.openConnection();
+        final var proxyConfig = resolveJavaNetProxy(url);
+        final var connection = url.openConnection(proxyConfig.getFirst());
+        // handle proxy requiring authentication
+        final var authenticator = proxyConfig.getSecond();
+        if (authenticator != null && connection instanceof HttpURLConnection httpConnection) {
+            httpConnection.setAuthenticator(authenticator);
         }
         return completeConfiguration(connection);
+    }
+
+    /**
+     * Queries the {@link GlobalProxySearch} for the global proxy configuration.
+     * If a config is found that does not exclude the given {@link URL} it is returned
+     * with the corresponding {@link Authenticator} holding credentials.
+     *
+     * @param url the URL to open the connection for
+     * @return pair of java.net proxy and authenticator
+     */
+    private static Pair<Proxy, Authenticator> resolveJavaNetProxy(final URL url) {
+        // return early for file:// URLs before starting to parse as URI
+        if ("file".equalsIgnoreCase(url.getProtocol())) {
+            return Pair.create(Proxy.NO_PROXY, null);
+        }
+        final var uri = createNullableURI(url);
+        return GlobalProxySearch.getCurrentFor(uri) //
+            .filter(cfg -> !cfg.isHostExcluded(uri)) //
+            .map(GlobalProxyConfig::forJavaNetProxy) //
+            .orElseGet(() -> Pair.create(Proxy.NO_PROXY, null));
     }
 
     /**
@@ -142,5 +159,21 @@ public final class URLConnectionFactory {
      * Only a utility class.
      */
     private URLConnectionFactory() {
+    }
+
+    /**
+     * Creates a {@link URI} from a {@link URL}, will return {@code null} on any failure.
+     *
+     * @param url the string encode and turn into an URI
+     * @return nullable URI
+     */
+    private static URI createNullableURI(final URL url) {
+        if (url != null) {
+            try {
+                return url.toURI();
+            } catch (URISyntaxException e) { // NOSONAR
+            }
+        }
+        return null;
     }
 }

@@ -49,6 +49,9 @@
 package org.knime.core.util.auth;
 
 import java.net.Authenticator;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.knime.core.util.proxy.ProxySelectorAdapter;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
@@ -79,7 +82,9 @@ final class ProxyAuthenticatorAdapter extends DelegatingAuthenticator {
         if (SuppressingAuthenticator.isInSuppressedContext()) {
             return OptionalAuthentication.empty();
         }
-        return OptionalAuthentication.ofNullable(GlobalProxySearch.getCurrentFor(getRequestingURL()) //
+        final var uri = createNullableURI(getRequestingURL());
+        return OptionalAuthentication.ofNullable(GlobalProxySearch.getCurrentFor(uri) //
+            .filter(cfg -> !cfg.isHostExcluded(uri)) //
             .map(cfg -> cfg.forJavaNetProxy().getSecond()) //
             .map(auth -> auth.requestPasswordAuthenticationInstance( //
                 getRequestingHost(), //
@@ -91,5 +96,21 @@ final class ProxyAuthenticatorAdapter extends DelegatingAuthenticator {
                 getRequestingURL(), //
                 getRequestorType())) //
             .orElse(null));
+    }
+
+    /**
+     * Creates a {@link URI} from a {@link URL}, will return {@code null} on any failure.
+     *
+     * @param url the string encode and turn into an URI
+     * @return nullable URI
+     */
+    private static URI createNullableURI(final URL url) {
+        if (url != null) {
+            try {
+                return url.toURI();
+            } catch (URISyntaxException e) { // NOSONAR
+            }
+        }
+        return null;
     }
 }
