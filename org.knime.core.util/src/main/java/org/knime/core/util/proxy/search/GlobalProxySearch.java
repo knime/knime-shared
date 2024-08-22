@@ -75,9 +75,37 @@ public final class GlobalProxySearch {
 
     private static final Logger LOGGER = Logger.getLogger(GlobalProxySearch.class.getName());
 
-    private static final List<GlobalProxyStrategy> SEARCH_STRATEGIES = List.of( //
-        new EclipseProxyStrategy(), new JavaProxyStrategy(), new EnvironmentProxyStrategy() //
-    );
+    /**
+     * Search instance uses default strategies that are being use the the static-method API.
+     */
+    private static GlobalProxySearch theGlobalProxySearch;
+
+    static {
+        setDefault(new GlobalProxySearch( //
+            new EclipseProxyStrategy(), new JavaProxyStrategy(), new EnvironmentProxyStrategy() //
+        ));
+    }
+
+    private final List<GlobalProxyStrategy> m_searchStragies;
+
+    /**
+     * Package-scope constructor for testing proxy strategies.
+     */
+    GlobalProxySearch(final GlobalProxyStrategy... strategies) {
+        m_searchStragies = List.of(strategies);
+    }
+
+    private List<GlobalProxyStrategy> getStrategies() {
+        return m_searchStragies;
+    }
+
+    static synchronized GlobalProxySearch getDefault() {
+        return theGlobalProxySearch;
+    }
+
+    static synchronized void setDefault(final GlobalProxySearch search) {
+        theGlobalProxySearch = search;
+    }
 
     /**
      * Retrieves the current global proxy configuration for the URL and stores it in a read-only format.
@@ -88,6 +116,7 @@ public final class GlobalProxySearch {
      *
      * @param url the URL to select the proxy for (may be null)
      * @return {@link GlobalProxyConfig} if configuration is present
+     * @see #getCurrentFor(URI, ProxyProtocol...)
      */
     public static Optional<GlobalProxyConfig> getCurrentFor(final URL url) {
         URI uri = null;
@@ -115,6 +144,7 @@ public final class GlobalProxySearch {
      *
      * @param uri the URI to select the proxy for (may be null)
      * @return {@link GlobalProxyConfig} if configuration is present
+     * @see #getCurrentFor(URI, ProxyProtocol...)
      */
     public static Optional<GlobalProxyConfig> getCurrentFor(final URI uri) {
         ProxyProtocol protocol = null;
@@ -133,19 +163,21 @@ public final class GlobalProxySearch {
      *
      * @param protocols configurations are queried in protocol order, first one present is returned
      * @return {@link GlobalProxyConfig} if configuration is present
+     * @see #getCurrentFor(URI, ProxyProtocol...)
      */
     public static Optional<GlobalProxyConfig> getCurrentFor(final ProxyProtocol... protocols) {
         return getCurrentFor(null, protocols);
     }
 
     /**
-     * Iterates through all registered {@link #SEARCH_STRATEGIES} and searches for a proxy configuration
+     * Iterates through all registered search strategies and searches for a proxy configuration
      * given the {@link URI} and {@link ProxyProtocol}s constraints. If none of the strategies return
      * a matching configuration, {@link Optional#empty()} is returned.
      * <p>
      * The {@link URI} may be null and protocols may be null or empty (in this case, all {@link ProxyProtocol}s
      * are considered valid for proxy selection).
      * </p>
+     * The returned proxy is not checked for host exclusion.
      *
      * @param uri URI for which the configuration is valid (may be null)
      * @param protocols set of protocols for which the configuration must be defined
@@ -158,15 +190,11 @@ public final class GlobalProxySearch {
         // while the URI may be null, protocol elements should be valid for strategies to work with
         final var validProtocols = validateProxyProtocols(protocols);
         // search through all registered strategies
-        for (var strategy : SEARCH_STRATEGIES) {
+        for (var strategy : getDefault().getStrategies()) {
             final var result = strategy.getCurrentFor(uri, validProtocols);
             final var value = result.value();
-            // return if signaled by strategy
-            if (result.signal() == SearchSignal.STOP) {
-                return value;
-            }
-            // otherwise evaluate and *only* return if present and valid for URI
-            if (value.filter(cfg -> !cfg.isHostExcluded(uri)).isPresent()) {
+            // return if signaled by strategy or if it is present anyway
+            if (result.signal() == SearchSignal.STOP || value.isPresent()) {
                 return value;
             }
         }
@@ -185,11 +213,5 @@ public final class GlobalProxySearch {
                 .filter(Objects::nonNull) //
                 .toArray(ProxyProtocol[]::new);
         return filtered.length > 0 ? filtered : ProxyProtocol.values();
-    }
-
-    /**
-     * Hides the constructor.
-     */
-    private GlobalProxySearch() {
     }
 }

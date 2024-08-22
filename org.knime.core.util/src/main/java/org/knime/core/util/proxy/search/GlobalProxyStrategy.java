@@ -61,6 +61,7 @@ import org.knime.core.util.proxy.ProxyProtocol;
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @since 6.3
  */
+@FunctionalInterface
 interface GlobalProxyStrategy {
 
     /**
