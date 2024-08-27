@@ -265,6 +265,7 @@ public class ExternalNodeData {
      * @since 5.7
      */
     @JsonProperty("description")
+    @JsonInclude(Include.NON_EMPTY)
     public Optional<String> getDescription() {
         return Optional.ofNullable(m_description);
     }
@@ -283,6 +284,7 @@ public class ExternalNodeData {
      * @since 5.18
      */
     @JsonProperty("contentType")
+    @JsonInclude(Include.NON_EMPTY)
     public Optional<String> getContentType() {
         return Optional.ofNullable(m_contentType);
     }
