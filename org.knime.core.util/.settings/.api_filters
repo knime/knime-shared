@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.knime.core.util" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="931135546">
+            <message_arguments>
+                <message_argument value="6.3.2"/>
+                <message_argument value="6.2.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/main/java/org/knime/core/node/workflow/contextv2/AnalyticsPlatformExecutorInfoBuilderFactory.java" type="org.knime.core.node.workflow.contextv2.AnalyticsPlatformExecutorInfoBuilderFactory$AnalyticsPlatformExecutorInfoBuilder">
         <filter comment="Add `final` keyword for `*BuilderFactory` classes of `WorkflowContextV2`" id="337768515">
             <message_arguments>
