@@ -88,11 +88,26 @@ public final class URLConnectionFactory {
      */
     public static URLConnection getConnection(final URL url) throws IOException {
         final var proxyConfig = resolveJavaNetProxy(url);
-        final var connection = url.openConnection(proxyConfig.getFirst());
-        // handle proxy requiring authentication
-        final var authenticator = proxyConfig.getSecond();
-        if (authenticator != null && connection instanceof HttpURLConnection httpConnection) {
-            httpConnection.setAuthenticator(authenticator);
+        final var proxy = proxyConfig.getFirst();
+
+        // although we could explictly configure URL connections with NO_PROXY, the NO_PROXY case
+        // is likely for non-HTTP(S) URLs which have URL handlers that do not support the
+        // URL#openConnection(Proxy) API and will throw an UnsupportedOperationException
+        if (proxy == null || Proxy.NO_PROXY.equals(proxy)) {
+            return completeConfiguration(url.openConnection());
+        }
+
+        URLConnection connection;
+        try {
+            connection = url.openConnection(proxy);
+            // handle proxy requiring authentication
+            final var authenticator = proxyConfig.getSecond();
+            if (authenticator != null && connection instanceof HttpURLConnection httpConnection) {
+                httpConnection.setAuthenticator(authenticator);
+            }
+        } catch (UnsupportedOperationException e) {
+            LOGGER.debug("URL handler threw UOE while invoking URL#openConnection(Proxy), re-trying without proxy", e);
+            connection = url.openConnection();
         }
         return completeConfiguration(connection);
     }
