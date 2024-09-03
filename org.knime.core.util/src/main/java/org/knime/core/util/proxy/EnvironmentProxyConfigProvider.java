@@ -50,12 +50,14 @@ package org.knime.core.util.proxy;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,38 +79,16 @@ import org.apache.commons.logging.LogFactory;
  */
 public class EnvironmentProxyConfigProvider {
 
+    private static final Log LOGGER = LogFactory.getLog(EnvironmentProxyConfigProvider.class.getName());
+
+    private static final Map<ProxyProtocol, GlobalProxyConfig> CACHED_CONFIGS = parseEnvironment(System.getenv());
+
     /**
      * Proxy environment variables used by convention (popular use in {@code libcurl}).
      * Specifies {@link #getValue()} for retrieving its value from the environment.
      */
     enum ProxyEnvVar {
-        HTTP_PROXY, HTTPS_PROXY, SOCKS_PROXY, ALL_PROXY, NO_PROXY;
-
-        private static final Log LOGGER = LogFactory.getLog(ProxyEnvVar.class.getName());
-
-        static {
-            final var environmentVariables = System.getenv();
-            final var joiner = new StringJoiner(", ");
-            for (var procotol : ProxyProtocol.values()) {
-                final var ev = ProxyEnvVar.fromProxyProtocol(procotol);
-                final var result = ev.getValue(environmentVariables);
-                if (result == null) {
-                    continue;
-                } else if (parseResultAsURI(result, procotol) == null && LOGGER.isWarnEnabled()) {
-                    LOGGER.warn(String.format(
-                        "Environment variable \"%s\" could not be parsed as proxy host", ev));
-                } else {
-                    joiner.add(ev.name());
-                }
-            }
-            final var detectedVariables = joiner.toString();
-            if (!detectedVariables.isEmpty() && LOGGER.isInfoEnabled()) {
-                LOGGER.info(String.format(
-                    "Detected environment variables to be used as fallback "
-                        + "if the Eclipse proxy provider is inactive or not set to \"Direct\": %s",
-                    detectedVariables));
-            }
-        }
+            HTTP_PROXY, HTTPS_PROXY, SOCKS_PROXY, ALL_PROXY, NO_PROXY;
 
         /**
          * Converts from {@link ProxyProtocol} to {@link ProxyEnvVar}.
@@ -152,69 +132,120 @@ public class EnvironmentProxyConfigProvider {
         }
     }
 
-    /**
-     * Parses a proxy hostname as {@link URI}. To ensure correct parsing, a scheme/protocol
-     * has to be prepended (if missing) before creating the URI.
-     *
-     * @param proxy string result
-     * @param protocol non-empty proxy protocol
-     * @return URI instance
-     */
-    private static URI parseResultAsURI(final String proxy, final ProxyProtocol protocol) {
-        if (proxy == null) {
-            return null;
+    private static class ProxyEnvVarParser {
+
+        private final Map<String, String> m_environment;
+
+        private final Set<ProxyEnvVar> m_variables;
+
+        ProxyEnvVarParser(final Map<String, String> environmentVariables) {
+            m_environment = environmentVariables;
+            m_variables = new HashSet<>();
         }
-        final var separator = "://";
-        var proxyValue = proxy;
-        // prepend scheme/protocol to ensure correct parsing by URI
-        if (!proxy.contains(separator)) {
-            proxyValue = protocol.asLowerString() + separator + proxyValue;
+
+        Set<ProxyEnvVar> getParseableVariables() {
+            return m_variables;
         }
-        try {
-            final var uri = new URI(proxyValue);
-            // port is not required for configuration - if absent, the default port is used
-            return StringUtils.isNotBlank(uri.getHost()) ? uri : null;
-        } catch (URISyntaxException e) { // NOSONAR return 'null' here, indicator for invalid value
-            return null;
+
+        Optional<GlobalProxyConfig> parse(final ProxyEnvVar envVar, final ProxyProtocol protocol) {
+            final var result = envVar.getValue(m_environment);
+            final var proxyValue = parseResultAsURI(result, protocol);
+            if (proxyValue == null) {
+                if (result != null) {
+                    LOGGER.warn(String.format("Environment variable \"%s\" could not be parsed as proxy host", envVar));
+                }
+                return Optional.empty();
+            }
+            m_variables.add(envVar);
+            return Optional.of(toGlobalProxyConfig(proxyValue, protocol, ProxyEnvVar.NO_PROXY.getValue(m_environment)));
+        }
+
+        /**
+         * Parses a proxy hostname as {@link URI}. To ensure correct parsing, a scheme/protocol has to be prepended (if
+         * missing) before creating the URI.
+         *
+         * @param proxy string result
+         * @param protocol non-empty proxy protocol
+         * @return URI instance
+         */
+        private static URI parseResultAsURI(final String proxy, final ProxyProtocol protocol) {
+            if (proxy == null) {
+                return null;
+            }
+            final var separator = "://";
+            var proxyValue = proxy;
+            // prepend scheme/protocol to ensure correct parsing by URI
+            if (!proxy.contains(separator)) {
+                proxyValue = protocol.asLowerString() + separator + proxyValue;
+            }
+            try {
+                final var uri = new URI(proxyValue);
+                // port is not required for configuration - if absent, the default port is used
+                return StringUtils.isNotBlank(uri.getHost()) ? uri : null;
+            } catch (URISyntaxException e) { // NOSONAR return 'null' here, indicator for invalid value
+                return null;
+            }
+        }
+
+        /**
+         * Maps a {@link URI} value of a parsed environment variable to a {@link GlobalProxyConfig}.
+         *
+         * @param proxyValue non-null {@link URI}, representing the proxy hostname
+         * @param protocol non-empty proxy protocol
+         * @param noProxyValue non-null value of the NO_PROXY variable
+         * @return GlobalProxyConfig instance
+         */
+        private static GlobalProxyConfig toGlobalProxyConfig(final URI proxyValue, final ProxyProtocol protocol,
+            final String noProxyValue) {
+            // extract username and password from user info
+            var useAuthentication = false;
+            String username = null;
+            String password = null;
+            final var userInfo = proxyValue.getUserInfo();
+            if (StringUtils.isNotEmpty(userInfo)) {
+                final var parts = userInfo.split(":", 2);
+                username = parts[0];
+                if (parts.length > 1) {
+                    password = parts[1];
+                }
+                useAuthentication = true;
+            }
+            // a negative port is invalid for a URI, it can either be empty (e.g. "http://knime.com:")
+            // or must be present; we choose 'null' as placeholder which will be parsed correctly in #intPort()
+            final var rawPort = proxyValue.getPort() < 0 ? null : String.valueOf(proxyValue.getPort());
+            return new GlobalProxyConfig( //
+                protocol, //
+                proxyValue.getHost(), //
+                rawPort, //
+                useAuthentication, //
+                username, //
+                password, //
+                StringUtils.isNotEmpty(noProxyValue), //
+                noProxyValue);
         }
     }
 
-    /**
-     * Maps a {@link URI} value of a parsed environment variable to a {@link GlobalProxyConfig}.
-     *
-     * @param proxyValue non-null {@link URI}, representing the proxy hostname
-     * @param protocol non-empty proxy protocol
-     * @param noProxyValue non-null value of the NO_PROXY variable
-     * @return GlobalProxyConfig instance
-     */
-    private static GlobalProxyConfig toGlobalProxyConfig(final URI proxyValue, final ProxyProtocol protocol,
-        final String noProxyValue) {
-        // extract username and password from user info
-        var useAuthentication = false;
-        String username = null;
-        String password = null;
-        final var userInfo = proxyValue.getUserInfo();
-        if (StringUtils.isNotEmpty(userInfo)) {
-            final var parts = userInfo.split(":", 2);
-            username = parts[0];
-            if (parts.length > 1) {
-                password = parts[1];
-            }
-            useAuthentication = true;
+    private static Map<ProxyProtocol, GlobalProxyConfig> parseEnvironment(final Map<String, String> environment) {
+        final Map<ProxyProtocol, GlobalProxyConfig> configs = new EnumMap<>(ProxyProtocol.class);
+        final var parser = new ProxyEnvVarParser(environment);
+        for (var protocol : ProxyProtocol.values()) {
+            final var envVar = ProxyEnvVar.fromProxyProtocol(protocol);
+            parser.parse(envVar, protocol) //
+                .or(() -> parser.parse(ProxyEnvVar.ALL_PROXY, protocol)) //
+                .ifPresent(cfg -> configs.put(protocol, cfg));
         }
-        // a negative port is invalid for a URI, it can either be empty (e.g. "http://knime.com:")
-        // or must be present; we choose 'null' as placeholder which will be parsed correctly in #intPort()
-        final var rawPort = proxyValue.getPort() < 0 ? null : String.valueOf(proxyValue.getPort());
-        return new GlobalProxyConfig( //
-            protocol, //
-            proxyValue.getHost(), //
-            rawPort, //
-            useAuthentication, //
-            username, //
-            password, //
-            StringUtils.isNotEmpty(noProxyValue), //
-            noProxyValue);
+
+        final var joiner = new StringJoiner(", ");
+        parser.getParseableVariables().forEach(envVar -> joiner.add(envVar.name()));
+        final var detectedVariables = joiner.toString();
+        if (!detectedVariables.isEmpty() && LOGGER.isInfoEnabled()) {
+            LOGGER.info(String.format("Detected environment variables to be used as fallback "
+                + "if the Eclipse proxy provider is inactive or set to \"Native\": %s", detectedVariables));
+        }
+        return Collections.unmodifiableMap(configs);
     }
+
+    // -- KNIME PROXY SEARCH --
 
     /**
      * Retrieves the proxy configuration *only* from environment variables.
@@ -226,33 +257,34 @@ public class EnvironmentProxyConfigProvider {
      */
     public static Optional<GlobalProxyConfig> getConfigFromEnvironment(final URI uri,
         final ProxyProtocol... protocols) {
-        return getConfigFromEnvironment(System.getenv(), uri, protocols);
+        return chooseFromEnvironment(CACHED_CONFIGS, protocols);
     }
 
-    static Optional<GlobalProxyConfig> getConfigFromEnvironment(final Map<String, String> environmentVariables,
-        final URI uri, final ProxyProtocol... protocols) {
-        final var noProxyValue = ProxyEnvVar.NO_PROXY.getValue(environmentVariables);
+    static Optional<GlobalProxyConfig> getConfigFromEnvironment(final Map<String, String> environment, final URI uri,
+        final ProxyProtocol... protocols) {
+        return chooseFromEnvironment(parseEnvironment(environment), protocols);
+    }
 
-        // select protocol-based *_PROXY variable value
-        for (var procotol : protocols) {
-            final var result = ProxyEnvVar.fromProxyProtocol(procotol).getValue(environmentVariables);
-            final var proxyValue = parseResultAsURI(result, procotol);
-            if (proxyValue != null) {
-                return Optional.of(toGlobalProxyConfig(proxyValue, procotol, noProxyValue));
-            }
-        }
-
-        // use ALL_PROXY variable value as fallback
-        final var fallbackResult = ProxyEnvVar.ALL_PROXY.getValue(environmentVariables);
-        if (fallbackResult != null) {
-            // if not found, try getting the URI protocol for proxy but fall back to HTTP if null
-            final var fallbackProtocol = Objects.requireNonNullElse(uri == null ? null //
-                : EnumUtils.getEnum(ProxyProtocol.class, uri.getScheme()), ProxyProtocol.HTTP);
-            final var fallbackProxyValue = parseResultAsURI(fallbackResult, fallbackProtocol);
-            if (fallbackProxyValue != null) {
-                return Optional.of(toGlobalProxyConfig(fallbackProxyValue, fallbackProtocol, noProxyValue));
+    private static Optional<GlobalProxyConfig> chooseFromEnvironment(
+        final Map<ProxyProtocol, GlobalProxyConfig> configs, final ProxyProtocol... protocols) {
+        for (var protocol : protocols) {
+            if (configs.containsKey(protocol)) {
+                return Optional.of(configs.get(protocol));
             }
         }
         return Optional.empty();
+    }
+
+    // -- ECLIPSE PROXY PROVIDER --
+
+    /**
+     * Returns all {@link GlobalProxyConfig} objects that were found in {@link System#getenv()},
+     * and could be successfully be parsed. Unmodifiable map tracks per-protocol configs.
+     *
+     * @return list of all proxies
+     * @since 6.4
+     */
+    public static Map<ProxyProtocol, GlobalProxyConfig> getAllEnvironmentProxies() {
+        return CACHED_CONFIGS;
     }
 }

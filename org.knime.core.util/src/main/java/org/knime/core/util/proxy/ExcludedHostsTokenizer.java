@@ -50,6 +50,7 @@ package org.knime.core.util.proxy;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -87,10 +88,29 @@ public final class ExcludedHostsTokenizer {
         if (StringUtils.isBlank(whiteList)) {
             return new String[0];
         }
+        return tokenizeAsStream(whiteList).toArray(String[]::new);
+    }
+
+    /**
+     * Same as {@link #tokenize(String)} but does not create an array,
+     * and instead returns hostnames as stream of non-empty strings.
+     *
+     * Note that this method returns {@code null} on a {@code null} input.
+     *
+     * @param whiteList string of separated hostnames
+     * @return stream of non-empty strings, representing individual hostnames
+     * @since 6.4
+     */
+    public static Stream<String> tokenizeAsStream(final String whiteList) {
+        if (Objects.isNull(whiteList)) {
+            return null; // NOSONAR return 'null' here, indicator for not excluding hosts
+        }
+        if (StringUtils.isBlank(whiteList)) {
+            return Stream.empty();
+        }
         return TOKENIZER_PATTERN.splitAsStream(whiteList) //
             .map(StringUtils::strip) //
-            .filter(StringUtils::isNotEmpty) //
-            .toArray(String[]::new);
+            .filter(StringUtils::isNotEmpty);
     }
 
     /**

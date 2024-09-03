@@ -63,6 +63,7 @@ import org.apache.commons.logging.LogFactory;
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
 import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.SearchSignal;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * Employs multiple {@link GlobalProxyStrategy}s to search for the current global proxy
@@ -81,9 +82,21 @@ public final class GlobalProxySearch {
     private static GlobalProxySearch theGlobalProxySearch;
 
     static {
-        setDefault(new GlobalProxySearch( //
-            new EclipseProxyStrategy(), new JavaProxyStrategy(), new EnvironmentProxyStrategy() //
-        ));
+        final var osgi = FrameworkUtil.getBundle(GlobalProxySearch.class) != null;
+        if (osgi) {
+            // if we are in an OSGi enviroment (practically always), the Eclipse proxy service
+            // is the only ground truth for proxies we listen on
+            setDefault(new GlobalProxySearch( //
+                new EclipseProxyStrategy() //
+            ));
+        } else {
+            // if 'org.knime.core.util' were to be used outside OSGi bundles and services,
+            // this falls back to first querying Java system properties, then environment variables,
+            // retaining some proxy-searching functionality as OSGi-independent utility
+            setDefault(new GlobalProxySearch( //
+                new JavaProxyStrategy(), new EnvironmentProxyStrategy()
+            ));
+        }
     }
 
     private final List<GlobalProxyStrategy> m_searchStragies;
