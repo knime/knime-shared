@@ -9,7 +9,7 @@
 
 	<groupId>org.knime</groupId>
 	<artifactId>org.knime.core.util</artifactId>
-	<version>6.3.2-SNAPSHOT</version>
+	<version>6.3.3-SNAPSHOT</version>
 	<packaging>${packaging.default}</packaging>
 	<build>
 		<plugins>
