@@ -26,7 +26,7 @@ import java.util.Map;
  * Extended {@link Authenticator} which provides additional headers for authentication.
  *
  * @author Ole Ostergaard, KNIME AG, Zurich, Switzerland
- * @since 6.4
+ * @since 6.3
  */
 public interface AuthenticatorWithHeaders extends Authenticator {
 
