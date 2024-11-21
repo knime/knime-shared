@@ -528,6 +528,26 @@ public class WorkflowMetadataDefBuilder {
         if(m_contentType == null) setContentType(null);
         
     	
+        // contains the elements set with #setTags (those added with #addToTags have already been inserted into m_tags)
+        m_tagsBulkElements = java.util.Objects.requireNonNullElse(m_tagsBulkElements, java.util.List.of());
+        m_tags.addAll(0, m_tagsBulkElements);
+        
+        var tagsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_tagsElementSupplyExceptions, m_tagsContainerSupplyException);
+                if(tagsLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(WorkflowMetadataDef.Attribute.TAGS, tagsLoadExceptionTree);
+        }
+        
+        // contains the elements set with #setLinks (those added with #addToLinks have already been inserted into m_links)
+        m_linksBulkElements = java.util.Objects.requireNonNullElse(m_linksBulkElements, java.util.List.of());
+        m_links.addAll(0, m_linksBulkElements);
+                
+        var linksLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_links, m_linksContainerSupplyException);
+        if(linksLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(WorkflowMetadataDef.Attribute.LINKS, linksLoadExceptionTree);
+        }
+        
         return new DefaultWorkflowMetadataDef(this);
     }    
 

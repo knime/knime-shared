@@ -964,6 +964,26 @@ public class ComponentMetadataDefBuilder {
         if(m_contentType == null) setContentType(null);
         
     	
+        // contains the elements set with #setTags (those added with #addToTags have already been inserted into m_tags)
+        m_tagsBulkElements = java.util.Objects.requireNonNullElse(m_tagsBulkElements, java.util.List.of());
+        m_tags.addAll(0, m_tagsBulkElements);
+        
+        var tagsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_tagsElementSupplyExceptions, m_tagsContainerSupplyException);
+                if(tagsLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.TAGS, tagsLoadExceptionTree);
+        }
+        
+        // contains the elements set with #setLinks (those added with #addToLinks have already been inserted into m_links)
+        m_linksBulkElements = java.util.Objects.requireNonNullElse(m_linksBulkElements, java.util.List.of());
+        m_links.addAll(0, m_linksBulkElements);
+                
+        var linksLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_links, m_linksContainerSupplyException);
+        if(linksLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(ComponentMetadataDef.Attribute.LINKS, linksLoadExceptionTree);
+        }
+        
         // contains the elements set with #setInPortNames (those added with #addToInPortNames have already been inserted into m_inPortNames)
         m_inPortNamesBulkElements = java.util.Objects.requireNonNullElse(m_inPortNamesBulkElements, java.util.List.of());
         m_inPortNames.addAll(0, m_inPortNamesBulkElements);

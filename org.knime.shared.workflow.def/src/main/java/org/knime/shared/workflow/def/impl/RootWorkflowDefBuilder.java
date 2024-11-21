@@ -849,6 +849,44 @@ public class RootWorkflowDefBuilder {
     public DefaultRootWorkflowDef build() {
         
     	
+        // contains the elements set with #setNodes (those added with #addToNodes have already been inserted into m_nodes)
+        m_nodesBulkElements = java.util.Objects.requireNonNullElse(m_nodesBulkElements, java.util.Map.of());
+        final java.util.Map<String, BaseNodeDef> nodesMerged = new java.util.LinkedHashMap<>();
+        // in rough analogy to list containers, the bulk elements go first and then the individual elements are added
+        nodesMerged.putAll(m_nodesBulkElements);
+        nodesMerged.putAll(m_nodes);
+        m_nodes = nodesMerged;
+                
+        var nodesLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .map(m_nodes, m_nodesContainerSupplyException);
+        if(nodesLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(RootWorkflowDef.Attribute.NODES, nodesLoadExceptionTree);
+        }
+        
+        // contains the elements set with #setConnections (those added with #addToConnections have already been inserted into m_connections)
+        m_connectionsBulkElements = java.util.Objects.requireNonNullElse(m_connectionsBulkElements, java.util.List.of());
+        m_connections.addAll(0, m_connectionsBulkElements);
+                
+        var connectionsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .list(m_connections, m_connectionsContainerSupplyException);
+        if(connectionsLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(RootWorkflowDef.Attribute.CONNECTIONS, connectionsLoadExceptionTree);
+        }
+        
+        // contains the elements set with #setAnnotations (those added with #addToAnnotations have already been inserted into m_annotations)
+        m_annotationsBulkElements = java.util.Objects.requireNonNullElse(m_annotationsBulkElements, java.util.Map.of());
+        final java.util.Map<String, AnnotationDataDef> annotationsMerged = new java.util.LinkedHashMap<>();
+        // in rough analogy to list containers, the bulk elements go first and then the individual elements are added
+        annotationsMerged.putAll(m_annotationsBulkElements);
+        annotationsMerged.putAll(m_annotations);
+        m_annotations = annotationsMerged;
+                
+        var annotationsLoadExceptionTree = org.knime.core.util.workflow.def.SimpleLoadExceptionTree
+            .map(m_annotations, m_annotationsContainerSupplyException);
+        if(annotationsLoadExceptionTree.hasExceptions()){
+            m_exceptionalChildren.put(RootWorkflowDef.Attribute.ANNOTATIONS, annotationsLoadExceptionTree);
+        }
+        
         // contains the elements set with #setFlowVariables (those added with #addToFlowVariables have already been inserted into m_flowVariables)
         m_flowVariablesBulkElements = java.util.Objects.requireNonNullElse(m_flowVariablesBulkElements, java.util.List.of());
         m_flowVariables.addAll(0, m_flowVariablesBulkElements);
