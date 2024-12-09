@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Automatic-Module-Name: org.knime.core.util
 Bundle-Name: KNIME Core Utilities Plugin
 Bundle-SymbolicName: org.knime.core.util;singleton:=true
-Bundle-Version: 6.4.0.qualifier
+Bundle-Version: 6.5.0.qualifier
 Bundle-ClassPath: ., lib/schemas.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Export-Package: org.knime.core.hub.events,
