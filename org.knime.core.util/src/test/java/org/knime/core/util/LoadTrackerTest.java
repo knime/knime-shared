@@ -120,8 +120,8 @@ class LoadTrackerTest {
             assertTrue(shortLoadAvg2 > longLoadAvg2,
                 "average 50ms > average 500ms but: %.2f <= %.2f".formatted(shortLoadAvg2, longLoadAvg2));
             assertTrue(shortLoadAvg2 > 95.0, "average 50ms interval larger 95: %.2f".formatted(shortLoadAvg2));
-            assertTrue(longLoadAvg2 > 55.0, "average 500ms interval larger 55: %.2f".formatted(longLoadAvg2));
-            assertTrue(longLoadAvg2 < 68.0, "average 500ms interval smaller 68: %.2f".formatted(longLoadAvg2));
+            assertEquals(100 * (1.0 - Math.exp(-1.0)) /*63.2...*/, longLoadAvg2, 5.0,
+                "average 500ms interval smaller 63.2...");
         }
     }
 

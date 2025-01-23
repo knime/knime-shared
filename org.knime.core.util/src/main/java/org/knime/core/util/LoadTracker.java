@@ -74,7 +74,7 @@ import org.knime.core.node.util.CheckUtils;
  */
 public final class LoadTracker<K> implements AutoCloseable {
 
-    private static final int DECAY_OFFSET = 0;
+    private static final int INTERVAL_MS_OFFSET = 0;
 
     private static final int LOAD_AVERAGE_OFFSET = 1;
 
@@ -96,26 +96,28 @@ public final class LoadTracker<K> implements AutoCloseable {
 
     private int m_nrErrorsLogged;
 
+    private long m_lastUpdate;
+
     private LoadTracker(final Builder<K> b) {
-        final var updateIntervalInMillis = b.m_updateInterval.toMillis();
         m_measure = b.m_measure;
-        final var initialLoadAverage = m_measure.getAsDouble();
+        final var initialValue = m_measure.getAsDouble();
+        m_lastUpdate = System.currentTimeMillis();
         m_loadAverageMap = b.m_keyToIntervalMap.entrySet().stream().collect(Collectors.toMap( //
             Entry::getKey, //
-            e -> new double[]{ //
-                Math.exp(-updateIntervalInMillis / (double)e.getValue().toMillis()), //
-                initialLoadAverage}, //
-            (t, u) -> t, //
+            e -> new double[] { e.getValue().toMillis(), initialValue }, //
+            (t, u) -> { throw new IllegalStateException(); }, //
             LinkedHashMap::new));
         m_isIgnoreCloseInvocation = b.m_isIgnoreCloseInvocation;
-        m_updateFuture = EXECUTOR.scheduleAtFixedRate(this::update, 0, updateIntervalInMillis, TimeUnit.MILLISECONDS);
+        final var updateIntervalInMillis = b.m_updateInterval.toMillis();
+        m_updateFuture = EXECUTOR.scheduleAtFixedRate(this::update, updateIntervalInMillis, updateIntervalInMillis,
+            TimeUnit.MILLISECONDS);
     }
 
     private void update() {
-        final double value;
+        final double newValue;
         try {
-            value = m_measure.getAsDouble();
-        } catch (Exception e) { // NOSONAR (3rd party client code
+            newValue = m_measure.getAsDouble();
+        } catch (Exception e) { // NOSONAR (3rd party client code)
             m_nrErrorsLogged += 1;
             if (m_nrErrorsLogged <= MAX_ERROR_LOGS) {
                 var messageBuilder = new StringBuilder("Error computing load value");
@@ -127,10 +129,16 @@ public final class LoadTracker<K> implements AutoCloseable {
             }
             return;
         }
+
+        final var now = System.currentTimeMillis();
+        final var millisSinceLastUpdate = now - m_lastUpdate;
         for (final var average : m_loadAverageMap.values()) {
-            final double decay = average[DECAY_OFFSET];
-            average[LOAD_AVERAGE_OFFSET] = average[LOAD_AVERAGE_OFFSET] * decay + value * (1 - decay);
+            final var oldValue = average[LOAD_AVERAGE_OFFSET];
+            final var intervalMillis = average[INTERVAL_MS_OFFSET];
+            final var retained = Math.exp(-millisSinceLastUpdate / intervalMillis);
+            average[LOAD_AVERAGE_OFFSET] = retained * oldValue + (1 - retained) * newValue;
         }
+        m_lastUpdate = now;
     }
 
     /**
@@ -169,7 +177,7 @@ public final class LoadTracker<K> implements AutoCloseable {
     }
 
     /**
-     * Builds and starts a tracker that's tracks a single measure with a single interval. The single load average value
+     * Builds and starts a tracker that tracks a single measure with a single interval. The single load average value
      * is to be retrieved via {@link #getLoadAverage()}.
      *
      * @param updateInterval The frequency with which the load average is updated, often in second range)
