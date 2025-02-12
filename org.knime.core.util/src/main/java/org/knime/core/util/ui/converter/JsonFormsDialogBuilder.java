@@ -126,6 +126,9 @@ public class JsonFormsDialogBuilder {
             root.set("schema", m_schema);
             root.set("ui_schema", m_uiSchema);
 
+            root.set("flowVariableSettings", factory.objectNode());
+
+
             return root.toString();
         }
     }
