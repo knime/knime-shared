@@ -52,7 +52,17 @@
 				<artifactId>gson</artifactId>
 				<version>[2.8.9,2.9.0)</version>
 			</dependency>
-		</dependencies>
+            <dependency>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.runtime</artifactId>
+                <version>3.26.100</version> <!-- added as part of AP-24094 -->
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.security</artifactId>
+                <version>1.3.1000</version> <!-- added as part of AP-24094 -->
+            </dependency>
+        </dependencies>
 	</dependencyManagement>
 
 	<build>
