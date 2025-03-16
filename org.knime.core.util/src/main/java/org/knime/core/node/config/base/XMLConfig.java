@@ -166,22 +166,18 @@ public final class XMLConfig {
 
         final boolean originalOutputIsBuffered =
                 ((output instanceof BufferedOutputStream) || (output instanceof ByteArrayOutputStream));
-        OutputStream os = originalOutputIsBuffered ? output : new BufferedOutputStream(output);
-        tfh.setResult(new StreamResult(os));
-
-        try {
-            XMLContentHandler.asXML(config, tfh);
+        try (OutputStream os = originalOutputIsBuffered ? output : new BufferedOutputStream(output)) {
+            tfh.setResult(new StreamResult(os));
+            try {
+                XMLContentHandler.asXML(config, tfh);
+            } finally {
+                // Note: When using the GZIP stream, it is also required by the
+                // ZLIB native library in order to support certain optimizations
+                // to flush the stream.
+                os.flush();
+            }
         } catch (SAXException se) {
             throw new IOException("Saving xml to " + output.toString() + " failed: " + se.getMessage(), se);
-        } finally {
-            // Note: When using the GZIP stream, it is also required by the
-            // ZLIB native library in order to support certain optimizations
-            // to flush the stream.
-            try {
-                os.flush();
-            } finally {
-                os.close();
-            }
         }
     }
 }

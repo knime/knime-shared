@@ -62,7 +62,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -439,6 +439,7 @@ public final class WorkflowMetadata extends AbstractRepositoryItemMetadata<Workf
      *
      * @return {@link InputStream} on SVG file, if file is present
      */
+    @SuppressWarnings("resource") // resource analysis can't see through `Optional`
     public Optional<InputStream> getSvgInputStream() {
         try {
             if (m_svgPath != null && Files.exists(m_svgPath)) {

@@ -62,6 +62,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jdt.annotation.Owning;
 
 /**
  * This class implements a two-stage queue for bytes. In the first stage a bounded in-memory buffer is used. When the
@@ -273,7 +274,7 @@ public class DiskBasedByteQueue extends OutputStream {
 
         private Path m_currentWriteChunk;
 
-        private OutputStream m_currentWriteStream;
+        private @Owning OutputStream m_currentWriteStream;
 
         private long m_currentChunkSize;
 
@@ -414,9 +415,9 @@ public class DiskBasedByteQueue extends OutputStream {
         }
     }
 
-    private volatile Buffer m_writeBuffer;
+    private volatile @Owning Buffer m_writeBuffer;
 
-    private volatile Buffer m_readBuffer;
+    private volatile @Owning Buffer m_readBuffer;
 
     private final Path m_tempDir;
 
@@ -456,9 +457,9 @@ public class DiskBasedByteQueue extends OutputStream {
         if (m_writeBuffer.freeBytes() >= 1) {
             m_writeBuffer.write(b);
         } else {
-            Buffer old = m_writeBuffer;
-            m_writeBuffer = new OnDiskBuffer(m_tempDir, m_prefix, m_diskChunkSize);
-            old.close();
+            try (final Buffer old = m_writeBuffer) {
+                m_writeBuffer = new OnDiskBuffer(m_tempDir, m_prefix, m_diskChunkSize);
+            }
             m_writeBuffer.write(b);
         }
     }
@@ -474,9 +475,9 @@ public class DiskBasedByteQueue extends OutputStream {
         if (m_writeBuffer.freeBytes() >= b.length) {
             m_writeBuffer.write(b);
         } else {
-            Buffer old = m_writeBuffer;
-            m_writeBuffer = new OnDiskBuffer(m_tempDir, m_prefix, m_diskChunkSize);
-            old.close();
+            try (final Buffer old = m_writeBuffer) {
+                m_writeBuffer = new OnDiskBuffer(m_tempDir, m_prefix, m_diskChunkSize);
+            }
             m_writeBuffer.write(b);
         }
     }
@@ -493,9 +494,9 @@ public class DiskBasedByteQueue extends OutputStream {
         if (m_writeBuffer.freeBytes() >= len) {
             m_writeBuffer.write(b, off, len);
         } else {
-            Buffer old = m_writeBuffer;
-            m_writeBuffer = new OnDiskBuffer(m_tempDir, m_prefix, m_diskChunkSize);
-            old.close();
+            try (final Buffer old = m_writeBuffer) {
+                m_writeBuffer = new OnDiskBuffer(m_tempDir, m_prefix, m_diskChunkSize);
+            }
             m_writeBuffer.write(b, off, len);
         }
     }

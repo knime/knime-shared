@@ -148,7 +148,7 @@ class PathUtilsTest {
 
     private Path unzipZF(final Path zipFile) throws IOException {
         final var destDir = PathUtils.createTempDir(getClass().getSimpleName());
-        try (ZipFile zif = new ZipFile(zipFile.toFile())) {
+        try (ZipFile zif = ZipFile.builder().setPath(zipFile).get()) {
             PathUtils.unzip(zif, destDir);
         }
         return destDir;

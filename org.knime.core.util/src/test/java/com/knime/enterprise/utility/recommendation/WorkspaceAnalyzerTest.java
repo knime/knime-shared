@@ -68,7 +68,7 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,7 +164,7 @@ public class WorkspaceAnalyzerTest {
      * @throws ArchiveException ...
      */
     final static void unzip(final InputStream in, final File folder) throws IOException, ArchiveException {
-        try (ArchiveInputStream ais =
+        try (ArchiveInputStream<?> ais =
                 new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, in)) {
             ZipArchiveEntry entry;
             while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {

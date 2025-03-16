@@ -95,6 +95,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xmlbeans.XmlException;
+import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.util.CheckUtils;
@@ -542,12 +543,16 @@ public final class Workflowalizer {
         final List<String> variables = parser.getWorkflowVariables(workflowKnime);
         builder.setWorkflowVariables(variables);
 
-        try (final Stream<?> files = zip == null ? Files.list(Paths.get(path)) : zip.stream()) {
+        try (final Stream<?> files = listDir(zip, path)) {
             final boolean hasReport = parser.getHasReport(files);
             builder.setHasReport(hasReport);
         }
 
         return builder.build(wc);
+    }
+
+    private static @Owning Stream<?> listDir(final ZipFile zip, final String path) throws IOException {
+        return zip == null ? Files.list(Paths.get(path)) : zip.stream();
     }
 
     /** This class wants to be a record. */
@@ -1101,15 +1106,14 @@ public final class Workflowalizer {
         }
 
         for (final NodeMetadata node : nodes) {
-            if (node instanceof NativeNodeMetadata) {
-                final NativeNodeMetadata nn = (NativeNodeMetadata)node;
+            if (node instanceof NativeNodeMetadata nn) {
                 final var nodeConfiguration = nn.getNodeConfiguration();
                 if (nodeConfiguration.isPresent() && parser.isInteractiveViewNode(nodeConfiguration.get())) {
                     viewNodeFactoryIds.add(nn.getFactoryId());
                     viewNodes.add(nn.getFactoryName());
                 }
-            } else if (node instanceof IWorkflowMetadata) {
-                populateViewNodes(((IWorkflowMetadata)node).getNodes(), viewNodeFactoryIds, viewNodes, parser);
+            } else if (node instanceof IWorkflowMetadata iw) {
+                populateViewNodes(iw.getNodes(), viewNodeFactoryIds, viewNodes, parser);
             } else {
                 throw new IllegalArgumentException("Unrecognized node type: " + node.getType());
             }

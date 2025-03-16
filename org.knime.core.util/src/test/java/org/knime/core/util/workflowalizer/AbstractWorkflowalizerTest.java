@@ -77,9 +77,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.config.base.XMLConfig;
 import org.knime.core.util.Version;
@@ -105,8 +106,7 @@ public class AbstractWorkflowalizerTest {
      * @return input stream with the resource's contents
      * @throws IOException if something goes wrong
      */
-    @SuppressWarnings("resource")
-    public static InputStream getResourceAsStream(final String file) throws IOException {
+    public static @Owning InputStream getResourceAsStream(final String file) throws IOException {
         final var local = Path.of("src/test/resources" + file);
         final var fromClassLoader = WorkflowalizerTest.class.getResourceAsStream(file);
         return fromClassLoader != null ? fromClassLoader : Files.exists(local) ? Files.newInputStream(local) : null;
@@ -148,7 +148,7 @@ public class AbstractWorkflowalizerTest {
      * @throws Exception
      */
     protected static void unzip(final InputStream in, final Path folder) throws Exception {
-        try (ArchiveInputStream ais =
+        try (ArchiveInputStream<?> ais =
             new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, in)) {
             for (ZipArchiveEntry entry; (entry = (ZipArchiveEntry)ais.getNextEntry()) != null;) {
                 final Path output = folder.resolve(entry.getName());

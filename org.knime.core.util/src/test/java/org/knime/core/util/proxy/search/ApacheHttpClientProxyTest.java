@@ -63,6 +63,7 @@ import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.eclipse.jdt.annotation.Owning;
 import org.junit.jupiter.api.Test;
 import org.knime.core.util.HttpbinTestContext;
 import org.knime.core.util.Pair;
@@ -85,7 +86,7 @@ class ApacheHttpClientProxyTest {
 
     private static final int TIMEOUT_SECONDS = 60;
 
-    private static CloseableHttpClient createClient(final Consumer<HttpClientBuilder> configurer) {
+    private static @Owning CloseableHttpClient createClient(final Consumer<HttpClientBuilder> configurer) {
         final var builder = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom() //
             .setConnectTimeout(1000 * TIMEOUT_SECONDS) //
             .setConnectionRequestTimeout(1000 * TIMEOUT_SECONDS) //

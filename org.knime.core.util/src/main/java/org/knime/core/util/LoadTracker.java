@@ -61,6 +61,7 @@ import java.util.function.DoubleSupplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.util.CheckUtils;
 
 /**
@@ -185,8 +186,8 @@ public final class LoadTracker<K> implements AutoCloseable {
      * @param interval The interval over which the load average is calculated (e.g. 1min, 5min, etc)
      * @return The tracker
      */
-    public static LoadTracker<Void> singleLoadTracker(final Duration updateInterval, final DoubleSupplier measure,
-        final Duration interval) {
+    public static @Owning LoadTracker<Void> singleLoadTracker(final Duration updateInterval,
+        final DoubleSupplier measure, final Duration interval) {
         return LoadTracker.<Void> builder(updateInterval, measure).addInterval(null, interval).start();
     }
 
@@ -258,7 +259,7 @@ public final class LoadTracker<K> implements AutoCloseable {
          * Starts and returns the tracker.
          * @return The tracker
          */
-        public LoadTracker<K> start() {
+        public @Owning LoadTracker<K> start() {
             CheckUtils.checkState(!m_keyToIntervalMap.isEmpty(), "At least one interval must be added");
             return new LoadTracker<>(this);
         }

@@ -628,7 +628,9 @@ public final class PathUtils {
      * @return the resolved path
      */
     public static Path resolvePath(final Path parent, final String child) {
-        final String separator = parent.getFileSystem().getSeparator();
+        @SuppressWarnings("resource")
+        final var fileSystem = parent.getFileSystem();
+        final String separator = fileSystem.getSeparator();
         if (child.startsWith(separator)) {
             return parent.resolve(child.substring(separator.length()));
         } else if (child.startsWith("/")) {

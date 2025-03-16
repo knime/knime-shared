@@ -55,7 +55,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,12 +66,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.xmlbeans.XmlException;
+import org.eclipse.jdt.annotation.Owning;
 import org.junit.jupiter.api.Test;
 import org.knime.core.node.workflow.metadata.WorkflowSetMetaParser.MetadataContents;
 import org.knime.core.util.Pair;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -173,22 +171,20 @@ class WorkflowSetMetaParserTest {
         }
     }
 
-    @SuppressWarnings("resource")
-    private static InputStream getResourceAsStream(final String file) throws URISyntaxException, IOException {
+    private static @Owning InputStream getResourceAsStream(final String file) throws IOException {
         final var local = Path.of("src/test/resources" + file);
         final var fromClassLoader = WorkflowSetMetaParserTest.class.getResourceAsStream(file);
         return fromClassLoader != null ? fromClassLoader : Files.exists(local) ? Files.newInputStream(local) : null;
     }
 
-    private static String serializeToJson(final MetadataContents contents)
-            throws StreamWriteException, DatabindException, IOException, XmlException {
+    private static String serializeToJson(final MetadataContents contents) throws IOException {
         final var outStream = new ByteArrayOutputStream();
         MAPPER.writeValue(outStream, contents);
         return new String(outStream.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n");
     }
 
     private static Map<String, String> readFileContents(final String zipPath, final String fileName)
-            throws IOException, StreamWriteException, DatabindException, XmlException, URISyntaxException {
+            throws IOException {
         final var out = new HashMap<String, String>();
         try (final var zipStream = new ZipInputStream(getResourceAsStream(zipPath));
                 final var bufferedStream = new BufferedInputStream(zipStream)) {
@@ -204,7 +200,7 @@ class WorkflowSetMetaParserTest {
     }
 
     private static void loadSaveLoad(final Set<String> manuallyChecked, final String file)
-            throws IOException, XmlException, URISyntaxException {
+            throws IOException, XmlException {
         try (final var zipStream = new ZipInputStream(getResourceAsStream(file));
                 final var bufferedStream = new BufferedInputStream(zipStream)) {
             for (ZipEntry entry; (entry = zipStream.getNextEntry()) != null;) {

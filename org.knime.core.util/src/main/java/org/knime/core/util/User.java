@@ -47,43 +47,59 @@
  */
 package org.knime.core.util;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * Utility class with user-related functions such as getting the current user's
- * name.
+ * Utility class with user-related functions such as getting the current user's name.
  *
  * @author Thorsten Meinl, University of Konstanz
  */
 public final class User {
+
+    private static String userName;
+
+    private static boolean initialized;
+
     private User() {}
 
     /**
-     * Returns the name of the current user. It does not use the
-     * <tt>user.name</tt> system property but relies on the authentication
-     * modules.
+     * Returns the name of the current user. It does not use the <tt>user.name</tt> system property but relies on the
+     * authentication modules.
      *
      * @return the user name or <code>null</code> if it cannot be determined
-     * @throws Exception a bunch of reflection-related exceptions
      */
-    public static String getUsername() throws Exception {
-        String os = System.getProperty("os.name");
-        String className, methodName;
-        if ("Linux".equals(os) || "Mac OS X".equals(os)) {
-            className = "com.sun.security.auth.module.UnixSystem";
-            methodName = "getUsername";
-        } else if (os.startsWith("Windows")) {
-            className = "com.sun.security.auth.module.NTSystem";
-            methodName = "getName";
-        } else if ("Solaris".equals(os)) {
-            className = "com.sun.security.auth.module.SolarisSystem";
-            methodName = "getUsername";
-        } else {
-            return null;
+    public static synchronized String getUsername() {
+        if (!initialized) {
+            initialized = true;
+            String osSystemClassName;
+            String getUserNameMethodName;
+            if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC_OSX) {
+                osSystemClassName = "com.sun.security.auth.module.UnixSystem";
+                getUserNameMethodName = "getUsername";
+            } else if (SystemUtils.IS_OS_WINDOWS) {
+                osSystemClassName = "com.sun.security.auth.module.NTSystem";
+                getUserNameMethodName = "getName";
+            } else if (SystemUtils.IS_OS_SOLARIS) {
+                osSystemClassName = "com.sun.security.auth.module.SolarisSystem";
+                getUserNameMethodName = "getUsername";
+            } else {
+                // unknown OS, give up
+                return null;
+            }
+
+            try {
+                final Class<?> osSystemClass = Class.forName(osSystemClassName);
+                final Object osSystem = osSystemClass.getConstructor().newInstance();
+                userName = (String)osSystemClass.getMethod(getUserNameMethodName).invoke(osSystem);
+            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                    | SecurityException e) {
+                LogFactory.getLog(User.class).error("Could not determine user name using reflection", e);
+            }
         }
-        Class<?> clazz = Class.forName(className);
-        Method getUsername = clazz.getMethod(methodName);
-        Object osSystem = clazz.newInstance();
-        return (String)getUsername.invoke(osSystem);
+        return userName;
     }
 }

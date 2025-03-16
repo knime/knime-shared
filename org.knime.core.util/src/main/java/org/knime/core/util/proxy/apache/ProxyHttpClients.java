@@ -54,6 +54,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.eclipse.jdt.annotation.Owning;
 
 /**
  * Factory methods for {@link CloseableHttpClient} instances that are
@@ -132,7 +133,7 @@ public final class ProxyHttpClients {
      *
      * @return proxy-supporting {@link HttpClient} with default settings
      */
-    public static CloseableHttpClient createDefault() {
+    public static @Owning CloseableHttpClient createDefault() {
         return custom().build();
     }
 
@@ -145,7 +146,7 @@ public final class ProxyHttpClients {
      * matches its stored credentials against the active target
      * @return proxy-supporting {@link HttpClient} with default settings
      */
-    public static CloseableHttpClient createDefault(final URI defaultTarget) {
+    public static @Owning CloseableHttpClient createDefault(final URI defaultTarget) {
         return custom(defaultTarget).build();
     }
 

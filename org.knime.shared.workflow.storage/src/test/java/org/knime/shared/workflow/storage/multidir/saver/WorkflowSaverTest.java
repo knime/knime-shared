@@ -79,54 +79,51 @@ import org.xml.sax.SAXException;
 @SuppressWarnings({"squid:S2698", "squid:S5961"})
 class WorkflowSaverTest {
 
-    static File INPUT_DIRECTORY, OUTPUT_DIRECTORY;
+    static File inputDirectory, outputDirectory;
 
-    static ConfigBase XML;
+    static ConfigBase xml;
 
     @BeforeAll
     static void setUp() throws IOException, SAXException, ParserConfigurationException {
-        INPUT_DIRECTORY = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");
-        WorkflowDef workflow = WorkflowLoader.load(INPUT_DIRECTORY, LoadVersion.V4010);
+        inputDirectory = NodeLoaderTestUtils.readResourceFolder("Workflow_Test");
+        WorkflowDef workflow = WorkflowLoader.load(inputDirectory, LoadVersion.V4010);
 
-        OUTPUT_DIRECTORY = NodeLoaderTestUtils.readResourceFolder(SaverTestUtils.OUTPUT_DIR_NAME);
-        OUTPUT_DIRECTORY.mkdir();
-        FileUtils.cleanDirectory(OUTPUT_DIRECTORY); // So that we don't interfere with previous tests
+        outputDirectory = NodeLoaderTestUtils.readResourceFolder(SaverTestUtils.OUTPUT_DIR_NAME);
+        outputDirectory.mkdir();
+        FileUtils.cleanDirectory(outputDirectory); // So that we don't interfere with previous tests
         var saver = new WorkflowSaver(workflow);
-        saver.save(OUTPUT_DIRECTORY);
+        saver.save(outputDirectory);
 
-        var rootWorkflowDotKNIME = new File(OUTPUT_DIRECTORY, IOConst.WORKFLOW_FILE_NAME.get());
-        XML = new SimpleConfig("workflow.knime");
+        var rootWorkflowDotKNIME = new File(outputDirectory, IOConst.WORKFLOW_FILE_NAME.get());
+        xml = new SimpleConfig("workflow.knime");
         try (var fis = new FileInputStream(rootWorkflowDotKNIME)) {
-            XMLConfig.load(XML, fis);
+            XMLConfig.load(xml, fis);
         }
     }
 
     /**
      * Test that all relevant settings have been written to the workflow.knime
      *
-     * @throws ParserConfigurationException
-     * @throws SAXException
      * @throws InvalidSettingsException
-     * @throws Exception
      */
     @Test
-    void testWorkflowKNIME() throws IOException, SAXException, ParserConfigurationException, InvalidSettingsException {
+    void testWorkflowKNIME() throws InvalidSettingsException {
         //then
-        assertThat(OUTPUT_DIRECTORY).as("At least *something* should have been written").isNotEmptyDirectory();
+        assertThat(outputDirectory).as("At least *something* should have been written").isNotEmptyDirectory();
 
-        assertThat(XML.getString(IOConst.METADATA_NAME_KEY.get())).isNull();
-        assertThat(XML.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get())).isNull();
+        assertThat(xml.getString(IOConst.METADATA_NAME_KEY.get())).isNull();
+        assertThat(xml.getString(IOConst.CUSTOM_DESCRIPTION_KEY.get())).isNull();
 
-        var authorInformation = XML.getConfigBase(IOConst.AUTHOR_INFORMATION_KEY.get());
+        var authorInformation = xml.getConfigBase(IOConst.AUTHOR_INFORMATION_KEY.get());
         assertThat(authorInformation.getChildCount()).isEqualTo(4);
         assertThat(authorInformation.getString(IOConst.AUTHORED_BY_KEY.get())).isEqualTo("apugh");
 
-        var annotations = XML.getConfigBase(IOConst.WORKFLOW_ANNOTATIONS_KEY.get());
+        var annotations = xml.getConfigBase(IOConst.WORKFLOW_ANNOTATIONS_KEY.get());
         assertThat(annotations.getChildCount()).isEqualTo(3);
         assertThat(annotations.getConfigBase("annotation_1").getString("text")).isEqualTo("Meta Node section\r\n");
         assertThat(annotations.getConfigBase("annotation_2").getConfigBase("styles").getChildCount()).isZero();
 
-        var connections = XML.getConfigBase(IOConst.WORKFLOW_CONNECTIONS_KEY.get());
+        var connections = xml.getConfigBase(IOConst.WORKFLOW_CONNECTIONS_KEY.get());
         assertThat(connections.getChildCount()).isEqualTo(6);
 
         var connection2 = connections.getConfigBase("connection_2");
@@ -135,7 +132,7 @@ class WorkflowSaverTest {
         assertThat(connection2.getInt("sourcePort")).isEqualTo(1);
         assertThat(connection2.getInt("destPort")).isEqualTo(2);
 
-        var editorsettings = XML.getConfigBase(IOConst.WORKFLOW_EDITOR_SETTINGS_KEY.get());
+        var editorsettings = xml.getConfigBase(IOConst.WORKFLOW_EDITOR_SETTINGS_KEY.get());
         assertThat(editorsettings.getBoolean(IOConst.WORKFLOW_EDITOR_SHOWGRID_KEY.get())).isFalse();
         assertThat(editorsettings.getDouble(IOConst.WORKFLOW_EDITOR_ZOOM_LEVEL_KEY.get())).isEqualTo(1.0);
         assertThat(editorsettings.getInt(IOConst.WORKFLOW_EDITOR_CONNECTION_WIDTH_KEY.get())).isEqualTo(2);
@@ -148,14 +145,14 @@ class WorkflowSaverTest {
      */
     @Test
     void testChildNodes() throws InvalidSettingsException {
-        var nodes = XML.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get());
+        var nodes = xml.getConfigBase(IOConst.WORKFLOW_NODES_KEY.get());
         assertThat(nodes.getChildCount()).isEqualTo(7);
         for (var ix : List.of(7, 8, 10, 11, 12, 13, 14)) {
             var key = IOConst.WORKFLOW_NODE_PREFIX.get() + ix;
             assertThat(nodes.containsKey(key)).isTrue();
             var node = nodes.getConfigBase(key);
             assertThat(node.getInt(IOConst.ID_KEY.get())).isEqualTo(ix);
-            assertThat(new File(OUTPUT_DIRECTORY, node.getString(IOConst.NODE_SETTINGS_FILE.get()))).isFile().exists()
+            assertThat(new File(outputDirectory, node.getString(IOConst.NODE_SETTINGS_FILE.get()))).isFile().exists()
                 .isNotEmpty();
         }
 
@@ -176,6 +173,6 @@ class WorkflowSaverTest {
 
     @AfterAll
     static void cleanUp() throws IOException {
-        FileUtils.deleteDirectory(OUTPUT_DIRECTORY);
+        FileUtils.deleteDirectory(outputDirectory);
     }
 }
