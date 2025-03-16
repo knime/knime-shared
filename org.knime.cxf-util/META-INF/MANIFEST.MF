@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Automatic-Module-Name: org.knime.cxf.util
 Bundle-Name: KNIME Utilities for Apache CXF
 Bundle-SymbolicName: org.knime.cxf-util;singleton:=true
 Bundle-Version: 5.5.0.qualifier
