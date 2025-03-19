@@ -71,9 +71,9 @@ public final class HttpExceptionUtils {
     /**
      * Maps HTTP responses codes to their corresponding java Exceptions. Uses {@link ResourceAccessException}.
      *
-     * @param statusCode
-     * @param errorMessage
-     * @return ResourceAccessException
+     * @param statusCode HTTP status code
+     * @param errorMessage error message
+     * @return ResourceAccessException the exception with the status code
      */
     public static ResourceAccessException wrapException(final int statusCode, String errorMessage) {
         if (300 <= statusCode && statusCode <= 399) {
@@ -138,7 +138,7 @@ public final class HttpExceptionUtils {
      * Equals the {@link Supplier} interface, except for the possibility of a ResourceAccessException being thrown at
      * the get method.
      *
-     * @param <T>
+     * @param <T> result type of supplier
      *
      * @author Leon Wenzler
      */
@@ -163,7 +163,7 @@ public final class HttpExceptionUtils {
         /**
          * Calls some method with side-effects but without a return value.
          *
-         * @throws ResourceAccessException
+         * @throws ResourceAccessException in case the resource access fails
          */
         void call() throws ResourceAccessException;
     }

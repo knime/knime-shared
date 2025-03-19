@@ -115,6 +115,8 @@ public final class WorkflowExporter<E extends Exception> {
     private final boolean m_excludeData;
 
     /**
+     * Constructor.
+     *
      * @param excludeData whether execution data should be excluded by the export
      */
     public WorkflowExporter(final boolean excludeData) {
@@ -184,7 +186,7 @@ public final class WorkflowExporter<E extends Exception> {
      */
     private static boolean excludeResource(final Path store) {
         final var name = store.getFileName().toString();
-        if (name.equals("internal")) {
+        if (name.equals(INTERN_FILE_DIR)) {
             return true;
         }
 

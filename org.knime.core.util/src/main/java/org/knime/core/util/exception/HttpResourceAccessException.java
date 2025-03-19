@@ -61,6 +61,8 @@ public class HttpResourceAccessException extends ResourceAccessException {
     private final int m_statusCode;
 
     /**
+     * Constructor.
+     *
      * @param message Message detailing the cause for access failure.
      * @param statusCode Status code of the response.
      */
@@ -70,6 +72,8 @@ public class HttpResourceAccessException extends ResourceAccessException {
     }
 
     /**
+     * Constructor.
+     *
      * @param message Further explanation.
      * @param cause Cause for access failure.
      * @param statusCode Status code of the response.
