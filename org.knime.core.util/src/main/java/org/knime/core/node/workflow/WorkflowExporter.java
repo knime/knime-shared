@@ -75,6 +75,7 @@ import org.knime.core.node.util.CheckUtils;
  * Exporter saving one or more items (workflows, templates or data files) as one zipped file.
  *
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
+ * @param <E> exception type of the export progress updater
  * @since 6.5
  */
 public final class WorkflowExporter<E extends Exception> {
@@ -291,6 +292,7 @@ public final class WorkflowExporter<E extends Exception> {
     /**
      * Exports the resources into the given output stream.
      *
+     * @param resources resources to copy into export archive
      * @param outputStream stream to write the export archive to, will be closed in the end
      * @param updater progress updater
      * @throws E if execution was cancelled
