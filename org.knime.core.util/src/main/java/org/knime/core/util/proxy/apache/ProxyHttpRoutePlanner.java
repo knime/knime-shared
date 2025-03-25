@@ -54,7 +54,6 @@ import java.net.URISyntaxException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
@@ -87,12 +86,7 @@ public final class ProxyHttpRoutePlanner extends DefaultRoutePlanner {
      * @return constructed URI from HTTP host
      */
     static URI createURIFromHttpHost(final HttpHost target) throws URISyntaxException {
-        // explicitly omitting the scheme here to avoid SSL handshake attempts for non-HTTPS-proxies
-        // which would happen when one of those is configured in a HTTPS proxy field in settings
-        return new URIBuilder() //
-            .setHost(target.getHostName()) //
-            .setPort(target.getPort()) //
-            .build();
+        return new URI(target.toURI());
     }
 
     @Override
