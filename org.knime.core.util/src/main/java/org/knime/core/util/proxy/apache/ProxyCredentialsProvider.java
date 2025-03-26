@@ -51,12 +51,14 @@ package org.knime.core.util.proxy.apache;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
 
@@ -86,10 +88,29 @@ public final class ProxyCredentialsProvider extends BasicCredentialsProvider {
 
     /**
      * Public constructor for registering a fallback {@link URI} for parsing {@link AuthScope}s.
-     * @param defaultTarget
+     * @param defaultTarget for which proxies are selected
      */
     public ProxyCredentialsProvider(final URI defaultTarget) {
         m_defaultTarget = defaultTarget;
+    }
+
+    /**
+     * Wraps the given {@link CredentialsProvider} containing special (high-priority) credentials
+     * in a new {@link BasicCredentialsProvider} that first checks the given credentials before
+     * dispatching the request to this instance of a proxy credentials provider.
+     *
+     * @param provider special credentials, first to be checked
+     * @return a new {@link BasicCredentialsProvider} instance, checking the given credentials first
+     */
+    CredentialsProvider wrap(final CredentialsProvider provider) {
+        return new BasicCredentialsProvider() {
+
+            @Override
+            public Credentials getCredentials(final AuthScope authScope) {
+                return Optional.ofNullable(provider.getCredentials(authScope)) //
+                    .orElseGet(() -> ProxyCredentialsProvider.this.getCredentials(authScope));
+            }
+        };
     }
 
     /**

@@ -54,6 +54,8 @@ import java.net.URISyntaxException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
@@ -80,6 +82,20 @@ public final class ProxyHttpRoutePlanner extends DefaultRoutePlanner {
     }
 
     /**
+     * If the {@link CredentialsProvider} in the given {@link HttpClientContext} is a {@link ProxyCredentialsProvider},
+     * then we wrap the given credentials as first-to-be-checked into that provider.
+     *
+     * @param credentials special credentials, first to be checked
+     * @param context the current HTTP request context
+     */
+    static void injectWrappedCredentialsProvider(final CredentialsProvider credentials, final HttpContext context) {
+        final var clientContext = HttpClientContext.adapt(context);
+        if (clientContext.getCredentialsProvider() instanceof ProxyCredentialsProvider provider) {
+            clientContext.setCredentialsProvider(provider.wrap(credentials));
+        }
+    }
+
+    /**
      * Creates a {@link URI} based on a {@link HttpHost} instance.
      *
      * @param authScope scope
@@ -96,8 +112,15 @@ public final class ProxyHttpRoutePlanner extends DefaultRoutePlanner {
             final var uri = createURIFromHttpHost(target);
             return GlobalProxySearch.getCurrentFor(uri) //
                 .filter(cfg -> !cfg.isHostExcluded(uri)) //
-                .map(cfg -> new HttpHost(cfg.host(), cfg.intPort())) //
-                .orElse(null);
+                .map(cfg -> {
+                    final var p = cfg.forApacheHttpClient();
+                    // wrapping the credentials provider from this proxy (possibly empty) as first-to-be-checked,
+                    // then dispatching the call to our ProxyCredentialsProvider instance
+                    injectWrappedCredentialsProvider(p.getSecond(), context);
+                    // explicitly omitting the scheme here to avoid SSL handshake attempts for non-HTTPS-proxies
+                    // which would happen when one of those is configured in a HTTPS proxy field in settings
+                    return new HttpHost(p.getFirst().getHostName(), p.getFirst().getPort());
+                }).orElse(null);
         } catch (URISyntaxException e) {
             throw new HttpException("Could not create URI target for proxy search", e);
         }
