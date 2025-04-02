@@ -88,7 +88,7 @@ class LoadTrackerTest {
             LoadTracker.<Interval> builder(Duration.ofMillis(5), valueProvider::getValue) //
                 .addInterval(Interval.SHORT, Duration.ofMillis(50)) //
                 .addInterval(Interval.LONG, Duration.ofMillis(500)) //
-                .start()) {
+                .start(valueProvider.getValue())) {
             Thread.sleep(500); // NOSONAR
 
             // should be [0.0, 0.0]
@@ -129,7 +129,7 @@ class LoadTrackerTest {
     void testExceptions() {
         final Builder<Void> builder = LoadTracker.<Void> builder(Duration.ofMillis(100), () -> 0.5);
         builder.setIgnoreCloseInvocation(true); // eh, irrelevant (only to get coverage)
-        assertThrows(IllegalStateException.class, builder::start, "no interval added");
+        assertThrows(IllegalStateException.class, () -> builder.start(0.0), "no interval added");
         assertThrows(IllegalArgumentException.class, () -> builder.addInterval(null, Duration.ofMillis(1)), // NOSONAR
             "interval smaller than update interval");
         assertThrows(IllegalArgumentException.class, // negative interval // NOSONAR
@@ -140,7 +140,7 @@ class LoadTrackerTest {
     @Test
     void testSingleMeasure() {
         try (LoadTracker<Void> loadTracker =
-            LoadTracker.singleLoadTracker(Duration.ofMillis(100), () -> 0.5, Duration.ofMillis(1000))) {
+            LoadTracker.singleLoadTracker(() -> 0.5, 0.5, Duration.ofMillis(100), Duration.ofMillis(1000))) {
             final double load = loadTracker.getLoadAverage();
             assertEquals(0.5, load, "load measure");
         }
@@ -156,7 +156,7 @@ class LoadTrackerTest {
             throw new RuntimeException("ignored");
         };
         try (LoadTracker<Void> loadTracker =
-                LoadTracker.singleLoadTracker(Duration.ofMillis(5), failSupplier, Duration.ofMillis(1000))) {
+                LoadTracker.singleLoadTracker(failSupplier, 0.0, Duration.ofMillis(5), Duration.ofMillis(1000))) {
             Thread.sleep(100); // NOSONAR
             final int errorCount = loadTracker.getNrErrorsLogged();
             LOGGER.debug("Error count: %d".formatted(errorCount));

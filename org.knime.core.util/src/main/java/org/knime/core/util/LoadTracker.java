@@ -99,9 +99,8 @@ public final class LoadTracker<K> implements AutoCloseable {
 
     private long m_lastUpdate;
 
-    private LoadTracker(final Builder<K> b) {
+    private LoadTracker(final Builder<K> b, final double initialValue) {
         m_measure = b.m_measure;
-        final var initialValue = m_measure.getAsDouble();
         m_lastUpdate = System.currentTimeMillis();
         m_loadAverageMap = b.m_keyToIntervalMap.entrySet().stream().collect(Collectors.toMap( //
             Entry::getKey, //
@@ -178,17 +177,19 @@ public final class LoadTracker<K> implements AutoCloseable {
     }
 
     /**
-     * Builds and starts a tracker that tracks a single measure with a single interval. The single load average value
-     * is to be retrieved via {@link #getLoadAverage()}.
-     *
+     * Builds and starts a tracker that tracks a single measure with a single interval. The single load average value is
+     * to be retrieved via {@link #getLoadAverage()}.
+     * @param measurement The supplying measure.
+     * @param initialValue The initial value for the load average (usually the first value of the measure, sometimes
+     *            some other default when the computation of the value is stateful/time-sensitive).
      * @param updateInterval The frequency with which the load average is updated, often in second range)
-     * @param measure The supplying measure.
      * @param interval The interval over which the load average is calculated (e.g. 1min, 5min, etc)
+     *
      * @return The tracker
      */
-    public static @Owning LoadTracker<Void> singleLoadTracker(final Duration updateInterval,
-        final DoubleSupplier measure, final Duration interval) {
-        return LoadTracker.<Void> builder(updateInterval, measure).addInterval(null, interval).start();
+    public static @Owning LoadTracker<Void> singleLoadTracker(final DoubleSupplier measurement,
+        final double initialValue, final Duration updateInterval, final Duration interval) {
+        return LoadTracker.<Void> builder(updateInterval, measurement).addInterval(null, interval).start(initialValue);
     }
 
     /**
@@ -257,11 +258,14 @@ public final class LoadTracker<K> implements AutoCloseable {
 
         /**
          * Starts and returns the tracker.
+         *
+         * @param initialValue The initial value for the load average (usually the first value of the measure, sometimes
+         *            some other default when the computation of the value is stateful/time-sensitive).
          * @return The tracker
          */
-        public @Owning LoadTracker<K> start() {
+        public @Owning LoadTracker<K> start(final double initialValue) {
             CheckUtils.checkState(!m_keyToIntervalMap.isEmpty(), "At least one interval must be added");
-            return new LoadTracker<>(this);
+            return new LoadTracker<>(this, initialValue);
         }
     }
 
