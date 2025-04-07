@@ -78,22 +78,23 @@ final class ItemVersionTest {
     @Test
     void testVersionMatch() {
         final var current = ItemVersion.currentState();
-        final var matchedCurrent = current.match(cs -> cs, mr -> fail("Unexpected most-recent version"),
-            sv -> fail("Unexpected specific version: " + sv.version()));
+        final var matchedCurrent = current.match(CurrentState::getInstance,
+            () -> fail("Unexpected most-recent version"), sv -> fail("Unexpected specific version: " + sv));
         assertEquals(CurrentState.getInstance(), matchedCurrent, "Expected to match current state record");
         assertFalse(current.isVersioned(), "Expected unversioned");
 
         final var mostRecent = ItemVersion.mostRecent();
-        final var matchedMostRecent = mostRecent.match(cs -> fail("Unexpected current-state"), mr -> mr,
-            sv -> fail("Unexpected specific version: " + sv.version()));
+        final var matchedMostRecent = mostRecent.match(() -> fail("Unexpected current-state"), MostRecent::getInstance,
+            sv -> fail("Unexpected specific version: " + sv));
         assertEquals(MostRecent.getInstance(), matchedMostRecent, "Expected to match most recent record");
         assertTrue(mostRecent.isVersioned(), "Expected is versioned");
 
         final var specific = new SpecificVersion(42);
-        final var matchedSpecific = specific.match(cs -> fail("Unexpected current-state"),
-            mr -> fail("Unexpected most-recent version"), sv -> sv);
-        assertEquals(new SpecificVersion(42), matchedSpecific, "Expected to match specific version record");
-        assertEquals("42", matchedSpecific.getVersionString(), "Expected version string to be \"42\"");
+        final var matchedSpecific = specific.match(() -> fail("Unexpected current-state"),
+            () -> fail("Unexpected most-recent version"), sv -> sv);
+        assertEquals(42, matchedSpecific, "Expected to match specific version record");
+        assertEquals("42", new SpecificVersion(matchedSpecific).getVersionString(),
+            "Expected version string to be \"42\"");
         assertTrue(specific.isVersioned(), "Expected is versioned");
     }
 

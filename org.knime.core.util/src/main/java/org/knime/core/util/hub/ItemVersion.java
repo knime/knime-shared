@@ -48,7 +48,8 @@
  */
 package org.knime.core.util.hub;
 
-import java.util.function.Function;
+import org.apache.commons.lang3.function.FailableCallable;
+import org.apache.commons.lang3.function.FailableIntFunction;
 
 /**
  * Reference to a KNIME Hub item version.
@@ -91,26 +92,28 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
     }
 
     /**
-     * Matches the version to one of the three subtypes and applies the corresponding function.
+     * Matches the version to one of the three subtypes and calls/applies the corresponding callback or function.
      *
      * @param <T> result type of functions
+     * @param <E> exception type of functions
      * @param version version to apply function to
-     * @param currentStateFn function to apply to {@link CurrentState}
-     * @param mostRecentFn function to apply to {@link MostRecent}
+     * @param currentState callback to call in case of {@link CurrentState}
+     * @param mostRecent callback to call in case of {@link MostRecent}
      * @param specificVersionFn function to apply to {@link SpecificVersion}
      * @return result of the applied function
+     * @throws E custom exception raised by functions
      */
     // once pattern-matching switch is available, invocations of this method can be replaced with the switch and
     // callsites potentially be improved
-    default <T> T match(final Function<CurrentState, T> currentStateFn, final Function<MostRecent, T> mostRecentFn,
-        final Function<SpecificVersion, T> specificVersionFn) {
+    default <T, E extends Throwable> T match(final FailableCallable<T, E> currentState,
+        final FailableCallable<T, E> mostRecent, final FailableIntFunction<T, E> specificVersionFn) throws E {
         // good candidate for pattern-matching switch :(
-        if (this instanceof CurrentState cs) {
-            return currentStateFn.apply(cs);
-        } else if (this instanceof MostRecent mr) {
-            return mostRecentFn.apply(mr);
+        if (this instanceof CurrentState) {
+            return currentState.call();
+        } else if (this instanceof MostRecent) {
+            return mostRecent.call();
         } else if (this instanceof SpecificVersion sv) {
-            return specificVersionFn.apply(sv);
+            return specificVersionFn.apply(sv.version());
         } else {
             throw new IllegalStateException("Unexpected version subtype: " + this.getClass().getName());
         }
