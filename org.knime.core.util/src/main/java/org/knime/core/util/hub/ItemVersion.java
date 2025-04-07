@@ -68,16 +68,6 @@ import java.util.function.Function;
 public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVersion {
 
     /**
-     * "Current state" pseudo-version.
-     */
-    CurrentState CURRENT_STATE = new CurrentState();
-
-    /**
-     * "Most recent" floating version.
-     */
-    MostRecent MOST_RECENT = new MostRecent();
-
-    /**
      * Checks if this version is a floating or specific version.
      *
      * @return {@code true} if this version is {@link MostRecent floating} or a {@link SpecificVersion specific
@@ -128,22 +118,25 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
 
     /**
      * Returns the instance for the "current state" pseudo-version.
+     *
      * @return the current state
      */
     static CurrentState currentState() {
-        return CURRENT_STATE;
+        return CurrentState.getInstance();
     }
 
     /**
      * Returns the instance for the "most recent" floating version.
+     *
      * @return the "most recent" floating version
      */
     static MostRecent mostRecent() {
-        return MOST_RECENT;
+        return MostRecent.getInstance();
     }
 
     /**
      * Creates a specific version.
+     *
      * @param version the non-negative version number
      * @return the specific version
      * @see SpecificVersion#SpecificVersion(int)

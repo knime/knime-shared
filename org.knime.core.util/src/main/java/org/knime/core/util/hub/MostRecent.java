@@ -54,9 +54,23 @@ package org.knime.core.util.hub;
  * @author Manuel Hotz, KNIME GmbH, Konstanz, Germany
  * @since 6.5
  */
-public record MostRecent() implements ItemVersion {
+public enum MostRecent implements ItemVersion {
+
+    /**
+     * The singleton instance representing the "most-recent" floating version.
+     */
+    INSTANCE;
 
     private static final String MOST_RECENT_IDENTIFIER = "most-recent";
+
+    /**
+     * Gets the singleton instance of the "most-recent" (floating) version.
+     *
+     * @return instance
+     */
+    public static MostRecent getInstance() {
+        return INSTANCE;
+    }
 
     /**
      * Gets the string identifier for the version representing the most-recent floating version.

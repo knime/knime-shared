@@ -49,14 +49,28 @@
 package org.knime.core.util.hub;
 
 /**
- * Item version representing the "current state" of an item.
+ * Item version singleton representing the "current state" of an item.
  *
  * @author Manuel Hotz, KNIME GmbH, Konstanz, Germany
  * @since 6.5
  */
-public record CurrentState() implements ItemVersion {
+public enum CurrentState implements ItemVersion {
+
+    /**
+     * The singleton instance representing the "current state" of an item.
+     */
+    INSTANCE;
 
     private static final String CURRENT_STATE_IDENTIFIER = "current-state";
+
+    /**
+     * Returns the singleton instance representing the current state.
+     *
+     * @return instance
+     */
+    public static CurrentState getInstance() {
+        return INSTANCE;
+    }
 
     /**
      * Gets the string identifier for the version representing the current state.

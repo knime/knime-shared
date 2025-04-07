@@ -80,13 +80,13 @@ final class ItemVersionTest {
         final var current = ItemVersion.currentState();
         final var matchedCurrent = current.match(cs -> cs, mr -> fail("Unexpected most-recent version"),
             sv -> fail("Unexpected specific version: " + sv.version()));
-        assertEquals(new CurrentState(), matchedCurrent, "Expected to match current state record");
+        assertEquals(CurrentState.getInstance(), matchedCurrent, "Expected to match current state record");
         assertFalse(current.isVersioned(), "Expected unversioned");
 
         final var mostRecent = ItemVersion.mostRecent();
         final var matchedMostRecent = mostRecent.match(cs -> fail("Unexpected current-state"), mr -> mr,
             sv -> fail("Unexpected specific version: " + sv.version()));
-        assertEquals(new MostRecent(), matchedMostRecent, "Expected to match most recent record");
+        assertEquals(MostRecent.getInstance(), matchedMostRecent, "Expected to match most recent record");
         assertTrue(mostRecent.isVersioned(), "Expected is versioned");
 
         final var specific = new SpecificVersion(42);
