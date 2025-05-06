@@ -55,10 +55,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -317,47 +319,63 @@ public final class WorkflowExporter<E extends Exception> {
 
         private static final int BUFFER_SIZE = 2 * (int)FileUtils.ONE_MB;
 
-        private static final int COMPRESSION_LEVEL = 9;
-
         private final byte[] m_buffer = new byte[BUFFER_SIZE];
 
         private @Owning ZipOutputStream m_zipOutStream;
 
         Zipper(final OutputStream outputStream) {
             m_zipOutStream = new ZipOutputStream(new BufferedOutputStream(outputStream, BUFFER_SIZE));
-            m_zipOutStream.setLevel(COMPRESSION_LEVEL);
         }
 
-        void addEntry(final Path source, final IPath destination,
-                final FailableConsumer<Long, E> updater)
+        void addEntry(final Path source, final IPath destination, final FailableConsumer<Long, E> updater)
                 throws IOException, E {
+            m_zipOutStream.setLevel(Deflater.BEST_COMPRESSION);
             if (Files.isDirectory(source)) {
                 // mostly for empty directories (but non-empty dirs are accepted also)
                 m_zipOutStream.putNextEntry(new ZipEntry(destination.addTrailingSeparator().toString()));
                 m_zipOutStream.closeEntry();
             } else {
+                final var entry = new ZipEntry(destination.toString());
                 final var size = Files.size(source);
                 if (size == 0) {
                     // this is mainly for the .knimeLock file of open workflows; the file is locked and windows forbids
                     // mmap-ing locked files but FileInputStream seems to mmap files which leads to exceptions while
                     // reading the (non-existing) contents of the file
-                    m_zipOutStream.putNextEntry(new ZipEntry(destination.toString()));
+                    m_zipOutStream.putNextEntry(entry);
                     m_zipOutStream.closeEntry();
-                } else {
-                    try (final var inStream = new BufferedInputStream(Files.newInputStream(source), BUFFER_SIZE)) {
-                        m_zipOutStream.putNextEntry(new ZipEntry(destination.toString()));
-                        for (int read; (read = inStream.read(m_buffer)) >= 0;) { //NOSONAR
-                            m_zipOutStream.write(m_buffer, 0, read);
-                            updater.accept(Long.valueOf(read));
-                        }
-                    } catch (IOException ioe) {
-                        throw new IOException(String.format("Unable to add file \"%s\" to archive: %s",
-                            source.toAbsolutePath(), ioe.getMessage()), ioe);
-                    } finally {
-                        m_zipOutStream.closeEntry();
+                    return;
+                }
+
+                try (final var inStream = new BufferedInputStream(Files.newInputStream(source), BUFFER_SIZE)) {
+                    if (size > FileUtils.ONE_KB && isAlreadyCompressed(inStream)) {
+                        m_zipOutStream.setLevel(Deflater.NO_COMPRESSION);
                     }
+
+                    m_zipOutStream.putNextEntry(entry);
+                    for (int read; (read = inStream.read(m_buffer)) >= 0;) {
+                        m_zipOutStream.write(m_buffer, 0, read);
+                        updater.accept((long)read);
+                    }
+                } catch (final IOException ioe) {
+                    throw new IOException(String.format("Unable to add file \"%s\" to archive: %s",
+                        source.toAbsolutePath(), ioe.getMessage()), ioe);
+                } finally {
+                    m_zipOutStream.closeEntry();
                 }
             }
+        }
+
+        private static final byte[][] COMPRESSED_DATA_MAGIC_BYTES = { //
+            { 'P', 'K', 0x03, 0x04 }, // ZIP
+            { 'A', 'R', 'R', 'O', 'W', '1' } // ARROW
+        };
+
+        private static boolean isAlreadyCompressed(final BufferedInputStream inStream) throws IOException {
+            inStream.mark(6);
+            final var bytes = inStream.readNBytes(6);
+            inStream.reset();
+            return Arrays.stream(COMPRESSED_DATA_MAGIC_BYTES) //
+                    .anyMatch(mb -> bytes.length >= mb.length && Arrays.equals(bytes, 0, mb.length, mb, 0, mb.length));
         }
 
         @Override
