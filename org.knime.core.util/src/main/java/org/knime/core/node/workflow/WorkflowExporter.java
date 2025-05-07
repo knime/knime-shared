@@ -65,11 +65,11 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.function.FailableConsumer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.util.CheckUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Exporter saving one or more items (workflows, templates or data files) as one zipped file.
@@ -110,7 +110,7 @@ public final class WorkflowExporter<E extends Exception> {
         DATA_FILE
     }
 
-    private static final Log LOGGER = LogFactory.getLog(WorkflowExporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowExporter.class);
 
     private final boolean m_excludeData;
 
@@ -249,8 +249,8 @@ public final class WorkflowExporter<E extends Exception> {
                     addRecursively(resources, root, counts, child);
                 } else if (Files.isRegularFile(child)) {
                     addResource(resources, root, counts, child);
-                } else {
-                    LOGGER.debug("Skipping unexpected item '%s' (neither file nor directory)".formatted(child));
+                } else if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Skipping unexpected item '{}' (neither file nor directory)", child);
                 }
             }
         }
