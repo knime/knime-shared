@@ -66,7 +66,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.function.FailableConsumer;
+import org.apache.commons.lang3.function.FailableDoubleConsumer;
+import org.apache.commons.lang3.function.FailableLongConsumer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.util.CheckUtils;
@@ -303,12 +304,12 @@ public final class WorkflowExporter<E extends Exception> {
      * @throws IOException if something went wrong with the export
      */
     public void exportInto(final ResourcesToCopy resources, final OutputStream outputStream,
-            final FailableConsumer<Double, E> updater)
+            final FailableDoubleConsumer<E> updater)
             throws E, IOException {
         try (final var zipper = new Zipper(outputStream)) {
             final var numBytesWritten = new AtomicLong();
-            final FailableConsumer<Long, E> subUpdater =
-                    add -> updater.accept(1.0 * numBytesWritten.addAndGet(add) / resources.numBytes());
+            final FailableLongConsumer<E> subUpdater =
+                add -> updater.accept(1.0 * numBytesWritten.addAndGet(add) / resources.numBytes());
             for (final var file : resources.paths().entrySet()) {
                 zipper.addEntry(file.getKey(), file.getValue(), subUpdater);
             }
@@ -317,7 +318,7 @@ public final class WorkflowExporter<E extends Exception> {
 
     private final class Zipper implements Closeable {
 
-        private static final int BUFFER_SIZE = 2 * (int)FileUtils.ONE_MB;
+        private static final int BUFFER_SIZE = 64 * (int)FileUtils.ONE_KB;
 
         private final byte[] m_buffer = new byte[BUFFER_SIZE];
 
@@ -327,7 +328,7 @@ public final class WorkflowExporter<E extends Exception> {
             m_zipOutStream = new ZipOutputStream(new BufferedOutputStream(outputStream, BUFFER_SIZE));
         }
 
-        void addEntry(final Path source, final IPath destination, final FailableConsumer<Long, E> updater)
+        void addEntry(final Path source, final IPath destination, final FailableLongConsumer<E> updater)
                 throws IOException, E {
             m_zipOutStream.setLevel(Deflater.BEST_COMPRESSION);
             if (Files.isDirectory(source)) {
@@ -354,7 +355,7 @@ public final class WorkflowExporter<E extends Exception> {
                     m_zipOutStream.putNextEntry(entry);
                     for (int read; (read = inStream.read(m_buffer)) >= 0;) {
                         m_zipOutStream.write(m_buffer, 0, read);
-                        updater.accept((long)read);
+                        updater.accept(read);
                     }
                 } catch (final IOException ioe) {
                     throw new IOException(String.format("Unable to add file \"%s\" to archive: %s",
@@ -378,6 +379,7 @@ public final class WorkflowExporter<E extends Exception> {
                     .anyMatch(mb -> bytes.length >= mb.length && Arrays.equals(bytes, 0, mb.length, mb, 0, mb.length));
         }
 
+        @SuppressWarnings("resource") // needed until we have `@Owning` annotations
         @Override
         public void close() throws IOException {
             try (final var zipOut = m_zipOutStream) {
