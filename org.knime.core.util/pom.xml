@@ -228,6 +228,12 @@
 				<artifactId>asm</artifactId>
 				<version>[9.4,10)</version>
 			</dependency>
+			<dependency>
+				<!-- Added to make the build work (Artifactory can't find beta artifact), not technically necessary. -->
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.core.contenttype</artifactId>
+				<version>[3.9.0,3.9.600)</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 </project>
