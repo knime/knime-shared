@@ -83,4 +83,11 @@ public final class ContentType {
      */
     public static final String CONTENT_TYPE_DEF_PREFIX = "knime-port/";
 
+    /**
+     * For Tool Message Output nodes.
+     *
+     * @since 6.5
+     */
+    public static final String TOOL_MESSAGE_CONTENT_TYPE_PREFIX = "knime-tool-message/";
+
 }
