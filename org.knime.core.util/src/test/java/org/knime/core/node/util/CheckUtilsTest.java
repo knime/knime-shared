@@ -49,6 +49,7 @@
 package org.knime.core.node.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -86,5 +87,11 @@ class CheckUtilsTest {
 
         assertThrows(Exception.class, () -> CheckUtils.check(false, Exception::new, () -> "Should throw this"),
             "Expected to throw");
+
+        assertThrows(Exception.class, () -> CheckUtils.check(false, Exception::new, "Should throw %s", "this"),
+                "Expected to throw");
+
+        assertDoesNotThrow(() -> CheckUtils.check(true, Exception::new, "Should throw %s", "this"),
+                "Expected to not throw");
     }
 }
