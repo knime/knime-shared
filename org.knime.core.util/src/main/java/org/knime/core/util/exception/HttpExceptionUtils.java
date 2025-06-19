@@ -50,9 +50,13 @@ package org.knime.core.util.exception;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
+
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
 
 /**
  * All non-JAX-RS HTTP utilities, the core needs to know about. Also acts as a central HTTP utility provider, mainly for
@@ -89,6 +93,33 @@ public final class HttpExceptionUtils {
             }
             return new ServerErrorAccessException(errorMessage, statusCode);
         }
+        return new ResourceAccessException(
+            String.format("Probably a coding problem, status code is neither 3xx, 4xx, nor 5xx. Error message: %s",
+                errorMessage));
+    }
+
+    /**
+     * Maps a RFC 9457 (application/problem+json) HTTP response and its status code to
+     * its corresponding {@link ResourceAccessException}.
+     *
+     * @param statusCode HTTP status code
+     * @param problemDetails RFC 9457 (application/problem+json) problem details.
+     * @return ResourceAccessException the exception with the status code
+     */
+    public static ResourceAccessException wrapException(final int statusCode, final JsonObject problemDetails) {
+
+        final var errorMessage = Optional.ofNullable(problemDetails.getJsonString("title"))//
+            .map(JsonString::getString)//
+            .orElse(String.format("Failed with status code %d", statusCode));
+
+        if (300 <= statusCode && statusCode <= 399) {
+            return new HttpResourceAccessException(errorMessage, statusCode, problemDetails);
+        } else if (400 <= statusCode && statusCode <= 499) {
+            return new ClientErrorAccessException(errorMessage, statusCode, problemDetails);
+        } else if (500 <= statusCode && statusCode <= 599) {
+            return new ServerErrorAccessException(errorMessage, statusCode, problemDetails);
+        }
+
         return new ResourceAccessException(
             String.format("Probably a coding problem, status code is neither 3xx, 4xx, nor 5xx. Error message: %s",
                 errorMessage));

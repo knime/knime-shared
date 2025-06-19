@@ -48,6 +48,10 @@
  */
 package org.knime.core.util.exception;
 
+import java.util.Optional;
+
+import jakarta.json.JsonObject;
+
 /**
  * Exception that is thrown either when a HTTP request receives an erroneous response code (4XX and 5XX).
  *
@@ -61,6 +65,12 @@ public class HttpResourceAccessException extends ResourceAccessException {
     private final int m_statusCode;
 
     /**
+     * If the endpoint returned an error status code with Content-Type application/problem+json (see RFC 9457 - Problem
+     * Details for HTTP APIs) body, then this field contains the problem details. May be null.
+     */
+    private final JsonObject m_problemDetails; // NOSONAR
+
+    /**
      * Constructor.
      *
      * @param message Message detailing the cause for access failure.
@@ -69,6 +79,20 @@ public class HttpResourceAccessException extends ResourceAccessException {
     public HttpResourceAccessException(final String message, final int statusCode) {
         super(message);
         m_statusCode = statusCode;
+        m_problemDetails = null;
+    }
+
+    /**
+     * Constructor with RFC 9457 (application/problem+json) problem details.
+     *
+     * @param message Message detailing the cause for access failure.
+     * @param statusCode Status code of the response.
+     * @param problemDetails RFC 9457 (application/problem+json) problem details. May be null.
+     */
+    public HttpResourceAccessException(final String message, final int statusCode, final JsonObject problemDetails) {
+        super(message);
+        m_statusCode = statusCode;
+        m_problemDetails = problemDetails;
     }
 
     /**
@@ -81,6 +105,7 @@ public class HttpResourceAccessException extends ResourceAccessException {
     public HttpResourceAccessException(final String message, final Throwable cause, final int statusCode) {
         super(message != null ? message : cause.getMessage(), cause);
         m_statusCode = statusCode;
+        m_problemDetails = null;
     }
 
     /**
@@ -88,5 +113,14 @@ public class HttpResourceAccessException extends ResourceAccessException {
      */
     public int getStatusCode() {
         return m_statusCode;
+    }
+
+    /**
+     * Provides the RFC 9457 (application/problem+json) problem details, if available.
+     *
+     * @return the optional RFC-9457 problem details, if available, otherwise empty.
+     */
+    public Optional<JsonObject> getProblemDetails() {
+        return Optional.ofNullable(m_problemDetails);
     }
 }

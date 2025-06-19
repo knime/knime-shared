@@ -50,6 +50,8 @@ package org.knime.core.util.exception;
 
 import org.knime.core.node.util.CheckUtils;
 
+import jakarta.json.JsonObject;
+
 /**
  * Exception that is thrown when a HTTP request receives a client error response: 4XX
  *
@@ -66,6 +68,18 @@ public class ClientErrorAccessException extends HttpResourceAccessException { //
      */
     public ClientErrorAccessException(final String message, final int statusCode) {
         super(message, statusCode);
+        validateStatus(statusCode);
+    }
+
+    /**
+     * Constructor with RFC 9457 (application/problem+json) problem details.
+     *
+     * @param message Message detailing the cause for access failure.
+     * @param statusCode Status code of the response.
+     * @param problemDetails RFC 9457 (application/problem+json) problem details. May be null.
+     */
+    public ClientErrorAccessException(final String message, final int statusCode, final JsonObject problemDetails) {
+        super(message, statusCode, problemDetails);
         validateStatus(statusCode);
     }
 
