@@ -120,6 +120,30 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
     }
 
     /**
+     * Converts a given itemVersion string value to the associated {@link ItemVersion} instance. Or throws a
+     * {@link IllegalStateException} if it's not possible.
+     *
+     * @param itemVersion The string value of a n item version
+     * @return {@link ItemVersion}
+     * @since 6.7
+     */
+    static ItemVersion convertToItemVersion(final String itemVersion) {
+        if (itemVersion == null || itemVersion.equals("current-state")) {
+            return CurrentState.getInstance();
+        }
+
+        if (itemVersion.equals("most-recent")) {
+            return MostRecent.getInstance();
+        }
+
+        try {
+            return new SpecificVersion(Integer.parseUnsignedInt(itemVersion));
+        } catch (NumberFormatException ex) {
+            throw new IllegalStateException("Unexpected itemVersion argument: " + itemVersion);
+        }
+    }
+
+    /**
      * Returns the instance for the "current state" pseudo-version.
      *
      * @return the current state
