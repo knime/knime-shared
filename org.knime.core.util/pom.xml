@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.knime.maven</groupId>
 		<artifactId>server.parent</artifactId>
-		<version>5.5.0</version>
+		<version>5.6.0</version>
 		<!-- Empty relative path required, otherwise it defaults to ../pom.xml which is wrong. -->
 		<relativePath>../../knime-maven-parent/com.knime.maven.server.parent</relativePath>
 	</parent>
@@ -17,7 +17,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<revision>6.5.0</revision>
+		<revision>6.6.0</revision>
 		<changelist>-LOCAL</changelist>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
