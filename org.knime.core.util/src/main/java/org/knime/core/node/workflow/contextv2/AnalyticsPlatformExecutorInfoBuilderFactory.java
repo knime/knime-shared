@@ -131,9 +131,12 @@ public final class AnalyticsPlatformExecutorInfoBuilderFactory
             CheckUtils.checkArgument(mountpointRoot.isAbsolute(),
                 "Root path '%s' of mountpoint '%s' must be absolute.", mountpointRoot, mountId);
 
+            // Check disabled for now (via AP-24570) - to be re-visited with AP-22097!
+            // -------
             // `normalize()` removes non-initial `/..` steps, so the workflow is properly included
-            CheckUtils.checkArgument(m_localWorkflowPath.normalize().startsWith(mountpointRoot),
-                "Mountpoint root '%s' must contain workflow path '%s'.", mountpointRoot, m_localWorkflowPath);
+            // CheckUtils.checkArgument(m_localWorkflowPath.normalize().startsWith(mountpointRoot),
+            //    "Mountpoint root '%s' must contain workflow path '%s'.", mountpointRoot, m_localWorkflowPath);
+            // -------
 
             try {
                 m_mountpoint = Pair.create(new URI("knime", mountId, null, null, null), mountpointRoot);
