@@ -48,6 +48,7 @@
  */
 package org.knime.core.util.auth;
 
+import java.awt.GraphicsEnvironment;
 import java.io.Closeable;
 import java.net.Authenticator;
 import java.util.logging.Logger;
@@ -80,7 +81,7 @@ public final class SuppressingAuthenticator extends DelegatingAuthenticator {
 
     @Override
     protected OptionalAuthentication getOwnAuthentication() {
-        if (SUPPRESS_POPUP.get().intValue() > 0) {
+        if (GraphicsEnvironment.isHeadless() || SUPPRESS_POPUP.get().intValue() > 0) {
             // cannot be an Optional.empty, a null value is what we want
             return OptionalAuthentication.of(null);
         }
