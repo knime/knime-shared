@@ -4,7 +4,7 @@
         <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.knime.core.util.ui.converter.JsonFormsDialogBuilder"/>
-                <message_argument value="org.knime.core.util_6.5.0"/>
+                <message_argument value="org.knime.core.util_6.5.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -12,7 +12,7 @@
         <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.knime.core.util.ui.converter.UiComponentConverter"/>
-                <message_argument value="org.knime.core.util_6.5.0"/>
+                <message_argument value="org.knime.core.util_6.5.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -20,7 +20,7 @@
         <filter id="305324134">
             <message_arguments>
                 <message_argument value="org.knime.core.util.ui.converter.UiComponentConverterRegistry"/>
-                <message_argument value="org.knime.core.util_6.5.0"/>
+                <message_argument value="org.knime.core.util_6.5.1"/>
             </message_arguments>
         </filter>
     </resource>
