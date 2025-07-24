@@ -58,6 +58,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -185,10 +186,11 @@ class WorkflowContextV2Test {
             .isEqualTo(URI.create("knime://MyMountpoint/dir/workflow"));
     }
 
-    @Test
     /**
      * Checks that we can't create a {@link WorkflowContextV2} with the workflow outside of it's mount point
      */
+    @Test
+    @Disabled("The check this test tests is disabled for now (via AP-24570) - to be re-visited with AP-22097")
     void testInvalidPathDetection() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> { // NOSONAR
             WorkflowContextV2.builder()
