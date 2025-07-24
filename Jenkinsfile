@@ -17,9 +17,9 @@ properties([
 try {
     parallel 'Tycho Build': {
         // Tycho build for AP (no tests)
-        node('maven && java17') {
-            knimetools.defaultTychoBuild(updateSiteProject: 'org.knime.update.shared', disableOWASP: true)
-        }
+        // node('maven && java17') {
+        //     knimetools.defaultTychoBuild(updateSiteProject: 'org.knime.update.shared', disableOWASP: true)
+        // }
     },
     'Maven Build': {
         // Pure Maven build for SRV and WH
