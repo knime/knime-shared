@@ -251,6 +251,10 @@ public final class WorkflowExporter<E extends Exception> {
                 if (Files.isDirectory(child)) {
                     addRecursively(resources, root, counts, child);
                 } else if (Files.isRegularFile(child)) {
+                    // Files to exclude on root level. Exclusion here is independent of the "exclude data" option.
+                    if (child.getFileName().startsWith("knime.log")) {
+                        continue;
+                    }
                     addResource(resources, root, counts, child);
                 } else if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Skipping unexpected item '{}' (neither file nor directory)", child);
