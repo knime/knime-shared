@@ -17,13 +17,13 @@ properties([
 try {
     parallel 'Tycho Build': {
         // Tycho build for AP (no tests)
-        node('maven && java17') {
+        node('maven && java21') {
             knimetools.defaultTychoBuild(updateSiteProject: 'org.knime.update.shared', disableOWASP: true)
         }
     },
     'Maven Build': {
         // Pure Maven build for SRV and WH
-        node('java17 && maven') {
+        node('java21 && maven') {
             def sidecars = dockerTools.createSideCarFactory()
             try {
                 def (proxyUser, proxyPassword, proxyStats) = ['knime-proxy', 'knime-proxy-password', 'tinyproxy.stats']
