@@ -94,6 +94,24 @@ public final class CoreConstants {
     /** Identifier for the correlation ID inside the MDC. */
     public static final String CORRELATION_ID_MDC = "knime.correlation-id";
 
+    /** The magic hostname for workflow-relative URLs. */
+    public static final String WORKFLOW_RELATIVE = "knime.workflow";
+
+    /** The magic hostname for mountpoint-relative URLs. */
+    public static final String MOUNTPOINT_RELATIVE = "knime.mountpoint";
+
+    /** The magic hostname for node-relative URLs. */
+    public static final String NODE_RELATIVE = "knime.node";
+
+    /** The magic hostname for space-relative URLs. */
+    public static final String SPACE_RELATIVE = "knime.space";
+
+    /**
+     * The scheme this file system is registered with (see extension point
+     * "org.eclipse.core.filesystem.filesystems").
+     */
+    public static final String SCHEME = "knime";
+
     /**
      * Enum used to differentiate between configuration template and configuration representation.
      *
