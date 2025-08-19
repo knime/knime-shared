@@ -44,26 +44,56 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   23.03.2018 (thor): created
+ *   12 Jun 2023 (carlwitt): created
  */
-package org.knime.core.util;
 
-import java.net.URI;
-import java.net.URLConnection;
+package org.knime.core.util.hub;
+
+import java.util.Objects;
+
+import org.knime.core.node.util.CheckUtils;
 
 /**
- * Interface for a class that modifies headers of requests sent to a KNIME Server.
+ * Metadata of the version of a KNIME Hub repository item.
  *
- * @author Thorsten Meinl, KNIME AG, Zurich, Switzerland
+ * @param version a positive number
+ * @param title never {@code null}
+ * @param description optional
+ * @param author optional
+ * @param authorAccountId KNIME Hub author account identifier, never {@code null}.
+ * @param createdOn never {@code null}.
+ *
  * @since 6.8
+ *
+ * @see org.knime.core.util.HubItemVersion (deprecated) in knime-core
  */
-@FunctionalInterface
-public interface ServerRequestModifier {
+public record NamedItemVersion(int version, String title, String description, String author, String authorAccountId,
+    String createdOn) {
+
+    public static final String JSON_PROPERTY_VERSION = "version";
+
+    public static final String JSON_PROPERTY_TITLE = "title";
+
+    public static final String JSON_PROPERTY_DESCRIPTION = "description";
+
+    public static final String JSON_PROPERTY_AUTHOR = "author";
+
+    public static final String JSON_PROPERTY_AUTHOR_ACCOUNT_ID = "authorAccountId";
+
+    public static final String JSON_PROPERTY_CREATED_ON = "createdOn";
+
     /**
-     * Modifies the request to the server.
-     *
-     * @param repoUri the absolute URI to the server repository resource
-     * @param conn the connection that should be modified
+     * @param version a positive number
+     * @param title never {@code null}
+     * @param description optional
+     * @param author optional
+     * @param authorAccountId KNIME Hub author account identifier, never {@code null}.
+     * @param createdOn never {@code null}.
      */
-    void modifyRequest(URI repoUri, URLConnection conn);
+    public NamedItemVersion {
+        CheckUtils.checkArgument(version > 0, "In NamedItemVersion 'version' must be positive");
+        Objects.requireNonNull(title, "In NamedItemVersion 'title' cannot be null");
+        Objects.requireNonNull(authorAccountId, "In NamedItemVersion 'authorAccountId' cannot be null");
+        Objects.requireNonNull(createdOn, "In NamedItemVersion 'createdOn' cannot be null");
+    }
 }
