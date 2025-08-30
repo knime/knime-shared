@@ -54,6 +54,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -342,12 +343,12 @@ public final class CheckUtils {
     public static <T extends Throwable> void check(final boolean predicate,
         final Function<String, T> toThrowable, final String template, final Object... templateArgs) throws T {
         if (!predicate) {
-            throw toThrowable.apply(String.format(Objects.requireNonNull(template), templateArgs));
+            throw toThrowable.apply(String.format(Locale.US, Objects.requireNonNull(template), templateArgs));
         }
     }
 
     private static Supplier<String> stringFormatSupplier(final String template, final Object... arguments) {
-        return () -> String.format(Objects.requireNonNull(template), arguments);
+        return () -> String.format(Locale.US, Objects.requireNonNull(template), arguments);
     }
 
     private static Supplier<String> stringSupplier(final String template) {
