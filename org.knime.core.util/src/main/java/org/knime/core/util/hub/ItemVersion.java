@@ -125,7 +125,7 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
      *
      * @param itemVersion The string value of a n item version
      * @return {@link ItemVersion}
-     * @since 6.7
+     * @since 6.8
      */
     static ItemVersion convertToItemVersion(final String itemVersion) {
         if (itemVersion == null || itemVersion.equals("current-state")) {
