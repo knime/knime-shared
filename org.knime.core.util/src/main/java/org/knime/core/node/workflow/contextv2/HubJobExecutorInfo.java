@@ -49,6 +49,7 @@
 package org.knime.core.node.workflow.contextv2;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -67,6 +68,28 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 public class HubJobExecutorInfo extends JobExecutorInfo {
 
     /**
+     * The deployment run mode indicates whether jobs created from a deployment is run as the initiator (e.g. the
+     * calling user), or the account application password.
+     *
+     * @since 6.8
+     */
+    public enum DeploymentRunMode {
+
+        /**
+         * The job created from the deployment is supposed to run as the initiator. E.g. as the user who creates the job
+         * from the deployment for data-apps and service deployments. For trigger and schedule deployments the caller is
+         * the user who created the deployment.
+         */
+        INITIATOR,
+
+        /**
+         * The job created from the deployment is supposed to run in the account scope, using the account application
+         * password.
+         */
+        ACCOUNT;
+    }
+
+    /**
      * The scope under which the current job has been created. The scope is the account (e.g. team) that owns the
      * execution context in which the job runs. This field holds the technical account ID (unique, immutable).
      */
@@ -83,6 +106,16 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
      */
     private final String m_jobCreatorName;
 
+    /**
+     * The deployment ID, may be {@code null}.
+     */
+    private final String m_deploymentId;
+
+    /**
+     * The deployment run mode, may be {@code null}.
+     */
+    private final DeploymentRunMode m_deploymentRunMode;
+
     HubJobExecutorInfo( // NOSONAR only called internally
             final UUID jobId, //
             final Path workflowPath, //
@@ -93,12 +126,16 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
             final Supplier<String> scope, //
             final Supplier<String> scopeName, //
             final String jobCreatorId, //
-            final String jobCreatorName) {
+            final String jobCreatorName, //
+            final String deploymentId, //
+            final DeploymentRunMode deploymentRunMode) {
         super(ExecutorType.HUB_EXECUTOR, jobCreatorId, workflowPath, tempFolder, jobId, isRemote, localMountId, //
             remoteExecutorVersion);
         m_scopeId = scope;
         m_scopeName = scopeName;
         m_jobCreatorName = jobCreatorName;
+        m_deploymentId = deploymentId;
+        m_deploymentRunMode = deploymentRunMode;
     }
 
     /**
@@ -144,6 +181,27 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
     }
 
     /**
+     * Provides the ID of the deployment this job is run in the context of, if applicable.
+     *
+     * @return deployment ID
+     * @since 6.8
+     */
+    public Optional<String> getDeploymentId() {
+        return Optional.ofNullable(m_deploymentId);
+    }
+
+    /**
+     * Provides the deployment run mode, indicating whether jobs created from a deployment is run as the initiator
+     * (e.g. the calling user) or as the account application password.
+     *
+     * @return deployment run mode
+     * @since 6.8
+     */
+    public Optional<DeploymentRunMode> getDeploymentRunMode() {
+        return Optional.ofNullable(m_deploymentRunMode);
+    }
+
+    /**
      * Creates a builder for {@link HubJobExecutorInfo} instances.
      *
      * @return new builder
@@ -159,5 +217,7 @@ public class HubJobExecutorInfo extends JobExecutorInfo {
         sb.append(init).append("scopeId=").append(m_scopeId).append("\n");
         sb.append(init).append("scopeName=").append(m_scopeName).append("\n");
         sb.append(init).append("jobCreatorName=").append(m_jobCreatorName).append("\n");
+        sb.append(init).append("deploymentId=").append(m_deploymentId).append("\n");
+        sb.append(init).append("deploymentRunMode=").append(m_deploymentRunMode).append("\n");
     }
 }

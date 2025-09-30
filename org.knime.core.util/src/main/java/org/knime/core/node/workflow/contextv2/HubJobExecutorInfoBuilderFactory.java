@@ -56,6 +56,7 @@ import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
 import org.knime.core.node.util.CheckUtils;
+import org.knime.core.node.workflow.contextv2.HubJobExecutorInfo.DeploymentRunMode;
 import org.knime.core.node.workflow.contextv2.HubJobExecutorInfoBuilderFactory.HubJobExecutorInfoSBuilder;
 import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 
@@ -68,8 +69,7 @@ import org.knime.core.node.workflow.contextv2.WorkflowContextV2.ExecutorType;
 public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuilderFactory<HubJobExecutorInfoSBuilder> {
 
     /** Singleton factory instance. */
-    private static final HubJobExecutorInfoBuilderFactory FACTORY =
-            new HubJobExecutorInfoBuilderFactory();
+    private static final HubJobExecutorInfoBuilderFactory FACTORY = new HubJobExecutorInfoBuilderFactory();
 
     /**
      * Creates a new builder for {@link HubJobExecutorInfo} instances.
@@ -182,6 +182,10 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
          */
         private final String m_jobCreatorName;
 
+        private String m_deploymentId;
+
+        private DeploymentRunMode m_deploymentRunMode;
+
         HubJobExecutorInfoBuilder( //
                 final String userId, //
                 final Path localWorkflowPath, //
@@ -195,6 +199,21 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
             m_jobCreatorName = jobCreatorName;
         }
 
+        /**
+         * Sets the ID and run mode of the deployment this job belongs to.
+         *
+         * @param deploymentId deployment ID, may be {@code null}
+         * @param deploymentRunMode run mode, may be {@code null}
+         * @return this builder
+         * @since 6.8
+         */
+        public HubJobExecutorInfoBuilder withDeployment(final String deploymentId,
+            final DeploymentRunMode deploymentRunMode) {
+            m_deploymentId = deploymentId;
+            m_deploymentRunMode = deploymentRunMode;
+            return this;
+        }
+
         @Override
         public HubJobExecutorInfo build() {
             return new HubJobExecutorInfo(m_jobId, //
@@ -206,7 +225,9 @@ public final class HubJobExecutorInfoBuilderFactory extends JobExecutorInfoBuild
                 m_scopeId, //
                 m_scopeName, //
                 m_userId, //
-                m_jobCreatorName);
+                m_jobCreatorName, //
+                m_deploymentId, //
+                m_deploymentRunMode);
         }
     }
 }
