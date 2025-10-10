@@ -35,7 +35,6 @@ Export-Package: org.knime.core.hub.events,
  org.knime.core.util.workflowalizer,
  org.knime.core.util.workflowsummary,
  org.knime.core.util.xml,
- org.knime.shared.workflow.metadata.legacy,
  org.knime.workbench.explorer
 Require-Bundle: org.apache.commons.commons-compress;bundle-version="[1.15.0,2.0.0)",
  org.apache.commons.commons-io;bundle-version="[2.15.1,3.0.0)",
