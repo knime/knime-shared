@@ -87,14 +87,14 @@ public final class GlobalProxySearch {
             // if we are in an OSGi enviroment (practically always), the Eclipse proxy service
             // is the only ground truth for proxies we listen on
             setDefault(new GlobalProxySearch( //
-                new EclipseProxyStrategy() //
+                new InternalProxyStrategy(), new EclipseProxyStrategy() //
             ));
         } else {
             // if 'org.knime.core.util' were to be used outside OSGi bundles and services,
             // this falls back to first querying Java system properties, then environment variables,
             // retaining some proxy-searching functionality as OSGi-independent utility
             setDefault(new GlobalProxySearch( //
-                new JavaProxyStrategy(), new EnvironmentProxyStrategy()
+                new InternalProxyStrategy(), new JavaProxyStrategy(), new EnvironmentProxyStrategy()
             ));
         }
     }
