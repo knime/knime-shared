@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME CXF Core Fragment (BusFactory)
 Bundle-SymbolicName: org.knime.cxf.core.fragment;singleton:=true
-Bundle-Version: 5.6.0.qualifier
+Bundle-Version: 5.9.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Fragment-Host: org.apache.cxf.cxf-core;bundle-version="[4.0.4.v20240527v2-knime,5)"

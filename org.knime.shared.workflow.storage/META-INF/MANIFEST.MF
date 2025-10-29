@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Shared Workflow Loader
 Bundle-SymbolicName: org.knime.shared.workflow.storage;singleton:=true
-Bundle-Version: 5.8.0.qualifier
+Bundle-Version: 5.9.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Automatic-Module-Name: org.knime.shared.workflow.storage
 Bundle-RequiredExecutionEnvironment: JavaSE-17
