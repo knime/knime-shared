@@ -58,7 +58,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleConsumer;
+import java.util.function.LongConsumer;
 import java.util.stream.Stream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -66,8 +70,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.function.FailableDoubleConsumer;
-import org.apache.commons.lang3.function.FailableLongConsumer;
+import org.apache.commons.io.output.CountingOutputStream;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.util.CheckUtils;
@@ -78,10 +81,9 @@ import org.slf4j.LoggerFactory;
  * Exporter saving one or more items (workflows, templates or data files) as one zipped file.
  *
  * @author Leonard Wörteler, KNIME GmbH, Konstanz, Germany
- * @param <E> exception type of the export progress updater
  * @since 6.5
  */
-public final class WorkflowExporter<E extends Exception> {
+public final class WorkflowExporter {
 
     private static final String MODEL_PREFIX = "model_";
 
@@ -102,6 +104,31 @@ public final class WorkflowExporter<E extends Exception> {
     private static final String INTERNAL_TABLE_FOLDER_PREFIX = "internalTables";
 
     private static final String PORT_FOLDER_PREFIX = "port_";
+
+    public long exportWorkflowWithLimit(
+        final ResourcesToCopy localItems, final Path tempFile, final long uploadLimit,
+        final BooleanSupplier cancelChecker) throws IOException, CancellationException {
+        try (final var outputStream =
+            new CountingOutputStream(new BufferedOutputStream(Files.newOutputStream(tempFile)))) {
+            this.exportInto( //
+                localItems, //
+                outputStream, //
+                progress -> { //
+                    final var writtenUntilNow = outputStream.getByteCount();
+                    if (cancelChecker.getAsBoolean() || writtenUntilNow > uploadLimit) {
+                        throw new CancellationException();
+                    } //
+                }); //
+            return outputStream.getByteCount();
+        } catch (final CancellationException ce) {
+            if (!cancelChecker.getAsBoolean()) {
+                // not canceled by the user, so we must be over the limit
+                // TODO this could be avoided by having a separate exception
+                return Files.size(tempFile);
+            }
+            throw ce;
+        }
+    }
 
     /** Types of items to upload. */
     public enum ItemType {
@@ -128,7 +155,7 @@ public final class WorkflowExporter<E extends Exception> {
 
     /**
      * Scans the elements to export and collects all files and directories that will be archived. If execution data is
-     * to be excluded, it will not be path of this method's result.
+     * to be excluded, it will not be part of this method's result.
      *
      * @param elementsToExport top-level items to be exported
      * @param root root directory relative to which the destination path of the resources is determined
@@ -304,15 +331,15 @@ public final class WorkflowExporter<E extends Exception> {
      * @param resources resources to copy into export archive
      * @param outputStream stream to write the export archive to, will be closed in the end
      * @param updater progress updater
-     * @throws E if execution was cancelled
+     * @throws CancellationException if execution was cancelled
      * @throws IOException if something went wrong with the export
      */
     public void exportInto(final ResourcesToCopy resources, final OutputStream outputStream,
-            final FailableDoubleConsumer<E> updater)
-            throws E, IOException {
+            final DoubleConsumer updater)
+            throws CancellationException, IOException {
         try (final var zipper = new Zipper(outputStream)) {
             final var numBytesWritten = new AtomicLong();
-            final FailableLongConsumer<E> subUpdater =
+            final LongConsumer subUpdater =
                 add -> updater.accept(1.0 * numBytesWritten.addAndGet(add) / resources.numBytes());
             for (final var file : resources.paths().entrySet()) {
                 zipper.addEntry(file.getKey(), file.getValue(), subUpdater);
@@ -332,8 +359,8 @@ public final class WorkflowExporter<E extends Exception> {
             m_zipOutStream = new ZipOutputStream(new BufferedOutputStream(outputStream, BUFFER_SIZE));
         }
 
-        void addEntry(final Path source, final IPath destination, final FailableLongConsumer<E> updater)
-                throws IOException, E {
+        void addEntry(final Path source, final IPath destination, final LongConsumer updater)
+                throws IOException, CancellationException {
             m_zipOutStream.setLevel(Deflater.BEST_COMPRESSION);
             if (Files.isDirectory(source)) {
                 // mostly for empty directories (but non-empty dirs are accepted also)
