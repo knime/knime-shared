@@ -1,3 +1,11 @@
+# AP-25304 (duplication of jvm args) - 'removeJvmArg' was only added in 5.9, so cleanup of older versions needs to be handled during 'install'
+
 instructions.install=\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-Dorg.apache.cxf.bus.factory=org.knime.cxf.core.fragment.KNIMECXFBusFactory);\
 org.eclipse.equinox.p2.touchpoint.eclipse.addJvmArg(jvmArg:-Dorg.apache.cxf.bus.factory=org.knime.cxf.core.fragment.KNIMECXFBusFactory);\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-Dorg.apache.cxf.transport.http.forceURLConnection=true);\
 org.eclipse.equinox.p2.touchpoint.eclipse.addJvmArg(jvmArg:-Dorg.apache.cxf.transport.http.forceURLConnection=true);
+
+instructions.uninstall=\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-Dorg.apache.cxf.bus.factory=org.knime.cxf.core.fragment.KNIMECXFBusFactory);\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-Dorg.apache.cxf.transport.http.forceURLConnection=true);
