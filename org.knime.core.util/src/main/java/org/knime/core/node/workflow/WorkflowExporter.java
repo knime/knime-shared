@@ -119,7 +119,7 @@ public final class WorkflowExporter<E extends Exception> {
      * @return the actual compressed size in bytes
      * @throws IOException if an I/O error occurs during compression or file operations
      * @throws E if the operation is cancelled or the size limit is exceeded during compression
-     * @since 5.9
+     * @since 6.9
      */
     public long exportWorkflowWithLimit(
             final ResourcesToCopy localItems, final Path tempFile, final long uploadLimit,
