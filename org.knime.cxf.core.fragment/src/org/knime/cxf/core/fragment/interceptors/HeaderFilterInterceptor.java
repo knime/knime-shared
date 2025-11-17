@@ -48,14 +48,20 @@
  */
 package org.knime.cxf.core.fragment.interceptors;
 
+import java.net.URLConnection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.transport.http.HTTPTransportFactory;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
@@ -66,25 +72,48 @@ import jakarta.ws.rs.core.MultivaluedMap;
  */
 public class HeaderFilterInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final List<HeaderFilterCondition> FILTERS = List.of( //
+    private static final List<HeaderFilter> FILTERS = List.of( //
         /*
          * When using the URLConnectionHTTPConduit to make an HTTPS connection, the connection is established
          * via the HTTP CONNECT method (i.e. HTTP tunneling). For this, the CXF library with its
          * org.apache.cxf.transport.http.CXFAuthenticator provides preemptive authentication and the
          * authenticated tunnel can be established. For the "main request", the HTTPS then no longer needs to
          * send the "Proxy-Authorization" header. Doing that anyway results in this header being treated as
-         * regular data and being sent down the tunnel, unencrypted directly to the final foreign host. This
-         * interceptor prevents this behavior by removing the unnecessary header preemptively. See AP-21902.
+         * regular data and being sent down the tunnel, unencrypted directly to the arbitrary host.
+         *
+         * This filter removes the unnecessary header. See AP-21902 and AP-25294.
          */
-        new HeaderFilterCondition("Proxy-Authorization", //
-            m -> Boolean.TRUE.equals(m.get("USING_URLCONNECTION")) && "https".equals(m.get("http.scheme"))) //
+        new HeaderFilter("Proxy-Authorization", m -> isUsingURLConnection(m) && "https".equals(m.get("http.scheme")))
     );
 
     /**
      * Default constructor.
      */
     public HeaderFilterInterceptor() {
+        /*
+         * Runs right before writing the configured data (from the HTTPConduit)
+         * into a REST request. See "https://cxf.apache.org/docs/interceptors.html".
+         */
         super(Phase.PRE_PROTOCOL);
+    }
+
+    /**
+     * Checks whether the given {@link Message} will be sent using a {@link URLConnection}. In Apache CXF,
+     * this corresponds to using the {@link URLConnectionHTTPConduit} which is a configuration object
+     * that is marshalled into a REST request.
+     * <p>
+     * Selecting the {@link URLConnectionHTTPConduit} implementation is either done by force using a system
+     * property (see AP-21605) or when other implementations do not offer the configured functionality
+     * (e.g. using a custom {@link SSLSocketFactory} or {@link TrustManager}s). In the latter case,
+     * the message is labeled with {@code "USING_URLCONNECTION"}.
+     * </p>
+     *
+     * @param message the message to check
+     * @return {@code true} if the {@link URLConnection}-based implementation is used, otherwise {@link false}
+     */
+    private static boolean isUsingURLConnection(final Message message) {
+        return HTTPTransportFactory.isForceURLConnectionConduit() //
+            || Boolean.TRUE.equals(message.get("USING_URLCONNECTION"));
     }
 
     @Override
@@ -94,27 +123,18 @@ public class HeaderFilterInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /**
      * Represents a header filter which is only applied on a specific condition.
-     *
-     * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
+     * Consumes an Apache CXF {@link Message} object.
      */
-    private static final class HeaderFilterCondition implements Consumer<Message> {
-        private final String m_header;
-
-        private final Predicate<Message> m_condition;
-
-        private HeaderFilterCondition(final String h, final Predicate<Message> c) {
-            this.m_header = h;
-            this.m_condition = c;
-        }
+    private static record HeaderFilter(String header, Predicate<Message> condition) implements Consumer<Message> {
 
         @Override
         public void accept(final Message message) {
-            if (this.m_condition.test(message)) {
+            if (this.condition().test(message)) {
                 @SuppressWarnings("unchecked")
                 MultivaluedMap<String, String> headers =
                     (MultivaluedMap<String, String>)message.get(Message.PROTOCOL_HEADERS);
                 if (headers != null) {
-                    headers.remove(this.m_header);
+                    headers.remove(this.header());
                 }
             }
         }
