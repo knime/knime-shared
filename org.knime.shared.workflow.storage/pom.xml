@@ -15,10 +15,10 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<revision>5.9.0</revision>
+		<revision>5.10.0</revision>
 		<changelist>-LOCAL</changelist>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 	</properties>
 
 	<dependencies>
