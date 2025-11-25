@@ -66,6 +66,7 @@ import org.knime.core.node.util.CheckUtils;
  * @since 6.8
  *
  * @see org.knime.core.util.HubItemVersion (deprecated) in knime-core
+ * @see org.knime.core.util.hub.ItemVersion in knime-shared
  */
 public record NamedItemVersion(int version, String title, String description, String author, String authorAccountId,
     String createdOn) {

@@ -103,20 +103,13 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
      * @return result of the applied function
      * @throws E custom exception raised by functions
      */
-    // once pattern-matching switch is available, invocations of this method can be replaced with the switch and
-    // callsites potentially be improved
     default <T, E extends Throwable> T match(final FailableCallable<T, E> currentState,
         final FailableCallable<T, E> mostRecent, final FailableIntFunction<T, E> specificVersionFn) throws E {
-        // good candidate for pattern-matching switch :(
-        if (this instanceof CurrentState) {
-            return currentState.call();
-        } else if (this instanceof MostRecent) {
-            return mostRecent.call();
-        } else if (this instanceof SpecificVersion sv) {
-            return specificVersionFn.apply(sv.version());
-        } else {
-            throw new IllegalStateException("Unexpected version subtype: " + this.getClass().getName());
-        }
+        return switch (this) {
+            case CurrentState cs -> currentState.call();
+            case MostRecent mr -> mostRecent.call();
+            case SpecificVersion(var versionNumber) -> specificVersionFn.apply(versionNumber);
+        };
     }
 
     /**
@@ -128,16 +121,18 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
      * @since 6.8
      */
     static ItemVersion convertToItemVersion(final String itemVersion) {
-        if (itemVersion == null || itemVersion.equals("current-state")) {
-            return CurrentState.getInstance();
+        // "-1" is the legacy identifier of the current space version
+        if (itemVersion == null || itemVersion.equals("current-state") || itemVersion.equals("-1")) {
+            return ItemVersion.currentState();
         }
 
-        if (itemVersion.equals("most-recent")) {
-            return MostRecent.getInstance();
+        // "latest" is the legacy identifier for the newest space version
+        if (itemVersion.equals("most-recent") || itemVersion.equals("latest")) {
+            return ItemVersion.mostRecent();
         }
 
         try {
-            return new SpecificVersion(Integer.parseUnsignedInt(itemVersion));
+            return ItemVersion.of(Integer.parseUnsignedInt(itemVersion));
         } catch (NumberFormatException ex) {
             throw new IllegalStateException("Unexpected itemVersion argument: " + itemVersion);
         }
