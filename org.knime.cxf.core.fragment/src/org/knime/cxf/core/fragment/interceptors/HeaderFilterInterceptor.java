@@ -56,6 +56,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
@@ -77,7 +78,7 @@ public class HeaderFilterInterceptor extends AbstractPhaseInterceptor<Message> {
          * interceptor prevents this behavior by removing the unnecessary header preemptively. See AP-21902.
          */
         new HeaderFilterCondition("Proxy-Authorization", //
-            m -> Boolean.TRUE.equals(m.get("USING_URLCONNECTION")) && "https".equals(m.get("http.scheme"))) //
+            m -> isUsingURLConnection(m) && "https".equals(m.get("http.scheme"))) //
     );
 
     /**
@@ -85,6 +86,24 @@ public class HeaderFilterInterceptor extends AbstractPhaseInterceptor<Message> {
      */
     public HeaderFilterInterceptor() {
         super(Phase.PRE_PROTOCOL);
+    }
+
+    /**
+     * Checks whether the given {@link Message} will be sent using a {@link URLConnection}. In Apache CXF,
+     * this corresponds to using the {@link URLConnectionHTTPConduit} which is a configuration object
+     * that is marshalled into a REST request.
+     * <p>
+     * Selecting the {@link URLConnectionHTTPConduit} implementation is either done by force using a system
+     * property (see AP-21605) or when other implementations do not offer the configured functionality
+     * (e.g. using a custom {@link SSLSocketFactory} or {@link TrustManager}s). In the latter case,
+     * the message is labeled with {@code "USING_URLCONNECTION"}.
+     * </p>
+     *
+     * @param message the message to check
+     * @return {@code true} if the {@link URLConnection}-based implementation is used, otherwise {@link false}
+     */
+    static boolean isUsingURLConnection(final Message message) {
+        return Boolean.TRUE.equals(message.get("USING_URLCONNECTION"));
     }
 
     @Override
