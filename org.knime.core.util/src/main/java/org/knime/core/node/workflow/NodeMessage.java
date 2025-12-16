@@ -85,6 +85,8 @@ public final class NodeMessage {
 
     private final Type m_type;
 
+    private final boolean m_isConfigurationError;
+
     /**
      * Creates a message with the type and the message.
      *
@@ -109,10 +111,32 @@ public final class NodeMessage {
         @JsonProperty("message") final String message,
         @JsonProperty("issue") final String issue, //
         @JsonProperty("resolutions") final List<String> resolutions) {
+        this(messageType, message, issue, resolutions, false);
+    }
+
+    /**
+     * Creates a message with all details including configuration error flag.
+     *
+     * @param messageType the message type (error or warning)
+     * @param message the message
+     * @param issue The issue as per {@link #getIssue()} (can be null).
+     * @param resolutions Possible resolutions as per {@link #getResolutions()}. Null is valid.
+     * @param isConfigurationError Whether this message originates from a configuration/settings error,
+     *                             even if displayed as a warning. This allows distinguishing semantic errors
+     *                             from display warnings.
+     * @since 6.9
+     */
+    public NodeMessage( //
+        @JsonProperty("messageType") final Type messageType, //
+        @JsonProperty("message") final String message,
+        @JsonProperty("issue") final String issue, //
+        @JsonProperty("resolutions") final List<String> resolutions, //
+        @JsonProperty("isConfigurationError") final boolean isConfigurationError) {
         m_message = message;
         m_type = messageType;
         m_issue = issue;
         m_resolutions = resolutions == null ? Collections.emptyList() : resolutions;
+        m_isConfigurationError = isConfigurationError;
     }
 
     /** Convenience short cut for <code>new NodeMessage(Type.WARNING, message)</code>.
@@ -129,6 +153,34 @@ public final class NodeMessage {
      * @since 2.12 */
     public static final NodeMessage newError(final String message) {
         return new NodeMessage(Type.ERROR, message);
+    }
+
+    /**
+     * Convenience method to create a message that represents a configuration/settings error
+     * but is displayed as a warning in the UI. This allows the distinction between semantic errors
+     * and display type.
+     *
+     * @param message the message text
+     * @return a NodeMessage with WARNING type but marked as a configuration error
+     * @since 6.9
+     */
+    public static final NodeMessage newConfigurationError(final String message) {
+        return new NodeMessage(Type.WARNING, message, null, null, true);
+    }
+
+    /**
+     * Convenience method to create a message that represents a configuration/settings error
+     * but is displayed as a warning in the UI, with additional details.
+     *
+     * @param message the message text
+     * @param issue The issue as per {@link #getIssue()} (can be null)
+     * @param resolutions Possible resolutions as per {@link #getResolutions()}. Null is valid.
+     * @return a NodeMessage with WARNING type but marked as a configuration error
+     * @since 6.9
+     */
+    public static final NodeMessage newConfigurationError(final String message, final String issue,
+        final List<String> resolutions) {
+        return new NodeMessage(Type.WARNING, message, issue, resolutions, true);
     }
 
     /**
@@ -171,6 +223,19 @@ public final class NodeMessage {
         return m_type;
     }
 
+    /**
+     * Returns whether this message represents a configuration/settings error even if it's
+     * displayed as a warning. This allows consumers to distinguish between semantic errors
+     * (invalid configuration) and warnings that are truly informational.
+     *
+     * @return true if this message originates from a configuration error, false otherwise
+     * @since 6.9
+     */
+    @JsonProperty("isConfigurationError")
+    public boolean isConfigurationError() {
+        return m_isConfigurationError;
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {
@@ -201,6 +266,7 @@ public final class NodeMessage {
             .append(m_message) //
             .append(m_issue) //
             .append(m_resolutions) //
+            .append(m_isConfigurationError) //
             .toHashCode();
     }
 
@@ -218,6 +284,7 @@ public final class NodeMessage {
             .append(m_message, other.m_message) //
             .append(m_issue, other.m_issue) //
             .append(m_resolutions, other.m_resolutions) //
+            .append(m_isConfigurationError, other.m_isConfigurationError) //
             .isEquals();
     }
 
@@ -225,7 +292,8 @@ public final class NodeMessage {
      * Merges two messages. The result message will have the most severe type
      * (e.g. if m1 is WARNING and m2 is ERROR the output is ERROR) and a
      * concatenated message string, delimited by a line break. Issue and resolutions are ignored unless one of the
-     * arguments represents a RESET message.
+     * arguments represents a RESET message. The result is marked as a configuration error if either input
+     * message is a configuration error.
      *
      * @param m1 Message 1
      * @param m2 Message 2
@@ -248,7 +316,9 @@ public final class NodeMessage {
             message.append("\n");
         }
         message.append(m2.m_message);
-        return new NodeMessage(type, message.toString());
+        // Preserve configuration error flag if either message is a configuration error
+        boolean isConfigError = m1.m_isConfigurationError || m2.m_isConfigurationError;
+        return new NodeMessage(type, message.toString(), null, null, isConfigError);
     }
 
 }

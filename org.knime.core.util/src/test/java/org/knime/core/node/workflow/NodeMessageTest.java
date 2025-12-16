@@ -167,6 +167,103 @@ class NodeMessageTest {
         assertThat(mergeWarnReset).as("merged with REST message").isSameAs(warning);
     }
 
+    /**
+     * Tests {@link NodeMessage#newConfigurationError(String)}
+     */
+    @Test
+    void testConfigurationError() throws IOException {
+        NodeMessage configError = NodeMessage.newConfigurationError("Invalid settings");
+
+        assertThat(configError.getMessageType()).isEqualTo(Type.WARNING);
+        assertThat(configError.isConfigurationError()).isTrue();
+        assertThat(configError.getMessage()).isEqualTo("Invalid settings");
+    }
+
+    /**
+     * Tests {@link NodeMessage#newConfigurationError(String, String, List)}
+     */
+    @Test
+    void testConfigurationErrorWithDetails() throws IOException {
+        NodeMessage configError = NodeMessage.newConfigurationError("Invalid settings", "Missing column",
+            Arrays.asList("Add input column", "Change configuration"));
+
+        assertThat(configError.getMessageType()).isEqualTo(Type.WARNING);
+        assertThat(configError.isConfigurationError()).isTrue();
+        assertThat(configError.getMessage()).isEqualTo("Invalid settings");
+        assertThat(configError.getIssue()).get().isEqualTo("Missing column");
+        assertThat(configError.getResolutions()).containsExactly("Add input column", "Change configuration");
+    }
+
+    /**
+     * Tests that regular warnings and errors are not marked as configuration errors
+     */
+    @Test
+    void testRegularMessagesNotConfigurationErrors() {
+        NodeMessage warning = NodeMessage.newWarning("a warning");
+        NodeMessage error = NodeMessage.newError("an error");
+
+        assertThat(warning.isConfigurationError()).isFalse();
+        assertThat(error.isConfigurationError()).isFalse();
+    }
+
+    /**
+     * Tests JSON serialization/deserialization of configuration error flag
+     */
+    @Test
+    void testConfigurationErrorSerialization() throws IOException {
+        ObjectMapper mapper = createObjectMapper();
+
+        NodeMessage configError = NodeMessage.newConfigurationError("Config error");
+        String serialized = mapper.writeValueAsString(configError);
+        NodeMessage deserialized = mapper.readValue(serialized, NodeMessage.class);
+
+        assertThat(deserialized).isEqualTo(configError);
+        assertThat(deserialized.isConfigurationError()).isTrue();
+        assertThat(deserialized.getMessageType()).isEqualTo(Type.WARNING);
+    }
+
+    /**
+     * Tests that merge preserves configuration error flag
+     */
+    @Test
+    void testMergePreservesConfigurationError() {
+        NodeMessage configError = NodeMessage.newConfigurationError("Config error");
+        NodeMessage warning = NodeMessage.newWarning("Regular warning");
+
+        NodeMessage merged1 = NodeMessage.merge(configError, warning);
+        assertThat(merged1.isConfigurationError()).isTrue();
+
+        NodeMessage merged2 = NodeMessage.merge(warning, configError);
+        assertThat(merged2.isConfigurationError()).isTrue();
+    }
+
+    /**
+     * Tests that merging two regular messages doesn't result in a configuration error
+     */
+    @Test
+    void testMergeWithoutConfigurationError() {
+        NodeMessage warning1 = NodeMessage.newWarning("Warning 1");
+        NodeMessage warning2 = NodeMessage.newWarning("Warning 2");
+
+        NodeMessage merged = NodeMessage.merge(warning1, warning2);
+        assertThat(merged.isConfigurationError()).isFalse();
+    }
+
+    /**
+     * Tests equals/hashCode with configuration error flag
+     */
+    @Test
+    void testEqualsHashCodeWithConfigurationError() {
+        NodeMessage msg1 = NodeMessage.newConfigurationError("Config error");
+        NodeMessage msg2 = NodeMessage.newConfigurationError("Config error");
+        NodeMessage msg3 = NodeMessage.newWarning("Config error"); // Same text but not a config error
+
+        assertThat(msg1).isEqualTo(msg2);
+        assertThat(msg1.hashCode()).isEqualTo(msg2.hashCode());
+        assertThat(msg1).isNotEqualTo(msg3);
+        assertThat(msg1.hashCode()).isNotEqualTo(msg3.hashCode());
+    }
+
     private static ObjectMapper createObjectMapper() {
         return new ObjectMapper().registerModule(new Jdk8Module()); // new in 5.0 due to AP-19914
     }
