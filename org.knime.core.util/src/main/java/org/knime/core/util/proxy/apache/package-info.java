@@ -45,7 +45,7 @@
  *
  */
 /**
- * Proxy utilities for the Apache HTTP client (from org.apache.http).
+ * Proxy utilities for the Apache HTTP client 4.X (from org.apache.http).
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  */

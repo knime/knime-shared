@@ -46,18 +46,17 @@
  * History
  *   Jun 24, 2024 (lw): created
  */
-package org.knime.core.util.proxy.apache;
+package org.knime.core.util.proxy.apache5;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.conn.DefaultRoutePlanner;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.auth.CredentialsProvider;
+import org.apache.hc.client5.http.impl.routing.DefaultRoutePlanner;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 /**
@@ -65,7 +64,8 @@ import org.knime.core.util.proxy.search.GlobalProxySearch;
  * If none is found, a direct connection is established.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.4
+ * @since 6.11
+ * @see org.knime.core.util.proxy.apache.ProxyHttpRoutePlanner
  */
 public final class ProxyHttpRoutePlanner extends DefaultRoutePlanner {
 
@@ -89,7 +89,7 @@ public final class ProxyHttpRoutePlanner extends DefaultRoutePlanner {
      * @param context the current HTTP request context
      */
     static void injectWrappedCredentialsProvider(final CredentialsProvider credentials, final HttpContext context) {
-        final var clientContext = HttpClientContext.adapt(context);
+        final var clientContext = HttpClientContext.castOrCreate(context);
         if (clientContext.getCredentialsProvider() instanceof ProxyCredentialsProvider provider) {
             clientContext.setCredentialsProvider(provider.wrap(credentials));
         }
@@ -106,14 +106,14 @@ public final class ProxyHttpRoutePlanner extends DefaultRoutePlanner {
     }
 
     @Override
-    protected HttpHost determineProxy(final HttpHost target, final HttpRequest request, final HttpContext context)
+    protected HttpHost determineProxy(final HttpHost target, final HttpContext context)
         throws HttpException {
         try {
             final var uri = createURIFromHttpHost(target);
             return GlobalProxySearch.getCurrentFor(uri) //
                 .filter(cfg -> !cfg.isHostExcluded(uri)) //
                 .map(cfg -> {
-                    final var p = cfg.forApacheHttpClient();
+                    final var p = cfg.forApacheHttpClient5();
                     // wrapping the credentials provider from this proxy (possibly empty) as first-to-be-checked,
                     // then dispatching the call to our ProxyCredentialsProvider instance
                     injectWrappedCredentialsProvider(p.getSecond(), context);

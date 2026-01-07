@@ -46,27 +46,23 @@
  * History
  *   Jul 1, 2024 (lw): created
  */
-package org.knime.core.util.proxy.apache;
+package org.knime.core.util.proxy.apache5;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.impl.DefaultClientConnectionReuseStrategy;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Connection reuse strategy that always denies reusing the connection when a proxy was used,
  * as that data (especially credentials) are not matched when checking whether a connection
  * can be reused by the {@link HttpClientConnectionManager} of the Apache HTTP client.
- * <p>
- * We cannot simply listen on changes in proxy settings because the reuse/keep-alive property
- * is always checked immediately *after* an HTTP request, not before one. We can never know if
- * proxy settings have changed.
- * </p>
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.4
+ * @since 6.11
+ * @see org.knime.core.util.proxy.apache.ProxyConnectionReuseStrategy
  */
 public final class ProxyConnectionReuseStrategy extends DefaultClientConnectionReuseStrategy {
 
@@ -83,10 +79,10 @@ public final class ProxyConnectionReuseStrategy extends DefaultClientConnectionR
     }
 
     @Override
-    public boolean keepAlive(final HttpResponse response, final HttpContext context) {
+    public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
         // only keep alive if no proxy was used, as the user can dynamically change
         // proxy settings, then we always want use newly configured connections
-        final var route = (HttpRoute) context.getAttribute(HttpClientContext.HTTP_ROUTE);
-        return (route == null || route.getProxyHost() == null) && super.keepAlive(response, context);
+        final var route = HttpClientContext.castOrCreate(context).getHttpRoute();
+        return (route == null || route.getProxyHost() == null) && super.keepAlive(request, response, context);
     }
 }

@@ -54,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.net.URI;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
@@ -116,5 +117,19 @@ public class HttpbinTestContext {
                 return StringUtils.upperCase(method);
             }
         };
+    }
+
+    /**
+     * Returns the {@link org.apache.hc.client5.http.classic.methods.HttpUriRequest} constructed from the httpbin host
+     * name, a given scheme, and a valid HTTP method, such as GET, POST, etc.
+     *
+     * @param scheme scheme of the URI to be used for the request
+     * @param method HTTP method
+     * @return HTTP request to the httpbin testing instance
+     * @see #getHttpRequest(String, String)
+     */
+    public static org.apache.hc.core5.http.ClassicHttpRequest getHttpRequest5(final String scheme,
+        final String method) {
+        return new HttpUriRequestBase(StringUtils.upperCase(method), HttpbinTestContext.getURI(scheme));
     }
 }
