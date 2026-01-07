@@ -61,8 +61,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -116,7 +118,9 @@ class JavaNetAdaptersTest {
             null, scheme, url, RequestorType.PROXY)) //
                 .as("Authenticator did not find the matching java.net.PasswordAuthentication") //
                 .usingRecursiveComparison() //
-                .comparingOnlyFields("userName", "password") //
+                .withEqualsForType((t1, t2) -> {
+                    return Strings.CI.equals(t1.getUserName(), t2.getUserName()) && Objects.deepEquals(t1.getPassword(), t2.getPassword());
+                }, PasswordAuthentication.class)
                 .isEqualTo(expected);
     }
 
