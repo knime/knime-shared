@@ -255,7 +255,7 @@ public class EnvironmentProxyConfigProvider {
      * @return GlobalProxyConfig
      * @since 6.3
      */
-    public static Optional<GlobalProxyConfig> getConfigFromEnvironment(final URI uri,
+    public static Optional<GlobalProxyConfig> getConfigFromEnvironment(final URI uri, // NOSONAR uri is ignored
         final ProxyProtocol... protocols) {
         return chooseFromEnvironment(CACHED_CONFIGS, protocols);
     }

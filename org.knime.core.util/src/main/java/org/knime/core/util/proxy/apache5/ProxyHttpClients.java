@@ -46,14 +46,14 @@
  * History
  *   Aug 14, 2024 (lw): created
  */
-package org.knime.core.util.proxy.apache;
+package org.knime.core.util.proxy.apache5;
 
 import java.net.URI;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.eclipse.jdt.annotation.Owning;
 
 /**
@@ -61,7 +61,7 @@ import org.eclipse.jdt.annotation.Owning;
  * pre-configured with access to KNIME's proxy configuration.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.4
+ * @since 6.12
  * @see HttpClients
  */
 public final class ProxyHttpClients {
@@ -75,7 +75,7 @@ public final class ProxyHttpClients {
      * @return builder for a {@link HttpClient}
      */
     public static HttpClientBuilder custom() {
-        // nosemgrep: configureProxyForHC4
+        // nosemgrep: configureProxyForHC5
         return customForBuilder(HttpClients.custom());
     }
 
