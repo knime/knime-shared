@@ -44,70 +44,45 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Apr 30, 2024 (lw): created
+ *   Jul 1, 2024 (lw): created
  */
-package org.knime.core.util.proxy.search;
+package org.knime.core.util.proxy.apache5;
 
-import java.net.URI;
-import java.util.Optional;
-
-import org.knime.core.util.proxy.GlobalProxyConfig;
-import org.knime.core.util.proxy.ProxyProtocol;
+import org.apache.hc.client5.http.impl.DefaultClientConnectionReuseStrategy;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * Interface for retrieving the single best fitting proxy configuration for a given {@link URI}
- * and/or a set of valid {@link ProxyProtocol} for which the configuration should be present.
+ * Connection reuse strategy that always denies reusing the connection when a proxy was used,
+ * as that data (especially credentials) are not matched when checking whether a connection
+ * can be reused by the {@link HttpClientConnectionManager} of the Apache HTTP client.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
  * @since 6.12
+ * @see org.knime.core.util.proxy.apache.ProxyConnectionReuseStrategy
  */
-@FunctionalInterface
-public interface GlobalProxyStrategy {
+public final class ProxyConnectionReuseStrategy extends DefaultClientConnectionReuseStrategy {
 
     /**
-     * Retrieves the current global proxy configuration for a URI and a selection of proxy protocols
-     * and stores it in a read-only format. If the {@link URI} is non-null and proxy protocols are not empty,
-     * the resulting proxy configuration was configured for the given criteria.
-     * Returns {@link Optional#empty()} if no such proxy is configured.
-     * <p>
-     * If the URI is null, the proxy is selected only based on specified protocols.
-     * </p>
-     *
-     * @param uri the {@link URI} to select the proxy for (may be null)
-     * @param protocols protocols whose configurations are queried in order, first one present is returned
-     * @return {@link GlobalProxyConfig} if configuration is present
+     * Instance object for this state-less strategy.
      */
-    GlobalProxySearchResult getCurrentFor(final URI uri, final ProxyProtocol... protocols);
+    @SuppressWarnings("hiding")
+    public static final ProxyConnectionReuseStrategy INSTANCE = new ProxyConnectionReuseStrategy();
 
     /**
-     * Tri-state for the {@link GlobalProxyConfig} search result. The {@link #signal()} indicator
-     * determines whether to continue search or return the found config value. The following three
-     * states are possible.
-     * <ul>
-     *   <li>Nothing was found and search should continue, see {@link #empty()}.</li>
-     *   <li>Nothing was found since proxies are disabled, see {@link #stop()}.</li>
-     *   <li>A proxy config was found, see {@link #found(GlobalProxyConfig)}.</li>
-     * </ul>
-     *
-     * @param signal the {@link SearchSignal} indicator
-     * @param value the {@link GlobalProxyConfig} value
+     * Hides constructor.
      */
-    record GlobalProxySearchResult(SearchSignal signal, Optional<GlobalProxyConfig> value) {
+    private ProxyConnectionReuseStrategy() {
+    }
 
-        enum SearchSignal {
-                EVALUATE, STOP;
-        }
-
-        static GlobalProxySearchResult stop() {
-            return new GlobalProxySearchResult(SearchSignal.STOP, Optional.empty());
-        }
-
-        static GlobalProxySearchResult empty() {
-            return new GlobalProxySearchResult(SearchSignal.EVALUATE, Optional.empty());
-        }
-
-        static GlobalProxySearchResult found(final GlobalProxyConfig value) {
-            return new GlobalProxySearchResult(SearchSignal.EVALUATE, Optional.of(value));
-        }
+    @Override
+    public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
+        // only keep alive if no proxy was used, as the user can dynamically change
+        // proxy settings, then we always want use newly configured connections
+        final var route = HttpClientContext.castOrCreate(context).getHttpRoute();
+        return (route == null || route.getProxyHost() == null) && super.keepAlive(request, response, context);
     }
 }

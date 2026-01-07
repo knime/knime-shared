@@ -48,15 +48,12 @@
  */
 package org.knime.core.util.proxy.search;
 
-import static java.util.Objects.requireNonNullElse;
-import static org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.empty;
-import static org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.found;
-import static org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult.stop;
-
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.eclipse.core.internal.net.ProxyManager;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
@@ -127,7 +124,7 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
     private static GlobalProxyConfig toGlobalProxyConfig(final IProxyData data, final String[] nonProxiedHosts) {
         final var username = data.getUserId();
         final var password = data.getPassword();
-        final var excludedHosts = String.join("|", requireNonNullElse(nonProxiedHosts, new String[0]));
+        final var excludedHosts = String.join("|", Objects.requireNonNullElse(nonProxiedHosts, new String[0]));
         return new GlobalProxyConfig( //
             ProxyProtocol.valueOf(data.getType()), //
             data.getHost(), //
@@ -145,11 +142,11 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
         // some applications using the 'GlobalProxySearch' API may not initialize the service at all
         if (m_proxyServiceTracker == null || m_proxyServiceTracker.getService() == null) {
             // can be null in non-Eclipse applications as there is no bundle context
-            return empty();
+            return GlobalProxySearchResult.empty();
         }
         final var service = m_proxyServiceTracker.getService();
         if (!service.isProxiesEnabled()) {
-            return stop();
+            return GlobalProxySearchResult.stop();
         }
         // if the URI is null, choose proxy data independently (retrieve any configuration)
         final var validData = getProxyData(service, uri);
@@ -157,11 +154,11 @@ final class EclipseProxyStrategy implements GlobalProxyStrategy {
                 .map(ProxyProtocol::name) //
                 .toArray(String[]::new);
         for (var data : validData) {
-            if (StringUtils.equalsAnyIgnoreCase(data.getType(), validProtocols)
+            if (Strings.CI.equalsAny(data.getType(), validProtocols)
                     && StringUtils.isNotBlank(data.getHost())) {
-                return found(toGlobalProxyConfig(data, getNonProxiedHosts(service)));
+                return GlobalProxySearchResult.found(toGlobalProxyConfig(data, getNonProxiedHosts(service)));
             }
         }
-        return empty();
+        return GlobalProxySearchResult.empty();
     }
 }
