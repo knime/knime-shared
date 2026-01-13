@@ -103,7 +103,8 @@ public class HeaderFilterInterceptor extends AbstractPhaseInterceptor<Message> {
      * @return {@code true} if the {@link URLConnection}-based implementation is used, otherwise {@link false}
      */
     static boolean isUsingURLConnection(final Message message) {
-        return Boolean.TRUE.equals(message.get("USING_URLCONNECTION"));
+        return Boolean.TRUE.equals(message.getContextualProperty("force.urlconnection.http.conduit")) //
+            || Boolean.TRUE.equals(message.get("USING_URLCONNECTION"));
     }
 
     @Override
