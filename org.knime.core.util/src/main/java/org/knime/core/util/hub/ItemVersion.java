@@ -134,7 +134,7 @@ public sealed interface ItemVersion permits CurrentState, MostRecent, SpecificVe
         try {
             return ItemVersion.of(Integer.parseUnsignedInt(itemVersion));
         } catch (NumberFormatException ex) {
-            throw new IllegalStateException("Unexpected itemVersion argument: " + itemVersion);
+            throw new IllegalArgumentException("Cannot parse specific version from value: " + itemVersion);
         }
     }
 
