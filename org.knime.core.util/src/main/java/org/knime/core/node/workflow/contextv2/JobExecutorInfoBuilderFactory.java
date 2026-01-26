@@ -144,26 +144,6 @@ public abstract class JobExecutorInfoBuilderFactory<B> extends ExecutorInfoBuild
         }
 
         /**
-         * Sets whether the workflow job is running in a remote executor, or locally, i.e. the current JVM is the
-         * executor). This method sets both {@link JobExecutorInfo#getLocalMountId()} and
-         * {@link JobExecutorInfo#getRemoteExecutorVersion()} to {@link java.util.Optional#empty()}.
-         *
-         * @param isRemote Set to true, when the workflow job is running in a remote executor, otherwise set to false
-         *            (i.e. the current JVM is the executor).
-         * @return this builder instance
-         * @see #withRemoteExecutor(String,String)
-         * @deprecated Use {@link #withRemoteExecutor(String, String)} instead to specify additional information.
-         *             Method is scheduled for removal in version 6.4.0.
-         */
-        @Deprecated(forRemoval = true, since = "6.3.0")
-        public final B withIsRemote(final boolean isRemote) {
-            m_isRemote = isRemote;
-            m_localMountId = null;
-            m_remoteExecutorVersion = null;
-            return (B)this;
-        }
-
-        /**
          * Configures the context for a remotely executed workflow, where the current JVM is not the executor.
          *
          * @param localMountId mount ID of the local AP displaying the job, may be {@code null} if unknown
