@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Automatic-Module-Name: org.knime.cxf.util
 Bundle-Name: KNIME Utilities for Apache CXF
 Bundle-SymbolicName: org.knime.cxf-util;singleton:=true
-Bundle-Version: 5.9.0.qualifier
+Bundle-Version: 5.10.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Require-Bundle: org.apache.cxf.cxf-core;bundle-version="[4.0.3,5.0.0)"
