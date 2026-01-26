@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.knime.core.util" version="2">
+    <resource path="src/main/java/org/knime/core/node/workflow/contextv2/JobExecutorInfoBuilderFactory.java" type="org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory$JobExecutorInfoBuilder">
+        <filter comment="Removed method was deprecated and marked for removal since AP 5.3" id="338792546">
+            <message_arguments>
+                <message_argument value="org.knime.core.node.workflow.contextv2.JobExecutorInfoBuilderFactory.JobExecutorInfoBuilder"/>
+                <message_argument value="withIsRemote(boolean)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
