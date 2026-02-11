@@ -13,6 +13,36 @@ properties([
     ])
 ])
 
+def proxyPort = 8888
+def (proxyUser, proxyPassword, proxyStats) = ['knime-proxy', 'knime-proxy-password', 'tinyproxy.stats']
+def proxyConfigs = [
+    [
+        image: 'docker.io/kalaksi/tinyproxy:1.7',
+        namePrefix: 'TINYPROXY',
+        envArgs: [
+            "STAT_HOST=${proxyStats}",
+            'MAX_CLIENTS=500',
+            'ALLOWED_NETWORKS=0.0.0.0/0',
+            'LOG_LEVEL=Info',
+            'TIMEOUT=300',
+        ],
+        ports: [proxyPort]
+    ],
+    [
+        image: 'docker.io/kalaksi/tinyproxy:1.7',
+        namePrefix: 'TINYPROXYAUTH',
+        envArgs: [
+            "STAT_HOST=${proxyStats}",
+            'MAX_CLIENTS=500',
+            'ALLOWED_NETWORKS=0.0.0.0/0',
+            'LOG_LEVEL=Info',
+            'TIMEOUT=300',
+            "AUTH_USER=${proxyUser}",
+            "AUTH_PASSWORD=${proxyPassword}",
+        ],
+        ports: [proxyPort]
+    ]
+]
 
 try {
     parallel 'Tycho Build': {
@@ -26,17 +56,16 @@ try {
         node('java21 && maven') {
             def sidecars = dockerTools.createSideCarFactory()
             try {
-                def (proxyUser, proxyPassword, proxyStats) = ['knime-proxy', 'knime-proxy-password', 'tinyproxy.stats']
-                def tinyproxy = sidecars.createSideCar('docker.io/kalaksi/tinyproxy:1.6', 'tinyproxy',
-                    ["STAT_HOST=${proxyStats}", 'MAX_CLIENTS=500', 'ALLOWED_NETWORKS=0.0.0.0/0', 'LOG_LEVEL=Info', 'TIMEOUT=300'], [8888]).start()
-                def tinyproxyAuth = sidecars.createSideCar('docker.io/kalaksi/tinyproxy:1.6', 'tinyproxyAuth',
-                    ["STAT_HOST=${proxyStats}", 'MAX_CLIENTS=500', 'ALLOWED_NETWORKS=0.0.0.0/0', 'LOG_LEVEL=Info', 'TIMEOUT=300', "AUTH_USER=${proxyUser}", "AUTH_PASSWORD=${proxyPassword}"], [8888]).start()
-
+                // sidecars for (un-)authenticated proxies
+                def (tinyproxy, tinyproxyAuth) = proxyConfigs.collect { cfg ->
+                    sidecars.createSideCar(cfg.image, cfg.namePrefix, cfg.envArgs, cfg.ports).start()
+                }
+                // expose addresses of proxies
                 withEnv([
-                    "KNIME_TINYPROXY=http://${tinyproxy.getAddress(8888)}",
-                    "KNIME_TINYPROXYAUTH=http://${proxyUser}:${proxyPassword}@${tinyproxyAuth.getAddress(8888)}",
+                    "KNIME_TINYPROXY_ADDRESS=http://${tinyproxy.getAddress(proxyPort)}",
+                    "KNIME_TINYPROXYAUTH_ADDRESS=http://${proxyUser}:${proxyPassword}@${tinyproxyAuth.getAddress(proxyPort)}",
                     "KNIME_TINYPROXYSTATS=http://${proxyStats}",
-                    "KNIME_HTTPBIN=httpbin.testing.knime.com"
+                    'KNIME_HTTPBIN_ADDRESS=https://httpbin.testing.knime.com'
                 ]) {
                     knimetools.defaultMavenBuild(profiles: ['SRV'], withoutNode: true)
                 }
@@ -49,6 +78,6 @@ try {
     currentBuild.result = 'FAILURE'
     throw ex
 } finally {
-    notifications.notifyBuild(currentBuild.result);
+    notifications.notifyBuild(currentBuild.result)
 }
 /* vim: set shiftwidth=4 expandtab smarttab: */

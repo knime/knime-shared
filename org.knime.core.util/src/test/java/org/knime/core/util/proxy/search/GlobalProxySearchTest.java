@@ -57,18 +57,23 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.knime.core.util.HttpbinTestContext;
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
-import org.knime.core.util.proxy.TinyproxyTestContext;
 import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult;
+import org.knime.core.util.proxy.testing.HttpbinTestContext;
+import org.knime.core.util.proxy.testing.ProxyParameterProvider;
+import org.knime.core.util.proxy.testing.TinyproxyTestContext;
 
 /**
  * Tests the public, static API of the {@link GlobalProxySearch} class.
  */
 class GlobalProxySearchTest {
+
+    @RegisterExtension
+    private static final ProxyParameterProvider TEST_CONTEXT = GlobalProxyTestContext.INSTANCE;
 
     // -- ASSERTIONS --
 
@@ -109,13 +114,12 @@ class GlobalProxySearchTest {
     @EnumSource(ProxyProtocol.class)
     void testEmptyConfig(final ProxyProtocol protocol) throws IOException {
         // empty search result
-        GlobalProxyTestContext.withEmpty(() -> {
+        TEST_CONTEXT.withEmpty(() -> {
             assertGlobalProxySearch(protocol, Optional.empty());
         });
 
         // technically valid search result, but file:// is caught early
-        GlobalProxyTestContext
-            .withConfig(new GlobalProxyConfig(protocol, proxyHost, null, false, null, null, false, null), () -> {
+        TEST_CONTEXT.withConfig(new GlobalProxyConfig(protocol, proxyHost, null, false, null, null, false, null), () -> {
                 assertThat(GlobalProxySearch.getCurrentFor(HttpbinTestContext.getURI("file"))) //
                     .as("File URI should not have received a proxy, but has") //
                     .isEmpty();
@@ -127,7 +131,7 @@ class GlobalProxySearchTest {
     void testSpecificConfig(final ProxyProtocol protocol) throws IOException {
         final var fullConfig =
             new GlobalProxyConfig(protocol, proxyHost, "1234", true, "user", "password", true, "localhost");
-        GlobalProxyTestContext.withConfig(fullConfig, () -> {
+        TEST_CONTEXT.withConfig(fullConfig, () -> {
             assertGlobalProxySearch(protocol, Optional.of(fullConfig));
         });
     }
@@ -140,19 +144,19 @@ class GlobalProxySearchTest {
             new GlobalProxyConfig(protocol, proxyHost, null, false, null, null, true, targetHost);
 
         // first one is stop
-        GlobalProxyTestContext.withTwoResults(GlobalProxySearchResult.stop(),
+        TEST_CONTEXT.withTwoResults(GlobalProxySearchResult.stop(),
             GlobalProxySearchResult.found(plainConfig), () -> {
                 assertGlobalProxySearch(protocol, Optional.empty());
             });
 
         // first one is empty
-        GlobalProxyTestContext.withTwoResults(GlobalProxySearchResult.empty(),
+        TEST_CONTEXT.withTwoResults(GlobalProxySearchResult.empty(),
             GlobalProxySearchResult.found(plainConfig), () -> {
                 assertGlobalProxySearch(protocol, Optional.of(plainConfig));
             });
 
         // first one is present but excluded (should still be found)
-        GlobalProxyTestContext.withTwoResults(GlobalProxySearchResult.found(excludingConfig),
+        TEST_CONTEXT.withTwoResults(GlobalProxySearchResult.found(excludingConfig),
             GlobalProxySearchResult.empty(), () -> {
                 assertGlobalProxySearch(protocol, Optional.of(excludingConfig));
             });
@@ -202,7 +206,7 @@ class GlobalProxySearchTest {
             new GlobalProxyConfig(protocol, proxyHost, null, false, null, null, true, targetHost);
 
         // assert that host exclusion is not performed in search
-        GlobalProxyTestContext.withConfig(excludingConfig, () -> {
+        TEST_CONTEXT.withConfig(excludingConfig, () -> {
             assertThat(GlobalProxySearch.getCurrentFor(protocol)) //
                 .as("Proxy search should not perform host exclusion, but does") //
                 .isNotEmpty() //
