@@ -43,50 +43,20 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * History
- *   Jul 1, 2024 (lw): created
  */
-package org.knime.core.util.proxy.apache;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
-import org.apache.http.protocol.HttpContext;
-
 /**
- * Connection reuse strategy that always denies reusing the connection when a proxy was used,
- * as that data (especially credentials) are not matched when checking whether a connection
- * can be reused by the {@link HttpClientConnectionManager} of the Apache HTTP client.
+ * Testing utilities for a proxy "environment", i.e. a test context. This package exists
+ * because of the split between {@link org.knime.core.util.proxy.search.GlobalProxyStrategy}s
+ * in pure Java-based strategies and OSGi-fied Eclipse-based strategies.
  * <p>
- * We cannot simply listen on changes in proxy settings because the reuse/keep-alive property
- * is always checked immediately *after* an HTTP request, not before one. We can never know if
- * proxy settings have changed.
+ * With the {@link org.knime.core.util.proxy.testing.ProxyParameterProvider}, tests can use
+ * {@code @RegisterExtension} to register implementation of said parameter providers, and
+ * subsequently test Java-based strategies where possible (currently knime-shared), as well
+ * as test Eclipse-based strategies where possible (currently knime-core).
  * </p>
+ * Further, this package provides accessors to Httpbin and Tinyproxy sidecars, and the
+ * environment variables that they provide to the JVM.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.4
  */
-public final class ProxyConnectionReuseStrategy extends DefaultClientConnectionReuseStrategy {
-
-    /**
-     * Instance object for this state-less strategy.
-     */
-    @SuppressWarnings("hiding")
-    public static final ProxyConnectionReuseStrategy INSTANCE = new ProxyConnectionReuseStrategy();
-
-    /**
-     * Hides constructor.
-     */
-    private ProxyConnectionReuseStrategy() {
-    }
-
-    @Override
-    public boolean keepAlive(final HttpResponse response, final HttpContext context) {
-        // only keep alive if no proxy was used, as the user can dynamically change
-        // proxy settings, then we always want use newly configured connections
-        final var route = (HttpRoute) context.getAttribute(HttpClientContext.HTTP_ROUTE);
-        return (route == null || route.getProxyHost() == null) && super.keepAlive(response, context);
-    }
-}
+package org.knime.core.util.proxy.testing;

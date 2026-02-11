@@ -213,16 +213,38 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
      * along with a credentials if needed. The {@link CredentialsProvider} is never null,
      * but if authentication is *not* needed, it does not contain credentials.
      *
-     * @return Apache HttpClient proxy specification
+     * @return Apache HttpClient 4.X proxy specification
      * @since 6.3
      */
     public Pair<HttpHost, CredentialsProvider> forApacheHttpClient() {
+        // the protocol set in this http host is not matched in the auth scope
         final var httpHost = new HttpHost(host(), intPort(), protocol().asLowerString());
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         if (useAuthentication()) {
             credentialsProvider.setCredentials( //
                 new AuthScope(httpHost), //
                 new UsernamePasswordCredentials(username(), password()));
+        }
+        return Pair.create(httpHost, credentialsProvider);
+    }
+
+    /**
+     * Converts this proxy configuration to Apache's {@link org.apache.hc.client5.http.classic.HttpClient}, along
+     * with a credentials if needed. The {@link org.apache.hc.client5.http.auth.CredentialsProvider} is never null,
+     * but if authentication is *not* needed, it does not contain credentials.
+     *
+     * @return Apache HttpClient 5.X proxy specification
+     * @since 6.11
+     * @see #forApacheHttpClient()
+     */
+    public Pair<org.apache.hc.core5.http.HttpHost, org.apache.hc.client5.http.auth.CredentialsProvider>
+        forApacheHttpClient5() {
+        final var httpHost = new org.apache.hc.core5.http.HttpHost(/*omitting protocol*/null, host(), intPort());
+        final var credentialsProvider = new org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider();
+        if (useAuthentication()) {
+            credentialsProvider.setCredentials( //
+                new org.apache.hc.client5.http.auth.AuthScope(httpHost), //
+                new org.apache.hc.client5.http.auth.UsernamePasswordCredentials(username(), password().toCharArray()));
         }
         return Pair.create(httpHost, credentialsProvider);
     }

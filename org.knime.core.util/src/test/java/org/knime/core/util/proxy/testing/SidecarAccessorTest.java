@@ -44,49 +44,37 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Jul 1, 2024 (lw): created
+ *   Feb 11, 2026 (lw): created
  */
-package org.knime.core.util.proxy.apache;
+package org.knime.core.util.proxy.testing;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
-import org.apache.http.protocol.HttpContext;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.knime.core.util.proxy.ProxyProtocol;
 
 /**
- * Connection reuse strategy that always denies reusing the connection when a proxy was used,
- * as that data (especially credentials) are not matched when checking whether a connection
- * can be reused by the {@link HttpClientConnectionManager} of the Apache HTTP client.
- * <p>
- * We cannot simply listen on changes in proxy settings because the reuse/keep-alive property
- * is always checked immediately *after* an HTTP request, not before one. We can never know if
- * proxy settings have changed.
- * </p>
- *
- * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.4
+ * Tests the {@link HttpbinTestContext} and {@link TinyproxyTestContext}.
  */
-public final class ProxyConnectionReuseStrategy extends DefaultClientConnectionReuseStrategy {
+class SidecarAccessorTest {
 
-    /**
-     * Instance object for this state-less strategy.
-     */
-    @SuppressWarnings("hiding")
-    public static final ProxyConnectionReuseStrategy INSTANCE = new ProxyConnectionReuseStrategy();
-
-    /**
-     * Hides constructor.
-     */
-    private ProxyConnectionReuseStrategy() {
+    @Test
+    void testHttpbinPresent() {
+        assertNotNull(HttpbinTestContext.getURI("http"), //
+            "An HTTP-based URI should be constructible for the Httpbin sidecar");
+        assertNotNull(HttpbinTestContext.getURI("https"), //
+            "An HTTPS-based URI should be constructible for the Httpbin sidecar");
     }
 
-    @Override
-    public boolean keepAlive(final HttpResponse response, final HttpContext context) {
-        // only keep alive if no proxy was used, as the user can dynamically change
-        // proxy settings, then we always want use newly configured connections
-        final var route = (HttpRoute) context.getAttribute(HttpClientContext.HTTP_ROUTE);
-        return (route == null || route.getProxyHost() == null) && super.keepAlive(response, context);
+    @ParameterizedTest
+    @EnumSource(ProxyProtocol.class)
+    void testTinyproxyPresent(final ProxyProtocol protocol) {
+        assertNotNull(TinyproxyTestContext.getWithoutAuth(protocol), //
+            "A proxy without authentication should be found for the Tinyproxy sidecar");
+        assertNotNull(TinyproxyTestContext.getWithAuth(protocol), //
+            "A proxy with authentication should be found for the Tinyproxy sidecar");
     }
+
 }

@@ -44,77 +44,53 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Aug 20, 2024 (lw): created
+ *   Feb 11, 2026 (lw): created
  */
-package org.knime.core.util;
+package org.knime.core.util.proxy.testing;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import java.io.IOException;
 
-import java.net.URI;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.commons.lang3.function.FailableRunnable;
+import org.knime.core.util.proxy.GlobalProxyConfig;
+import org.knime.core.util.proxy.search.GlobalProxySearch;
+import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult;
 
 /**
- * 'Httpbin' context factory that returns host names and {@link URI}s,
- * based on internal testing services providing a httpbin instance.
+ * Interface implemented by the {@link ProxyParameterProvider}.
+ * Used for supplying tests, test parameters will be declared as this interface.
  *
- * @see "https://github.com/mccutchen"
+ * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
+ * @since 6.11
  */
-public class HttpbinTestContext {
-
-    private static final String KNIME_HTTPBIN = "KNIME_HTTPBIN";
-
-    private static void assertNonNullEnvVar(final String key) {
-        assertThat(System.getenv(key)) //
-            .as("Expected environment variable \"%s\" to be non-null", key) //
-            .isNotNull();
-    }
+public interface ProxyTestContext {
 
     /**
-     * Returns the host name as of our httpbin testing instance as string.
+     * Clears the proxy from the test context, and then runs the test.
      *
-     * @return host name of httpbin testing instance
+     * @param test the test to run
+     * @throws IOException if something goes wrong
      */
-    public static String getHost() {
-        assertNonNullEnvVar(KNIME_HTTPBIN);
-        return System.getenv(KNIME_HTTPBIN);
-    }
+    void withEmpty(final FailableRunnable<IOException> test) throws IOException;
 
     /**
-     * Returns the {@link URI} constructed from the httpbin host name and a given scheme.
+     * Applies the single, given {@link GlobalProxyConfig}, and then runs the test
      *
-     * @param scheme scheme of the constructed httpbin URI
-     * @return URI of httpbin testing instance
+     * @param single single proxy
+     * @param test the test to run
+     * @throws IOException if something goes wrong
      */
-    public static URI getURI(final String scheme) {
-        return assertDoesNotThrow(() -> new URIBuilder() //
-            .setScheme(StringUtils.lowerCase(scheme)) //
-            .setHost(getHost()) //
-            .build(), "URI for httpbin testing instance could not be constructed");
-    }
+    void withConfig(final GlobalProxyConfig single, final FailableRunnable<IOException> test) throws IOException;
 
     /**
-     * Returns the {@link HttpUriRequest} constructed from the httpbin host name, a given scheme,
-     * and a valid HTTP method, such as GET, POST, etc.
+     * Adds both {@link GlobalProxyConfig} instances to the test context,
+     * and runs the test within, such that both are considered by the {@link GlobalProxySearch}.
      *
-     * @param scheme scheme of the URI to be used for the request
-     * @param method HTTP method
-     * @return HTTP request to the httpbin testing instance
+     * @param first first proxy
+     * @param second second proxy
+     * @param test the test to run
+     * @throws IOException if something goes wrong
      */
-    public static HttpUriRequest getHttpRequest(final String scheme, final String method) {
-        return new HttpRequestBase() {
-            {
-                setURI(HttpbinTestContext.getURI(scheme));
-            }
+    void withTwoResults(final GlobalProxySearchResult first, final GlobalProxySearchResult second,
+        final FailableRunnable<IOException> test) throws IOException;
 
-            @Override
-            public String getMethod() {
-                return StringUtils.upperCase(method);
-            }
-        };
-    }
 }

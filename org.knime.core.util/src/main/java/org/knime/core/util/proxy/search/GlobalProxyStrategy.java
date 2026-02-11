@@ -59,10 +59,10 @@ import org.knime.core.util.proxy.ProxyProtocol;
  * and/or a set of valid {@link ProxyProtocol} for which the configuration should be present.
  *
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.3
+ * @since 6.11
  */
 @FunctionalInterface
-interface GlobalProxyStrategy {
+public interface GlobalProxyStrategy {
 
     /**
      * Retrieves the current global proxy configuration for a URI and a selection of proxy protocols

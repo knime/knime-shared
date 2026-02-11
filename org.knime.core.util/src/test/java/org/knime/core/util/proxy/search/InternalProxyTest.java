@@ -64,9 +64,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.knime.core.util.proxy.ProxyProtocol;
-import org.knime.core.util.proxy.TinyproxyTestContext;
 import org.knime.core.util.proxy.URLConnectionFactory;
 import org.knime.core.util.proxy.search.InternalProxyStrategy.InternalHostConfig;
+import org.knime.core.util.proxy.testing.TinyproxyTestContext;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

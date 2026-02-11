@@ -44,49 +44,41 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   Jul 1, 2024 (lw): created
+ *   Feb 11, 2026 (lw): created
  */
-package org.knime.core.util.proxy.apache;
+package org.knime.core.util.proxy.testing;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
-import org.apache.http.protocol.HttpContext;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
- * Connection reuse strategy that always denies reusing the connection when a proxy was used,
- * as that data (especially credentials) are not matched when checking whether a connection
- * can be reused by the {@link HttpClientConnectionManager} of the Apache HTTP client.
- * <p>
- * We cannot simply listen on changes in proxy settings because the reuse/keep-alive property
- * is always checked immediately *after* an HTTP request, not before one. We can never know if
- * proxy settings have changed.
- * </p>
- *
- * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.4
+ * Tests the {@link ProxyParameterProvider}.
  */
-public final class ProxyConnectionReuseStrategy extends DefaultClientConnectionReuseStrategy {
+@ExtendWith(ProxyParameterProvider.class)
+class ProxyParameterProviderTest {
 
-    /**
-     * Instance object for this state-less strategy.
-     */
-    @SuppressWarnings("hiding")
-    public static final ProxyConnectionReuseStrategy INSTANCE = new ProxyConnectionReuseStrategy();
-
-    /**
-     * Hides constructor.
-     */
-    private ProxyConnectionReuseStrategy() {
+    @TestTemplate
+    void testWithInjectedTestContext(final ProxyTestContext context) {
+        assertNotNull(context, "Context should be non-null");
     }
 
-    @Override
-    public boolean keepAlive(final HttpResponse response, final HttpContext context) {
-        // only keep alive if no proxy was used, as the user can dynamically change
-        // proxy settings, then we always want use newly configured connections
-        final var route = (HttpRoute) context.getAttribute(HttpClientContext.HTTP_ROUTE);
-        return (route == null || route.getProxyHost() == null) && super.keepAlive(response, context);
+    @ParameterizedTest
+    @CsvSource({
+        "ProxyTestContext",
+    })
+    void testWithParametrizedTestContext(final String context) {
+        assertNotNull(context, "Context should be non-null");
     }
+
+    @Test
+    void testWithNoParameters() {
+        assertNull(null); // NOSONAR - just testing `@Test` parameter resolution
+    }
+
 }
