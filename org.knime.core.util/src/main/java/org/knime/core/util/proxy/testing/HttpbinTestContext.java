@@ -46,33 +46,33 @@
  * History
  *   Aug 20, 2024 (lw): created
  */
-package org.knime.core.util;
+package org.knime.core.util.proxy.testing;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URI;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.knime.core.util.CoreConstants;
 
 /**
  * 'Httpbin' context factory that returns host names and {@link URI}s,
  * based on internal testing services providing a httpbin instance.
  *
  * @see "https://github.com/mccutchen"
+ * @since 6.11
  */
-public class HttpbinTestContext {
+public final class HttpbinTestContext {
 
-    private static final String KNIME_HTTPBIN = "KNIME_HTTPBIN";
+    private static final String KNIME_HTTPBIN = "KNIME_HTTPBIN_ADDRESS";
 
     private static void assertNonNullEnvVar(final String key) {
-        assertThat(System.getenv(key)) //
-            .as("Expected environment variable \"%s\" to be non-null", key) //
-            .isNotNull();
+        assertNotNull(System.getenv(key), //
+            "Expected environment variable \"%s\" to be non-null".formatted(key));
     }
 
     /**
@@ -82,7 +82,10 @@ public class HttpbinTestContext {
      */
     public static String getHost() {
         assertNonNullEnvVar(KNIME_HTTPBIN);
-        return System.getenv(KNIME_HTTPBIN);
+        final var value = System.getenv(KNIME_HTTPBIN);
+        final var separator = "://";
+        final var uri = URI.create(value.contains(separator) ? value : (CoreConstants.SCHEME + separator + value));
+        return uri.getHost();
     }
 
     /**
@@ -108,9 +111,9 @@ public class HttpbinTestContext {
      */
     public static HttpUriRequest getHttpRequest(final String scheme, final String method) {
         return new HttpRequestBase() {
-            {
+            { // NOSONAR
                 setURI(HttpbinTestContext.getURI(scheme));
-            }
+            } // NOSONAR
 
             @Override
             public String getMethod() {
@@ -130,6 +133,13 @@ public class HttpbinTestContext {
      */
     public static org.apache.hc.core5.http.ClassicHttpRequest getHttpRequest5(final String scheme,
         final String method) {
-        return new HttpUriRequestBase(StringUtils.upperCase(method), HttpbinTestContext.getURI(scheme));
+        return new org.apache.hc.client5.http.classic.methods.HttpUriRequestBase(StringUtils.upperCase(method),
+            HttpbinTestContext.getURI(scheme));
+    }
+
+    /**
+     * Only a utility class.
+     */
+    private HttpbinTestContext() {
     }
 }

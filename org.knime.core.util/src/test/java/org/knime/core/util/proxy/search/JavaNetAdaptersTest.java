@@ -57,6 +57,8 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -67,15 +69,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.knime.core.util.HttpbinTestContext;
 import org.knime.core.util.auth.DelegatingAuthenticator;
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.ProxyProtocol;
 import org.knime.core.util.proxy.ProxySelectorAdapter;
-import org.knime.core.util.proxy.TinyproxyTestContext;
 import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult;
+import org.knime.core.util.proxy.testing.HttpbinTestContext;
+import org.knime.core.util.proxy.testing.ProxyParameterProvider;
+import org.knime.core.util.proxy.testing.TinyproxyTestContext;
 
 /**
  * Tests the globally-set {@link ProxySelectorAdapter} and {@link ProxyAuthenticatorAdapter}.
@@ -85,6 +89,9 @@ import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchRes
  * has package-scope API, because of some package-scope-only types.
  */
 class JavaNetAdaptersTest {
+
+    @RegisterExtension
+    private static final ProxyParameterProvider TEST_CONTEXT = GlobalProxyTestContext.INSTANCE;
 
     // -- ASSERTIONS --
 
@@ -109,8 +116,8 @@ class JavaNetAdaptersTest {
         final var scheme = StringUtils.lowerCase(config.protocol().name());
         URL url = null;
         try {
-            url = new URL("%s://%s".formatted(scheme, targetHost));
-        } catch (MalformedURLException ex) { // NOSONAR - URL remains null for SOCKS proxies
+            url = new URI("%s://%s".formatted(scheme, targetHost)).toURL();
+        } catch (URISyntaxException | MalformedURLException ex) { // NOSONAR - URL remains null for SOCKS proxies
         }
 
         // compare to expected with requesting parameters
@@ -118,7 +125,7 @@ class JavaNetAdaptersTest {
             null, scheme, url, RequestorType.PROXY)) //
                 .as("Authenticator did not find the matching java.net.PasswordAuthentication") //
                 .usingRecursiveComparison() //
-                .withEqualsForType((t1, t2) -> {
+                .withEqualsForType((t1, t2) -> { //
                     return Strings.CI.equals(t1.getUserName(), t2.getUserName()) && Objects.deepEquals(t1.getPassword(), t2.getPassword());
                 }, PasswordAuthentication.class)
                 .isEqualTo(expected);
@@ -159,14 +166,13 @@ class JavaNetAdaptersTest {
         final var proxy = TinyproxyTestContext.getWithoutAuth(protocol);
 
         // empty search result
-        GlobalProxyTestContext.withEmpty(() -> {
+        TEST_CONTEXT.withEmpty(() -> {
             assertProxySelector(protocol, Proxy.NO_PROXY);
             assertGlobalAuthenticator(proxy, null);
         });
 
         // technically valid search result, but file:// is caught early
-        GlobalProxyTestContext
-            .withConfig(proxy, () -> {
+        TEST_CONTEXT.withConfig(proxy, () -> {
                 assertThat(ProxySelector.getDefault().select(HttpbinTestContext.getURI("file"))) //
                     .as("File URI should not have received a proxy, but has") //
                     .isEqualTo(List.of(Proxy.NO_PROXY));
@@ -183,7 +189,7 @@ class JavaNetAdaptersTest {
         final var auth = new PasswordAuthentication(proxy.username(), proxy.password().toCharArray());
 
         // assert proxy selection, the converted authenticator, and the global authenticator adapter
-        GlobalProxyTestContext.withConfig(proxy, () -> {
+        TEST_CONTEXT.withConfig(proxy, () -> {
             assertProxySelector(protocol, proxy.forJavaNetProxy().getFirst());
             assertLocalAuthenticator(proxy.forJavaNetProxy().getSecond(), proxy, auth);
             assertGlobalAuthenticator(proxy, auth);
@@ -198,21 +204,21 @@ class JavaNetAdaptersTest {
             new GlobalProxyConfig(protocol, "somehost", null, false, null, null, true, targetHost);
 
         // first one is stop
-        GlobalProxyTestContext.withTwoResults(GlobalProxySearchResult.stop(),
+        TEST_CONTEXT.withTwoResults(GlobalProxySearchResult.stop(),
             GlobalProxySearchResult.found(plainProxy), () -> {
                 assertProxySelector(protocol, Proxy.NO_PROXY);
                 assertGlobalAuthenticator(plainProxy, null);
             });
 
         // first one is empty
-        GlobalProxyTestContext.withTwoResults(GlobalProxySearchResult.empty(),
+        TEST_CONTEXT.withTwoResults(GlobalProxySearchResult.empty(),
             GlobalProxySearchResult.found(plainProxy), () -> {
                 assertProxySelector(protocol, plainProxy.forJavaNetProxy().getFirst());
                 assertGlobalAuthenticator(plainProxy, null);
             });
 
         // first one actually excludes the host, i.e. NO_PROXY result
-        GlobalProxyTestContext.withTwoResults(GlobalProxySearchResult.found(excludingProxy),
+        TEST_CONTEXT.withTwoResults(GlobalProxySearchResult.found(excludingProxy),
             GlobalProxySearchResult.empty(), () -> {
                 assertProxySelector(protocol, Proxy.NO_PROXY);
                 assertGlobalAuthenticator(excludingProxy, null);
@@ -287,7 +293,7 @@ class JavaNetAdaptersTest {
         final var proxy = new GlobalProxyConfig(protocol, "somehost", null, false, null, null, true, targetHost);
 
         // assert that host exclusion *is* performed in selector
-        GlobalProxyTestContext.withConfig(proxy, () -> {
+        TEST_CONTEXT.withConfig(proxy, () -> {
             assertThat(ProxySelector.getDefault().select(uri)) //
                 .as("Proxy selector performed host exclusion, but does not") //
                 .usingRecursiveComparison() //
