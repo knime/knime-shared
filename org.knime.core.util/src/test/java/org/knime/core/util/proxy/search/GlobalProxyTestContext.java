@@ -55,13 +55,19 @@ import java.util.Map;
 import org.apache.commons.lang3.function.FailableRunnable;
 import org.knime.core.util.proxy.GlobalProxyConfig;
 import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchResult;
+import org.knime.core.util.proxy.testing.ProxyParameterProvider;
 
 /**
  * Strategy context factory that allows performing {@link GlobalProxySearch} calls with
  * predefined (i.e. configured) results. Note that a context-based proxy strategy like
  * {@code withEnvironment} is not possible since {@link System#getenv()} is immutable.
  */
-public class GlobalProxyTestContext {
+public final class GlobalProxyTestContext extends ProxyParameterProvider {
+
+    /**
+     * Used statically in all tests that are extended with {@link ProxyParameterProvider}.
+     */
+    static final ProxyParameterProvider INSTANCE = new GlobalProxyTestContext();
 
     private static void runWithStrategy(final FailableRunnable<IOException> test, final GlobalProxyStrategy... strategies)
         throws IOException {
@@ -79,7 +85,8 @@ public class GlobalProxyTestContext {
      *
      * @throws IOException
      */
-    public static void withEmpty(final FailableRunnable<IOException> test) throws IOException {
+    @Override
+    public void withEmpty(final FailableRunnable<IOException> test) throws IOException {
         runWithStrategy(test, (u, p) -> GlobalProxySearchResult.empty());
     }
 
@@ -88,7 +95,8 @@ public class GlobalProxyTestContext {
      *
      * @throws IOException
      */
-    public static void withConfig(final GlobalProxyConfig config, final FailableRunnable<IOException> test)
+    @Override
+    public void withConfig(final GlobalProxyConfig config, final FailableRunnable<IOException> test)
         throws IOException {
         runWithStrategy(test, (u, p) -> GlobalProxySearchResult.found(config));
     }
@@ -99,7 +107,8 @@ public class GlobalProxyTestContext {
      *
      * @throws IOException
      */
-    public static void withTwoResults(final GlobalProxySearchResult a, final GlobalProxySearchResult b,
+    @Override
+    public void withTwoResults(final GlobalProxySearchResult a, final GlobalProxySearchResult b,
         final FailableRunnable<IOException> test) throws IOException {
         runWithStrategy(test, (u, p) -> a, (u, p) -> b);
     }
@@ -108,6 +117,8 @@ public class GlobalProxyTestContext {
      * Searches with a strategy modifies Java system properties, then invokes the Java-based
      * proxy strategy to search proxies therein.
      *
+     * @param properties {@link System#getProperties()}
+     * @param test the test to run using Java-based proxies
      * @throws IOException
      */
     public static void withFoundInJava(final Map<String, String> properties, final FailableRunnable<IOException> test)
