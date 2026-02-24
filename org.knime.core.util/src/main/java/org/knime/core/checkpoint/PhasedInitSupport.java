@@ -173,7 +173,7 @@ public final class PhasedInitSupport {
 
         @Override
         public void beforeCheckpoint(final Context<? extends Resource> context) throws Exception {
-            // nothing to do here, we only need to react after restore
+            m_phasedInit.beforeActivate();
         }
 
         @Override

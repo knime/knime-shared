@@ -83,12 +83,18 @@ package org.knime.core.checkpoint;
  */
 public interface PhasedInit<E extends Exception> {
 
+    default void beforeActivate() throws E { // TODO naming etc
+        // default implementation does nothing
+    }
+
     /**
      * Lightweight activation called after checkpoint restore or immediately on unconfigured JVMs.
      * <p>
      * Should only perform fast operations like connecting to a service, not heavy initialization.
      * @throws E if activation fails, will be handled (wrapped) by CRaC or forwarded to caller
      */
-    void activate() throws E;
+    default void activate() throws E {
+        // default implementation does nothing
+    }
 
 }
