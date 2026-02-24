@@ -164,7 +164,7 @@ public final class PhasedInitSupport {
         return isCheckpointingSupported.booleanValue();
     }
 
-    private static final class ResourceImplementation implements Resource {
+    static final class ResourceImplementation implements Resource {
         private final PhasedInit<?> m_phasedInit;
 
         ResourceImplementation(final PhasedInit<?> phasedInit) {
