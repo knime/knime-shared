@@ -48,10 +48,11 @@
  */
 package org.knime.core.checkpoint;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +77,11 @@ final class PhasedInitSupportTest {
     final void testRegisterOrActivate_NonPhased() {
         assertFalse(PhasedInitSupport.isSupported(), "Phased init should not be supported in test environment");
         AtomicBoolean isCalled = new AtomicBoolean(false);
-        PhasedInit<RuntimeException> phasedInit = () -> {
-            isCalled.set(true);
+        PhasedInit<RuntimeException> phasedInit = new PhasedInit<RuntimeException>() {
+            @Override
+            public void activate() {
+                isCalled.set(true);
+            }
         };
         PhasedInitSupport.registerOrActivate(phasedInit);
         assertTrue(isCalled.get(), "activate should have been called immediately when phased init is not supported");
@@ -103,48 +107,58 @@ final class PhasedInitSupportTest {
 
             mockedCore.when(Core::getGlobalContext).thenReturn(mockContext);
 
-            // Setup PhasedInit that should be activated after restore
-            AtomicBoolean isActivated = new AtomicBoolean(false);
-            PhasedInit<RuntimeException> phasedInit = () -> {
-                isActivated.set(true);
+            // Setup PhasedInit that tracks activation lifecycle
+            AtomicBoolean isBeforeCheckpointCalled = new AtomicBoolean(false);
+            AtomicBoolean isActivateCalled = new AtomicBoolean(false);
+            PhasedInit<RuntimeException> phasedInit = new PhasedInit<RuntimeException>() {
+                @Override
+                public void beforeCheckpoint() {
+                    isBeforeCheckpointCalled.set(true);
+                }
+
+                @Override
+                public void activate() {
+                    isActivateCalled.set(true);
+                }
             };
 
             // Register the component
             PhasedInitSupport.registerOrActivate(phasedInit);
 
             // Verify it was not activated immediately
-            assertFalse(isActivated.get(), "activate should not be called immediately when phased init is supported");
+            assertFalse(isBeforeCheckpointCalled.get(), "beforeCheckpoint should not be called immediately");
+            assertFalse(isActivateCalled.get(), "activate should not be called immediately");
 
             // Verify resources were registered
             assertEquals(2, registeredResources.size(),
                 "Two resources should be registered (cleanup and phased init wrapper)");
 
             // Find the ResourceImplementation that wraps our PhasedInit
-            Resource phasedInitResource = registeredResources.stream()
-                .filter(r -> r.getClass().getSimpleName().equals(ResourceImplementation.class.getSimpleName()))
+            ResourceImplementation phasedInitResource = registeredResources.stream()
+                .filter(ResourceImplementation.class::isInstance)
+                .map(r -> (ResourceImplementation) r)
                 .findFirst()
                 .orElse(null);
 
-            assertTrue(phasedInitResource != null, "PhasedInit should have been wrapped in ResourceImplementation");
+            assertNotNull(phasedInitResource, "PhasedInit should have been wrapped in ResourceImplementation");
 
-            // Simulate checkpoint lifecycle: beforeCheckpoint then afterRestore
-            registeredResources.forEach(r -> {
-                try {
-                    r.beforeCheckpoint(mockContext);
-                } catch (Exception ex) {
-                    fail("beforeCheckpoint should not throw an exception: " + ex.getMessage(), ex);
-                }
-            });
-            assertFalse(isActivated.get(), "activate should still not be called after beforeCheckpoint");
+            // Simulate checkpoint lifecycle: Resource.beforeCheckpoint should call PhasedInit.beforeCheckpoint
+            registeredResources.forEach(r -> 
+                assertDoesNotThrow(() -> r.beforeCheckpoint(mockContext), 
+                    "beforeCheckpoint should not throw an exception")
+            );
+            assertTrue(isBeforeCheckpointCalled.get(),
+                "beforeCheckpoint should be called during beforeCheckpoint (right before snapshotting)");
+            assertFalse(isActivateCalled.get(),
+                "activate should not be called yet");
 
-            registeredResources.forEach(r -> {
-                try {
-                    r.afterRestore(mockContext);
-                } catch (Exception ex) {
-                    fail("afterRestore should not throw an exception: " + ex.getMessage(), ex);
-                }
-            });
-            assertTrue(isActivated.get(), "activate should be called after afterRestore");
+            // Simulate restore: afterRestore should call activate
+            registeredResources.forEach(r -> 
+                assertDoesNotThrow(() -> r.afterRestore(mockContext), 
+                    "afterRestore should not throw an exception")
+            );
+            assertTrue(isActivateCalled.get(), "activate should be called after afterRestore");
+            assertTrue(isBeforeCheckpointCalled.get(), "beforeCheckpoint should still be true");
         }
     }
 

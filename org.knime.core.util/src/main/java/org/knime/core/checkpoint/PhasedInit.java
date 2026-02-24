@@ -84,6 +84,16 @@ package org.knime.core.checkpoint;
 public interface PhasedInit<E extends Exception> {
 
     /**
+     * Called just before a CRaC checkpoint snapshot is taken, allowing the component to quiesce (e.g. flush buffers,
+     * release resources that cannot be serialized). May not be called at all if the JVM is not checkpointed.
+     *
+     * @throws E if preparation fails
+     */
+    default void beforeCheckpoint() throws E {
+        // default implementation does nothing
+    }
+
+    /**
      * Lightweight activation called after checkpoint restore, or immediately on unconfigured JVMs.
      * <p>
      * Assuming this <code>PhasedInit</code> is {@linkplain PhasedInitSupport#registerOrActivate(PhasedInit)
@@ -96,6 +106,8 @@ public interface PhasedInit<E extends Exception> {
      * </p>
      * @throws E if activation fails, will be handled (wrapped) by CRaC or forwarded to caller
      */
-    void activate() throws E;
+    default void activate() throws E {
+        // default implementation does nothing
+    }
 
 }
