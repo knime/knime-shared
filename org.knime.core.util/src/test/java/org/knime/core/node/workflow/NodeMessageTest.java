@@ -167,6 +167,22 @@ class NodeMessageTest {
         assertThat(mergeWarnReset).as("merged with REST message").isSameAs(warning);
     }
 
+    /** Tests {@link NodeMessage#prependMessage(NodeMessage, String)}. */
+    @Test
+    void testPrependMessage() {
+        NodeMessage orig = new NodeMessage(Type.WARNING, "a warning text", "some issue",
+            Arrays.asList("resolution 1", "resolution 2"));
+
+        NodeMessage prependError = orig.prependMessage("prepend ");
+
+        assertThat(prependError).extracting(NodeMessage::getMessage).as("Message is prepended correctly")
+            .isEqualTo("prepend a warning text");
+        assertThat(prependError).extracting(NodeMessage::getIssue).as("Issue is preserved")
+            .isEqualTo(orig.getIssue());
+        assertThat(prependError).extracting(NodeMessage::getResolutions).as("Resolution list is preserved")
+            .isEqualTo(orig.getResolutions());
+    }
+
     private static ObjectMapper createObjectMapper() {
         return new ObjectMapper().registerModule(new Jdk8Module()); // new in 5.0 due to AP-19914
     }
