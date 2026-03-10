@@ -53,6 +53,7 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URI;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,9 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.knime.core.util.Pair;
+
+import okhttp3.Credentials;
+import okhttp3.HttpUrl;
 
 /**
  * Captures the current global proxy configuration (in System properties).
@@ -210,7 +214,7 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
 
     /**
      * Converts this proxy configuration to Apache's {@link org.apache.http.client.HttpClient},
-     * along with a credentials if needed. The {@link CredentialsProvider} is never null,
+     * along with credentials if needed. The {@link CredentialsProvider} is never null,
      * but if authentication is *not* needed, it does not contain credentials.
      *
      * @return Apache HttpClient 4.X proxy specification
@@ -230,7 +234,7 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
 
     /**
      * Converts this proxy configuration to Apache's {@link org.apache.hc.client5.http.classic.HttpClient}, along
-     * with a credentials if needed. The {@link org.apache.hc.client5.http.auth.CredentialsProvider} is never null,
+     * with credentials if needed. The {@link org.apache.hc.client5.http.auth.CredentialsProvider} is never null,
      * but if authentication is *not* needed, it does not contain credentials.
      *
      * @return Apache HttpClient 5.X proxy specification
@@ -247,5 +251,33 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
                 new org.apache.hc.client5.http.auth.UsernamePasswordCredentials(username(), password().toCharArray()));
         }
         return Pair.create(httpHost, credentialsProvider);
+    }
+
+    /**
+     * Converts this proxy configuration to what OkHttp's clients expect (along with credentials).
+     * The credentials are a {@link String} suitable for use as the value of an Basic authentication
+     * header (i.e. the literal {@code "Basic "} prefix followed by a {@link java.util.Base64}-encoded
+     * {@code username:password} payload as returned by {@link Credentials#basic(String, String)}).
+     * <p>
+     * The credentials are absent if no authentication is to be used for this proxy.
+     * The {@link HttpUrl} is always non-{@code null}.
+     * </p>
+     *
+     * @throws IllegalArgumentException for {@link ProxyProtocol#SOCKS}, incompatible with {@link HttpUrl}
+     * @return OkHttp proxy specification
+     * @since 6.12
+     */
+    public Pair<HttpUrl, Optional<String>> forOkHttp() throws IllegalArgumentException {
+        final var httpUrl = new HttpUrl.Builder() //
+            .scheme(protocol().asLowerString()) // fails for SOCKS
+            .host(host()) //
+            .port(intPort()) //
+            .build();
+
+        if (useAuthentication()) {
+            return Pair.create(httpUrl, Optional.of(Credentials.basic(username(), password())));
+        } else {
+            return Pair.create(httpUrl, Optional.empty());
+        }
     }
 }
