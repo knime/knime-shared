@@ -49,6 +49,7 @@
 package org.knime.core.util.proxy.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.net.Authenticator;
@@ -80,6 +81,8 @@ import org.knime.core.util.proxy.search.GlobalProxyStrategy.GlobalProxySearchRes
 import org.knime.core.util.proxy.testing.HttpbinTestContext;
 import org.knime.core.util.proxy.testing.ProxyParameterProvider;
 import org.knime.core.util.proxy.testing.TinyproxyTestContext;
+
+import okhttp3.HttpUrl;
 
 /**
  * Tests the globally-set {@link ProxySelectorAdapter} and {@link ProxyAuthenticatorAdapter}.
@@ -298,6 +301,49 @@ class JavaNetAdaptersTest {
                 .as("Proxy selector performed host exclusion, but does not") //
                 .usingRecursiveComparison() //
                 .isEqualTo(List.of(Proxy.NO_PROXY));
+        });
+    }
+
+    /**
+     * @see org.knime.core.util.auth.OkHttpProxyAuthenticatorTest
+     */
+    @ParameterizedTest
+    @EnumSource(ProxyProtocol.class)
+    void testAdaptiontoOkHttpProxyAuthenticator(final ProxyProtocol protocol) throws IOException {
+        final var proxy = new GlobalProxyConfig(protocol, "somehost", null, false, null, null, true, targetHost);
+
+        // assert that proxy config is correctly adapted for OkHttp clients, with the
+        // exception of SOCKS proxies as `okhttp3.HttpUrl` cannot represent it
+        TEST_CONTEXT.withConfig(proxy, () -> {
+            if (protocol == ProxyProtocol.SOCKS) {
+                assertThat(GlobalProxySearch.getCurrentFor(protocol)) //
+                    .as("Proxy config is not present, but it should").isPresent() //
+                    .get().satisfies(config -> { //
+                        assertThatThrownBy(config::forOkHttp) //
+                            .as("Proxy config should not be adapted to OkHttp for SOCKS") //
+                            .isInstanceOf(IllegalArgumentException.class) //
+                            .hasMessageContaining("unexpected scheme");
+                    });
+            } else {
+                final var httpUrl = new HttpUrl.Builder() //
+                    .scheme(StringUtils.lowerCase(proxy.protocol().name())) //
+                    .host(proxy.host()) //
+                    .port(proxy.intPort()) //
+                    .build();
+
+                // assert the proxy target being contained in the `okhttp3.HttpUrl`
+                assertThat(GlobalProxySearch.getCurrentFor(protocol)) //
+                    .as("Proxy config is not present, but it should").isPresent() //
+                    .map(GlobalProxyConfig::forOkHttp) //
+                    .get().satisfies(pair -> { //
+                        assertThat(pair.getFirst()) //
+                            .as("Proxy config is incorrectly adapted to OkHttp") //
+                            .isEqualTo(httpUrl);
+                        assertThat(pair.getSecond()) //
+                            .as("Proxy config should not have authentication") //
+                            .isEmpty();
+                    });
+            }
         });
     }
 }
