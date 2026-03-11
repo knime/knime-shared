@@ -15,7 +15,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<revision>5.8.0</revision>
+		<revision>5.8.3</revision>
 		<changelist>-LOCAL</changelist>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>org.knime</groupId>
 			<artifactId>shared.workflow.def</artifactId>
-			<version>${project.version}</version>
+			<version>[5.8.0-alpha,5.9.0-alpha)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
