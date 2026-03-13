@@ -92,8 +92,6 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.xmlbeans.XmlException;
 import org.eclipse.jdt.annotation.Owning;
 import org.knime.core.node.InvalidSettingsException;
@@ -126,8 +124,6 @@ public final class Workflowalizer {
 
     /** Name of the workflow information XML files. */
     private static final String WORKFLOW_KNIME = "workflow.knime";
-
-    private static final Log LOGGER = LogFactory.getLog(Workflowalizer.class.getName());
 
     /**
      * Reads the repository item at the given path. All fields for the given item will be read.
@@ -1435,9 +1431,6 @@ public final class Workflowalizer {
         if (Files.exists(path)) {
             byte[] encoded = Files.readAllBytes(path);
             return new String(encoded, StandardCharsets.UTF_8);
-        }
-        if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn("File does not exist: " + path.toString());
         }
         return null;
     }
