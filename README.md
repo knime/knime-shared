@@ -1,7 +1,7 @@
 # KNIME® Shared Open Source Libraries
 
 [![Jenkins](https://jenkins.knime.com/buildStatus/icon?job=knime-shared%2Fmaster)](https://jenkins.knime.com/job/knime-shared/job/master/)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=KNIME_knime-shared&metric=alert_status&token=55129ac721eacd76417f57921368ed587ad8339d)](https://sonarcloud.io/summary/new_code?id=KNIME_knime-shared).
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=knime_knime-shared&metric=alert_status&token=55129ac721eacd76417f57921368ed587ad8339d)](https://sonarcloud.io/summary/new_code?id=knime_knime-shared).
 
 ### Content
 Provides shared source code and utilities for [KNIME Analytics Platform](http://www.knime.org) and other 
