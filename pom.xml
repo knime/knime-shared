@@ -39,6 +39,7 @@
 
 			<modules>
 				<module>org.knime.cxf.core.fragment</module>
+				<module>org.knime.okhttp3.fragment</module>
 				<module>org.knime.core.util/pom-AP.xml</module>
 				<module>org.knime.shared.workflow.def/pom-AP.xml</module>
 				<module>org.knime.shared.workflow.storage/pom-AP.xml</module>

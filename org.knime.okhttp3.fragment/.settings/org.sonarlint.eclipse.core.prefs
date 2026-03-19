@@ -1,0 +1,7 @@
+autoEnabled=true
+bindingSuggestionsDisabled=false
+eclipse.preferences.version=1
+idePrefixKey=
+projectKey=knime_knime-shared
+serverId=SonarCloud
+sqPrefixKey=org.knime.okhttp3.fragment
