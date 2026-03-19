@@ -46,21 +46,25 @@
  * History
  *   Mar 10, 2026 (lw): created
  */
-package org.knime.core.util.auth;
+package org.knime.okhttp3;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.net.URIBuilder;
 import org.knime.core.util.Pair;
 import org.knime.core.util.proxy.GlobalProxyConfig;
+import org.knime.core.util.proxy.ProxyProtocol;
 import org.knime.core.util.proxy.ProxySelectorAdapter;
 import org.knime.core.util.proxy.search.GlobalProxySearch;
 
 import okhttp3.Address;
 import okhttp3.Authenticator;
+import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -76,7 +80,6 @@ import okhttp3.Route;
  *
  * @author Alexander Bondaletov
  * @author Leon Wenzler, KNIME GmbH, Konstanz, Germany
- * @since 6.12
  */
 public class OkHttpProxyAuthenticator implements Authenticator {
 
@@ -96,7 +99,7 @@ public class OkHttpProxyAuthenticator implements Authenticator {
         }
 
         // (2) Check if a proxy is used and if it's authenticated.
-        final var proxy = GlobalProxySearch.getCurrentFor(httpUri).map(GlobalProxyConfig::forOkHttp);
+        final var proxy = GlobalProxySearch.getCurrentFor(httpUri).map(OkHttpProxyAuthenticator::fromGlobalProxyConfig);
         final var credentials = proxy.flatMap(Pair::getSecond).orElse(null);
         if (credentials == null) {
             return null;
@@ -115,8 +118,7 @@ public class OkHttpProxyAuthenticator implements Authenticator {
      * @return a Java-based {@code java.net.URI} object
      * @throws URISyntaxException if something went wrong
      */
-    // package scope for tests
-    static URI toHttpUri(final HttpUrl httpUrl) throws URISyntaxException {
+    private static URI toHttpUri(final HttpUrl httpUrl) throws URISyntaxException {
         final var builder = new URIBuilder() //
             .setScheme(httpUrl.scheme()) //
             .setHost(httpUrl.host()) //
@@ -127,5 +129,33 @@ public class OkHttpProxyAuthenticator implements Authenticator {
             builder.addParameter(httpUrl.queryParameterName(i), httpUrl.queryParameterValue(i));
         }
         return builder.build();
+    }
+
+    /**
+     * Converts this proxy configuration to what OkHttp's clients expect (along with credentials).
+     * The credentials are a {@link String} suitable for use as the value of an Basic authentication
+     * header (i.e. the literal {@code "Basic "} prefix followed by a {@link java.util.Base64}-encoded
+     * {@code username:password} payload as returned by {@link Credentials#basic(String, String)}).
+    * <p>
+     * The credentials are absent if no authentication is to be used for this proxy.
+     * The {@link HttpUrl} is always non-{@code null}.
+     * </p>
+     *
+     * @throws IllegalArgumentException for {@link ProxyProtocol#SOCKS}, incompatible with {@link HttpUrl}
+     * @return OkHttp proxy specification
+     */
+    private static Pair<HttpUrl, Optional<String>> fromGlobalProxyConfig(final GlobalProxyConfig config)
+        throws IllegalArgumentException {
+        final var httpUrl = new HttpUrl.Builder() //
+            .scheme(StringUtils.lowerCase(config.protocol().name())) // fails for SOCKS
+            .host(config.host()) //
+            .port(config.intPort()) //
+            .build();
+
+        if (config.useAuthentication()) {
+            return Pair.create(httpUrl, Optional.of(Credentials.basic(config.username(), config.password())));
+        } else {
+            return Pair.create(httpUrl, Optional.empty());
+        }
     }
 }
