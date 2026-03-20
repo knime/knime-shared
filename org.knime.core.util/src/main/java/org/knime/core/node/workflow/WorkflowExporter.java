@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -441,6 +440,7 @@ public final class WorkflowExporter<E extends Exception> {
         Zipper(final Predicate<Path> toBeMarked, @Owning final OutputStream outputStream) {
             m_toBeMarked = toBeMarked;
             m_zipOutStream = new ZipArchiveOutputStream(new BufferedOutputStream(outputStream, BUFFER_SIZE));
+            m_zipOutStream.setLevel(Deflater.BEST_COMPRESSION);
         }
 
         void addEntry(final Path source, final IPath destination, final FailableLongConsumer<E> updater)
@@ -456,9 +456,6 @@ public final class WorkflowExporter<E extends Exception> {
             }
 
             try (final var inStream = new BufferedInputStream(Files.newInputStream(source), BUFFER_SIZE)) {
-                m_zipOutStream.setLevel(entry.getSize() > FileUtils.ONE_KB && isAlreadyCompressed(inStream)
-                    ? Deflater.NO_COMPRESSION : Deflater.BEST_COMPRESSION);
-
                 m_zipOutStream.putArchiveEntry(entry);
                 for (int read; (read = inStream.read(m_buffer)) >= 0;) {
                     m_zipOutStream.write(m_buffer, 0, read);
@@ -484,19 +481,6 @@ public final class WorkflowExporter<E extends Exception> {
             }
 
             return entry;
-        }
-
-        private static final byte[][] COMPRESSED_DATA_MAGIC_BYTES = { //
-            { 'P', 'K', 0x03, 0x04 }, // ZIP
-            { 'A', 'R', 'R', 'O', 'W', '1' } // ARROW
-        };
-
-        private static boolean isAlreadyCompressed(final BufferedInputStream inStream) throws IOException {
-            inStream.mark(6);
-            final var bytes = inStream.readNBytes(6);
-            inStream.reset();
-            return Arrays.stream(COMPRESSED_DATA_MAGIC_BYTES) //
-                    .anyMatch(mb -> bytes.length >= mb.length && Arrays.equals(bytes, 0, mb.length, mb, 0, mb.length));
         }
 
         @SuppressWarnings("resource") // `@Owning` analysis doesn't understand try-with-resources
