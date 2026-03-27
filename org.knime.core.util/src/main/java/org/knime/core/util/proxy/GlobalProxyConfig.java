@@ -210,7 +210,7 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
 
     /**
      * Converts this proxy configuration to Apache's {@link org.apache.http.client.HttpClient},
-     * along with a credentials if needed. The {@link CredentialsProvider} is never null,
+     * along with credentials if needed. The {@link CredentialsProvider} is never null,
      * but if authentication is *not* needed, it does not contain credentials.
      *
      * @return Apache HttpClient 4.X proxy specification
@@ -230,7 +230,7 @@ public record GlobalProxyConfig(ProxyProtocol protocol, String host, String port
 
     /**
      * Converts this proxy configuration to Apache's {@link org.apache.hc.client5.http.classic.HttpClient}, along
-     * with a credentials if needed. The {@link org.apache.hc.client5.http.auth.CredentialsProvider} is never null,
+     * with credentials if needed. The {@link org.apache.hc.client5.http.auth.CredentialsProvider} is never null,
      * but if authentication is *not* needed, it does not contain credentials.
      *
      * @return Apache HttpClient 5.X proxy specification
