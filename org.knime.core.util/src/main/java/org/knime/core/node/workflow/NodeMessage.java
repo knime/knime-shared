@@ -251,4 +251,16 @@ public final class NodeMessage {
         return new NodeMessage(type, message.toString());
     }
 
+    /**
+     * Creates a new message object, which copies all fields from this message, whereby the main message text is
+     * prepended by <code>prependText</code> (delimiter is expected to be part of it).
+     *
+     * @param prependText The text to prepend
+     * @return A new message object as a copy of this message but with modified main message
+     * @since 6.12
+     */
+    public NodeMessage prependMessage(final String prependText) {
+        return new NodeMessage(getMessageType(), prependText.concat(m_message), m_issue, m_resolutions);
+    }
+
 }
